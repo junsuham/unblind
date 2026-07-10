@@ -1,0 +1,92 @@
+/* UNBLIND semantic design token layer */
+
+:root {
+  /* Brand */
+  --ub-color-brand: #ff4b00;
+  --ub-color-brand-rgb: 255, 75, 0;
+
+  /* Surfaces */
+  --ub-surface-app: var(--ub-color-brand);
+  --ub-surface-card: rgba(255, 255, 255, 0.9);
+  --ub-surface-card-strong: rgba(255, 255, 255, 0.96);
+  --ub-surface-glass: rgba(255, 255, 255, 0.82);
+  --ub-surface-soft: rgba(255, 255, 255, 0.16);
+  --ub-surface-input: rgba(255, 255, 255, 0.92);
+
+  /* Text on orange */
+  --ub-text-on-brand-primary: #ffffff;
+  --ub-text-on-brand-secondary: rgba(255, 255, 255, 0.86);
+  --ub-text-on-brand-tertiary: rgba(255, 255, 255, 0.72);
+
+  /* Text on cards */
+  --ub-text-primary: #000000;
+  --ub-text-secondary: rgba(60, 60, 67, 0.6);
+  --ub-text-tertiary: rgba(60, 60, 67, 0.45);
+
+  /* Lines */
+  --ub-separator: rgba(209, 209, 214, 0.72);
+  --ub-glass-border: rgba(255, 255, 255, 0.72);
+
+  /* States */
+  --ub-danger: #ff3b30;
+  --ub-danger-soft: rgba(255, 59, 48, 0.12);
+  --ub-success: var(--core-green-600);
+  --ub-success-soft: var(--core-green-100);
+  --ub-warning: var(--core-orange-700);
+  --ub-warning-soft: rgba(255, 255, 255, 0.9);
+
+  /* iOS spacing mapped from Core */
+  --ub-space-1: var(--core-space-xs);
+  --ub-space-2: var(--core-space-sm);
+  --ub-space-3: 12px;
+  --ub-space-4: var(--core-space-md);
+  --ub-space-5: 20px;
+  --ub-space-6: 24px;
+  --ub-space-8: var(--core-space-lg);
+  --ub-space-12: 48px;
+  --ub-space-16: var(--core-space-xl);
+
+  /* Radius */
+  --ub-radius-xs: var(--core-radius-sm);
+  --ub-radius-sm: var(--core-radius-lg);
+  --ub-radius-md: var(--core-radius-xl);
+  --ub-radius-lg: 22px;
+  --ub-radius-xl: 28px;
+  --ub-radius-sheet: 30px;
+  --ub-radius-pill: 999px;
+
+  /* iOS typography */
+  --ub-font-system:
+    -apple-system,
+    BlinkMacSystemFont,
+    "SF Pro Display",
+    "SF Pro Text",
+    "Apple SD Gothic Neo",
+    "Apple SD 산돌고딕 Neo",
+    "Noto Sans KR",
+    "Segoe UI",
+    sans-serif;
+
+  --ub-font-large-title: 34px;
+  --ub-line-large-title: 38px;
+
+  --ub-font-title: 17px;
+  --ub-line-title: 22px;
+
+  --ub-font-body: 17px;
+  --ub-line-body: 25px;
+
+  --ub-font-secondary: 15px;
+  --ub-line-secondary: 21px;
+
+  --ub-font-caption: 13px;
+  --ub-line-caption: 18px;
+
+  --ub-font-tab: 11px;
+  --ub-line-tab: 13px;
+
+  /* Shadows */
+  --ub-shadow-card: 0 12px 32px rgba(0, 0, 0, 0.08);
+  --ub-shadow-glass: 0 18px 48px rgba(0, 0, 0, 0.16);
+  --ub-shadow-soft: 0 4px 16px rgba(0, 0, 0, 0.08);
+}

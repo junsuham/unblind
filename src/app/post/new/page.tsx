@@ -1,0 +1,25 @@
+import { requireBetaUser } from '@/lib/betaAuth'
+import NewPostForm from './NewPostForm'
+
+const validBoards = ['prayer', 'faith', 'church', 'work', 'relationship'] as const
+
+type BoardId = (typeof validBoards)[number]
+
+type NewPostPageProps = {
+  searchParams: Promise<{
+    board?: string
+  }>
+}
+
+export default async function NewPostPage({ searchParams }: NewPostPageProps) {
+  await requireBetaUser()
+
+  const params = await searchParams
+  const requestedBoard = params.board
+
+  const initialBoard: BoardId = validBoards.includes(requestedBoard as BoardId)
+    ? (requestedBoard as BoardId)
+    : 'prayer'
+
+  return <NewPostForm initialBoard={initialBoard} />
+}

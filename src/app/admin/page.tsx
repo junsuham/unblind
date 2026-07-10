@@ -1,0 +1,248 @@
+import Link from 'next/link'
+import { requireAdmin } from '@/lib/adminAuth'
+import { supabaseAdmin } from '@/lib/supabaseAdmin'
+import AdminLogoutButton from './components/AdminLogoutButton'
+
+export const dynamic = 'force-dynamic'
+
+export default async function AdminDashboardPage() {
+  await requireAdmin()
+
+  const [
+    pendingReportsResult,
+    totalReportsResult,
+    visiblePostsResult,
+    totalPostsResult,
+    visibleCommentsResult,
+    totalCommentsResult,
+    allowedUsersResult,
+    agreedUsersResult,
+  ] = await Promise.all([
+    supabaseAdmin
+      .from('reports')
+      .select('*', { count: 'exact', head: true })
+      .eq('status', 'pending'),
+
+    supabaseAdmin
+      .from('reports')
+      .select('*', { count: 'exact', head: true }),
+
+    supabaseAdmin
+      .from('posts')
+      .select('*', { count: 'exact', head: true })
+      .eq('status', 'visible'),
+
+    supabaseAdmin
+      .from('posts')
+      .select('*', { count: 'exact', head: true }),
+
+    supabaseAdmin
+      .from('comments')
+      .select('*', { count: 'exact', head: true })
+      .eq('status', 'visible'),
+
+    supabaseAdmin
+      .from('comments')
+      .select('*', { count: 'exact', head: true }),
+
+    supabaseAdmin
+      .from('allowed_users')
+      .select('*', { count: 'exact', head: true })
+      .eq('status', 'active'),
+
+    supabaseAdmin
+      .from('allowed_users')
+      .select('*', { count: 'exact', head: true })
+      .eq('status', 'active')
+      .not('agreed_at', 'is', null),
+  ])
+
+  const cards = [
+    {
+      label: '미처리 신고',
+      value: pendingReportsResult.count ?? 0,
+      href: '/admin/reports',
+      tone: 'danger',
+    },
+    {
+      label: '전체 신고',
+      value: totalReportsResult.count ?? 0,
+      href: '/admin/reports',
+      tone: 'default',
+    },
+    {
+      label: '승인 사용자',
+      value: allowedUsersResult.count ?? 0,
+      href: '/admin/users',
+      tone: 'default',
+    },
+    {
+      label: '약속 동의',
+      value: agreedUsersResult.count ?? 0,
+      href: '/admin/users',
+      tone: 'default',
+    },
+    {
+      label: '노출 글',
+      value: visiblePostsResult.count ?? 0,
+      href: '/admin/posts',
+      tone: 'default',
+    },
+    {
+      label: '전체 글',
+      value: totalPostsResult.count ?? 0,
+      href: '/admin/posts',
+      tone: 'default',
+    },
+    {
+      label: '노출 댓글',
+      value: visibleCommentsResult.count ?? 0,
+      href: '/admin/comments',
+      tone: 'default',
+    },
+    {
+      label: '전체 댓글',
+      value: totalCommentsResult.count ?? 0,
+      href: '/admin/comments',
+      tone: 'default',
+    },
+  ]
+
+  const quickLinks = [
+    {
+      href: '/admin/users',
+      title: '베타 참여자 관리',
+      description: '승인 이메일 추가, 차단, 동의 초기화',
+      icon: '👥',
+    },
+    {
+      href: '/admin/reports',
+      title: '신고 목록 관리',
+      description: '신고된 글과 댓글 확인 및 조치',
+      icon: '🚩',
+    },
+    {
+      href: '/admin/posts',
+      title: '전체 게시글 관리',
+      description: '게시글 숨김, 삭제, 복구',
+      icon: '📝',
+    },
+    {
+      href: '/admin/comments',
+      title: '전체 댓글 관리',
+      description: '댓글 숨김, 삭제, 복구',
+      icon: '💬',
+    },
+    {
+      href: '/admin/analytics',
+      title: '베타 운영 통계',
+      description: '최근 활동, 게시판별 글 수, 신고 사유 확인',
+      icon: '📊',
+    },
+  ]
+
+  return (
+    <main className="min-h-screen bg-[#ff4b00] px-4 pb-10 pt-8 text-black">
+      <section className="mx-auto max-w-[430px]">
+        <header className="mb-8">
+          <div className="mb-4 flex items-start justify-between gap-4">
+            <div>
+              <p className="mb-1 text-[13px] font-semibold text-[#8E8E93]">
+                운영자 전용
+              </p>
+
+              <h1 className="text-[34px] font-bold leading-[38px] tracking-[-0.7px] text-black">
+                관리자
+              </h1>
+            </div>
+
+            <AdminLogoutButton />
+          </div>
+
+          <p className="text-[17px] leading-[25px] text-[#3C3C43]/60">
+            신고, 참여자, 게시글, 댓글 운영 상태를 확인합니다.
+          </p>
+        </header>
+
+        <section className="mb-8">
+          <p className="mb-2 px-4 text-[13px] font-semibold uppercase tracking-[0.04em] text-[#8E8E93]">
+            운영 현황
+          </p>
+
+          <div className="grid grid-cols-2 gap-3">
+            {cards.map((card) => (
+              <Link key={card.label} href={card.href}>
+                <div
+                  className={
+                    card.tone === 'danger' && card.value > 0
+                      ? 'rounded-[24px] border border-[#FF3B30]/20 bg-[#FF3B30]/10 p-5 shadow-sm'
+                      : 'rounded-[24px] border border-white/70 bg-white/86 p-5 shadow-sm backdrop-blur-2xl'
+                  }
+                >
+                  <p
+                    className={
+                      card.tone === 'danger' && card.value > 0
+                        ? 'text-[15px] font-medium text-[#7A1A16]'
+                        : 'text-[15px] font-medium text-[#3C3C43]/60'
+                    }
+                  >
+                    {card.label}
+                  </p>
+
+                  <p className="mt-2 text-[34px] font-bold leading-[38px] tracking-[-0.7px] text-black">
+                    {card.value}
+                  </p>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+
+        <section>
+          <p className="mb-2 px-4 text-[13px] font-semibold uppercase tracking-[0.04em] text-[#8E8E93]">
+            관리 메뉴
+          </p>
+
+          <div className="overflow-hidden rounded-[22px] bg-white shadow-sm">
+            {quickLinks.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="block active:bg-[#ffe2d2]"
+              >
+                <div className="flex min-h-[72px] items-center gap-3 border-b border-[#D1D1D6]/70 px-4 py-3 last:border-b-0">
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px] bg-[#fff7f2] text-[24px]">
+                    {item.icon}
+                  </div>
+
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[17px] leading-[22px] text-black">
+                      {item.title}
+                    </p>
+
+                    <p className="mt-0.5 text-[15px] leading-[20px] text-[#3C3C43]/60">
+                      {item.description}
+                    </p>
+                  </div>
+
+                  <span className="text-[24px] leading-none text-[#C7C7CC]">
+                    ›
+                  </span>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+
+        <div className="mt-6">
+          <Link
+            href="/"
+            className="flex min-h-[52px] items-center justify-center rounded-[16px] bg-[#ffe2d2] px-5 text-[17px] font-semibold text-[#ff4b00] active:scale-[0.99]"
+          >
+            사용자 화면으로 이동
+          </Link>
+        </div>
+      </section>
+    </main>
+  )
+}

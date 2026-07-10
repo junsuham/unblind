@@ -1,0 +1,161 @@
+/* Figma iOS 26 Core Token layer */
+/* Source: Tokens Studio style JSON exported from Figma */
+
+:root {
+  /* Dimension scale */
+  --core-dimension-scale: 2;
+  --core-dimension-xs: 4px;
+  --core-dimension-sm: 8px;
+  --core-dimension-md: 16px;
+  --core-dimension-lg: 32px;
+  --core-dimension-xl: 64px;
+
+  /* Spacing */
+  --core-space-xs: 4px;
+  --core-space-sm: 8px;
+  --core-space-md: 16px;
+  --core-space-lg: 32px;
+  --core-space-xl: 64px;
+
+  /* Border radius */
+  --core-radius-sm: 4px;
+  --core-radius-lg: 8px;
+  --core-radius-xl: 16px;
+
+  /* Core colors */
+  --core-color-black: #000000;
+  --core-color-white: #ffffff;
+
+  --core-gray-100: #f7fafc;
+  --core-gray-200: #edf2f7;
+  --core-gray-300: #e2e8f0;
+  --core-gray-400: #cbd5e0;
+  --core-gray-500: #a0aec0;
+  --core-gray-600: #718096;
+  --core-gray-700: #4a5568;
+  --core-gray-800: #2d3748;
+  --core-gray-900: #1a202c;
+
+  --core-red-100: #fff5f5;
+  --core-red-200: #fed7d7;
+  --core-red-300: #feb2b2;
+  --core-red-400: #fc8181;
+  --core-red-500: #f56565;
+  --core-red-600: #e53e3e;
+  --core-red-700: #c53030;
+  --core-red-800: #9b2c2c;
+  --core-red-900: #742a2a;
+
+  --core-orange-100: #fffaf0;
+  --core-orange-200: #feebc8;
+  --core-orange-300: #fbd38d;
+  --core-orange-400: #f6ad55;
+  --core-orange-500: #ed8936;
+  --core-orange-600: #dd6b20;
+  --core-orange-700: #c05621;
+  --core-orange-800: #9c4221;
+  --core-orange-900: #7b341e;
+
+  --core-yellow-100: #fffff0;
+  --core-yellow-200: #fefcbf;
+  --core-yellow-300: #faf089;
+  --core-yellow-400: #f6e05e;
+  --core-yellow-500: #ecc94b;
+  --core-yellow-600: #d69e2e;
+  --core-yellow-700: #b7791f;
+  --core-yellow-800: #975a16;
+  --core-yellow-900: #744210;
+
+  --core-green-100: #f0fff4;
+  --core-green-200: #c6f6d5;
+  --core-green-300: #9ae6b4;
+  --core-green-400: #68d391;
+  --core-green-500: #48bb78;
+  --core-green-600: #38a169;
+  --core-green-700: #2f855a;
+  --core-green-800: #276749;
+  --core-green-900: #22543d;
+
+  --core-teal-100: #e6fffa;
+  --core-teal-200: #b2f5ea;
+  --core-teal-300: #81e6d9;
+  --core-teal-400: #4fd1c5;
+  --core-teal-500: #38b2ac;
+  --core-teal-600: #319795;
+  --core-teal-700: #2c7a7b;
+  --core-teal-800: #285e61;
+  --core-teal-900: #234e52;
+
+  --core-blue-100: #ebf8ff;
+  --core-blue-200: #bee3f8;
+  --core-blue-300: #90cdf4;
+  --core-blue-400: #63b3ed;
+  --core-blue-500: #4299e1;
+  --core-blue-600: #3182ce;
+  --core-blue-700: #2b6cb0;
+  --core-blue-800: #2c5282;
+  --core-blue-900: #2a4365;
+
+  --core-indigo-100: #ebf4ff;
+  --core-indigo-200: #c3dafe;
+  --core-indigo-300: #a3bffa;
+  --core-indigo-400: #7f9cf5;
+  --core-indigo-500: #667eea;
+  --core-indigo-600: #5a67d8;
+  --core-indigo-700: #4c51bf;
+  --core-indigo-800: #434190;
+  --core-indigo-900: #3c366b;
+
+  --core-purple-100: #faf5ff;
+  --core-purple-200: #e9d8fd;
+  --core-purple-300: #d6bcfa;
+  --core-purple-400: #b794f4;
+  --core-purple-500: #9f7aea;
+  --core-purple-600: #805ad5;
+  --core-purple-700: #6b46c1;
+  --core-purple-800: #553c9a;
+  --core-purple-900: #44337a;
+
+  --core-pink-100: #fff5f7;
+  --core-pink-200: #fed7e2;
+  --core-pink-300: #fbb6ce;
+  --core-pink-400: #f687b3;
+  --core-pink-500: #ed64a6;
+  --core-pink-600: #d53f8c;
+  --core-pink-700: #b83280;
+  --core-pink-800: #97266d;
+  --core-pink-900: #702459;
+
+  /* Opacity */
+  --core-opacity-low: 0.1;
+  --core-opacity-md: 0.5;
+  --core-opacity-high: 0.9;
+
+  /* Core typography from JSON */
+  --core-font-heading: Inter;
+  --core-font-body: Roboto;
+
+  --core-line-height-heading: 1.1;
+  --core-line-height-body: 1.4;
+
+  --core-letter-spacing-default: 0;
+  --core-letter-spacing-increased: 1.5em;
+  --core-letter-spacing-decreased: -0.05em;
+
+  --core-paragraph-spacing-h1: 32px;
+  --core-paragraph-spacing-h2: 26px;
+
+  --core-font-weight-regular: 400;
+  --core-font-weight-bold: 700;
+
+  --core-font-size-body: 16px;
+  --core-font-size-sm: 13.6px;
+  --core-font-size-xs: 10.4px;
+
+  --core-font-size-h6: 16px;
+  --core-font-size-h5: 20px;
+  --core-font-size-h4: 25px;
+  --core-font-size-h3: 31px;
+  --core-font-size-h2: 39px;
+  --core-font-size-h1: 49px;
+}
