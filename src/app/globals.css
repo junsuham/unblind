@@ -2,274 +2,26 @@
 @import "./styles/unblind-tokens.css";
 @import "tailwindcss";
 
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  color-scheme: light dark;
 }
 
 html {
-  background: #F2F2F7;
+  min-height: 100%;
+  background: var(--ub-surface-app);
   -webkit-text-size-adjust: 100%;
 }
 
 body {
-  background: #F2F2F7;
-  font-family:
-    -apple-system,
-    BlinkMacSystemFont,
-    "SF Pro Text",
-    "SF Pro Display",
-    "Segoe UI",
-    sans-serif;
-  color: #111111;
-}
-
-* {
-  -webkit-tap-highlight-color: transparent;
-}
-
-button,
-a,
-input,
-textarea,
-select {
-  touch-action: manipulation;
-}
-
-input,
-textarea,
-select {
-  font-size: 17px;
-}
-
-::selection {
-  background: rgba(0, 122, 255, 0.18);
-}
-
-@supports (padding: max(0px)) {
-  .safe-bottom {
-    padding-bottom: max(16px, env(safe-area-inset-bottom));
-  }
-}
-
-:root {
-  --unblind-orange: #ff4b00;
-  --unblind-orange-soft: #fff1e8;
-  --unblind-orange-soft-2: #ffe2d2;
-  --unblind-cream: #fff7f2;
-  --unblind-ink: #111111;
-}
-
-html {
-  background: var(--unblind-orange);
-  -webkit-text-size-adjust: 100%;
-}
-
-body {
-  background:
-    linear-gradient(
-      180deg,
-      var(--unblind-orange) 0px,
-      var(--unblind-orange) 72px,
-      var(--unblind-cream) 72px,
-      var(--unblind-cream) 100%
-    );
-  color: var(--unblind-ink);
-}
-
-button,
-a,
-input,
-textarea,
-select {
-  touch-action: manipulation;
-}
-
-* {
-  -webkit-tap-highlight-color: transparent;
-}
-
-/* UNBLIND brand surface override */
-:root {
-  --unblind-orange: #ff4b00;
-  --unblind-cream: #fff7f2;
-  --unblind-soft-orange: #ffe2d2;
-  --unblind-ink: #111111;
-}
-
-html {
-  background: var(--unblind-cream);
-}
-
-body {
-  background: var(--unblind-cream);
-  color: var(--unblind-ink);
-}
-
-/* iOS Typography System */
-:root {
-  --ios-font-family:
-    -apple-system,
-    BlinkMacSystemFont,
-    "SF Pro Display",
-    "SF Pro Text",
-    "Apple SD Gothic Neo",
-    "Apple SD 산돌고딕 Neo",
-    "Noto Sans KR",
-    "Segoe UI",
-    sans-serif;
-
-  --ios-large-title-size: 34px;
-  --ios-large-title-line: 38px;
-
-  --ios-title-size: 17px;
-  --ios-title-line: 22px;
-
-  --ios-body-size: 17px;
-  --ios-body-line: 25px;
-
-  --ios-secondary-size: 15px;
-  --ios-secondary-line: 21px;
-
-  --ios-caption-size: 13px;
-  --ios-caption-line: 18px;
-
-  --ios-tab-size: 11px;
-  --ios-tab-line: 13px;
-
-  --unblind-orange: #ff4b00;
-  --unblind-cream: #fff7f2;
-  --unblind-soft-orange: #ffe2d2;
-  --unblind-ink: #111111;
-}
-
-html,
-body {
-  font-family: var(--ios-font-family);
-  font-synthesis-weight: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-button,
-input,
-textarea,
-select {
-  font-family: inherit;
-}
-
-.ios-large-title {
-  font-size: var(--ios-large-title-size);
-  line-height: var(--ios-large-title-line);
-  font-weight: 700;
-  letter-spacing: -0.7px;
-}
-
-.ios-title {
-  font-size: var(--ios-title-size);
-  line-height: var(--ios-title-line);
-  font-weight: 600;
-}
-
-.ios-body {
-  font-size: var(--ios-body-size);
-  line-height: var(--ios-body-line);
-  font-weight: 400;
-}
-
-.ios-secondary {
-  font-size: var(--ios-secondary-size);
-  line-height: var(--ios-secondary-line);
-  font-weight: 400;
-  color: rgba(60, 60, 67, 0.6);
-}
-
-.ios-caption {
-  font-size: var(--ios-caption-size);
-  line-height: var(--ios-caption-line);
-  font-weight: 400;
-  color: rgba(60, 60, 67, 0.6);
-}
-
-.ios-tab-label {
-  font-size: var(--ios-tab-size);
-  line-height: var(--ios-tab-line);
-  font-weight: 500;
-}
-
-.ios-min-touch {
-  min-height: 44px;
-  min-width: 44px;
-}
-
-/* UNBLIND full orange surface */
-:root {
-  --unblind-orange: #ff4b00;
-  --unblind-orange-soft: #ffe2d2;
-  --unblind-orange-pale: #fff7f2;
-  --unblind-ink: #111111;
-}
-
-/* 전체 앱 바탕은 로고 오렌지 */
-html,
-body {
-  background: var(--unblind-orange) !important;
-}
-
-/* 각 페이지의 최상위 main도 오렌지로 강제 */
-body main {
-  background: var(--unblind-orange) !important;
-}
-
-/* iOS 앱처럼 시스템 폰트 유지 */
-html,
-body,
-button,
-input,
-textarea,
-select {
-  font-family:
-    -apple-system,
-    BlinkMacSystemFont,
-    "SF Pro Display",
-    "SF Pro Text",
-    "Apple SD Gothic Neo",
-    "Apple SD 산돌고딕 Neo",
-    "Noto Sans KR",
-    "Segoe UI",
-    sans-serif;
-}
-
-/* 카드 내부 텍스트 가독성 */
-.unblind-on-orange-muted {
-  color: rgba(0, 0, 0, 0.62);
-}
-
-/* UNBLIND token-based app foundation */
-html,
-body {
-  background: var(--ub-surface-app) !important;
+  min-height: 100vh;
+  margin: 0;
+  background: var(--ub-surface-app);
   color: var(--ub-text-on-brand-primary);
   font-family: var(--ub-font-system);
   font-synthesis-weight: none;
@@ -278,15 +30,34 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-body main {
-  background: var(--ub-surface-app) !important;
-}
-
 button,
+a,
 input,
 textarea,
 select {
-  font-family: inherit;
+  font: inherit;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+input,
+textarea,
+select {
+  font-size: var(--ub-font-body);
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+:focus-visible {
+  outline: 3px solid var(--ub-focus-ring);
+  outline-offset: 3px;
+}
+
+::selection {
+  background: rgba(var(--ub-color-brand-rgb), 0.22);
 }
 
 .ios-large-title {
@@ -309,16 +80,14 @@ select {
 }
 
 .ios-secondary {
+  color: var(--ub-text-secondary);
   font-size: var(--ub-font-secondary);
   line-height: var(--ub-line-secondary);
-  font-weight: 400;
-  color: var(--ub-text-secondary);
 }
 
 .ios-caption {
   font-size: var(--ub-font-caption);
   line-height: var(--ub-line-caption);
-  font-weight: 400;
 }
 
 .ios-tab-label {
@@ -328,66 +97,46 @@ select {
 }
 
 .ios-min-touch {
-  min-height: 44px;
-  min-width: 44px;
+  min-width: var(--ub-control-min);
+  min-height: var(--ub-control-min);
 }
 
-/* Reusable UNBLIND utilities */
-.ub-card {
-  border-radius: var(--ub-radius-xl);
-  border: 1px solid var(--ub-glass-border);
-  background: var(--ub-surface-card);
+.ub-card,
+.ub-list,
+.ub-glass-tabbar {
   color: var(--ub-text-primary);
+  -webkit-backdrop-filter: blur(var(--ub-blur-glass));
+  backdrop-filter: blur(var(--ub-blur-glass));
+}
+
+.ub-card {
+  border: 1px solid var(--ub-glass-border);
+  border-radius: var(--ub-radius-xl);
+  background: var(--ub-surface-card);
   box-shadow: var(--ub-shadow-card);
-  backdrop-filter: blur(24px);
 }
 
 .ub-list {
   overflow: hidden;
   border-radius: var(--ub-radius-lg);
   background: var(--ub-surface-card-strong);
-  color: var(--ub-text-primary);
   box-shadow: var(--ub-shadow-soft);
 }
 
 .ub-glass-tabbar {
-  border-radius: var(--ub-radius-pill);
   border: 1px solid var(--ub-glass-border);
+  border-radius: var(--ub-radius-pill);
   background: var(--ub-surface-glass);
   box-shadow: var(--ub-shadow-glass);
-  backdrop-filter: blur(28px);
 }
 
-.ub-primary-button {
-  min-height: 52px;
-  border-radius: var(--ub-radius-md);
-  background: var(--ub-surface-card-strong);
-  color: var(--ub-color-brand);
-  font-size: var(--ub-font-title);
-  line-height: var(--ub-line-title);
-  font-weight: 600;
-}
-
-.ub-brand-button {
-  min-height: 52px;
-  border-radius: var(--ub-radius-md);
-  background: var(--ub-color-brand);
-  color: var(--ub-text-on-brand-primary);
-  font-size: var(--ub-font-title);
-  line-height: var(--ub-line-title);
-  font-weight: 600;
-}
-
-.ub-input {
-  min-height: 52px;
-  border-radius: var(--ub-radius-md);
-  border: 1px solid var(--ub-separator);
-  background: var(--ub-surface-input);
-  color: var(--ub-text-primary);
-  font-size: var(--ub-font-body);
-  line-height: var(--ub-line-body);
-}
-
-.ub-input::placeholder {
-  color: var(--ub-text-tertiary);
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
 }

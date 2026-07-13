@@ -89,4 +89,39 @@
   --ub-shadow-card: 0 12px 32px rgba(0, 0, 0, 0.08);
   --ub-shadow-glass: 0 18px 48px rgba(0, 0, 0, 0.16);
   --ub-shadow-soft: 0 4px 16px rgba(0, 0, 0, 0.08);
+
+  /* UIKit component metrics */
+  --ub-control-min: 44px;
+  --ub-control-regular: 50px;
+  --ub-control-large: 56px;
+  --ub-separator-hairline: 0.5px;
+  --ub-blur-glass: 24px;
+  --ub-focus-ring: rgba(255, 255, 255, 0.92);
+  --ub-pressed-overlay: rgba(0, 0, 0, 0.08);
+  --ub-disabled-opacity: 0.38;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ub-surface-card: rgba(44, 44, 46, 0.9);
+    --ub-surface-card-strong: rgba(28, 28, 30, 0.96);
+    --ub-surface-glass: rgba(44, 44, 46, 0.82);
+    --ub-surface-input: rgba(58, 58, 60, 0.92);
+    --ub-text-primary: #ffffff;
+    --ub-text-secondary: rgba(235, 235, 245, 0.6);
+    --ub-text-tertiary: rgba(235, 235, 245, 0.42);
+    --ub-separator: rgba(84, 84, 88, 0.72);
+    --ub-glass-border: rgba(255, 255, 255, 0.18);
+    --ub-pressed-overlay: rgba(255, 255, 255, 0.1);
+  }
+}
+
+@media (prefers-contrast: more) {
+  :root {
+    --ub-surface-card: #ffffff;
+    --ub-surface-card-strong: #ffffff;
+    --ub-text-secondary: rgba(0, 0, 0, 0.78);
+    --ub-separator: rgba(0, 0, 0, 0.5);
+    --ub-glass-border: rgba(0, 0, 0, 0.42);
+  }
 }

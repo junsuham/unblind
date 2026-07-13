@@ -2,6 +2,7 @@
 
 import { useEffect, useState, type ReactNode } from 'react'
 import Link from 'next/link'
+import { SystemIcon, type SystemIconName } from './SystemIcon'
 
 type AppShellProps = {
   children: ReactNode
@@ -287,37 +288,37 @@ const bottomTabs: {
   key: BottomTabKey
   label: string
   href: string
-  icon: string
+  icon: SystemIconName
 }[] = [
   {
     key: 'prayer',
     label: '기도',
     href: '/board/prayer',
-    icon: '🙏',
+    icon: 'sparkles',
   },
   {
     key: 'faith',
     label: '신앙',
     href: '/board/faith',
-    icon: '🕊️',
+    icon: 'heart',
   },
   {
     key: 'church',
     label: '교회',
     href: '/board/church',
-    icon: '⛪',
+    icon: 'people',
   },
   {
     key: 'work',
     label: '진로',
     href: '/board/work',
-    icon: '🌿',
+    icon: 'leaf',
   },
   {
     key: 'relationship',
     label: '관계',
     href: '/board/relationship',
-    icon: '🤍',
+    icon: 'message',
   },
 ]
 
@@ -381,11 +382,11 @@ export function BottomTabBar({ active }: BottomTabBarProps) {
               <span
                 className={
                   isActive
-                    ? 'text-[22px] leading-none'
-                    : 'text-[21px] leading-none opacity-60'
+                    ? 'text-[var(--ub-color-brand)]'
+                    : 'text-[#8E8E93] opacity-70'
                 }
               >
-                {tab.icon}
+                <SystemIcon name={tab.icon} size={22} />
               </span>
 
               <span
