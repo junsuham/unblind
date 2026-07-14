@@ -1,10 +1,13 @@
 import type { ReactNode, SVGProps } from 'react'
 
 export type SystemIconName =
+  | 'calendar'
+  | 'eye'
   | 'heart'
   | 'leaf'
   | 'message'
   | 'people'
+  | 'pray'
   | 'sparkles'
 
 type SystemIconProps = SVGProps<SVGSVGElement> & {
@@ -13,6 +16,15 @@ type SystemIconProps = SVGProps<SVGSVGElement> & {
 }
 
 const paths: Record<SystemIconName, ReactNode> = {
+  calendar: (
+    <path d="M7 2v3M17 2v3M3.5 9h17M5 4h14a2 2 0 0 1 2 2v14H3V6a2 2 0 0 1 2-2Z" />
+  ),
+  eye: (
+    <>
+      <path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z" />
+      <circle cx="12" cy="12" r="2.5" />
+    </>
+  ),
   heart: (
     <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1.1L12 21.2l7.8-7.7 1.1-1.1a5.5 5.5 0 0 0-.1-7.8Z" />
   ),
@@ -24,6 +36,9 @@ const paths: Record<SystemIconName, ReactNode> = {
   ),
   people: (
     <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8" />
+  ),
+  pray: (
+    <path d="M8.2 21v-5.4l-2.4-2.7a2 2 0 0 1 .1-2.8l.3-.3 3.5 3.1V4.5a1.5 1.5 0 0 1 3 0v7.1l1.6-1.5a2 2 0 0 1 2.8.1l1.1 1.2a3 3 0 0 1 .8 2V21M8.2 17h10.7" />
   ),
   sparkles: (
     <path d="m12 3-1.2 3.8a6 6 0 0 1-4 4L3 12l3.8 1.2a6 6 0 0 1 4 4L12 21l1.2-3.8a6 6 0 0 1 4-4L21 12l-3.8-1.2a6 6 0 0 1-4-4L12 3Z" />

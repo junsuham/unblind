@@ -9,6 +9,7 @@ type ReactionButtonsProps = {
   postId: string
   initialPrayCount: number
   initialEmpathizeCount: number
+  commentCount: number
 }
 
 const actorStorageKey = 'youth_anonymous_actor_key'
@@ -21,13 +22,23 @@ function createActorKey() {
   return `${Date.now()}-${Math.random().toString(36).slice(2)}`
 }
 
+function getActorKey() {
+  let key = localStorage.getItem(actorStorageKey)
+
+  if (!key) {
+    key = createActorKey()
+    localStorage.setItem(actorStorageKey, key)
+  }
+
+  return key
+}
+
 export default function ReactionButtons({
   postId,
   initialPrayCount,
   initialEmpathizeCount,
+  commentCount,
 }: ReactionButtonsProps) {
-  const [actorKey, setActorKey] = useState<string | null>(null)
-
   const [counts, setCounts] = useState({
     pray: initialPrayCount,
     empathize: initialEmpathizeCount,
@@ -43,14 +54,7 @@ export default function ReactionButtons({
   const [errorMessage, setErrorMessage] = useState('')
 
   useEffect(() => {
-    let key = localStorage.getItem(actorStorageKey)
-
-    if (!key) {
-      key = createActorKey()
-      localStorage.setItem(actorStorageKey, key)
-    }
-
-    setActorKey(key)
+    const key = getActorKey()
 
     async function loadMyReactions() {
       const { data, error } = await supabase
@@ -73,10 +77,11 @@ export default function ReactionButtons({
   }, [postId])
 
   async function handleReaction(type: ReactionType) {
-    if (!actorKey || isLoadingMyReactions || clicked[type]) {
+    if (isLoadingMyReactions || clicked[type]) {
       return
     }
 
+    const actorKey = getActorKey()
     setErrorMessage('')
     setSubmittingType(type)
 
@@ -112,35 +117,7 @@ export default function ReactionButtons({
 
   return (
     <section>
-      <p className="mb-2 px-4 text-[13px] font-semibold uppercase tracking-[0.04em] text-[var(--ub-text-on-brand-tertiary)]">
-        마음 표현
-      </p>
-
-      <div className="overflow-hidden rounded-[22px] bg-[var(--ub-surface-card-strong)] shadow-[var(--ub-shadow-soft)]">
-        <button
-          type="button"
-          onClick={() => handleReaction('pray')}
-          disabled={isLoadingMyReactions || submittingType !== null || clicked.pray}
-          className="flex min-h-[64px] w-full items-center justify-between border-b border-[var(--ub-separator)] px-4 py-3 text-left active:bg-[var(--ub-surface-pressed)] disabled:opacity-60"
-        >
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-[12px] bg-[var(--ub-surface-muted)] text-[22px]">
-              🙏
-            </div>
-
-            <div>
-              <p className="text-[17px] text-[var(--ub-text-primary)]">기도할게요</p>
-              <p className="mt-0.5 text-[15px] text-[var(--ub-text-secondary)]">
-                {clicked.pray ? '이미 함께 기도 중입니다' : '이 글을 위해 기도합니다'}
-              </p>
-            </div>
-          </div>
-
-          <span className="text-[15px] font-medium text-[#ff4b00]">
-            {counts.pray}
-          </span>
-        </button>
-
+      <div className="grid grid-cols-3 border-y border-[var(--ub-separator)]">
         <button
           type="button"
           onClick={() => handleReaction('empathize')}
@@ -149,25 +126,29 @@ export default function ReactionButtons({
             submittingType !== null ||
             clicked.empathize
           }
-          className="flex min-h-[64px] w-full items-center justify-between px-4 py-3 text-left active:bg-[var(--ub-surface-pressed)] disabled:opacity-60"
+          className="flex min-h-[54px] items-center justify-center gap-1.5 border-r border-[var(--ub-separator)] px-2 text-[13px] font-medium text-[var(--ub-text-secondary)] active:bg-[var(--ub-surface-pressed)] disabled:opacity-60"
         >
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-[12px] bg-[var(--ub-surface-muted)] text-[22px]">
-              🤍
-            </div>
-
-            <div>
-              <p className="text-[17px] text-[var(--ub-text-primary)]">공감해요</p>
-              <p className="mt-0.5 text-[15px] text-[var(--ub-text-secondary)]">
-                {clicked.empathize ? '공감으로 함께했습니다' : '혼자가 아니라고 전합니다'}
-              </p>
-            </div>
-          </div>
-
-          <span className="text-[15px] font-medium text-[#ff4b00]">
-            {counts.empathize}
-          </span>
+          <span aria-hidden>{clicked.empathize ? '♥' : '♡'}</span>
+          좋아요 {counts.empathize}
         </button>
+
+        <button
+          type="button"
+          onClick={() => handleReaction('pray')}
+          disabled={isLoadingMyReactions || submittingType !== null || clicked.pray}
+          className="flex min-h-[54px] items-center justify-center gap-1.5 border-r border-[var(--ub-separator)] px-2 text-[13px] font-medium text-[var(--ub-text-secondary)] active:bg-[var(--ub-surface-pressed)] disabled:opacity-60"
+        >
+          <span aria-hidden>🙏</span>
+          기도 {counts.pray}
+        </button>
+
+        <a
+          href="#comments"
+          className="flex min-h-[54px] items-center justify-center gap-1.5 px-2 text-[13px] font-medium text-[var(--ub-text-secondary)] active:bg-[var(--ub-surface-pressed)]"
+        >
+          <span aria-hidden>◯</span>
+          댓글 {commentCount}
+        </a>
       </div>
 
       {errorMessage && (

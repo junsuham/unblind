@@ -9,10 +9,9 @@ import ReportButton from './ReportButton'
 import {
   AppShell,
   BottomTabBar,
-  GlassCard,
   NoticeCard,
-  PageHeader,
 } from '@/app/components/ui/AppShell'
+import { SystemIcon } from '@/app/components/ui/SystemIcon'
 
 export const dynamic = 'force-dynamic'
 
@@ -42,12 +41,11 @@ type CommentRow = {
 }
 
 function formatDate(value: string) {
-  return new Date(value).toLocaleString('ko-KR', {
-    month: 'long',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  })
+  const date = new Date(value)
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+
+  return `${date.getFullYear()}.${month}.${day}`
 }
 
 export default async function PostDetailPage({ params }: PostDetailPageProps) {
@@ -57,7 +55,7 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
 
   const { data: post, error: postError } = await supabase
     .from('posts')
-    .select('id, board, title, content, created_at, author_user_id')
+    .select('id, board, title, content, created_at, author_user_id, view_count')
     .eq('id', id)
     .eq('status', 'visible')
     .single()
@@ -122,36 +120,70 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
     <AppShell bottomBar={<BottomTabBar active={activeTab} />}>
       <PostViewTracker postId={post.id} />
 
-      <PageHeader
-        backHref={`/board/${post.board}`}
-        backLabel={boardName}
-        eyebrow="언블라인드"
-        title={post.title}
-        description={`${postNickname} · ${boardName} · ${formatDate(post.created_at)}`}
-      />
+      <article className="overflow-hidden rounded-[22px] bg-[var(--ub-surface-card-strong)] shadow-[var(--ub-shadow-soft)]">
+        <header className="px-5 pb-5 pt-4">
+          <Link
+            href={`/board/${post.board}`}
+            className="inline-flex min-h-[36px] items-center text-[13px] font-medium text-[var(--ub-color-brand)]"
+          >
+            ‹ {boardName}
+          </Link>
 
-      <GlassCard className="p-0">
-        <article className="px-5 py-5">
-          <p className="whitespace-pre-wrap text-[17px] leading-[27px] text-[var(--ub-text-primary)]">
-            {post.content}
-          </p>
-        </article>
+          <h1 className="mt-2 break-words text-[24px] font-bold leading-[32px] tracking-[-0.02em] text-[var(--ub-text-primary)]">
+            {post.title}
+          </h1>
 
-        <div className="border-t border-[var(--ub-separator)] px-5 py-3">
-          <div className="flex items-center justify-between">
-            <p className="text-[13px] leading-[18px] text-[var(--ub-text-secondary)]">
-              사용자에게는 익명으로 표시됩니다.
+          <div className="mt-3 flex items-center justify-between gap-4">
+            <p className="truncate text-[14px] font-semibold text-[var(--ub-color-brand)]">
+              {postNickname}
             </p>
 
             <ReportButton
               targetType="post"
               targetId={post.id}
               reporterActorKey={user.id}
-              label="글 신고"
+              label="신고"
             />
           </div>
+
+          <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[12px] text-[var(--ub-text-tertiary)]">
+            <time
+              className="inline-flex items-center gap-1"
+              dateTime={post.created_at}
+            >
+              <SystemIcon name="calendar" size={14} />
+              {formatDate(post.created_at)}
+            </time>
+            <span className="inline-flex items-center gap-1">
+              <SystemIcon name="eye" size={14} />
+              조회 {(post.view_count ?? 0).toLocaleString('ko-KR')}
+            </span>
+            <span className="inline-flex items-center gap-1">
+              <SystemIcon name="message" size={13} />
+              댓글 {comments?.length ?? 0}
+            </span>
+          </div>
+        </header>
+
+        <div className="border-t border-[var(--ub-separator)] px-5 py-7">
+          <p className="whitespace-pre-wrap text-[16px] leading-[26px] text-[var(--ub-text-primary)]">
+            {post.content}
+          </p>
+
+          <div className="mt-7 flex flex-wrap gap-2">
+            <span className="rounded-full bg-[var(--ub-surface-muted)] px-3 py-1.5 text-[12px] font-medium text-[var(--ub-text-secondary)]">
+              #{boardName}
+            </span>
+          </div>
         </div>
-      </GlassCard>
+
+        <ReactionButtons
+          postId={post.id}
+          initialPrayCount={prayCount}
+          initialEmpathizeCount={empathizeCount}
+          commentCount={comments?.length ?? 0}
+        />
+      </article>
 
       {reactionsError && (
         <div className="mt-5">
@@ -161,15 +193,7 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
         </div>
       )}
 
-      <div className="mt-6">
-        <ReactionButtons
-          postId={post.id}
-          initialPrayCount={prayCount}
-          initialEmpathizeCount={empathizeCount}
-        />
-      </div>
-
-      <div className="mt-6">
+      <div id="comments" className="mt-6 scroll-mt-4">
         <CommentForm postId={post.id} />
       </div>
 
