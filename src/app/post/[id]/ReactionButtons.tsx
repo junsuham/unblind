@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
+import { SystemIcon } from '@/app/components/ui/SystemIcon'
 
 type ReactionType = 'pray' | 'empathize'
 
@@ -117,7 +118,7 @@ export default function ReactionButtons({
 
   return (
     <section>
-      <div className="grid grid-cols-3 border-y border-[var(--ub-separator)]">
+      <div className="flex items-center gap-4">
         <button
           type="button"
           onClick={() => handleReaction('empathize')}
@@ -126,28 +127,42 @@ export default function ReactionButtons({
             submittingType !== null ||
             clicked.empathize
           }
-          className="flex min-h-[54px] items-center justify-center gap-1.5 border-r border-[var(--ub-separator)] px-2 text-[13px] font-medium text-[var(--ub-text-secondary)] active:bg-[var(--ub-surface-pressed)] disabled:opacity-60"
+          aria-label={`좋아요 ${counts.empathize}`}
+          title="좋아요"
+          className="inline-flex min-h-[40px] items-center gap-1.5 rounded-full px-1.5 text-[13px] font-medium text-[var(--ub-text-secondary)] active:bg-[var(--ub-surface-pressed)] disabled:opacity-60"
         >
-          <span aria-hidden>{clicked.empathize ? '♥' : '♡'}</span>
-          좋아요 {counts.empathize}
+          <SystemIcon
+            name="heart"
+            size={21}
+            className={clicked.empathize ? 'fill-current text-[var(--ub-color-brand)]' : undefined}
+          />
+          <span>{counts.empathize}</span>
         </button>
 
         <button
           type="button"
           onClick={() => handleReaction('pray')}
           disabled={isLoadingMyReactions || submittingType !== null || clicked.pray}
-          className="flex min-h-[54px] items-center justify-center gap-1.5 border-r border-[var(--ub-separator)] px-2 text-[13px] font-medium text-[var(--ub-text-secondary)] active:bg-[var(--ub-surface-pressed)] disabled:opacity-60"
+          aria-label={`기도 ${counts.pray}`}
+          title="기도"
+          className="inline-flex min-h-[40px] items-center gap-1.5 rounded-full px-1.5 text-[13px] font-medium text-[var(--ub-text-secondary)] active:bg-[var(--ub-surface-pressed)] disabled:opacity-60"
         >
-          <span aria-hidden>🙏</span>
-          기도 {counts.pray}
+          <SystemIcon
+            name="pray"
+            size={21}
+            className={clicked.pray ? 'text-[var(--ub-color-brand)]' : undefined}
+          />
+          <span>{counts.pray}</span>
         </button>
 
         <a
           href="#comments"
-          className="flex min-h-[54px] items-center justify-center gap-1.5 px-2 text-[13px] font-medium text-[var(--ub-text-secondary)] active:bg-[var(--ub-surface-pressed)]"
+          aria-label={`댓글 ${commentCount}`}
+          title="댓글"
+          className="inline-flex min-h-[40px] items-center gap-1.5 rounded-full px-1.5 text-[13px] font-medium text-[var(--ub-text-secondary)] active:bg-[var(--ub-surface-pressed)]"
         >
-          <span aria-hidden>◯</span>
-          댓글 {commentCount}
+          <SystemIcon name="message" size={20} />
+          <span>{commentCount}</span>
         </a>
       </div>
 

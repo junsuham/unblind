@@ -105,6 +105,7 @@ export default function NewPostForm({ initialBoard }: NewPostFormProps) {
 
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
+  const [tagsInput, setTagsInput] = useState('')
   const [checkedPrivacy, setCheckedPrivacy] = useState(false)
   const [checkedPurpose, setCheckedPurpose] = useState(false)
   const [checkedRiskReview, setCheckedRiskReview] = useState(false)
@@ -114,8 +115,8 @@ export default function NewPostForm({ initialBoard }: NewPostFormProps) {
   const selectedBoard = boardOptions.find((option) => option.id === board)
 
   const safetyAnalysis = useMemo(() => {
-    return analyzeTextForSafety(`${title}\n${content}`)
-  }, [title, content])
+    return analyzeTextForSafety(`${title}\n${content}\n${tagsInput}`)
+  }, [title, content, tagsInput])
 
   const needsRiskReview =
     safetyAnalysis.warningIssues.length > 0 ||
@@ -127,6 +128,14 @@ export default function NewPostForm({ initialBoard }: NewPostFormProps) {
 
     const trimmedTitle = title.trim()
     const trimmedContent = content.trim()
+    const tags = Array.from(
+      new Set(
+        tagsInput
+          .split(/[\s,]+/)
+          .map((tag) => tag.replace(/^#+/, '').trim())
+          .filter(Boolean)
+      )
+    )
 
     if (trimmedTitle.length < 2) {
       setErrorMessage('제목을 2자 이상 입력해주세요.')
@@ -138,8 +147,18 @@ export default function NewPostForm({ initialBoard }: NewPostFormProps) {
       return
     }
 
+    if (tags.length > 5) {
+      setErrorMessage('태그는 최대 5개까지 입력할 수 있습니다.')
+      return
+    }
+
+    if (tags.some((tag) => tag.length > 12)) {
+      setErrorMessage('각 태그는 12자 이하로 입력해주세요.')
+      return
+    }
+
     const finalSafetyAnalysis = analyzeTextForSafety(
-      `${trimmedTitle}\n${trimmedContent}`
+      `${trimmedTitle}\n${trimmedContent}\n${tags.join(' ')}`
     )
 
     if (finalSafetyAnalysis.blockingIssues.length > 0) {
@@ -190,6 +209,7 @@ export default function NewPostForm({ initialBoard }: NewPostFormProps) {
         content: trimmedContent,
         status: 'visible',
         author_user_id: user.id,
+        tags,
       })
       .select('id')
       .single()
@@ -298,6 +318,26 @@ export default function NewPostForm({ initialBoard }: NewPostFormProps) {
           </div>
 
           <SafetyIssueList issues={safetyAnalysis.issues} />
+        </section>
+
+        <section>
+          <p className="mb-2 px-4 text-[13px] font-semibold uppercase tracking-[0.04em] text-[var(--ub-text-on-brand-tertiary)]">
+            태그 <span className="font-normal normal-case">(선택)</span>
+          </p>
+
+          <GlassCard className="p-0">
+            <input
+              value={tagsInput}
+              onChange={(event) => setTagsInput(event.target.value)}
+              maxLength={80}
+              placeholder="예: 취업, 기도, 인간관계"
+              className="min-h-[56px] w-full rounded-[28px] bg-transparent px-5 text-[16px] text-[var(--ub-text-primary)] outline-none placeholder:text-[var(--ub-text-tertiary)]"
+            />
+          </GlassCard>
+
+          <p className="mt-2 px-4 text-[13px] leading-[18px] text-[var(--ub-text-on-brand-tertiary)]">
+            쉼표나 띄어쓰기로 구분해 최대 5개까지 입력할 수 있습니다. 비워두면 태그가 표시되지 않습니다.
+          </p>
         </section>
 
         <section>

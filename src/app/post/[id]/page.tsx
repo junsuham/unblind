@@ -55,7 +55,7 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
 
   const { data: post, error: postError } = await supabase
     .from('posts')
-    .select('id, board, title, content, created_at, author_user_id, view_count')
+    .select('id, board, title, content, created_at, author_user_id, view_count, tags')
     .eq('id', id)
     .eq('status', 'visible')
     .single()
@@ -170,19 +170,28 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
             {post.content}
           </p>
 
-          <div className="mt-7 flex flex-wrap gap-2">
-            <span className="rounded-full bg-[var(--ub-surface-muted)] px-3 py-1.5 text-[12px] font-medium text-[var(--ub-text-secondary)]">
-              #{boardName}
-            </span>
+          {post.tags?.length > 0 && (
+            <div className="mt-7 flex flex-wrap gap-2">
+              {post.tags.map((tag: string) => (
+                <span
+                  key={tag}
+                  className="rounded-full bg-[var(--ub-surface-muted)] px-3 py-1.5 text-[12px] font-medium text-[var(--ub-text-secondary)]"
+                >
+                  #{tag}
+                </span>
+              ))}
+            </div>
+          )}
+
+          <div className="mt-6">
+            <ReactionButtons
+              postId={post.id}
+              initialPrayCount={prayCount}
+              initialEmpathizeCount={empathizeCount}
+              commentCount={comments?.length ?? 0}
+            />
           </div>
         </div>
-
-        <ReactionButtons
-          postId={post.id}
-          initialPrayCount={prayCount}
-          initialEmpathizeCount={empathizeCount}
-          commentCount={comments?.length ?? 0}
-        />
       </article>
 
       {reactionsError && (

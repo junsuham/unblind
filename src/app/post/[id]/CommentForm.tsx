@@ -110,10 +110,10 @@ export default function CommentForm({ postId }: CommentFormProps) {
         <textarea
           value={content}
           onChange={(event) => setContent(event.target.value)}
-          rows={5}
+          rows={3}
           maxLength={1000}
           placeholder="예: 저도 비슷한 시간을 지난 적이 있어요. 오늘 기도할게요."
-          className="min-h-[132px] w-full resize-none rounded-[16px] bg-[var(--ub-surface-muted)] px-4 py-4 text-[17px] leading-[25px] text-[var(--ub-text-primary)] outline-none placeholder:text-[var(--ub-text-tertiary)] focus:ring-2 focus:ring-[var(--ub-color-brand)]/25"
+          className="min-h-[88px] w-full resize-none rounded-[16px] bg-[var(--ub-surface-muted)] px-4 py-3 text-[16px] leading-[23px] text-[var(--ub-text-primary)] outline-none placeholder:text-[var(--ub-text-tertiary)] focus:ring-2 focus:ring-[var(--ub-color-brand)]/25"
         />
 
         <div className="mt-2 flex justify-end text-[13px] text-[var(--ub-text-tertiary)]">
