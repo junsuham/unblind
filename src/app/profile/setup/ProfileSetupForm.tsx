@@ -197,7 +197,7 @@ export default function ProfileSetupForm({ nickname }: ProfileSetupFormProps) {
             </p>
             <h2 className="mt-2 ios-title">출석 교회를 검색해주세요</h2>
             <p className="mt-2 ios-secondary">
-              지도 장소 데이터에 등록된 실제 교회 중 하나를 선택해야 합니다.
+              지도 장소 데이터에 등록된 실제 교회 중 하나를 선택해야 합니다. 이름에서 ‘교회’는 생략해도 됩니다.
             </p>
 
             <form onSubmit={searchForChurch} className="mt-5 flex gap-2">
