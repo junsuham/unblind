@@ -16,8 +16,17 @@ export async function requireAllowedUser() {
     error: userError,
   } = await supabase.auth.getUser()
 
-  if (userError || !user?.email) {
+  if (userError || !user) {
     redirect('/login')
+  }
+
+  if (!user.email) {
+    const searchParams = new URLSearchParams({
+      error:
+        '소셜 계정에서 이메일을 받지 못했습니다. Kakao 이메일 동의 설정을 확인해주세요.',
+    })
+
+    redirect(`/login?${searchParams}`)
   }
 
   const { data: allowedUser } = await supabase

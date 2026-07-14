@@ -1,6 +1,8 @@
 'use client'
 
-import { FormEvent, useState } from 'react'
+import { useState } from 'react'
+import { useSearchParams } from 'next/navigation'
+import type { Provider } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabase'
 import {
   AppShell,
@@ -10,50 +12,93 @@ import {
   Pill,
 } from '@/app/components/ui/AppShell'
 
+type SocialProvider = Extract<Provider, 'google' | 'kakao'>
+
+const providerNames: Record<SocialProvider, string> = {
+  google: 'Google',
+  kakao: 'Kakao',
+}
+
+function GoogleIcon() {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 24 24" className="h-5 w-5">
+      <path
+        fill="#4285F4"
+        d="M21.6 12.2c0-.7-.1-1.5-.2-2.2H12v4.3h5.4a4.6 4.6 0 0 1-2 3v2.8h3.3c1.9-1.8 2.9-4.4 2.9-7.9Z"
+      />
+      <path
+        fill="#34A853"
+        d="M12 22c2.7 0 5-.9 6.7-2.4l-3.3-2.8c-.9.6-2.1 1-3.4 1a5.9 5.9 0 0 1-5.6-4.1H3v2.9A10 10 0 0 0 12 22Z"
+      />
+      <path
+        fill="#FBBC05"
+        d="M6.4 13.7a6 6 0 0 1 0-3.8V7H3a10 10 0 0 0 0 9.1l3.4-2.4Z"
+      />
+      <path
+        fill="#EA4335"
+        d="M12 5.8c1.6 0 3 .5 4.1 1.6l3.1-3A10 10 0 0 0 3 7l3.4 2.9A5.9 5.9 0 0 1 12 5.8Z"
+      />
+    </svg>
+  )
+}
+
+function KakaoIcon() {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 24 24" className="h-6 w-6">
+      <path
+        fill="#191919"
+        d="M12 3C6.5 3 2 6.5 2 10.8c0 2.8 1.8 5.2 4.6 6.6l-1.2 4.1c-.1.4.3.7.6.5l4.8-3.2h1.2c5.5 0 10-3.5 10-7.9S17.5 3 12 3Z"
+      />
+    </svg>
+  )
+}
+
 export default function LoginPage() {
-  const [email, setEmail] = useState('')
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [message, setMessage] = useState('')
-  const [errorMessage, setErrorMessage] = useState('')
+  const searchParams = useSearchParams()
+  const [pendingProvider, setPendingProvider] =
+    useState<SocialProvider | null>(null)
+  const [errorMessage, setErrorMessage] = useState(
+    searchParams.get('error') ?? ''
+  )
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-
-    setIsSubmitting(true)
-    setMessage('')
+  async function handleSocialLogin(provider: SocialProvider) {
+    setPendingProvider(provider)
     setErrorMessage('')
 
-    const normalizedEmail = email.trim().toLowerCase()
+    try {
+      const siteUrl = (
+        process.env.NEXT_PUBLIC_SITE_URL ?? window.location.origin
+      ).replace(/\/$/, '')
 
-    if (!normalizedEmail.includes('@')) {
-      setErrorMessage('이메일을 정확히 입력해주세요.')
-      setIsSubmitting(false)
-      return
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider,
+        options: {
+          redirectTo: `${siteUrl}/auth/callback`,
+        },
+      })
+
+      if (error) {
+        setErrorMessage(
+          `${providerNames[provider]} 로그인을 시작하지 못했습니다. Supabase에서 해당 로그인 제공자가 활성화되어 있는지 확인해주세요.`
+        )
+        setPendingProvider(null)
+      }
+    } catch {
+      setErrorMessage(
+        `${providerNames[provider]} 로그인 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.`
+      )
+      setPendingProvider(null)
     }
-
-    const { error } = await supabase.auth.signInWithOtp({
-      email: normalizedEmail,
-      options: {
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
-      },
-    })
-
-    setIsSubmitting(false)
-
-    if (error) {
-      setErrorMessage(error.message)
-      return
-    }
-
-    setMessage('로그인 링크를 이메일로 보냈습니다. 메일함을 확인해주세요.')
   }
+
+  const isSubmitting = pendingProvider !== null
 
   return (
     <AppShell>
       <PageHeader
-        eyebrow="언블라인드 Beta"
-        title="안전하게 입장하기"
-        description="승인된 청년회 구성원만 입장할 수 있습니다. 등록된 이메일로 로그인 링크를 받아 접속해주세요."
+        eyebrow="청년회 내부 베타"
+        title="소셜 계정으로 시작하기"
+        description="Google 또는 Kakao 계정으로 간편하게 가입하고 로그인할 수 있습니다. 승인된 청년회 구성원만 입장할 수 있습니다."
       />
 
       <div className="mb-5 flex flex-wrap gap-2">
@@ -63,54 +108,58 @@ export default function LoginPage() {
       </div>
 
       <GlassCard>
-        <form onSubmit={handleSubmit}>
-          <label className="mb-2 block text-[15px] font-semibold text-black">
-            이메일
-          </label>
-
-          <input
-            type="email"
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-            placeholder="name@example.com"
-            className="min-h-[52px] w-full rounded-[14px] border border-[#D1D1D6] bg-[#F2F2F7] px-4 text-[17px] text-black outline-none focus:border-[#ff4b00]"
-          />
-
-          {message && (
-            <div className="mt-4 rounded-[16px] border border-green-200 bg-green-50 p-4 text-[15px] leading-[21px] text-green-700">
-              {message}
-            </div>
-          )}
-
-          {errorMessage && (
-            <div className="mt-4 rounded-[16px] border border-red-200 bg-red-50 p-4 text-[15px] leading-[21px] text-red-700">
-              {errorMessage}
-            </div>
-          )}
+        <div className="space-y-3">
+          <button
+            type="button"
+            disabled={isSubmitting}
+            onClick={() => handleSocialLogin('google')}
+            className="flex min-h-[54px] w-full items-center justify-center gap-3 rounded-[16px] border border-[#D1D1D6] bg-white px-5 text-[17px] font-semibold text-black shadow-sm active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-55"
+          >
+            <GoogleIcon />
+            {pendingProvider === 'google'
+              ? 'Google 연결 중...'
+              : 'Google로 계속하기'}
+          </button>
 
           <button
-            type="submit"
+            type="button"
             disabled={isSubmitting}
-            className="mt-5 flex min-h-[52px] w-full items-center justify-center rounded-[16px] bg-[#ff4b00] px-5 text-[17px] font-semibold text-white shadow-sm active:scale-[0.99] disabled:bg-[#8E8E93]"
+            onClick={() => handleSocialLogin('kakao')}
+            className="flex min-h-[54px] w-full items-center justify-center gap-3 rounded-[16px] bg-[#FEE500] px-5 text-[17px] font-semibold text-[#191919] shadow-sm active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-55"
           >
-            {isSubmitting ? '발송 중...' : '로그인 링크 받기'}
+            <KakaoIcon />
+            {pendingProvider === 'kakao'
+              ? 'Kakao 연결 중...'
+              : 'Kakao로 계속하기'}
           </button>
-        </form>
+        </div>
+
+        {errorMessage && (
+          <div className="mt-4 rounded-[18px] border border-[#FF3B30]/25 bg-[#FF3B30]/10 p-4 text-[15px] leading-[21px] text-[#B42318]">
+            {errorMessage}
+          </div>
+        )}
+
+        <p className="mt-4 text-center text-[13px] leading-[19px] text-black/55">
+          처음 접속하면 계정이 자동으로 생성됩니다. 소셜 계정의 이메일은
+          운영자 승인 확인에만 사용됩니다.
+        </p>
       </GlassCard>
 
       <div className="mt-5 space-y-3">
-        <NoticeCard title="익명성 안내">
+        <NoticeCard title="승인 이메일 안내" tone="warning">
           <p>
-            다른 사용자에게는 이름과 이메일이 공개되지 않습니다. 단, 신고
-            처리와 안전한 운영을 위해 운영자는 필요한 범위에서 기록을
-            확인할 수 있습니다.
+            Google 또는 Kakao 계정에 등록된 이메일이 승인 목록의 이메일과
+            같아야 합니다. 이메일이 다르면 운영자에게 소셜 계정 이메일을
+            알려주세요.
           </p>
         </NoticeCard>
 
-        <NoticeCard title="접속 안내" tone="warning">
+        <NoticeCard title="익명성 안내">
           <p>
-            로그인 링크를 눌렀는데 접속이 안 되면 운영자에게 이메일 등록
-            여부를 확인해주세요.
+            다른 사용자에게는 소셜 계정 정보와 이메일이 공개되지 않습니다.
+            신고 처리와 안전한 운영을 위해 운영자는 필요한 범위에서 기록을
+            확인할 수 있습니다.
           </p>
         </NoticeCard>
       </div>

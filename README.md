@@ -16,6 +16,24 @@ bun dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
+## Authentication setup
+
+Set `NEXT_PUBLIC_SITE_URL` to the public origin used by the deployed app (for
+example, `https://app.example.com`). Add
+`<NEXT_PUBLIC_SITE_URL>/auth/callback` to the Supabase redirect allow list.
+
+Enable the **Google** and **Kakao** providers under Supabase Authentication >
+Sign In / Providers. Register this Supabase callback URL with both providers:
+
+```text
+https://<project-ref>.supabase.co/auth/v1/callback
+```
+
+Google must provide the email scope. For Kakao, configure `account_email` as a
+consent item; it requires a Kakao Biz App. The application checks that the
+social account email exists as an active entry in `allowed_users` before
+granting access.
+
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
