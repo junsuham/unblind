@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { requireBetaUser } from '@/lib/betaAuth'
 import CommentForm from './CommentForm'
+import PostViewTracker from './PostViewTracker'
 import ReactionButtons from './ReactionButtons'
 import ReportButton from './ReportButton'
 import {
@@ -88,6 +89,8 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
 
   return (
     <AppShell bottomBar={<BottomTabBar active={activeTab} />}>
+      <PostViewTracker postId={post.id} />
+
       <PageHeader
         backHref={`/board/${post.board}`}
         backLabel={boardName}
