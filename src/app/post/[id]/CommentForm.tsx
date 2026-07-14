@@ -84,15 +84,15 @@ export default function CommentForm({ postId }: CommentFormProps) {
 
   return (
     <section>
-      <p className="mb-2 px-4 text-[13px] font-semibold uppercase tracking-[0.04em] text-white/78">
+      <p className="mb-2 px-4 text-[13px] font-semibold uppercase tracking-[0.04em] text-[var(--ub-text-on-brand-tertiary)]">
         댓글 작성
       </p>
 
       <form
         onSubmit={handleSubmit}
-        className="rounded-[22px] bg-white p-4 shadow-sm"
+        className="rounded-[22px] bg-[var(--ub-surface-card-strong)] p-4 shadow-[var(--ub-shadow-soft)]"
       >
-        <p className="mb-3 text-[15px] leading-[21px] text-[#3C3C43]/60">
+        <p className="mb-3 text-[15px] leading-[21px] text-[var(--ub-text-secondary)]">
           정답을 주기보다 함께 들어주는 마음으로 댓글을 남겨주세요.
         </p>
 
@@ -102,22 +102,22 @@ export default function CommentForm({ postId }: CommentFormProps) {
           rows={5}
           maxLength={1000}
           placeholder="예: 저도 비슷한 시간을 지난 적이 있어요. 오늘 기도할게요."
-          className="min-h-[132px] w-full resize-none rounded-[16px] bg-[#F2F2F7] px-4 py-4 text-[17px] leading-[25px] text-black outline-none placeholder:text-white/78 focus:ring-2 focus:ring-[#ff4b00]/25"
+          className="min-h-[132px] w-full resize-none rounded-[16px] bg-[var(--ub-surface-muted)] px-4 py-4 text-[17px] leading-[25px] text-[var(--ub-text-primary)] outline-none placeholder:text-[var(--ub-text-tertiary)] focus:ring-2 focus:ring-[var(--ub-color-brand)]/25"
         />
 
-        <div className="mt-2 flex justify-end text-[13px] text-white/78">
+        <div className="mt-2 flex justify-end text-[13px] text-[var(--ub-text-tertiary)]">
           {content.length}/1000
         </div>
 
         <SafetyIssueList issues={safetyAnalysis.issues} />
 
         {needsRiskReview && (
-          <label className="mt-3 flex cursor-pointer items-start gap-3 rounded-[18px] bg-[#F2F2F7] p-4">
+          <label className="mt-3 flex cursor-pointer items-start gap-3 rounded-[18px] bg-[var(--ub-surface-muted)] p-4">
             <span
               className={
                 checkedRiskReview
                   ? 'mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#ff4b00] text-white'
-                  : 'mt-0.5 h-6 w-6 shrink-0 rounded-full border border-[#C7C7CC] bg-white'
+                  : 'mt-0.5 h-6 w-6 shrink-0 rounded-full border border-[var(--ub-control-border)] bg-[var(--ub-surface-card-strong)]'
               }
             >
               {checkedRiskReview && (
@@ -141,7 +141,7 @@ export default function CommentForm({ postId }: CommentFormProps) {
               className="sr-only"
             />
 
-            <span className="text-[15px] leading-[21px] text-[#3C3C43]/75">
+            <span className="text-[15px] leading-[21px] text-[var(--ub-text-secondary)]">
               위 경고를 확인했고, 개인이 특정되지 않도록 수정했거나 위험성을 이해했습니다.
             </span>
           </label>

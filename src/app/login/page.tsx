@@ -113,7 +113,7 @@ export default function LoginPage() {
             type="button"
             disabled={isSubmitting}
             onClick={() => handleSocialLogin('google')}
-            className="flex min-h-[54px] w-full items-center justify-center gap-3 rounded-[16px] border border-[#D1D1D6] bg-white px-5 text-[17px] font-semibold text-black shadow-sm active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-55"
+            className="ub-provider-google flex min-h-[54px] w-full items-center justify-center gap-3 rounded-[16px] border px-5 text-[17px] font-semibold shadow-sm active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-55"
           >
             <GoogleIcon />
             {pendingProvider === 'google'
@@ -125,7 +125,7 @@ export default function LoginPage() {
             type="button"
             disabled={isSubmitting}
             onClick={() => handleSocialLogin('kakao')}
-            className="flex min-h-[54px] w-full items-center justify-center gap-3 rounded-[16px] bg-[#FEE500] px-5 text-[17px] font-semibold text-[#191919] shadow-sm active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-55"
+            className="ub-provider-kakao flex min-h-[54px] w-full items-center justify-center gap-3 rounded-[16px] px-5 text-[17px] font-semibold shadow-sm active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-55"
           >
             <KakaoIcon />
             {pendingProvider === 'kakao'
@@ -135,12 +135,12 @@ export default function LoginPage() {
         </div>
 
         {errorMessage && (
-          <div className="mt-4 rounded-[18px] border border-[#FF3B30]/25 bg-[#FF3B30]/10 p-4 text-[15px] leading-[21px] text-[#B42318]">
+          <div className="mt-4 rounded-[18px] border border-[var(--ub-danger-border)] bg-[var(--ub-danger-soft)] p-4 text-[15px] leading-[21px] text-[var(--ub-danger-text)]">
             {errorMessage}
           </div>
         )}
 
-        <p className="mt-4 text-center text-[13px] leading-[19px] text-black/55">
+        <p className="mt-4 text-center text-[13px] leading-[19px] text-[var(--ub-text-secondary)]">
           처음 접속하면 계정이 자동으로 생성됩니다. 소셜 계정의 이메일은
           운영자 승인 확인에만 사용됩니다.
         </p>

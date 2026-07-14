@@ -16,7 +16,7 @@ export default function NotFoundPage() {
       />
 
       <GlassCard>
-        <p className="text-[17px] leading-[25px] text-black">
+        <p className="text-[17px] leading-[25px] text-[var(--ub-text-primary)]">
           홈으로 돌아가 다시 시작해보세요. 글이 숨김 또는 삭제 처리된 경우에도
           이 화면이 보일 수 있습니다.
         </p>

@@ -94,25 +94,25 @@ export default function ReportButton({
       <button
         type="button"
         onClick={() => setIsOpen(true)}
-        className="inline-flex min-h-9 items-center rounded-full bg-[#F2F2F7] px-3 text-[13px] font-medium text-[#8E8E93] active:bg-[#E5E5EA]"
+        className="inline-flex min-h-9 items-center rounded-full bg-[var(--ub-surface-muted)] px-3 text-[13px] font-medium text-[var(--ub-text-tertiary)] active:bg-[var(--ub-surface-pressed)]"
       >
         {label}
       </button>
 
       {isOpen && (
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/35 px-3 pb-[calc(10px+env(safe-area-inset-bottom))] pt-10">
-          <div className="max-h-[88vh] w-full max-w-[430px] overflow-y-auto rounded-[30px] bg-[#F2F2F7] p-4 shadow-[0_18px_60px_rgba(0,0,0,0.35)]">
+          <div className="max-h-[88vh] w-full max-w-[430px] overflow-y-auto rounded-[30px] bg-[var(--ub-surface-muted)] p-4 text-[var(--ub-text-primary)] shadow-[0_18px_60px_rgba(0,0,0,0.35)]">
             <div className="mb-3 flex justify-center">
-              <div className="h-1.5 w-10 rounded-full bg-[#C7C7CC]" />
+              <div className="h-1.5 w-10 rounded-full bg-[var(--ub-text-tertiary)]" />
             </div>
 
             <div className="mb-4 flex items-start justify-between gap-4 px-1">
               <div>
-                <h2 className="text-[22px] font-bold tracking-[-0.3px] text-black">
+                <h2 className="text-[22px] font-bold tracking-[-0.3px] text-[var(--ub-text-primary)]">
                   신고하기
                 </h2>
 
-                <p className="mt-1 text-[15px] leading-[21px] text-[#3C3C43]/60">
+                <p className="mt-1 text-[15px] leading-[21px] text-[var(--ub-text-secondary)]">
                   운영자가 확인할 수 있도록 신고 사유를 선택해주세요.
                 </p>
               </div>
@@ -120,20 +120,20 @@ export default function ReportButton({
               <button
                 type="button"
                 onClick={closeModal}
-                className="flex min-h-9 items-center rounded-full bg-white px-3 text-[15px] font-medium text-[#ff4b00]"
+                className="flex min-h-9 items-center rounded-full bg-[var(--ub-surface-card-strong)] px-3 text-[15px] font-medium text-[var(--ub-color-brand)]"
               >
                 닫기
               </button>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="overflow-hidden rounded-[18px] bg-white">
+              <div className="overflow-hidden rounded-[18px] bg-[var(--ub-surface-card-strong)]">
                 {reasons.map((item) => (
                   <label
                     key={item.value}
-                    className="flex min-h-[54px] cursor-pointer items-center justify-between border-b border-[#D1D1D6]/70 px-4 py-3 last:border-b-0 active:bg-[#E5E5EA]"
+                    className="flex min-h-[54px] cursor-pointer items-center justify-between border-b border-[var(--ub-separator)] px-4 py-3 last:border-b-0 active:bg-[var(--ub-surface-pressed)]"
                   >
-                    <span className="text-[17px] text-black">
+                    <span className="text-[17px] text-[var(--ub-text-primary)]">
                       {item.label}
                     </span>
 
@@ -141,7 +141,7 @@ export default function ReportButton({
                       className={
                         reason === item.value
                           ? 'flex h-6 w-6 items-center justify-center rounded-full bg-[#ff4b00] text-white'
-                          : 'h-6 w-6 rounded-full border border-[#C7C7CC] bg-white'
+                          : 'h-6 w-6 rounded-full border border-[var(--ub-control-border)] bg-[var(--ub-surface-card-strong)]'
                       }
                     >
                       {reason === item.value && (
@@ -171,7 +171,7 @@ export default function ReportButton({
               </div>
 
               <div>
-                <p className="mb-2 px-2 text-[13px] font-semibold uppercase tracking-[0.04em] text-[#8E8E93]">
+                <p className="mb-2 px-2 text-[13px] font-semibold uppercase tracking-[0.04em] text-[var(--ub-text-tertiary)]">
                   추가 설명
                 </p>
 
@@ -181,7 +181,7 @@ export default function ReportButton({
                   rows={4}
                   maxLength={500}
                   placeholder="필요한 경우 상황을 간단히 적어주세요."
-                  className="min-h-[120px] w-full resize-none rounded-[18px] bg-white px-4 py-4 text-[17px] leading-[25px] text-black outline-none placeholder:text-[#8E8E93]"
+                  className="min-h-[120px] w-full resize-none rounded-[18px] bg-[var(--ub-surface-card-strong)] px-4 py-4 text-[17px] leading-[25px] text-[var(--ub-text-primary)] outline-none placeholder:text-[var(--ub-text-tertiary)]"
                 />
               </div>
 

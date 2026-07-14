@@ -7,11 +7,16 @@
 
   /* Surfaces */
   --ub-surface-app: var(--ub-color-brand);
+  --ub-app-background: var(--ub-color-brand);
+  --ub-surface-logo: var(--ub-color-brand);
   --ub-surface-card: rgba(255, 255, 255, 0.9);
   --ub-surface-card-strong: rgba(255, 255, 255, 0.96);
   --ub-surface-glass: rgba(255, 255, 255, 0.82);
   --ub-surface-soft: rgba(255, 255, 255, 0.16);
   --ub-surface-input: rgba(255, 255, 255, 0.92);
+  --ub-surface-muted: #f2f2f7;
+  --ub-surface-pressed: #e5e5ea;
+  --ub-surface-brand-soft: #fff1e9;
 
   /* Text on orange */
   --ub-text-on-brand-primary: #ffffff;
@@ -26,14 +31,26 @@
   /* Lines */
   --ub-separator: rgba(209, 209, 214, 0.72);
   --ub-glass-border: rgba(255, 255, 255, 0.72);
+  --ub-control-border: #d1d1d6;
 
   /* States */
   --ub-danger: #ff3b30;
   --ub-danger-soft: rgba(255, 59, 48, 0.12);
+  --ub-danger-border: rgba(255, 59, 48, 0.25);
+  --ub-danger-text: #b42318;
   --ub-success: var(--core-green-600);
   --ub-success-soft: var(--core-green-100);
   --ub-warning: var(--core-orange-700);
   --ub-warning-soft: rgba(255, 255, 255, 0.9);
+  --ub-warning-border: rgba(255, 255, 255, 0.72);
+  --ub-warning-text: #5c2500;
+
+  /* Provider controls */
+  --ub-google-surface: #ffffff;
+  --ub-google-text: #111111;
+  --ub-google-border: #d1d1d6;
+  --ub-kakao-surface: #fee500;
+  --ub-kakao-text: #191919;
 
   /* iOS spacing mapped from Core */
   --ub-space-1: var(--core-space-xs);
@@ -103,25 +120,59 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --ub-surface-card: rgba(44, 44, 46, 0.9);
-    --ub-surface-card-strong: rgba(28, 28, 30, 0.96);
-    --ub-surface-glass: rgba(44, 44, 46, 0.82);
-    --ub-surface-input: rgba(58, 58, 60, 0.92);
-    --ub-text-primary: #ffffff;
-    --ub-text-secondary: rgba(235, 235, 245, 0.6);
-    --ub-text-tertiary: rgba(235, 235, 245, 0.42);
-    --ub-separator: rgba(84, 84, 88, 0.72);
-    --ub-glass-border: rgba(255, 255, 255, 0.18);
+    --ub-color-brand: #ff6a2b;
+    --ub-color-brand-rgb: 255, 106, 43;
+    --ub-surface-app: #140f0d;
+    --ub-app-background:
+      radial-gradient(circle at 50% 0%, rgba(255, 75, 0, 0.18), transparent 32rem),
+      linear-gradient(180deg, #17110f 0%, #100d0c 100%);
+    --ub-surface-card: rgba(37, 37, 39, 0.96);
+    --ub-surface-card-strong: rgba(29, 29, 31, 0.98);
+    --ub-surface-glass: rgba(31, 31, 33, 0.9);
+    --ub-surface-soft: rgba(255, 255, 255, 0.08);
+    --ub-surface-input: rgba(44, 44, 46, 0.96);
+    --ub-surface-muted: #2c2c2e;
+    --ub-surface-pressed: #3a3a3c;
+    --ub-surface-brand-soft: #2a1a14;
+    --ub-text-on-brand-primary: #fff8f4;
+    --ub-text-on-brand-secondary: rgba(255, 248, 244, 0.8);
+    --ub-text-on-brand-tertiary: rgba(255, 248, 244, 0.62);
+    --ub-text-primary: #f7f7f8;
+    --ub-text-secondary: rgba(235, 235, 245, 0.72);
+    --ub-text-tertiary: rgba(235, 235, 245, 0.52);
+    --ub-separator: rgba(99, 99, 102, 0.72);
+    --ub-glass-border: rgba(255, 138, 86, 0.2);
+    --ub-control-border: #55555a;
+    --ub-danger-soft: rgba(255, 69, 58, 0.16);
+    --ub-danger-border: rgba(255, 105, 97, 0.34);
+    --ub-danger-text: #ffb4ad;
+    --ub-warning-soft: rgba(255, 126, 64, 0.12);
+    --ub-warning-border: rgba(255, 138, 86, 0.24);
+    --ub-warning-text: #ffd1bd;
+    --ub-shadow-card: 0 16px 40px rgba(0, 0, 0, 0.28);
+    --ub-shadow-glass: 0 20px 56px rgba(0, 0, 0, 0.4);
+    --ub-shadow-soft: 0 8px 24px rgba(0, 0, 0, 0.24);
+    --ub-focus-ring: rgba(255, 138, 86, 0.92);
     --ub-pressed-overlay: rgba(255, 255, 255, 0.1);
   }
 }
 
-@media (prefers-contrast: more) {
+@media (prefers-contrast: more) and (prefers-color-scheme: light) {
   :root {
     --ub-surface-card: #ffffff;
     --ub-surface-card-strong: #ffffff;
     --ub-text-secondary: rgba(0, 0, 0, 0.78);
     --ub-separator: rgba(0, 0, 0, 0.5);
     --ub-glass-border: rgba(0, 0, 0, 0.42);
+  }
+}
+
+@media (prefers-contrast: more) and (prefers-color-scheme: dark) {
+  :root {
+    --ub-surface-card: #242426;
+    --ub-surface-card-strong: #1c1c1e;
+    --ub-text-secondary: rgba(255, 255, 255, 0.86);
+    --ub-separator: rgba(255, 255, 255, 0.42);
+    --ub-glass-border: rgba(255, 138, 86, 0.52);
   }
 }

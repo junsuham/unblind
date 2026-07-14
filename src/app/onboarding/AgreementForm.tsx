@@ -210,7 +210,7 @@ function CheckAccessory({ checked }: { checked: boolean }) {
       className={
         checked
           ? 'flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#ff4b00] text-white'
-          : 'h-6 w-6 shrink-0 rounded-full border border-[#C7C7CC] bg-white'
+          : 'h-6 w-6 shrink-0 rounded-full border border-[var(--ub-control-border)] bg-[var(--ub-surface-card-strong)]'
       }
     >
       {checked && (
@@ -287,26 +287,26 @@ export default function AgreementForm({
   return (
     <div className="space-y-6">
       <section>
-        <p className="mb-2 px-4 text-[13px] font-semibold uppercase tracking-[0.04em] text-white/78">
+        <p className="mb-2 px-4 text-[13px] font-semibold uppercase tracking-[0.04em] text-[var(--ub-text-on-brand-tertiary)]">
           커뮤니티 약속
         </p>
 
-        <div className="overflow-hidden rounded-[22px] bg-white shadow-sm">
+        <div className="overflow-hidden rounded-[22px] bg-[var(--ub-surface-card-strong)] shadow-[var(--ub-shadow-soft)]">
           {checks.map((item) => (
             <label
               key={item.id}
-              className="flex min-h-[76px] cursor-pointer items-center gap-3 border-b border-[#D1D1D6]/70 px-4 py-3 last:border-b-0 active:bg-[#E5E5EA]"
+              className="flex min-h-[76px] cursor-pointer items-center gap-3 border-b border-[var(--ub-separator)] px-4 py-3 last:border-b-0 active:bg-[var(--ub-surface-pressed)]"
             >
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] bg-[#F2F2F7]">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] bg-[var(--ub-surface-muted)]">
                 <AgreementIcon name={item.icon} />
               </div>
 
               <div className="min-w-0 flex-1">
-                <p className="text-[17px] leading-[22px] text-black">
+                <p className="text-[17px] leading-[22px] text-[var(--ub-text-primary)]">
                   {item.title}
                 </p>
 
-                <p className="mt-0.5 text-[15px] leading-[20px] text-[#3C3C43]/60">
+                <p className="mt-0.5 text-[15px] leading-[20px] text-[var(--ub-text-secondary)]">
                   {item.description}
                 </p>
               </div>
@@ -324,7 +324,7 @@ export default function AgreementForm({
           ))}
         </div>
 
-        <p className="mt-2 px-4 text-[13px] leading-[18px] text-white/78">
+        <p className="mt-2 px-4 text-[13px] leading-[18px] text-[var(--ub-text-on-brand-tertiary)]">
           모든 항목에 동의해야 언블라인드 베타 공간에 입장할 수 있습니다.
         </p>
       </section>
@@ -352,7 +352,7 @@ export default function AgreementForm({
       )}
 
       {!alreadyAgreed && (
-        <div className="sticky bottom-[calc(18px+env(safe-area-inset-bottom))] z-30 rounded-[24px] border border-white/70 bg-white/72 p-3 shadow-[0_18px_48px_rgba(0,0,0,0.16)] backdrop-blur-2xl">
+        <div className="sticky bottom-[calc(18px+env(safe-area-inset-bottom))] z-30 rounded-[24px] border border-[var(--ub-glass-border)] bg-[var(--ub-surface-glass)] p-3 shadow-[var(--ub-shadow-glass)] backdrop-blur-2xl">
           <button
             type="button"
             onClick={handleAgree}

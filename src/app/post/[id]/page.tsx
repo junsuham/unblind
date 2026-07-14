@@ -98,14 +98,14 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
 
       <GlassCard className="p-0">
         <article className="px-5 py-5">
-          <p className="whitespace-pre-wrap text-[17px] leading-[27px] text-black">
+          <p className="whitespace-pre-wrap text-[17px] leading-[27px] text-[var(--ub-text-primary)]">
             {post.content}
           </p>
         </article>
 
-        <div className="border-t border-[#D1D1D6]/70 px-5 py-3">
+        <div className="border-t border-[var(--ub-separator)] px-5 py-3">
           <div className="flex items-center justify-between">
-            <p className="text-[13px] leading-[18px] text-white/78">
+            <p className="text-[13px] leading-[18px] text-[var(--ub-text-secondary)]">
               사용자에게는 익명으로 표시됩니다.
             </p>
 
@@ -140,7 +140,7 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
       </div>
 
       <section className="mt-8">
-        <p className="mb-2 px-4 text-[13px] font-semibold uppercase tracking-[0.04em] text-white/78">
+        <p className="mb-2 px-4 text-[13px] font-semibold uppercase tracking-[0.04em] text-[var(--ub-text-on-brand-tertiary)]">
           댓글 {comments?.length ?? 0}
         </p>
 
@@ -156,15 +156,15 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
           {comments?.map((comment, index) => (
             <article
               key={comment.id}
-              className="rounded-[22px] bg-white p-4 shadow-sm"
+              className="rounded-[22px] bg-[var(--ub-surface-card-strong)] p-4 shadow-[var(--ub-shadow-soft)]"
             >
               <div className="mb-3 flex items-center justify-between gap-3">
                 <div>
-                  <p className="text-[15px] font-semibold text-black">
+                  <p className="text-[15px] font-semibold text-[var(--ub-text-primary)]">
                     익명 {index + 1}
                   </p>
 
-                  <p className="mt-0.5 text-[13px] text-[#3C3C43]/45">
+                  <p className="mt-0.5 text-[13px] text-[var(--ub-text-tertiary)]">
                     {formatDate(comment.created_at)}
                   </p>
                 </div>
@@ -177,19 +177,19 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
                 />
               </div>
 
-              <p className="whitespace-pre-wrap text-[17px] leading-[25px] text-black">
+              <p className="whitespace-pre-wrap text-[17px] leading-[25px] text-[var(--ub-text-primary)]">
                 {comment.content}
               </p>
             </article>
           ))}
 
           {comments?.length === 0 && !commentsError && (
-            <div className="rounded-[22px] bg-white px-5 py-10 text-center shadow-sm">
-              <p className="text-[17px] font-semibold text-black">
+            <div className="rounded-[22px] bg-[var(--ub-surface-card-strong)] px-5 py-10 text-center shadow-[var(--ub-shadow-soft)]">
+              <p className="text-[17px] font-semibold text-[var(--ub-text-primary)]">
                 아직 댓글이 없습니다
               </p>
 
-              <p className="mt-2 text-[15px] leading-[21px] text-[#3C3C43]/60">
+              <p className="mt-2 text-[15px] leading-[21px] text-[var(--ub-text-secondary)]">
                 정답을 주기보다 함께 들어주는 첫 댓글을 남겨보세요.
               </p>
             </div>
@@ -200,7 +200,7 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
       <div className="mt-8">
         <Link
           href={`/board/${post.board}`}
-          className="flex min-h-[52px] items-center justify-center rounded-[16px] bg-[#E5E5EA] px-5 text-[17px] font-semibold text-[#ff4b00] active:scale-[0.99]"
+          className="flex min-h-[52px] items-center justify-center rounded-[16px] bg-[var(--ub-surface-pressed)] px-5 text-[17px] font-semibold text-[var(--ub-color-brand)] active:scale-[0.99]"
         >
           {boardName}으로 돌아가기
         </Link>

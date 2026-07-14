@@ -12,7 +12,7 @@ type AppShellProps = {
 
 function TopLogoBar() {
   return (
-    <div className="-mx-4 -mt-[calc(18px+env(safe-area-inset-top))] mb-6 bg-[var(--ub-surface-app)] px-4 pt-[calc(18px+env(safe-area-inset-top))] pb-4">
+    <div className="ub-logo-surface -mx-4 -mt-[calc(18px+env(safe-area-inset-top))] mb-6 px-4 pt-[calc(18px+env(safe-area-inset-top))] pb-4">
       <div className="mx-auto flex max-w-[430px] justify-center">
         <Link
           href="/"
@@ -36,7 +36,7 @@ export function AppShell({
   showTopLogo = true,
 }: AppShellProps) {
   return (
-    <main className="min-h-screen bg-[var(--ub-surface-app)] px-4 pb-[calc(108px+env(safe-area-inset-bottom))] pt-[calc(18px+env(safe-area-inset-top))] text-[var(--ub-text-on-brand-primary)]">
+    <main className="ub-app-surface min-h-screen px-4 pb-[calc(108px+env(safe-area-inset-bottom))] pt-[calc(18px+env(safe-area-inset-top))] text-[var(--ub-text-on-brand-primary)]">
       {showTopLogo && <TopLogoBar />}
 
       <section className="mx-auto max-w-[430px]">
@@ -44,7 +44,7 @@ export function AppShell({
       </section>
 
       {bottomBar && (
-        <div className="pointer-events-none fixed inset-x-0 bottom-0 z-30 h-32 bg-gradient-to-t from-[#ff4b00] via-[#ff4b00]/80 to-transparent" />
+        <div className="ub-bottom-fade pointer-events-none fixed inset-x-0 bottom-0 z-30 h-32" />
       )}
 
       {bottomBar}
@@ -74,7 +74,7 @@ export function PageHeader({
       {backHref && (
         <Link
           href={backHref}
-          className="mb-4 inline-flex min-h-11 items-center rounded-[var(--ub-radius-pill)] bg-[var(--ub-surface-card)] px-4 ios-title text-[var(--ub-color-brand)] shadow-sm backdrop-blur-xl active:bg-[#ffe2d2]"
+          className="mb-4 inline-flex min-h-11 items-center rounded-[var(--ub-radius-pill)] bg-[var(--ub-surface-card)] px-4 ios-title text-[var(--ub-color-brand)] shadow-sm backdrop-blur-xl active:bg-[var(--ub-surface-pressed)]"
         >
           ‹ {backLabel}
         </Link>
@@ -113,7 +113,7 @@ type GlassCardProps = {
 export function GlassCard({ children, className = '' }: GlassCardProps) {
   return (
     <div
-      className={`rounded-[var(--ub-radius-xl)] border border-[var(--ub-glass-border)] bg-[var(--ub-surface-card)] p-5 text-[var(--ub-text-primary)] shadow-[0_12px_32px_rgba(0,0,0,0.06)] backdrop-blur-2xl ${className}`}
+      className={`rounded-[var(--ub-radius-xl)] border border-[var(--ub-glass-border)] bg-[var(--ub-surface-card)] p-5 text-[var(--ub-text-primary)] shadow-[var(--ub-shadow-card)] backdrop-blur-2xl ${className}`}
     >
       {children}
     </div>
@@ -164,9 +164,9 @@ export function IosListRow({
   trailing,
 }: IosListRowProps) {
   const content = (
-    <div className="flex min-h-[64px] items-center gap-3 border-b border-[#D1D1D6]/70 px-4 py-3 last:border-b-0">
+    <div className="flex min-h-[64px] items-center gap-3 border-b border-[var(--ub-separator)] px-4 py-3 last:border-b-0">
       {leading && (
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] bg-[#fff7f2] text-[22px]">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] bg-[var(--ub-surface-brand-soft)] text-[22px]">
           {leading}
         </div>
       )}
@@ -183,11 +183,11 @@ export function IosListRow({
         )}
       </div>
 
-      <div className="flex shrink-0 items-center gap-2 text-[15px] text-[#8E8E93]">
+      <div className="flex shrink-0 items-center gap-2 text-[15px] text-[var(--ub-text-tertiary)]">
         {trailing}
 
         {href && (
-          <span className="text-[24px] leading-none text-[#C7C7CC]">
+          <span className="text-[24px] leading-none text-[var(--ub-text-tertiary)]">
             ›
           </span>
         )}
@@ -197,7 +197,7 @@ export function IosListRow({
 
   if (href) {
     return (
-      <Link href={href} className="block active:bg-[#ffe2d2]">
+      <Link href={href} className="block active:bg-[var(--ub-surface-pressed)]">
         {content}
       </Link>
     )
@@ -219,14 +219,14 @@ export function NoticeCard({
 }: NoticeCardProps) {
   const className =
     tone === 'danger'
-      ? 'border-[#FF3B30]/25 bg-[var(--ub-surface-card-strong)]/92 text-[#7A1A16]'
+      ? 'border-[var(--ub-danger-border)] bg-[var(--ub-danger-soft)] text-[var(--ub-danger-text)]'
       : tone === 'warning'
-        ? 'border-[var(--ub-glass-border)] bg-[var(--ub-surface-card)] text-[#5C2500]'
-        : 'border-[var(--ub-glass-border)] bg-[var(--ub-surface-card)] text-[#3C3C43]/70'
+        ? 'border-[var(--ub-warning-border)] bg-[var(--ub-warning-soft)] text-[var(--ub-warning-text)]'
+        : 'border-[var(--ub-glass-border)] bg-[var(--ub-surface-card)] text-[var(--ub-text-secondary)]'
 
   return (
     <div
-      className={`rounded-[var(--ub-radius-lg)] border p-4 ios-secondary text-[var(--ub-text-primary)] shadow-sm backdrop-blur-2xl ${className}`}
+      className={`rounded-[var(--ub-radius-lg)] border p-4 ios-secondary shadow-sm backdrop-blur-2xl ${className}`}
     >
       <p className="ios-title text-[var(--ub-text-primary)]">{title}</p>
       <div className="mt-1">{children}</div>
@@ -383,7 +383,7 @@ export function BottomTabBar({ active }: BottomTabBarProps) {
                 className={
                   isActive
                     ? 'text-[var(--ub-color-brand)]'
-                    : 'text-[#8E8E93] opacity-70'
+                    : 'text-[var(--ub-text-tertiary)]'
                 }
               >
                 <SystemIcon name={tab.icon} size={22} />
@@ -393,7 +393,7 @@ export function BottomTabBar({ active }: BottomTabBarProps) {
                 className={
                   isActive
                     ? 'mt-1 ios-tab-label font-semibold text-[var(--ub-color-brand)]'
-                    : 'mt-1 ios-tab-label text-[#8E8E93]'
+                    : 'mt-1 ios-tab-label text-[var(--ub-text-tertiary)]'
                 }
               >
                 {tab.label}

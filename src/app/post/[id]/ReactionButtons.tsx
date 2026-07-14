@@ -112,25 +112,25 @@ export default function ReactionButtons({
 
   return (
     <section>
-      <p className="mb-2 px-4 text-[13px] font-semibold uppercase tracking-[0.04em] text-white/78">
+      <p className="mb-2 px-4 text-[13px] font-semibold uppercase tracking-[0.04em] text-[var(--ub-text-on-brand-tertiary)]">
         마음 표현
       </p>
 
-      <div className="overflow-hidden rounded-[22px] bg-white shadow-sm">
+      <div className="overflow-hidden rounded-[22px] bg-[var(--ub-surface-card-strong)] shadow-[var(--ub-shadow-soft)]">
         <button
           type="button"
           onClick={() => handleReaction('pray')}
           disabled={isLoadingMyReactions || submittingType !== null || clicked.pray}
-          className="flex min-h-[64px] w-full items-center justify-between border-b border-[#D1D1D6]/70 px-4 py-3 text-left active:bg-[#E5E5EA] disabled:opacity-60"
+          className="flex min-h-[64px] w-full items-center justify-between border-b border-[var(--ub-separator)] px-4 py-3 text-left active:bg-[var(--ub-surface-pressed)] disabled:opacity-60"
         >
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-[12px] bg-[#F2F2F7] text-[22px]">
+            <div className="flex h-10 w-10 items-center justify-center rounded-[12px] bg-[var(--ub-surface-muted)] text-[22px]">
               🙏
             </div>
 
             <div>
-              <p className="text-[17px] text-black">기도할게요</p>
-              <p className="mt-0.5 text-[15px] text-[#3C3C43]/60">
+              <p className="text-[17px] text-[var(--ub-text-primary)]">기도할게요</p>
+              <p className="mt-0.5 text-[15px] text-[var(--ub-text-secondary)]">
                 {clicked.pray ? '이미 함께 기도 중입니다' : '이 글을 위해 기도합니다'}
               </p>
             </div>
@@ -149,16 +149,16 @@ export default function ReactionButtons({
             submittingType !== null ||
             clicked.empathize
           }
-          className="flex min-h-[64px] w-full items-center justify-between px-4 py-3 text-left active:bg-[#E5E5EA] disabled:opacity-60"
+          className="flex min-h-[64px] w-full items-center justify-between px-4 py-3 text-left active:bg-[var(--ub-surface-pressed)] disabled:opacity-60"
         >
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-[12px] bg-[#F2F2F7] text-[22px]">
+            <div className="flex h-10 w-10 items-center justify-center rounded-[12px] bg-[var(--ub-surface-muted)] text-[22px]">
               🤍
             </div>
 
             <div>
-              <p className="text-[17px] text-black">공감해요</p>
-              <p className="mt-0.5 text-[15px] text-[#3C3C43]/60">
+              <p className="text-[17px] text-[var(--ub-text-primary)]">공감해요</p>
+              <p className="mt-0.5 text-[15px] text-[var(--ub-text-secondary)]">
                 {clicked.empathize ? '공감으로 함께했습니다' : '혼자가 아니라고 전합니다'}
               </p>
             </div>

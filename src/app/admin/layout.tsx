@@ -6,8 +6,8 @@ export default function AdminLayout({
   children: React.ReactNode
 }>) {
   return (
-    <div className="min-h-screen bg-[#ff4b00]">
-      <header className="sticky top-0 z-50 bg-[#ff4b00] pt-[env(safe-area-inset-top)]">
+    <div className="ub-app-surface min-h-screen">
+      <header className="ub-logo-surface sticky top-0 z-50 pt-[env(safe-area-inset-top)]">
         <div className="mx-auto flex min-h-[58px] max-w-[430px] items-center justify-center px-4">
           <Link
             href="/"

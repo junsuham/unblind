@@ -18,12 +18,12 @@ export default function PostNotFoundPage() {
       />
 
       <GlassCard>
-        <p className="text-[17px] leading-[25px] text-black">
+        <p className="text-[17px] leading-[25px] text-[var(--ub-text-primary)]">
           안전한 커뮤니티 운영을 위해 일부 글은 신고 검토 후 숨김 처리될 수
           있습니다.
         </p>
 
-        <p className="mt-3 text-[15px] leading-[21px] text-[#3C3C43]/60">
+        <p className="mt-3 text-[15px] leading-[21px] text-[var(--ub-text-secondary)]">
           계속 문제가 있다면 청년회 운영자에게 문의해주세요.
         </p>
       </GlassCard>

@@ -142,11 +142,11 @@ export default async function BoardPage({ params }: BoardPageProps) {
 
         {posts?.length === 0 && !error && (
           <div className="px-4 py-10 text-center">
-            <p className="text-[17px] font-semibold text-black">
+            <p className="text-[17px] font-semibold text-[var(--ub-text-primary)]">
               아직 글이 없습니다
             </p>
 
-            <p className="mt-2 text-[15px] leading-[21px] text-[#3C3C43]/60">
+            <p className="mt-2 text-[15px] leading-[21px] text-[var(--ub-text-secondary)]">
               첫 번째 고민이나 기도제목을 조용히 나눠보세요.
             </p>
 

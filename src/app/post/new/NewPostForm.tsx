@@ -63,12 +63,12 @@ function CheckRow({
   children: ReactNode
 }) {
   return (
-    <label className="flex min-h-[56px] cursor-pointer items-start gap-3 border-b border-[#D1D1D6]/70 px-4 py-4 last:border-b-0">
+    <label className="flex min-h-[56px] cursor-pointer items-start gap-3 border-b border-[var(--ub-separator)] px-4 py-4 last:border-b-0">
       <span
         className={
           checked
             ? 'mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#ff4b00] text-white'
-            : 'mt-0.5 h-6 w-6 shrink-0 rounded-full border border-[#C7C7CC] bg-white'
+            : 'mt-0.5 h-6 w-6 shrink-0 rounded-full border border-[var(--ub-control-border)] bg-[var(--ub-surface-card-strong)]'
         }
       >
         {checked && (
@@ -92,7 +92,7 @@ function CheckRow({
         className="sr-only"
       />
 
-      <span className="text-[15px] leading-[21px] text-[#3C3C43]/75">
+      <span className="text-[15px] leading-[21px] text-[var(--ub-text-secondary)]">
         {children}
       </span>
     </label>
@@ -219,35 +219,35 @@ export default function NewPostForm({ initialBoard }: NewPostFormProps) {
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <section>
-          <p className="mb-2 px-4 text-[13px] font-semibold uppercase tracking-[0.04em] text-white/78">
+          <p className="mb-2 px-4 text-[13px] font-semibold uppercase tracking-[0.04em] text-[var(--ub-text-on-brand-tertiary)]">
             선택된 게시판
           </p>
 
           <GlassCard>
             <div className="flex items-center gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-[14px] bg-[#F2F2F7] text-[24px]">
+              <div className="flex h-11 w-11 items-center justify-center rounded-[14px] bg-[var(--ub-surface-muted)] text-[24px]">
                 {selectedBoard?.icon}
               </div>
 
               <div>
-                <p className="text-[17px] font-semibold text-black">
+                <p className="text-[17px] font-semibold text-[var(--ub-text-primary)]">
                   {selectedBoard?.name}
                 </p>
 
-                <p className="mt-0.5 text-[15px] leading-[20px] text-[#3C3C43]/60">
+                <p className="mt-0.5 text-[15px] leading-[20px] text-[var(--ub-text-secondary)]">
                   {selectedBoard?.description}
                 </p>
               </div>
             </div>
           </GlassCard>
 
-          <p className="mt-2 px-4 text-[13px] leading-[18px] text-white/78">
+          <p className="mt-2 px-4 text-[13px] leading-[18px] text-[var(--ub-text-on-brand-tertiary)]">
             게시판을 바꾸려면 이전 화면에서 다른 게시판을 선택해주세요.
           </p>
         </section>
 
         <section>
-          <p className="mb-2 px-4 text-[13px] font-semibold uppercase tracking-[0.04em] text-white/78">
+          <p className="mb-2 px-4 text-[13px] font-semibold uppercase tracking-[0.04em] text-[var(--ub-text-on-brand-tertiary)]">
             제목
           </p>
 
@@ -257,17 +257,17 @@ export default function NewPostForm({ initialBoard }: NewPostFormProps) {
               onChange={(event) => setTitle(event.target.value)}
               maxLength={80}
               placeholder="예: 요즘 기도가 잘 안 됩니다"
-              className="min-h-[60px] w-full rounded-[28px] bg-transparent px-5 text-[17px] text-black outline-none placeholder:text-white/78"
+              className="min-h-[60px] w-full rounded-[28px] bg-transparent px-5 text-[17px] text-[var(--ub-text-primary)] outline-none placeholder:text-[var(--ub-text-tertiary)]"
             />
           </GlassCard>
 
-          <p className="mt-2 px-4 text-[13px] leading-[18px] text-white/78">
+          <p className="mt-2 px-4 text-[13px] leading-[18px] text-[var(--ub-text-on-brand-tertiary)]">
             제목은 짧고 구체적으로 적되, 누군가를 특정할 수 있는 표현은 피해주세요.
           </p>
         </section>
 
         <section>
-          <p className="mb-2 px-4 text-[13px] font-semibold uppercase tracking-[0.04em] text-white/78">
+          <p className="mb-2 px-4 text-[13px] font-semibold uppercase tracking-[0.04em] text-[var(--ub-text-on-brand-tertiary)]">
             내용
           </p>
 
@@ -278,11 +278,11 @@ export default function NewPostForm({ initialBoard }: NewPostFormProps) {
               rows={12}
               maxLength={2000}
               placeholder="이름, 사역팀, 직책, 구체적인 날짜와 장소처럼 누군가를 특정할 수 있는 정보는 적지 말아주세요."
-              className="min-h-[260px] w-full resize-none rounded-[28px] bg-transparent px-5 py-5 text-[17px] leading-[25px] text-black outline-none placeholder:text-white/78"
+              className="min-h-[260px] w-full resize-none rounded-[28px] bg-transparent px-5 py-5 text-[17px] leading-[25px] text-[var(--ub-text-primary)] outline-none placeholder:text-[var(--ub-text-tertiary)]"
             />
           </GlassCard>
 
-          <div className="mt-2 flex justify-between px-4 text-[13px] text-white/78">
+          <div className="mt-2 flex justify-between px-4 text-[13px] text-[var(--ub-text-on-brand-tertiary)]">
             <span>내 고민과 감정 중심으로 적어주세요.</span>
             <span>{content.length}/2000</span>
           </div>
@@ -291,11 +291,11 @@ export default function NewPostForm({ initialBoard }: NewPostFormProps) {
         </section>
 
         <section>
-          <p className="mb-2 px-4 text-[13px] font-semibold uppercase tracking-[0.04em] text-white/78">
+          <p className="mb-2 px-4 text-[13px] font-semibold uppercase tracking-[0.04em] text-[var(--ub-text-on-brand-tertiary)]">
             작성 전 확인
           </p>
 
-          <div className="overflow-hidden rounded-[22px] bg-white shadow-sm">
+          <div className="overflow-hidden rounded-[22px] bg-[var(--ub-surface-card-strong)] shadow-[var(--ub-shadow-soft)]">
             <CheckRow
               checked={checkedPrivacy}
               onChange={setCheckedPrivacy}
@@ -320,7 +320,7 @@ export default function NewPostForm({ initialBoard }: NewPostFormProps) {
             )}
           </div>
 
-          <p className="mt-2 px-4 text-[13px] leading-[18px] text-white/78">
+          <p className="mt-2 px-4 text-[13px] leading-[18px] text-[var(--ub-text-on-brand-tertiary)]">
             사용자에게는 익명이지만, 신고 처리와 안전 운영을 위해 운영자는 필요한 범위에서 기록을 확인할 수 있습니다.
           </p>
         </section>
@@ -331,7 +331,7 @@ export default function NewPostForm({ initialBoard }: NewPostFormProps) {
           </NoticeCard>
         )}
 
-        <div className="sticky bottom-[calc(18px+env(safe-area-inset-bottom))] z-30 rounded-[24px] border border-white/70 bg-white/72 p-3 shadow-[0_18px_48px_rgba(0,0,0,0.16)] backdrop-blur-2xl">
+        <div className="sticky bottom-[calc(18px+env(safe-area-inset-bottom))] z-30 rounded-[24px] border border-[var(--ub-glass-border)] bg-[var(--ub-surface-glass)] p-3 shadow-[var(--ub-shadow-glass)] backdrop-blur-2xl">
           <button
             type="submit"
             disabled={isSubmitting}

@@ -107,11 +107,11 @@ export default async function HomePage() {
       </div>
 
       <GlassCard>
-        <p className="text-[17px] font-semibold text-black">
+        <p className="text-[17px] font-semibold text-[var(--ub-text-primary)]">
           오늘의 사용 원칙
         </p>
 
-        <p className="mt-2 text-[15px] leading-[21px] text-black/62">
+        <p className="mt-2 text-[15px] leading-[21px] text-[var(--ub-text-secondary)]">
           정답을 주기보다 들어주고, 판단하기보다 기도하고, 누군가를
           특정하기보다 내 마음과 고민을 중심으로 나눠주세요.
         </p>

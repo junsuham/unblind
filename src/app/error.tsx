@@ -21,11 +21,11 @@ export default function ErrorPage({ error, reset }: ErrorPageProps) {
       />
 
       <GlassCard>
-        <p className="text-[17px] leading-[25px] text-black">
+        <p className="text-[17px] leading-[25px] text-[var(--ub-text-primary)]">
           화면을 불러오는 중 문제가 발생했습니다.
         </p>
 
-        <p className="mt-3 break-words text-[15px] leading-[21px] text-[#3C3C43]/60">
+        <p className="mt-3 break-words text-[15px] leading-[21px] text-[var(--ub-text-secondary)]">
           {error.message}
         </p>
       </GlassCard>
@@ -44,7 +44,7 @@ export default function ErrorPage({ error, reset }: ErrorPageProps) {
           onClick={() => {
             window.location.href = '/'
           }}
-          className="flex min-h-[52px] w-full items-center justify-center rounded-[16px] bg-[#E5E5EA] px-5 text-[17px] font-semibold text-[#ff4b00] active:scale-[0.99]"
+          className="flex min-h-[52px] w-full items-center justify-center rounded-[16px] bg-[var(--ub-surface-pressed)] px-5 text-[17px] font-semibold text-[var(--ub-color-brand)] active:scale-[0.99]"
         >
           홈으로 이동
         </button>

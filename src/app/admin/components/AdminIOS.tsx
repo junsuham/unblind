@@ -7,7 +7,7 @@ type AdminPageShellProps = {
 
 export function AdminPageShell({ children }: AdminPageShellProps) {
   return (
-    <main className="min-h-screen bg-[#ff4b00] px-4 pb-10 pt-8 text-black">
+    <main className="ub-app-surface min-h-screen px-4 pb-10 pt-8 text-[var(--ub-text-on-brand-primary)]">
       <section className="mx-auto max-w-[430px]">
         {children}
       </section>
@@ -37,7 +37,7 @@ export function AdminHeader({
       {backHref && (
         <Link
           href={backHref}
-          className="mb-4 inline-flex min-h-11 items-center rounded-full bg-white/85 px-4 ios-title text-[#ff4b00] shadow-sm backdrop-blur-xl active:bg-[#ffe2d2]"
+          className="mb-4 inline-flex min-h-11 items-center rounded-full bg-[var(--ub-surface-card)] px-4 ios-title text-[var(--ub-color-brand)] shadow-sm backdrop-blur-xl active:bg-[var(--ub-surface-pressed)]"
         >
           ‹ {backLabel}
         </Link>
@@ -45,7 +45,7 @@ export function AdminHeader({
 
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
-          <p className="mb-1 ios-caption font-semibold text-black/55">
+          <p className="mb-1 ios-caption font-semibold text-[var(--ub-text-on-brand-tertiary)]">
             {eyebrow}
           </p>
 
@@ -58,7 +58,7 @@ export function AdminHeader({
       </div>
 
       {description && (
-        <p className="mt-3 ios-body text-black/62">
+        <p className="mt-3 ios-body text-[var(--ub-text-on-brand-secondary)]">
           {description}
         </p>
       )}
@@ -96,17 +96,17 @@ export function AdminStatCard({
         ? 'border-[#ff4b00]/25 bg-[#ff4b00]/10'
         : tone === 'success'
           ? 'border-green-200 bg-green-50'
-          : 'border-white/70 bg-white/86'
+          : 'border-[var(--ub-glass-border)] bg-[var(--ub-surface-card)]'
 
   return (
     <div
       className={`rounded-[22px] border p-4 text-center shadow-sm backdrop-blur-2xl ${toneClass}`}
     >
-      <p className="ios-caption text-black/62">
+      <p className="ios-caption text-[var(--ub-text-secondary)]">
         {label}
       </p>
 
-      <p className="mt-1 text-[28px] font-bold leading-[32px] tracking-[-0.4px] text-black">
+      <p className="mt-1 text-[28px] font-bold leading-[32px] tracking-[-0.4px] text-[var(--ub-text-primary)]">
         {value}
       </p>
     </div>
@@ -127,17 +127,17 @@ export function AdminListGroup({
   return (
     <section className="mb-6">
       {title && (
-        <p className="mb-2 px-4 ios-caption font-semibold uppercase tracking-[0.04em] text-black/55">
+        <p className="mb-2 px-4 ios-caption font-semibold uppercase tracking-[0.04em] text-[var(--ub-text-on-brand-tertiary)]">
           {title}
         </p>
       )}
 
-      <div className="overflow-hidden rounded-[22px] bg-white shadow-sm">
+      <div className="overflow-hidden rounded-[22px] bg-[var(--ub-surface-card-strong)] shadow-[var(--ub-shadow-soft)]">
         {children}
       </div>
 
       {footer && (
-        <div className="mt-2 px-4 ios-caption text-black/55">
+        <div className="mt-2 px-4 ios-caption text-[var(--ub-text-on-brand-tertiary)]">
           {footer}
         </div>
       )}
@@ -163,7 +163,7 @@ export function AdminListRow({
   children,
 }: AdminListRowProps) {
   const content = (
-    <div className="border-b border-[#D1D1D6]/70 px-4 py-4 last:border-b-0">
+    <div className="border-b border-[var(--ub-separator)] px-4 py-4 last:border-b-0">
       <div className="flex min-h-[52px] items-center gap-3">
         {leading && (
           <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px] bg-[#ff4b00] text-[24px]">
@@ -172,7 +172,7 @@ export function AdminListRow({
         )}
 
         <div className="min-w-0 flex-1">
-          <p className="ios-title truncate text-black">
+          <p className="ios-title truncate text-[var(--ub-text-primary)]">
             {title}
           </p>
 
@@ -187,7 +187,7 @@ export function AdminListRow({
           {trailing}
 
           {href && (
-            <span className="text-[24px] leading-none text-[#C7C7CC]">
+            <span className="text-[24px] leading-none text-[var(--ub-text-tertiary)]">
               ›
             </span>
           )}
@@ -204,7 +204,7 @@ export function AdminListRow({
 
   if (href) {
     return (
-      <Link href={href} className="block active:bg-[#ffe2d2]">
+      <Link href={href} className="block active:bg-[var(--ub-surface-pressed)]">
         {content}
       </Link>
     )
@@ -229,11 +229,11 @@ export function AdminNotice({
       ? 'border-[#FF3B30]/20 bg-[#FF3B30]/10 text-[#7A1A16]'
       : tone === 'warning'
         ? 'border-[#ff4b00]/25 bg-[#ff4b00]/10 text-[#5C2500]'
-        : 'border-white/70 bg-white/86 text-[#3C3C43]/70'
+        : 'border-[var(--ub-glass-border)] bg-[var(--ub-surface-card)] text-[var(--ub-text-secondary)]'
 
   return (
     <div className={`rounded-[22px] border p-4 shadow-sm backdrop-blur-2xl ${toneClass}`}>
-      <p className="ios-title text-black">
+      <p className="ios-title text-[var(--ub-text-primary)]">
         {title}
       </p>
 

@@ -32,15 +32,15 @@ export default async function PendingPage() {
       </div>
 
       <GlassCard>
-        <p className="text-[13px] font-semibold uppercase tracking-[0.04em] text-[#8E8E93]">
+        <p className="text-[13px] font-semibold uppercase tracking-[0.04em] text-[var(--ub-text-tertiary)]">
           현재 로그인한 이메일
         </p>
 
-        <p className="mt-2 break-all text-[17px] leading-[24px] text-black">
+        <p className="mt-2 break-all text-[17px] leading-[24px] text-[var(--ub-text-primary)]">
           {user?.email ?? '이메일을 확인할 수 없습니다'}
         </p>
 
-        <p className="mt-3 text-[15px] leading-[21px] text-[#3C3C43]/60">
+        <p className="mt-3 text-[15px] leading-[21px] text-[var(--ub-text-secondary)]">
           운영자가 이 이메일을 승인 목록에 추가하면 다시 로그인 후 입장할 수 있습니다.
         </p>
       </GlassCard>
@@ -57,7 +57,7 @@ export default async function PendingPage() {
       <div className="mt-6 flex gap-3">
         <Link
           href="/login"
-          className="flex min-h-[52px] flex-1 items-center justify-center rounded-[16px] bg-[#E5E5EA] px-4 text-[17px] font-semibold text-[#ff4b00] active:scale-[0.99]"
+          className="flex min-h-[52px] flex-1 items-center justify-center rounded-[16px] bg-[var(--ub-surface-pressed)] px-4 text-[17px] font-semibold text-[var(--ub-color-brand)] active:scale-[0.99]"
         >
           로그인으로
         </Link>

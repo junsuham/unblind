@@ -22,7 +22,7 @@ export default function LogoutButton({ compact = false }: LogoutButtonProps) {
       onClick={handleLogout}
       className={
         compact
-          ? 'min-h-11 rounded-full bg-white/75 px-4 text-[15px] font-semibold text-[#ff4b00] shadow-sm backdrop-blur-xl active:bg-[#E5E5EA]'
+          ? 'min-h-11 rounded-full bg-[var(--ub-surface-glass)] px-4 text-[15px] font-semibold text-[var(--ub-color-brand)] shadow-sm backdrop-blur-xl active:bg-[var(--ub-surface-pressed)]'
           : 'flex min-h-[52px] flex-1 items-center justify-center rounded-[16px] bg-[#ff4b00] px-4 text-[17px] font-semibold text-white active:scale-[0.99]'
       }
     >

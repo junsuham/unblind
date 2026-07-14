@@ -331,7 +331,7 @@ export default async function AdminAnalyticsPage() {
   ])
 
   return (
-    <main className="min-h-screen bg-[#ff4b00] px-5 py-8">
+    <main className="ub-app-surface min-h-screen px-5 py-8">
       <section className="mx-auto max-w-md">
         <div className="mb-6">
           <Link href="/admin" className="text-sm text-[#8E8E93]">

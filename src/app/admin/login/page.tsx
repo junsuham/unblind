@@ -37,27 +37,27 @@ export default function AdminLoginPage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#ff4b00] px-4 pb-10 pt-8 text-black">
+    <main className="ub-app-surface min-h-screen px-4 pb-10 pt-8 text-[var(--ub-text-on-brand-primary)]">
       <section className="mx-auto max-w-[430px]">
         <header className="mb-8">
-          <p className="mb-1 text-[13px] font-semibold text-[#8E8E93]">
+          <p className="mb-1 text-[13px] font-semibold text-[var(--ub-text-on-brand-tertiary)]">
             운영자 전용
           </p>
 
-          <h1 className="text-[34px] font-bold leading-[38px] tracking-[-0.7px] text-black">
+          <h1 className="text-[34px] font-bold leading-[38px] tracking-[-0.7px] text-[var(--ub-text-on-brand-primary)]">
             관리자 로그인
           </h1>
 
-          <p className="mt-3 text-[17px] leading-[25px] text-[#3C3C43]/60">
+          <p className="mt-3 text-[17px] leading-[25px] text-[var(--ub-text-on-brand-secondary)]">
             신고 처리, 참여자 승인, 게시글 관리를 위한 운영자 화면입니다.
           </p>
         </header>
 
         <form
           onSubmit={handleSubmit}
-          className="rounded-[28px] border border-white/70 bg-white/86 p-5 shadow-[0_12px_32px_rgba(0,0,0,0.06)] backdrop-blur-2xl"
+          className="rounded-[28px] border border-[var(--ub-glass-border)] bg-[var(--ub-surface-card)] p-5 text-[var(--ub-text-primary)] shadow-[var(--ub-shadow-card)] backdrop-blur-2xl"
         >
-          <label className="mb-2 block text-[15px] font-semibold text-black">
+          <label className="mb-2 block text-[15px] font-semibold text-[var(--ub-text-primary)]">
             관리자 비밀번호
           </label>
 
@@ -65,12 +65,12 @@ export default function AdminLoginPage() {
             type="password"
             value={password}
             onChange={(event) => setPassword(event.target.value)}
-            className="min-h-[52px] w-full rounded-[16px] border border-[#D1D1D6] bg-[#fff7f2] px-4 text-[17px] text-black outline-none focus:border-[#ff4b00]"
+            className="min-h-[52px] w-full rounded-[16px] border border-[var(--ub-control-border)] bg-[var(--ub-surface-input)] px-4 text-[17px] text-[var(--ub-text-primary)] outline-none focus:border-[var(--ub-color-brand)]"
             placeholder="ADMIN_PASSWORD"
           />
 
           {errorMessage && (
-            <div className="mt-4 rounded-[18px] border border-[#FF3B30]/20 bg-[#FF3B30]/10 p-4 text-[15px] leading-[21px] text-[#7A1A16]">
+            <div className="mt-4 rounded-[18px] border border-[var(--ub-danger-border)] bg-[var(--ub-danger-soft)] p-4 text-[15px] leading-[21px] text-[var(--ub-danger-text)]">
               {errorMessage}
             </div>
           )}
@@ -84,8 +84,8 @@ export default function AdminLoginPage() {
           </button>
         </form>
 
-        <div className="mt-5 rounded-[22px] border border-[#ff4b00]/20 bg-[#ff4b00]/10 p-4 text-[15px] leading-[21px] text-[#5C2500]">
-          <p className="font-semibold text-black">운영자 주의</p>
+        <div className="mt-5 rounded-[22px] border border-[var(--ub-warning-border)] bg-[var(--ub-warning-soft)] p-4 text-[15px] leading-[21px] text-[var(--ub-warning-text)]">
+          <p className="font-semibold text-[var(--ub-text-primary)]">운영자 주의</p>
           <p className="mt-1">
             관리자 화면에서는 작성자와 신고자 정보를 확인할 수 있습니다.
             신고 대응과 안전 운영 목적에 한해 사용해주세요.

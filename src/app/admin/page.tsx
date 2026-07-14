@@ -142,16 +142,16 @@ export default async function AdminDashboardPage() {
   ]
 
   return (
-    <main className="min-h-screen bg-[#ff4b00] px-4 pb-10 pt-8 text-black">
+    <main className="ub-app-surface min-h-screen px-4 pb-10 pt-8 text-[var(--ub-text-on-brand-primary)]">
       <section className="mx-auto max-w-[430px]">
         <header className="mb-8">
           <div className="mb-4 flex items-start justify-between gap-4">
             <div>
-              <p className="mb-1 text-[13px] font-semibold text-[#8E8E93]">
+              <p className="mb-1 text-[13px] font-semibold text-[var(--ub-text-on-brand-tertiary)]">
                 운영자 전용
               </p>
 
-              <h1 className="text-[34px] font-bold leading-[38px] tracking-[-0.7px] text-black">
+              <h1 className="text-[34px] font-bold leading-[38px] tracking-[-0.7px] text-[var(--ub-text-on-brand-primary)]">
                 관리자
               </h1>
             </div>
@@ -159,13 +159,13 @@ export default async function AdminDashboardPage() {
             <AdminLogoutButton />
           </div>
 
-          <p className="text-[17px] leading-[25px] text-[#3C3C43]/60">
+          <p className="text-[17px] leading-[25px] text-[var(--ub-text-on-brand-secondary)]">
             신고, 참여자, 게시글, 댓글 운영 상태를 확인합니다.
           </p>
         </header>
 
         <section className="mb-8">
-          <p className="mb-2 px-4 text-[13px] font-semibold uppercase tracking-[0.04em] text-[#8E8E93]">
+          <p className="mb-2 px-4 text-[13px] font-semibold uppercase tracking-[0.04em] text-[var(--ub-text-on-brand-tertiary)]">
             운영 현황
           </p>
 
@@ -176,20 +176,20 @@ export default async function AdminDashboardPage() {
                   className={
                     card.tone === 'danger' && card.value > 0
                       ? 'rounded-[24px] border border-[#FF3B30]/20 bg-[#FF3B30]/10 p-5 shadow-sm'
-                      : 'rounded-[24px] border border-white/70 bg-white/86 p-5 shadow-sm backdrop-blur-2xl'
+                      : 'rounded-[24px] border border-[var(--ub-glass-border)] bg-[var(--ub-surface-card)] p-5 shadow-[var(--ub-shadow-card)] backdrop-blur-2xl'
                   }
                 >
                   <p
                     className={
                       card.tone === 'danger' && card.value > 0
                         ? 'text-[15px] font-medium text-[#7A1A16]'
-                        : 'text-[15px] font-medium text-[#3C3C43]/60'
+                        : 'text-[15px] font-medium text-[var(--ub-text-secondary)]'
                     }
                   >
                     {card.label}
                   </p>
 
-                  <p className="mt-2 text-[34px] font-bold leading-[38px] tracking-[-0.7px] text-black">
+                  <p className="mt-2 text-[34px] font-bold leading-[38px] tracking-[-0.7px] text-[var(--ub-text-primary)]">
                     {card.value}
                   </p>
                 </div>
@@ -199,33 +199,33 @@ export default async function AdminDashboardPage() {
         </section>
 
         <section>
-          <p className="mb-2 px-4 text-[13px] font-semibold uppercase tracking-[0.04em] text-[#8E8E93]">
+          <p className="mb-2 px-4 text-[13px] font-semibold uppercase tracking-[0.04em] text-[var(--ub-text-on-brand-tertiary)]">
             관리 메뉴
           </p>
 
-          <div className="overflow-hidden rounded-[22px] bg-white shadow-sm">
+          <div className="overflow-hidden rounded-[22px] bg-[var(--ub-surface-card-strong)] shadow-[var(--ub-shadow-soft)]">
             {quickLinks.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
-                className="block active:bg-[#ffe2d2]"
+                className="block active:bg-[var(--ub-surface-pressed)]"
               >
-                <div className="flex min-h-[72px] items-center gap-3 border-b border-[#D1D1D6]/70 px-4 py-3 last:border-b-0">
-                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px] bg-[#fff7f2] text-[24px]">
+                <div className="flex min-h-[72px] items-center gap-3 border-b border-[var(--ub-separator)] px-4 py-3 last:border-b-0">
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px] bg-[var(--ub-surface-brand-soft)] text-[24px]">
                     {item.icon}
                   </div>
 
                   <div className="min-w-0 flex-1">
-                    <p className="text-[17px] leading-[22px] text-black">
+                    <p className="text-[17px] leading-[22px] text-[var(--ub-text-primary)]">
                       {item.title}
                     </p>
 
-                    <p className="mt-0.5 text-[15px] leading-[20px] text-[#3C3C43]/60">
+                    <p className="mt-0.5 text-[15px] leading-[20px] text-[var(--ub-text-secondary)]">
                       {item.description}
                     </p>
                   </div>
 
-                  <span className="text-[24px] leading-none text-[#C7C7CC]">
+                  <span className="text-[24px] leading-none text-[var(--ub-text-tertiary)]">
                     ›
                   </span>
                 </div>

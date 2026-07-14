@@ -109,6 +109,34 @@ a {
   backdrop-filter: blur(var(--ub-blur-glass));
 }
 
+.ub-app-surface {
+  background: var(--ub-app-background);
+}
+
+.ub-logo-surface {
+  background: var(--ub-surface-logo);
+}
+
+.ub-bottom-fade {
+  background: linear-gradient(
+    to top,
+    var(--ub-surface-app),
+    color-mix(in srgb, var(--ub-surface-app) 82%, transparent),
+    transparent
+  );
+}
+
+.ub-provider-google {
+  border-color: var(--ub-google-border);
+  background: var(--ub-google-surface);
+  color: var(--ub-google-text);
+}
+
+.ub-provider-kakao {
+  background: var(--ub-kakao-surface);
+  color: var(--ub-kakao-text);
+}
+
 .ub-card {
   border: 1px solid var(--ub-glass-border);
   border-radius: var(--ub-radius-xl);

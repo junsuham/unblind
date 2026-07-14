@@ -48,9 +48,9 @@ export default function AddAllowedUserForm() {
   return (
     <form
       onSubmit={handleSubmit}
-      className="rounded-[28px] border border-white/70 bg-white/86 p-5 shadow-sm backdrop-blur-2xl"
+      className="rounded-[28px] border border-[var(--ub-glass-border)] bg-[var(--ub-surface-card)] p-5 text-[var(--ub-text-primary)] shadow-[var(--ub-shadow-card)] backdrop-blur-2xl"
     >
-      <h2 className="ios-title text-black">
+      <h2 className="ios-title text-[var(--ub-text-primary)]">
         승인 이메일 추가
       </h2>
 
@@ -60,7 +60,7 @@ export default function AddAllowedUserForm() {
 
       <div className="mt-5 space-y-4">
         <div>
-          <label className="mb-2 block ios-caption font-semibold text-[#8E8E93]">
+          <label className="mb-2 block ios-caption font-semibold text-[var(--ub-text-tertiary)]">
             이메일
           </label>
 
@@ -69,12 +69,12 @@ export default function AddAllowedUserForm() {
             value={email}
             onChange={(event) => setEmail(event.target.value)}
             placeholder="name@example.com"
-            className="min-h-[52px] w-full rounded-[16px] border border-[#D1D1D6] bg-[#fff7f2] px-4 ios-body text-black outline-none placeholder:text-[#8E8E93] focus:border-[#ff4b00]"
+            className="min-h-[52px] w-full rounded-[16px] border border-[var(--ub-control-border)] bg-[var(--ub-surface-input)] px-4 ios-body text-[var(--ub-text-primary)] outline-none placeholder:text-[var(--ub-text-tertiary)] focus:border-[var(--ub-color-brand)]"
           />
         </div>
 
         <div>
-          <label className="mb-2 block ios-caption font-semibold text-[#8E8E93]">
+          <label className="mb-2 block ios-caption font-semibold text-[var(--ub-text-tertiary)]">
             메모
           </label>
 
@@ -82,7 +82,7 @@ export default function AddAllowedUserForm() {
             value={memo}
             onChange={(event) => setMemo(event.target.value)}
             placeholder="예: 1청년부 / 리더 추천 / 1차 베타"
-            className="min-h-[52px] w-full rounded-[16px] border border-[#D1D1D6] bg-[#fff7f2] px-4 ios-body text-black outline-none placeholder:text-[#8E8E93] focus:border-[#ff4b00]"
+            className="min-h-[52px] w-full rounded-[16px] border border-[var(--ub-control-border)] bg-[var(--ub-surface-input)] px-4 ios-body text-[var(--ub-text-primary)] outline-none placeholder:text-[var(--ub-text-tertiary)] focus:border-[var(--ub-color-brand)]"
           />
         </div>
       </div>

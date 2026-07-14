@@ -33,15 +33,15 @@ export default async function OnboardingPage() {
       </div>
 
       <GlassCard className="mb-6">
-        <p className="text-[13px] font-semibold uppercase tracking-[0.04em] text-[#8E8E93]">
+        <p className="text-[13px] font-semibold uppercase tracking-[0.04em] text-[var(--ub-text-tertiary)]">
           현재 로그인
         </p>
 
-        <p className="mt-2 break-all text-[17px] leading-[24px] text-black">
+        <p className="mt-2 break-all text-[17px] leading-[24px] text-[var(--ub-text-primary)]">
           {user.email}
         </p>
 
-        <p className="mt-2 text-[15px] leading-[21px] text-[#3C3C43]/60">
+        <p className="mt-2 text-[15px] leading-[21px] text-[var(--ub-text-secondary)]">
           사용자 화면에서는 이 이메일이 다른 사람에게 공개되지 않습니다.
         </p>
       </GlassCard>
