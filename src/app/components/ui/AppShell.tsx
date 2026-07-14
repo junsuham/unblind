@@ -22,7 +22,7 @@ function TopLogoBar() {
           <img
             src="/unblind-logo.png"
             alt="UNBLIND"
-            className="block h-auto w-[220px]"
+            className="block h-[96px] w-[96px]"
           />
         </Link>
       </div>

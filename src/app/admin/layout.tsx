@@ -17,7 +17,7 @@ export default function AdminLayout({
             <img
               src="/unblind-logo.png"
               alt="UNBLIND"
-              className="block h-auto w-[210px]"
+              className="block h-11 w-11"
             />
           </Link>
         </div>

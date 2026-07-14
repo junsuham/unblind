@@ -51,7 +51,7 @@ export default async function HomePage() {
 
   return (
     <AppShell showTopLogo={false} bottomBar={<BottomTabBar />}>
-      <section className="-mx-4 -mt-[calc(18px+env(safe-area-inset-top))] mb-7 bg-[#ff4b00] px-4 pt-[calc(28px+env(safe-area-inset-top))] pb-8">
+      <section className="-mx-4 -mt-[calc(18px+env(safe-area-inset-top))] mb-7 bg-[var(--ub-surface-logo)] px-4 pt-[calc(28px+env(safe-area-inset-top))] pb-8">
         <div className="mx-auto max-w-[430px]">
           <div className="mb-8 flex justify-end">
             <LogoutButton compact />
@@ -65,7 +65,7 @@ export default async function HomePage() {
             <img
               src="/unblind-logo.png"
               alt="UNBLIND"
-              className="block h-auto w-[260px] max-w-full"
+              className="block h-[132px] w-[132px]"
             />
           </Link>
 
