@@ -78,7 +78,7 @@ export default async function HomePage() {
           오늘의 말씀
         </p>
 
-        <blockquote className="mt-3 text-[19px] font-medium leading-[30px] text-[var(--ub-text-primary)]">
+        <blockquote className="mt-3 ios-body text-[var(--ub-text-primary)]">
           “{verse.text}”
         </blockquote>
 

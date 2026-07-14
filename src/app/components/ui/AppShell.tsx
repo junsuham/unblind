@@ -2,6 +2,7 @@
 
 import { useEffect, useState, type ReactNode } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { SystemIcon, type SystemIconName } from './SystemIcon'
 
 type AppShellProps = {
@@ -12,17 +13,19 @@ type AppShellProps = {
 
 function TopLogoBar() {
   return (
-    <div className="ub-logo-surface -mx-4 -mt-[calc(18px+env(safe-area-inset-top))] mb-6 px-4 pt-[calc(18px+env(safe-area-inset-top))] pb-4">
+    <div className="ub-logo-surface -mx-4 -mt-[calc(18px+env(safe-area-inset-top))] mb-6 px-4 pt-[calc(10px+env(safe-area-inset-top))] pb-3">
       <div className="mx-auto flex max-w-[430px] justify-center">
         <Link
           href="/"
           aria-label="언블라인드 홈으로 이동"
           className="flex min-h-11 items-center justify-center active:scale-[0.99]"
         >
-          <img
+          <Image
             src="/unblind-logo.png"
             alt="UNBLIND"
-            className="block h-[96px] w-[96px]"
+            width={84}
+            height={84}
+            className="block h-[84px] w-[84px]"
           />
         </Link>
       </div>
