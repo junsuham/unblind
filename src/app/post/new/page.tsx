@@ -1,7 +1,7 @@
 import { requireBetaUser } from '@/lib/betaAuth'
 import NewPostForm from './NewPostForm'
 
-const validBoards = ['prayer', 'faith', 'church', 'work', 'relationship'] as const
+const validBoards = ['prayer', 'faith', 'daily'] as const
 
 type BoardId = (typeof validBoards)[number]
 

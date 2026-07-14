@@ -6,9 +6,10 @@ export type SystemIconName =
   | 'heart'
   | 'leaf'
   | 'message'
+  | 'music'
   | 'people'
-  | 'pray'
   | 'sparkles'
+  | 'sun'
 
 type SystemIconProps = SVGProps<SVGSVGElement> & {
   name: SystemIconName
@@ -34,14 +35,20 @@ const paths: Record<SystemIconName, ReactNode> = {
   message: (
     <path d="M21 14a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4v7Z" />
   ),
+  music: (
+    <path d="M9 18V5l10-2v13M9 9l10-2M6.5 21C4.6 21 3 19.9 3 18.5S4.6 16 6.5 16 10 17.1 10 18.5 8.4 21 6.5 21ZM16.5 19c-1.9 0-3.5-1.1-3.5-2.5s1.6-2.5 3.5-2.5 3.5 1.1 3.5 2.5-1.6 2.5-3.5 2.5Z" />
+  ),
   people: (
     <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8" />
   ),
-  pray: (
-    <path d="M8.2 21v-5.4l-2.4-2.7a2 2 0 0 1 .1-2.8l.3-.3 3.5 3.1V4.5a1.5 1.5 0 0 1 3 0v7.1l1.6-1.5a2 2 0 0 1 2.8.1l1.1 1.2a3 3 0 0 1 .8 2V21M8.2 17h10.7" />
-  ),
   sparkles: (
     <path d="m12 3-1.2 3.8a6 6 0 0 1-4 4L3 12l3.8 1.2a6 6 0 0 1 4 4L12 21l1.2-3.8a6 6 0 0 1 4-4L21 12l-3.8-1.2a6 6 0 0 1-4-4L12 3Z" />
+  ),
+  sun: (
+    <>
+      <circle cx="12" cy="12" r="4" />
+      <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" />
+    </>
   ),
 }
 

@@ -13,7 +13,7 @@ import {
   Pill,
 } from '@/app/components/ui/AppShell'
 
-type BoardId = 'prayer' | 'faith' | 'church' | 'work' | 'relationship'
+type BoardId = 'prayer' | 'faith' | 'daily'
 
 const boardOptions: { id: BoardId; name: string; icon: string; description: string }[] = [
   {
@@ -24,27 +24,15 @@ const boardOptions: { id: BoardId; name: string; icon: string; description: stri
   },
   {
     id: 'faith',
-    name: '신앙고민',
+    name: '신앙',
     icon: '🕊️',
-    description: '기도, 말씀, 예배, 신앙 회의에 대해 나눠요.',
+    description: '신앙 속 고민을 나눠요.',
   },
   {
-    id: 'church',
-    name: '교회생활',
-    icon: '⛪',
-    description: '공동체, 봉사, 소그룹 고민을 나눠요.',
-  },
-  {
-    id: 'work',
-    name: '진로/직장',
-    icon: '🌿',
-    description: '학업, 취업, 직장, 소명 고민을 나눠요.',
-  },
-  {
-    id: 'relationship',
-    name: '연애/결혼',
-    icon: '🤍',
-    description: '관계와 결혼에 대한 고민을 나눠요.',
+    id: 'daily',
+    name: '일상',
+    icon: '☀️',
+    description: '일상 속 고민을 나눠요.',
   },
 ]
 

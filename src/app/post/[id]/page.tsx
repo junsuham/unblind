@@ -17,7 +17,8 @@ export const dynamic = 'force-dynamic'
 
 const boardNames: Record<string, string> = {
   prayer: '기도요청',
-  faith: '신앙고민',
+  faith: '신앙',
+  daily: '일상',
   church: '교회생활',
   work: '진로/직장',
   relationship: '연애/결혼',
@@ -110,9 +111,7 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
   const activeTab =
     post.board === 'prayer' ||
     post.board === 'faith' ||
-    post.board === 'church' ||
-    post.board === 'work' ||
-    post.board === 'relationship'
+    post.board === 'daily'
       ? post.board
       : undefined
 

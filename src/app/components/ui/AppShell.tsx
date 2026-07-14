@@ -279,9 +279,9 @@ export function Pill({ children }: PillProps) {
 type BottomTabKey =
   | 'prayer'
   | 'faith'
-  | 'church'
-  | 'work'
-  | 'relationship'
+  | 'daily'
+  | 'counsel'
+  | 'praise'
 
 type BottomTabBarProps = {
   active?: string
@@ -291,13 +291,14 @@ const bottomTabs: {
   key: BottomTabKey
   label: string
   href: string
-  icon: SystemIconName
+  icon?: SystemIconName
+  emoji?: string
 }[] = [
   {
     key: 'prayer',
     label: '기도',
     href: '/board/prayer',
-    icon: 'sparkles',
+    emoji: '🙏',
   },
   {
     key: 'faith',
@@ -306,22 +307,22 @@ const bottomTabs: {
     icon: 'heart',
   },
   {
-    key: 'church',
-    label: '교회',
-    href: '/board/church',
-    icon: 'people',
+    key: 'daily',
+    label: '일상',
+    href: '/board/daily',
+    icon: 'sun',
   },
   {
-    key: 'work',
-    label: '진로',
-    href: '/board/work',
-    icon: 'leaf',
-  },
-  {
-    key: 'relationship',
-    label: '관계',
-    href: '/board/relationship',
+    key: 'counsel',
+    label: '상담',
+    href: '/counsel',
     icon: 'message',
+  },
+  {
+    key: 'praise',
+    label: '찬양',
+    href: '/praise',
+    icon: 'music',
   },
 ]
 
@@ -389,7 +390,13 @@ export function BottomTabBar({ active }: BottomTabBarProps) {
                     : 'text-[var(--ub-text-tertiary)]'
                 }
               >
-                <SystemIcon name={tab.icon} size={22} />
+                {tab.emoji ? (
+                  <span className="text-[21px] leading-none" aria-hidden>
+                    {tab.emoji}
+                  </span>
+                ) : (
+                  tab.icon && <SystemIcon name={tab.icon} size={22} />
+                )}
               </span>
 
               <span

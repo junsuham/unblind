@@ -147,11 +147,12 @@ export default function ReactionButtons({
           title="기도"
           className="inline-flex min-h-[40px] items-center gap-1.5 rounded-full px-1.5 text-[13px] font-medium text-[var(--ub-text-secondary)] active:bg-[var(--ub-surface-pressed)] disabled:opacity-60"
         >
-          <SystemIcon
-            name="pray"
-            size={21}
-            className={clicked.pray ? 'text-[var(--ub-color-brand)]' : undefined}
-          />
+          <span
+            className={clicked.pray ? 'text-[20px] opacity-100' : 'text-[20px] opacity-70'}
+            aria-hidden
+          >
+            🙏
+          </span>
           <span>{counts.pray}</span>
         </button>
 

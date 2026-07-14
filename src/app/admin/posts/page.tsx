@@ -31,7 +31,8 @@ type ReactionRow = {
 
 const boardNames: Record<string, string> = {
   prayer: '기도요청',
-  faith: '신앙고민',
+  faith: '신앙',
+  daily: '일상',
   church: '교회생활',
   work: '진로/직장',
   relationship: '연애/결혼',

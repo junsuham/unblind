@@ -13,7 +13,8 @@ export const dynamic = 'force-dynamic'
 
 const boardNames: Record<string, string> = {
   prayer: '기도요청',
-  faith: '신앙고민',
+  faith: '신앙',
+  daily: '일상',
   church: '교회생활',
   work: '진로/직장',
   relationship: '연애/결혼',
@@ -21,7 +22,8 @@ const boardNames: Record<string, string> = {
 
 const boardDescriptions: Record<string, string> = {
   prayer: '함께 기도받고 싶은 제목을 조용히 나누는 공간입니다.',
-  faith: '기도, 말씀, 예배, 신앙 회의에 대한 고민을 나눕니다.',
+  faith: '신앙 속 고민을 안전하게 나눕니다.',
+  daily: '일상 속 고민을 편안하게 나눕니다.',
   church: '공동체, 봉사, 소그룹, 교회생활 고민을 나눕니다.',
   work: '학업, 취업, 직장, 소명에 대한 고민을 나눕니다.',
   relationship: '관계와 결혼에 대한 고민을 안전하게 나눕니다.',
@@ -82,9 +84,7 @@ export default async function BoardPage({ params }: BoardPageProps) {
   const activeTab =
     board === 'prayer' ||
     board === 'faith' ||
-    board === 'church' ||
-    board === 'work' ||
-    board === 'relationship'
+    board === 'daily'
       ? board
       : undefined
 
@@ -162,7 +162,9 @@ export default async function BoardPage({ params }: BoardPageProps) {
                     className="inline-flex items-center gap-1"
                     aria-label={`기도 ${prayCount}`}
                   >
-                    <SystemIcon name="pray" size={15} />
+                    <span className="text-[14px] leading-none" aria-hidden>
+                      🙏
+                    </span>
                     {prayCount}
                   </span>
                   <span
