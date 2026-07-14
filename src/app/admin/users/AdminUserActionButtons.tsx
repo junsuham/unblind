@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 
 type UserAction =
+  | 'add'
   | 'block'
   | 'unblock'
   | 'reset_agreement'
@@ -12,7 +13,7 @@ type UserAction =
 
 type AdminUserActionButtonsProps = {
   email: string
-  status: 'active' | 'blocked'
+  status: 'pending' | 'active' | 'blocked'
   memo: string | null
 }
 
@@ -31,7 +32,9 @@ export default function AdminUserActionButtons({
     let nextMemo: string | null = memo
 
     const confirmMessage =
-      action === 'block'
+      action === 'add'
+        ? `${email} 사용자의 가입을 승인할까요? 승인 후 바로 커뮤니티에 입장할 수 있습니다.`
+        : action === 'block'
         ? `${email} 사용자를 차단할까요? 차단되면 로그인 후 입장할 수 없습니다.`
         : action === 'unblock'
           ? `${email} 사용자의 차단을 해제할까요?`
@@ -80,6 +83,30 @@ export default function AdminUserActionButtons({
 
   const baseButtonClass =
     'min-h-[44px] rounded-[14px] px-3 ios-caption font-semibold active:scale-[0.99] disabled:opacity-50'
+
+  if (status === 'pending') {
+    return (
+      <div className="mt-4 grid grid-cols-2 gap-2">
+        <button
+          type="button"
+          onClick={() => runAction('add')}
+          disabled={submittingAction !== null}
+          className={`${baseButtonClass} border border-green-200 bg-green-50 text-green-700`}
+        >
+          {submittingAction === 'add' ? '승인 중...' : '가입 승인'}
+        </button>
+
+        <button
+          type="button"
+          onClick={() => runAction('block')}
+          disabled={submittingAction !== null}
+          className={`${baseButtonClass} border border-[#FF3B30]/20 bg-[#FF3B30]/10 text-[#7A1A16]`}
+        >
+          {submittingAction === 'block' ? '처리 중...' : '가입 차단'}
+        </button>
+      </div>
+    )
+  }
 
   return (
     <div className="mt-4 grid grid-cols-2 gap-2">

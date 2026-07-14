@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { requireAdmin } from '@/lib/adminAuth'
+import { listAllAuthUsers } from '@/lib/adminUsers'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
 import AdminLogoutButton from './components/AdminLogoutButton'
 
@@ -17,6 +18,8 @@ export default async function AdminDashboardPage() {
     totalCommentsResult,
     allowedUsersResult,
     agreedUsersResult,
+    accessEmailsResult,
+    authUsersResult,
   ] = await Promise.all([
     supabaseAdmin
       .from('reports')
@@ -55,7 +58,18 @@ export default async function AdminDashboardPage() {
       .select('*', { count: 'exact', head: true })
       .eq('status', 'active')
       .not('agreed_at', 'is', null),
+
+    supabaseAdmin.from('allowed_users').select('email'),
+
+    listAllAuthUsers(),
   ])
+
+  const accessEmails = new Set(
+    (accessEmailsResult.data ?? []).map((row) => row.email.toLowerCase())
+  )
+  const pendingSignupCount = authUsersResult.users.filter(
+    (user) => user.email && !accessEmails.has(user.email.toLowerCase())
+  ).length
 
   const cards = [
     {
@@ -69,6 +83,12 @@ export default async function AdminDashboardPage() {
       value: totalReportsResult.count ?? 0,
       href: '/admin/reports',
       tone: 'default',
+    },
+    {
+      label: '가입 승인 대기',
+      value: pendingSignupCount,
+      href: '/admin/users',
+      tone: 'danger',
     },
     {
       label: '승인 사용자',
@@ -112,7 +132,7 @@ export default async function AdminDashboardPage() {
     {
       href: '/admin/users',
       title: '베타 참여자 관리',
-      description: '승인 이메일 추가, 차단, 동의 초기화',
+      description: '소셜 가입 승인, 차단, 동의 초기화',
       icon: '👥',
     },
     {

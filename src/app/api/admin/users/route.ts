@@ -84,10 +84,15 @@ export async function POST(request: NextRequest) {
   if (action === 'block') {
     const { error } = await supabaseAdmin
       .from('allowed_users')
-      .update({
-        status: 'blocked',
-      })
-      .eq('email', email)
+      .upsert(
+        {
+          email,
+          status: 'blocked',
+        },
+        {
+          onConflict: 'email',
+        }
+      )
 
     actionError = error
   }
@@ -95,10 +100,15 @@ export async function POST(request: NextRequest) {
   if (action === 'unblock') {
     const { error } = await supabaseAdmin
       .from('allowed_users')
-      .update({
-        status: 'active',
-      })
-      .eq('email', email)
+      .upsert(
+        {
+          email,
+          status: 'active',
+        },
+        {
+          onConflict: 'email',
+        }
+      )
 
     actionError = error
   }

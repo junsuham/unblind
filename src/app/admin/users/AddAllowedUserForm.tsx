@@ -51,11 +51,11 @@ export default function AddAllowedUserForm() {
       className="rounded-[28px] border border-[var(--ub-glass-border)] bg-[var(--ub-surface-card)] p-5 text-[var(--ub-text-primary)] shadow-[var(--ub-shadow-card)] backdrop-blur-2xl"
     >
       <h2 className="ios-title text-[var(--ub-text-primary)]">
-        승인 이메일 추가
+        사전 승인 이메일 추가
       </h2>
 
       <p className="mt-1 ios-secondary">
-        청년회 베타에 참여할 사람의 이메일을 추가합니다.
+        가입 전에 미리 승인해야 하는 사람이 있을 때만 사용합니다.
       </p>
 
       <div className="mt-5 space-y-4">
@@ -104,7 +104,7 @@ export default function AddAllowedUserForm() {
         disabled={isSubmitting}
         className="mt-5 flex min-h-[52px] w-full items-center justify-center rounded-[16px] bg-[#ff4b00] px-5 ios-title text-white shadow-sm active:scale-[0.99] disabled:bg-[#8E8E93]"
       >
-        {isSubmitting ? '추가 중...' : '승인 이메일 추가'}
+        {isSubmitting ? '추가 중...' : '사전 승인 추가'}
       </button>
     </form>
   )

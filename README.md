@@ -30,9 +30,10 @@ https://<project-ref>.supabase.co/auth/v1/callback
 ```
 
 Google must provide the email scope. For Kakao, configure `account_email` as a
-consent item; it requires a Kakao Biz App. The application checks that the
-social account email exists as an active entry in `allowed_users` before
-granting access.
+consent item; it requires a Kakao Biz App. After the first social sign-in, the
+account appears in the admin participant page as pending. An administrator must
+approve it, which creates an active entry in `allowed_users`, before the user
+can access the community.
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
