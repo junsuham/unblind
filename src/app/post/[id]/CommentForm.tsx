@@ -64,10 +64,21 @@ export default function CommentForm({ postId }: CommentFormProps) {
 
     setIsSubmitting(true)
 
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+
+    if (!user) {
+      setIsSubmitting(false)
+      setErrorMessage('로그인 정보를 확인하지 못했습니다. 다시 로그인해주세요.')
+      return
+    }
+
     const { error } = await supabase.from('comments').insert({
       post_id: postId,
       content: trimmedContent,
       status: 'visible',
+      author_user_id: user.id,
     })
 
     setIsSubmitting(false)

@@ -141,8 +141,8 @@ export default function LoginPage() {
         )}
 
         <p className="mt-4 text-center text-[13px] leading-[19px] text-[var(--ub-text-secondary)]">
-          처음 접속하면 계정이 자동으로 생성됩니다. 소셜 계정의 이메일은
-          운영자 승인 확인에만 사용됩니다.
+          소셜 인증 후 연령 확인과 기본 정보 입력을 진행합니다. 소셜 계정의
+          이메일은 운영자 승인 확인에만 사용됩니다.
         </p>
       </GlassCard>
 

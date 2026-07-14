@@ -8,6 +8,11 @@ type AllowedUser = {
   agreed_version: string | null
 }
 
+type UserProfileGate = {
+  completed_at: string
+  reference_age: number
+}
+
 export async function requireAllowedUser() {
   const supabase = await createServerSupabase()
 
@@ -29,6 +34,20 @@ export async function requireAllowedUser() {
     redirect(`/login?${searchParams}`)
   }
 
+  const { data: profile } = await supabase
+    .from('user_profiles')
+    .select('completed_at, reference_age')
+    .eq('user_id', user.id)
+    .maybeSingle<UserProfileGate>()
+
+  if (
+    !profile?.completed_at ||
+    profile.reference_age < 20 ||
+    profile.reference_age > 59
+  ) {
+    redirect('/profile/setup')
+  }
+
   const { data: allowedUser } = await supabase
     .from('allowed_users')
     .select('email, status, agreed_at, agreed_version')
@@ -43,6 +62,7 @@ export async function requireAllowedUser() {
     supabase,
     user,
     allowedUser,
+    profile,
   }
 }
 

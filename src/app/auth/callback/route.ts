@@ -25,7 +25,7 @@ export async function GET(request: Request) {
   const type = requestUrl.searchParams.get('type')
   const authError = requestUrl.searchParams.get('error')
   const authErrorCode = requestUrl.searchParams.get('error_code')
-  const next = requestUrl.searchParams.get('next') ?? '/'
+  const next = requestUrl.searchParams.get('next') ?? '/profile/setup'
 
   if (authError) {
     return NextResponse.redirect(

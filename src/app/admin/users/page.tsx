@@ -1,6 +1,7 @@
 import { requireAdmin } from '@/lib/adminAuth'
 import { listAllAuthUsers } from '@/lib/adminUsers'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
+import { occupationLabels, type Occupation } from '@/lib/profile'
 import AddAllowedUserForm from './AddAllowedUserForm'
 import AdminUserActionButtons from './AdminUserActionButtons'
 import {
@@ -27,6 +28,18 @@ type AllowedUserRow = {
   last_seen_at: string | null
 }
 
+type ProfileRow = {
+  user_id: string
+  email: string
+  nickname: string
+  birth_date: string
+  reference_age: number
+  church_name: string
+  church_address: string
+  occupation: Occupation
+  completed_at: string
+}
+
 type ManagedUserRow = {
   email: string
   status: AccessStatus
@@ -36,6 +49,13 @@ type ManagedUserRow = {
   signedUpAt: string | null
   agreedAt: string | null
   lastSeenAt: string | null
+  profileComplete: boolean
+  nickname: string | null
+  birthDate: string | null
+  referenceAge: number | null
+  churchName: string | null
+  churchAddress: string | null
+  occupation: Occupation | null
 }
 
 function formatDate(value: string | null) {
@@ -94,7 +114,7 @@ function UserRows({
           <AdminListRow
             key={user.email}
             title={user.email}
-            subtitle={`${user.provider} · ${statusText}`}
+            subtitle={`${user.provider} · ${statusText}${user.nickname ? ` · ${user.nickname}` : ''}`}
             leading={
               user.status === 'pending'
                 ? '⏳'
@@ -112,6 +132,42 @@ function UserRows({
           >
             <div className="rounded-[18px] bg-[var(--ub-surface-muted)] p-4 ios-secondary text-[var(--ub-text-secondary)]">
               <p>
+                <span className="font-semibold text-[var(--ub-text-primary)]">
+                  프로필:
+                </span>{' '}
+                {user.profileComplete ? '입력 완료' : '미입력'}
+              </p>
+
+              <p className="mt-1">
+                <span className="font-semibold text-[var(--ub-text-primary)]">
+                  앱 아이디:
+                </span>{' '}
+                {user.nickname || '-'}
+              </p>
+
+              <p className="mt-1">
+                <span className="font-semibold text-[var(--ub-text-primary)]">
+                  생년월일 / 기준 나이:
+                </span>{' '}
+                {user.birthDate || '-'} / {user.referenceAge ?? '-'}세
+              </p>
+
+              <p className="mt-1">
+                <span className="font-semibold text-[var(--ub-text-primary)]">
+                  출석 교회:
+                </span>{' '}
+                {user.churchName || '-'}
+                {user.churchAddress ? ` · ${user.churchAddress}` : ''}
+              </p>
+
+              <p className="mt-1">
+                <span className="font-semibold text-[var(--ub-text-primary)]">
+                  현재 상태:
+                </span>{' '}
+                {user.occupation ? occupationLabels[user.occupation] : '-'}
+              </p>
+
+              <p className="mt-1">
                 <span className="font-semibold text-[var(--ub-text-primary)]">
                   소셜 가입:
                 </span>{' '}
@@ -151,6 +207,7 @@ function UserRows({
               email={user.email}
               status={user.status}
               memo={user.memo}
+              profileComplete={user.profileComplete}
             />
           </AdminListRow>
         )
@@ -172,7 +229,7 @@ function UserRows({
 export default async function AdminUsersPage() {
   await requireAdmin()
 
-  const [allowedResult, authResult] = await Promise.all([
+  const [allowedResult, authResult, profileResult] = await Promise.all([
     supabaseAdmin
       .from('allowed_users')
       .select(
@@ -181,6 +238,12 @@ export default async function AdminUsersPage() {
       .order('created_at', { ascending: false })
       .returns<AllowedUserRow[]>(),
     listAllAuthUsers(),
+    supabaseAdmin
+      .from('user_profiles')
+      .select(
+        'user_id, email, nickname, birth_date, reference_age, church_name, church_address, occupation, completed_at'
+      )
+      .returns<ProfileRow[]>(),
   ])
 
   const allowedUsers = allowedResult.data ?? []
@@ -192,11 +255,22 @@ export default async function AdminUsersPage() {
       .filter((user) => !!user.email)
       .map((user) => [user.email!.toLowerCase(), user])
   )
-  const emails = new Set([...allowedByEmail.keys(), ...authByEmail.keys()])
+  const profilesByEmail = new Map(
+    (profileResult.data ?? []).map((profile) => [
+      profile.email.toLowerCase(),
+      profile,
+    ])
+  )
+  const emails = new Set([
+    ...allowedByEmail.keys(),
+    ...authByEmail.keys(),
+    ...profilesByEmail.keys(),
+  ])
 
   const users: ManagedUserRow[] = Array.from(emails).map((email) => {
     const allowedUser = allowedByEmail.get(email)
     const authUser = authByEmail.get(email)
+    const profile = profilesByEmail.get(email)
 
     return {
       email,
@@ -213,6 +287,13 @@ export default async function AdminUsersPage() {
       agreedAt: allowedUser?.agreed_at ?? null,
       lastSeenAt:
         allowedUser?.last_seen_at ?? authUser?.last_sign_in_at ?? null,
+      profileComplete: !!profile?.completed_at,
+      nickname: profile?.nickname ?? null,
+      birthDate: profile?.birth_date ?? null,
+      referenceAge: profile?.reference_age ?? null,
+      churchName: profile?.church_name ?? null,
+      churchAddress: profile?.church_address ?? null,
+      occupation: profile?.occupation ?? null,
     }
   })
 
@@ -240,7 +321,8 @@ export default async function AdminUsersPage() {
   const activeCount = users.filter((user) => user.status === 'active').length
   const blockedCount = users.filter((user) => user.status === 'blocked').length
   const agreedCount = users.filter((user) => !!user.agreedAt).length
-  const loadError = allowedResult.error ?? authResult.error
+  const loadError =
+    allowedResult.error ?? authResult.error ?? profileResult.error
 
   return (
     <AdminPageShell>
@@ -274,7 +356,7 @@ export default async function AdminUsersPage() {
       <div className="mb-6">
         <AdminListGroup
           title={`승인 대기 ${pendingUsers.length}`}
-          footer="소셜 계정 이메일과 청년회 구성원 여부를 확인한 뒤 승인해주세요."
+          footer="프로필 입력이 완료된 가입자의 연령·교회·현재 상태를 확인한 뒤 승인해주세요."
         >
           <UserRows
             users={pendingUsers}

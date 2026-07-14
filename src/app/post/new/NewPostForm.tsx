@@ -1,6 +1,5 @@
 'use client'
 
-import Link from 'next/link'
 import { FormEvent, ReactNode, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
@@ -173,6 +172,16 @@ export default function NewPostForm({ initialBoard }: NewPostFormProps) {
 
     setIsSubmitting(true)
 
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+
+    if (!user) {
+      setIsSubmitting(false)
+      setErrorMessage('로그인 정보를 확인하지 못했습니다. 다시 로그인해주세요.')
+      return
+    }
+
     const { data, error } = await supabase
       .from('posts')
       .insert({
@@ -180,6 +189,7 @@ export default function NewPostForm({ initialBoard }: NewPostFormProps) {
         title: trimmedTitle,
         content: trimmedContent,
         status: 'visible',
+        author_user_id: user.id,
       })
       .select('id')
       .single()

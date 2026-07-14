@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { requireBetaUser } from '@/lib/betaAuth'
+import { supabaseAdmin } from '@/lib/supabaseAdmin'
 import CommentForm from './CommentForm'
 import PostViewTracker from './PostViewTracker'
 import ReactionButtons from './ReactionButtons'
@@ -33,6 +34,13 @@ type ReactionRow = {
   type: 'pray' | 'empathize'
 }
 
+type CommentRow = {
+  id: string
+  content: string
+  created_at: string
+  author_user_id: string | null
+}
+
 function formatDate(value: string) {
   return new Date(value).toLocaleString('ko-KR', {
     month: 'long',
@@ -49,7 +57,7 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
 
   const { data: post, error: postError } = await supabase
     .from('posts')
-    .select('id, board, title, content, created_at')
+    .select('id, board, title, content, created_at, author_user_id')
     .eq('id', id)
     .eq('status', 'visible')
     .single()
@@ -60,10 +68,33 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
 
   const { data: comments, error: commentsError } = await supabase
     .from('comments')
-    .select('id, content, created_at')
+    .select('id, content, created_at, author_user_id')
     .eq('post_id', post.id)
     .eq('status', 'visible')
     .order('created_at', { ascending: true })
+    .returns<CommentRow[]>()
+
+  const authorIds = Array.from(
+    new Set(
+      [post.author_user_id, ...(comments ?? []).map((comment) => comment.author_user_id)]
+        .filter((value): value is string => !!value)
+    )
+  )
+
+  const { data: authorProfiles } = authorIds.length
+    ? await supabaseAdmin
+        .from('user_profiles')
+        .select('user_id, nickname')
+        .in('user_id', authorIds)
+        .returns<{ user_id: string; nickname: string }[]>()
+    : { data: [] }
+
+  const nicknameByUserId = new Map(
+    (authorProfiles ?? []).map((profile) => [profile.user_id, profile.nickname])
+  )
+  const postNickname = post.author_user_id
+    ? nicknameByUserId.get(post.author_user_id) ?? '익명'
+    : '익명'
 
   const { data: reactions, error: reactionsError } = await supabase
     .from('reactions')
@@ -96,7 +127,7 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
         backLabel={boardName}
         eyebrow="언블라인드"
         title={post.title}
-        description={`익명 작성자 · ${boardName} · ${formatDate(post.created_at)}`}
+        description={`${postNickname} · ${boardName} · ${formatDate(post.created_at)}`}
       />
 
       <GlassCard className="p-0">
@@ -156,7 +187,7 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
         )}
 
         <div className="space-y-3">
-          {comments?.map((comment, index) => (
+          {comments?.map((comment) => (
             <article
               key={comment.id}
               className="rounded-[22px] bg-[var(--ub-surface-card-strong)] p-4 shadow-[var(--ub-shadow-soft)]"
@@ -164,7 +195,9 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
               <div className="mb-3 flex items-center justify-between gap-3">
                 <div>
                   <p className="text-[15px] font-semibold text-[var(--ub-text-primary)]">
-                    익명 {index + 1}
+                    {comment.author_user_id
+                      ? nicknameByUserId.get(comment.author_user_id) ?? '익명'
+                      : '익명'}
                   </p>
 
                   <p className="mt-0.5 text-[13px] text-[var(--ub-text-tertiary)]">

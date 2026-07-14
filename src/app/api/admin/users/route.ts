@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
+import { listAllAuthUsers } from '@/lib/adminUsers'
 
 type UserAction =
   | 'add'
@@ -65,6 +66,30 @@ export async function POST(request: NextRequest) {
   let actionError: { message: string } | null = null
 
   if (action === 'add') {
+    const authResult = await listAllAuthUsers()
+    const hasSignedUp = authResult.users.some(
+      (user) => user.email?.toLowerCase() === email
+    )
+
+    if (hasSignedUp) {
+      const { data: profile } = await supabaseAdmin
+        .from('user_profiles')
+        .select('completed_at, reference_age')
+        .ilike('email', email)
+        .maybeSingle<{ completed_at: string; reference_age: number }>()
+
+      if (
+        !profile?.completed_at ||
+        profile.reference_age < 20 ||
+        profile.reference_age > 59
+      ) {
+        return NextResponse.json(
+          { error: '연령 확인과 가입 정보 입력이 완료된 사용자만 승인할 수 있습니다.' },
+          { status: 400 }
+        )
+      }
+    }
+
     const { error } = await supabaseAdmin
       .from('allowed_users')
       .upsert(

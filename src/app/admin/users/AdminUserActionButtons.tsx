@@ -15,12 +15,14 @@ type AdminUserActionButtonsProps = {
   email: string
   status: 'pending' | 'active' | 'blocked'
   memo: string | null
+  profileComplete: boolean
 }
 
 export default function AdminUserActionButtons({
   email,
   status,
   memo,
+  profileComplete,
 }: AdminUserActionButtonsProps) {
   const router = useRouter()
 
@@ -90,10 +92,14 @@ export default function AdminUserActionButtons({
         <button
           type="button"
           onClick={() => runAction('add')}
-          disabled={submittingAction !== null}
+          disabled={submittingAction !== null || !profileComplete}
           className={`${baseButtonClass} border border-green-200 bg-green-50 text-green-700`}
         >
-          {submittingAction === 'add' ? '승인 중...' : '가입 승인'}
+          {submittingAction === 'add'
+            ? '승인 중...'
+            : profileComplete
+              ? '가입 승인'
+              : '정보 입력 대기'}
         </button>
 
         <button

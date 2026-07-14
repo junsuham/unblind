@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { redirect } from 'next/navigation'
 import { createServerSupabase } from '@/lib/supabaseServer'
 import LogoutButton from '@/app/components/LogoutButton'
 import {
@@ -17,6 +18,20 @@ export default async function PendingPage() {
   const {
     data: { user },
   } = await supabase.auth.getUser()
+
+  if (!user) {
+    redirect('/login')
+  }
+
+  const { data: profile } = await supabase
+    .from('user_profiles')
+    .select('completed_at, nickname')
+    .eq('user_id', user.id)
+    .maybeSingle<{ completed_at: string; nickname: string }>()
+
+  if (!profile?.completed_at) {
+    redirect('/profile/setup')
+  }
 
   const { data: accessRecord } = user?.email
     ? await supabase
@@ -52,6 +67,10 @@ export default async function PendingPage() {
 
         <p className="mt-2 break-all text-[17px] leading-[24px] text-[var(--ub-text-primary)]">
           {user?.email ?? '이메일을 확인할 수 없습니다'}
+        </p>
+
+        <p className="mt-3 text-[15px] leading-[21px] text-[var(--ub-text-secondary)]">
+          앱 아이디: <span className="font-semibold text-[var(--ub-text-primary)]">{profile.nickname}</span>
         </p>
 
         <p className="mt-3 text-[15px] leading-[21px] text-[var(--ub-text-secondary)]">
