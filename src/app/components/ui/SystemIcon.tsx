@@ -1,6 +1,8 @@
 import type { ReactNode, SVGProps } from 'react'
 
 export type SystemIconName =
+  | 'bell'
+  | 'bookmark'
   | 'calendar'
   | 'eye'
   | 'gift'
@@ -11,6 +13,7 @@ export type SystemIconName =
   | 'people'
   | 'play'
   | 'prayer'
+  | 'search'
   | 'sparkles'
   | 'sun'
 
@@ -20,6 +23,12 @@ type SystemIconProps = SVGProps<SVGSVGElement> & {
 }
 
 const paths: Record<SystemIconName, ReactNode> = {
+  bell: (
+    <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9ZM10 21h4" />
+  ),
+  bookmark: (
+    <path d="M6 3h12v18l-6-4-6 4V3Z" />
+  ),
   calendar: (
     <path d="M7 2v3M17 2v3M3.5 9h17M5 4h14a2 2 0 0 1 2 2v14H3V6a2 2 0 0 1 2-2Z" />
   ),
@@ -58,6 +67,12 @@ const paths: Record<SystemIconName, ReactNode> = {
       <path d="M8.4 20.5 4.8 17a3.3 3.3 0 0 1-.8-3.4l2-6.1c.3-.9 1.2-1.4 2-1 .7.3 1.1 1 .9 1.8L8 12" />
       <path d="m9.1 15-1.5-2.2a1.5 1.5 0 0 1 .3-2.1c.6-.4 1.5-.3 2 .3l2.1 2.7 2.1-2.7c.5-.6 1.4-.7 2-.3.6.5.8 1.4.3 2.1L14.9 15" />
       <path d="m15.6 20.5 3.6-3.5a3.3 3.3 0 0 0 .8-3.4l-2-6.1c-.3-.9-1.2-1.4-2-1-.7.3-1.1 1-.9 1.8l.9 3.7M12 13.7v7" />
+    </>
+  ),
+  search: (
+    <>
+      <circle cx="11" cy="11" r="7" />
+      <path d="m20 20-4-4" />
     </>
   ),
   sparkles: (

@@ -6,6 +6,7 @@ import CommentForm from './CommentForm'
 import PostViewTracker from './PostViewTracker'
 import ReactionButtons from './ReactionButtons'
 import ReportButton from './ReportButton'
+import BookmarkButton from './BookmarkButton'
 import {
   AppShell,
   BottomTabBar,
@@ -108,6 +109,12 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
     reactions?.filter((reaction) => reaction.type === 'empathize').length ?? 0
 
   const boardName = boardNames[post.board] ?? '게시판'
+  const { data: savedPost } = await supabase
+    .from('saved_posts')
+    .select('post_id')
+    .eq('user_id', user.id)
+    .eq('post_id', post.id)
+    .maybeSingle()
   const activeTab =
     post.board === 'prayer' ||
     post.board === 'faith' ||
@@ -137,12 +144,15 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
               {postNickname}
             </p>
 
-            <ReportButton
-              targetType="post"
-              targetId={post.id}
-              reporterActorKey={user.id}
-              label="신고"
-            />
+            <div className="flex items-center gap-2">
+              <BookmarkButton postId={post.id} userId={user.id} initialSaved={Boolean(savedPost)} />
+              <ReportButton
+                targetType="post"
+                targetId={post.id}
+                reporterActorKey={user.id}
+                label="신고"
+              />
+            </div>
           </div>
 
           <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[12px] text-[var(--ub-text-tertiary)]">

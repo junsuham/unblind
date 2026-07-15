@@ -1,0 +1,57 @@
+import { createServerSupabase } from '@/lib/supabaseServer'
+import { supabaseAdmin } from '@/lib/supabaseAdmin'
+import { getManittoAssignment } from '@/lib/manitto'
+
+export const runtime = 'nodejs'
+
+async function getUser() {
+  const supabase = await createServerSupabase()
+  const { data: { user } } = await supabase.auth.getUser()
+  return { supabase, user }
+}
+
+export async function POST(request: Request) {
+  const { supabase, user } = await getUser()
+  if (!user) return Response.json({ error: '로그인이 필요합니다.' }, { status: 401 })
+  const body = await request.json().catch(() => null)
+
+  if (body?.action === 'join') {
+    const { error } = await supabase.from('manitto_participants').upsert({ user_id: user.id, is_active: true, updated_at: new Date().toISOString() })
+    return error ? Response.json({ error: error.message }, { status: 400 }) : Response.json({ ok: true })
+  }
+
+  if (body?.action === 'leave') {
+    const { error } = await supabase.from('manitto_participants').update({ is_active: false, updated_at: new Date().toISOString() }).eq('user_id', user.id)
+    return error ? Response.json({ error: error.message }, { status: 400 }) : Response.json({ ok: true })
+  }
+
+  if (body?.action === 'message') {
+    const message = typeof body.message === 'string' ? body.message.trim() : ''
+    if (message.length < 2 || message.length > 300) return Response.json({ error: '응원 쪽지는 2자 이상 300자 이하로 작성해주세요.' }, { status: 400 })
+    const assignment = await getManittoAssignment(user.id)
+    if (!assignment.recipientUserId) return Response.json({ error: '현재 배정된 마니또가 없습니다.' }, { status: 400 })
+
+    const { data: blocked } = await supabaseAdmin.from('banned_words').select('word').eq('is_active', true)
+    if ((blocked ?? []).some((item) => message.toLowerCase().includes(item.word.toLowerCase()))) {
+      return Response.json({ error: '운영 정책상 사용할 수 없는 표현이 포함되어 있습니다.' }, { status: 400 })
+    }
+
+    const { error } = await supabaseAdmin.from('manitto_messages').insert({
+      week_key: assignment.weekKey,
+      sender_id: user.id,
+      recipient_id: assignment.recipientUserId,
+      body: message,
+    })
+    if (error) return Response.json({ error: error.message }, { status: 400 })
+
+    await supabaseAdmin.from('notifications').insert({
+      user_id: assignment.recipientUserId,
+      type: 'manitto',
+      title: '마니또에게 익명 응원 쪽지가 도착했어요',
+      body: message.slice(0, 80),
+    })
+    return Response.json({ ok: true })
+  }
+
+  return Response.json({ error: '지원하지 않는 요청입니다.' }, { status: 400 })
+}

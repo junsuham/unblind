@@ -3,6 +3,7 @@ import Image from 'next/image'
 import { requireBetaUser } from '@/lib/betaAuth'
 import { getRandomBibleVerse } from '@/lib/bibleVerses'
 import LogoutButton from '@/app/components/LogoutButton'
+import { SystemIcon } from '@/app/components/ui/SystemIcon'
 import {
   AppShell,
   BottomTabBar,
@@ -36,7 +37,8 @@ export default async function HomePage() {
   const { supabase } = await requireBetaUser()
   const verse = getRandomBibleVerse()
 
-  const { data: popularPosts, error } = await supabase
+  const [{ data: popularPosts, error }, { count: unreadCount }] = await Promise.all([
+    supabase
     .from('posts')
     .select(`
       id,
@@ -50,7 +52,12 @@ export default async function HomePage() {
     .order('view_count', { ascending: false })
     .order('created_at', { ascending: false })
     .limit(5)
-    .returns<PopularPost[]>()
+    .returns<PopularPost[]>(),
+    supabase
+      .from('notifications')
+      .select('*', { count: 'exact', head: true })
+      .is('read_at', null),
+  ])
 
   return (
     <AppShell showTopLogo={false} bottomBar={<BottomTabBar />}>
@@ -70,7 +77,14 @@ export default async function HomePage() {
             />
           </Link>
 
-          <LogoutButton compact />
+          <div className="flex items-center gap-2">
+            <Link href="/notifications" aria-label={`알림 ${unreadCount ?? 0}개`} className="relative flex h-11 w-11 items-center justify-center rounded-full bg-[var(--ub-surface-card)] text-[var(--ub-color-brand)] shadow-sm">
+              <SystemIcon name="bell" size={21} />
+              {(unreadCount ?? 0) > 0 && <span className="absolute right-0 top-0 min-w-5 rounded-full bg-[#FF3B30] px-1 text-center text-[10px] font-bold leading-5 text-white">{Math.min(unreadCount ?? 0, 99)}</span>}
+            </Link>
+            <Link href="/activity" className="flex min-h-11 items-center rounded-full bg-[var(--ub-surface-card)] px-3 text-[12px] font-semibold text-[var(--ub-color-brand)] shadow-sm">내 활동</Link>
+            <LogoutButton compact />
+          </div>
         </div>
       </section>
 

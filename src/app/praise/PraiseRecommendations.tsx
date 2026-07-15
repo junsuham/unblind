@@ -4,13 +4,13 @@ import Image from 'next/image'
 import { useState } from 'react'
 import { SystemIcon } from '@/app/components/ui/SystemIcon'
 
-type Song = {
+export type Song = {
   id: string
   title: string
   artist: string
 }
 
-const songs: Song[] = [
+export const songs: Song[] = [
   ['dL-XAmNtJLA', '내 맘에 주를 위한 자리', '아가파오 워십'],
   ['4RRxhqKsTA8', '사랑을 나눠요 (Acoustic Ver.)', 'WELOVE CREATIVE TEAM'],
   ['VEUQfvv4WNw', 'Conquering the Dark Night', 'WECCLESIA 위클레시아'],
@@ -113,8 +113,9 @@ const songs: Song[] = [
   ['9RgepmRUshA', '더 낮은 곳으로 흘러', '어노인팅'],
 ].map(([id, title, artist]) => ({ id, title, artist }))
 
-export default function PraiseRecommendations() {
-  const [selectedSong, setSelectedSong] = useState(songs[0])
+export default function PraiseRecommendations({ initialSongs }: { initialSongs?: Song[] }) {
+  const displayedSongs = initialSongs?.length ? initialSongs : songs
+  const [selectedSong, setSelectedSong] = useState(displayedSongs[0])
 
   function selectSong(song: Song) {
     setSelectedSong(song)
@@ -162,7 +163,7 @@ export default function PraiseRecommendations() {
       </div>
 
       <section className="mt-2 overflow-hidden rounded-[22px] bg-[var(--ub-surface-card-strong)] text-[var(--ub-text-primary)] shadow-[var(--ub-shadow-soft)]">
-        {songs.map((song, index) => {
+        {displayedSongs.map((song, index) => {
           const isSelected = selectedSong.id === song.id
 
           return (

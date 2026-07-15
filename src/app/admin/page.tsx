@@ -159,6 +159,24 @@ export default async function AdminDashboardPage() {
       description: '최근 활동, 게시판별 글 수, 신고 사유 확인',
       icon: '📊',
     },
+    {
+      href: '/admin/manitto',
+      title: '마니또 운영 관리',
+      description: '참여 기간과 공개 정책 설정',
+      icon: '🎁',
+    },
+    {
+      href: '/admin/top100',
+      title: 'TOP 100 관리',
+      description: '찬양 순위와 곡 정보 편집',
+      icon: '🎧',
+    },
+    {
+      href: '/admin/safety',
+      title: '안전 설정',
+      description: '금칙어, 도배 제한, 자동 숨김 확인',
+      icon: '🛡️',
+    },
   ]
 
   return (

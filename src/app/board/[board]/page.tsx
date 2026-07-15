@@ -33,6 +33,10 @@ type BoardPageProps = {
   params: Promise<{
     board: string
   }>
+  searchParams: Promise<{
+    q?: string
+    sort?: string
+  }>
 }
 
 type PostRow = {
@@ -57,14 +61,17 @@ function formatCompactDate(value: string) {
     : `${date.getFullYear()}.${month}.${day}`
 }
 
-export default async function BoardPage({ params }: BoardPageProps) {
+export default async function BoardPage({ params, searchParams }: BoardPageProps) {
   const { supabase } = await requireBetaUser()
 
   const { board } = await params
+  const filters = await searchParams
+  const query = (filters.q ?? '').trim().slice(0, 60)
+  const sort = ['latest', 'views'].includes(filters.sort ?? '') ? filters.sort : 'latest'
   const boardName = boardNames[board] ?? '게시판'
   const boardDescription = boardDescriptions[board] ?? '익명으로 고민을 나누는 공간입니다.'
 
-  const { data: posts, error } = await supabase
+  let postsQuery = supabase
     .from('posts')
     .select(`
       id,
@@ -78,8 +85,17 @@ export default async function BoardPage({ params }: BoardPageProps) {
     `)
     .eq('board', board)
     .eq('status', 'visible')
-    .order('created_at', { ascending: false })
-    .returns<PostRow[]>()
+
+  if (query) {
+    const safeQuery = query.replace(/[,%()]/g, ' ')
+    postsQuery = postsQuery.or(`title.ilike.%${safeQuery}%,content.ilike.%${safeQuery}%`)
+  }
+
+  postsQuery = sort === 'views'
+    ? postsQuery.order('view_count', { ascending: false }).order('created_at', { ascending: false })
+    : postsQuery.order('created_at', { ascending: false })
+
+  const { data: posts, error } = await postsQuery.limit(50).returns<PostRow[]>()
 
   const activeTab =
     board === 'prayer' ||
@@ -103,6 +119,18 @@ export default async function BoardPage({ params }: BoardPageProps) {
         </PrimaryLink>
       </div>
 
+      <form method="get" className="mb-5 flex gap-2">
+        <label className="flex min-h-12 min-w-0 flex-1 items-center gap-2 rounded-[16px] bg-[var(--ub-surface-card-strong)] px-4 text-[var(--ub-text-primary)] shadow-sm">
+          <SystemIcon name="search" size={18} className="shrink-0 text-[var(--ub-text-tertiary)]" />
+          <input name="q" defaultValue={query} placeholder="제목과 내용 검색" className="min-w-0 flex-1 bg-transparent text-[14px] outline-none placeholder:text-[var(--ub-text-tertiary)]" />
+        </label>
+        <select name="sort" defaultValue={sort} className="min-h-12 rounded-[16px] border-0 bg-[var(--ub-surface-card-strong)] px-3 text-[13px] text-[var(--ub-text-primary)] shadow-sm">
+          <option value="latest">최신순</option>
+          <option value="views">조회순</option>
+        </select>
+        <button type="submit" className="min-h-12 rounded-[16px] bg-[var(--ub-color-brand)] px-4 text-[13px] font-semibold text-white">검색</button>
+      </form>
+
       {error && (
         <div className="mb-5">
           <NoticeCard title="글을 불러오지 못했습니다" tone="danger">
@@ -113,7 +141,7 @@ export default async function BoardPage({ params }: BoardPageProps) {
 
       <section>
         <p className="mb-2 px-1 text-[12px] font-semibold text-[var(--ub-text-tertiary)]">
-          최근 글
+          {query ? `“${query}” 검색 결과` : '최근 글'}
         </p>
 
         <div className="overflow-hidden rounded-[20px] bg-[var(--ub-surface-card-strong)] shadow-[var(--ub-shadow-soft)]">
