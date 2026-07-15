@@ -15,8 +15,8 @@ Expo SDK 57과 React Native로 만든 iOS·Android 공용 네이티브 앱입니
 
 1. 저장소 루트의 웹 환경변수를 사용하는 경우 `npm run env:sync`를 실행합니다. 별도 Supabase 프로젝트라면 `.env.example`을 `.env.local`로 복사합니다.
 2. Supabase 프로젝트 URL과 Publishable Key를 입력합니다. Service Role 키는 절대 앱에 넣지 않습니다.
-3. Supabase Authentication의 Redirect URLs에 `unblind://auth/callback`을 추가합니다.
-4. OAuth는 Expo Go에서 동작하지 않으므로 Development Build를 사용합니다.
+3. Supabase Authentication의 Redirect URLs에 `unblind://auth/callback`과 `exp://**`를 추가합니다.
+4. 실제 iPhone에서 빠르게 확인할 때는 Expo Go를 사용하고, 네이티브 설치형 동작을 확인할 때는 Development Build를 사용합니다.
 
 ```bash
 npm install
@@ -24,6 +24,18 @@ npx expo prebuild
 npm run ios
 npm run android
 ```
+
+### iPhone에서 Expo Go로 테스트
+
+1. iPhone과 Mac을 같은 Wi-Fi에 연결하고 App Store에서 Expo Go를 설치합니다.
+2. 아래 명령을 실행합니다.
+3. 표시되는 QR 코드를 iPhone 카메라로 스캔합니다.
+
+```bash
+npm run start:iphone
+```
+
+Expo Go에서는 로그인 복귀 주소가 실행 중인 개발 서버의 `exp://` 주소로 자동 생성됩니다. 설치형 개발 빌드에서는 기존 `unblind://auth/callback`을 사용합니다.
 
 ## Android 설치 파일
 

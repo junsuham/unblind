@@ -1,4 +1,5 @@
 import type { Session } from '@supabase/supabase-js'
+import * as Linking from 'expo-linking'
 import * as WebBrowser from 'expo-web-browser'
 import { createContext, PropsWithChildren, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { supabase } from '@/lib/supabase'
@@ -17,7 +18,12 @@ type AuthContextValue = {
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null)
-const redirectTo = 'unblind://auth/callback'
+
+function getRedirectUrl() {
+  // Development builds resolve to unblind://auth/callback, while Expo Go
+  // resolves to the current exp:// address so a physical iPhone can test OAuth.
+  return Linking.createURL('auth/callback')
+}
 
 async function exchangeAuthResult(url: string) {
   const parsed = new URL(url)
@@ -91,6 +97,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
   }, [refreshProfile])
 
   const signIn = useCallback(async (provider: Provider) => {
+    const redirectTo = getRedirectUrl()
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider,
       options: { redirectTo, skipBrowserRedirect: true },
