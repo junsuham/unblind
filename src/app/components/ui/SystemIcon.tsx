@@ -3,6 +3,7 @@ import type { ReactNode, SVGProps } from 'react'
 export type SystemIconName =
   | 'calendar'
   | 'eye'
+  | 'gift'
   | 'heart'
   | 'leaf'
   | 'message'
@@ -26,6 +27,12 @@ const paths: Record<SystemIconName, ReactNode> = {
     <>
       <path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z" />
       <circle cx="12" cy="12" r="2.5" />
+    </>
+  ),
+  gift: (
+    <>
+      <path d="M3 10h18v11H3V10ZM12 10v11M2 6h20v4H2V6Z" />
+      <path d="M12 6H8.5A2.5 2.5 0 1 1 11 3.5V6ZM12 6h3.5A2.5 2.5 0 1 0 13 3.5V6Z" />
     </>
   ),
   heart: (

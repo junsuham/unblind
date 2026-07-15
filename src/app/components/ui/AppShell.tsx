@@ -280,7 +280,7 @@ type BottomTabKey =
   | 'prayer'
   | 'faith'
   | 'daily'
-  | 'counsel'
+  | 'manitto'
   | 'praise'
 
 type BottomTabBarProps = {
@@ -312,10 +312,10 @@ const bottomTabs: {
     icon: 'sun',
   },
   {
-    key: 'counsel',
-    label: '상담',
-    href: '/counsel',
-    icon: 'message',
+    key: 'manitto',
+    label: '마니또',
+    href: '/manitto',
+    icon: 'gift',
   },
   {
     key: 'praise',
