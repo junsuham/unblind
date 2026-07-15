@@ -4,7 +4,7 @@ import { ActivityIndicator, Alert, Pressable, Text, TextInput, View } from 'reac
 import { router, useLocalSearchParams } from 'expo-router'
 import { Screen } from '@/components/Screen'
 import { Card } from '@/components/Card'
-import { colors, radius } from '@/constants/design'
+import { radius, useAppTheme } from '@/constants/design'
 import { supabase } from '@/lib/supabase'
 
 type Post = { id: string; board: string; title: string; content: string; created_at: string; view_count: number; tags: string[] | null }
@@ -20,6 +20,7 @@ async function getActorKey() {
 }
 
 export default function PostDetailScreen() {
+  const colors = useAppTheme()
   const { id } = useLocalSearchParams<{ id: string }>()
   const [post, setPost] = useState<Post | null>(null)
   const [comments, setComments] = useState<Comment[]>([])
@@ -71,7 +72,8 @@ export default function PostDetailScreen() {
       <Pressable onPress={() => router.back()} style={{ marginBottom: 12 }}><Text style={{ color: colors.brand, fontWeight: '700' }}>‹ 돌아가기</Text></Pressable>
       <Card>
         <Text style={{ color: colors.text, fontSize: 24, lineHeight: 32, fontWeight: '800' }}>{post.title}</Text>
-        <Text style={{ color: colors.textTertiary, fontSize: 12, marginTop: 10 }}>{new Date(post.created_at).toLocaleDateString('ko-KR')} · 조회 {post.view_count ?? 0} · 댓글 {comments.length}</Text>
+        <Text style={{ color: colors.brand, fontSize: 14, fontWeight: '700', marginTop: 12 }}>익명</Text>
+        <Text style={{ color: colors.textTertiary, fontSize: 12, marginTop: 7 }}>{new Date(post.created_at).toLocaleDateString('ko-KR')} · 조회 {post.view_count ?? 0} · 댓글 {comments.length}</Text>
         <View style={{ height: 1, backgroundColor: colors.separator, marginVertical: 20 }} />
         <Text style={{ color: colors.text, fontSize: 16, lineHeight: 26 }}>{post.content}</Text>
         {post.tags?.length ? <Text style={{ color: colors.brand, fontSize: 13, marginTop: 20 }}>{post.tags.map((tag) => `#${tag}`).join('  ')}</Text> : null}
@@ -82,7 +84,7 @@ export default function PostDetailScreen() {
         </View>
       </Card>
       <View style={{ flexDirection: 'row', gap: 8, marginTop: 16 }}>
-        <TextInput value={comment} onChangeText={setComment} maxLength={1000} placeholder="함께 들어주는 댓글을 남겨주세요" style={{ flex: 1, minHeight: 48, borderRadius: radius.medium, backgroundColor: colors.surface, paddingHorizontal: 15, color: colors.text }} />
+        <TextInput value={comment} onChangeText={setComment} maxLength={1000} placeholder="함께 들어주는 댓글을 남겨주세요" placeholderTextColor={colors.textTertiary} style={{ flex: 1, minHeight: 46, borderRadius: radius.medium, backgroundColor: colors.surface, paddingHorizontal: 15, color: colors.text }} />
         <Pressable onPress={addComment} style={{ minWidth: 64, borderRadius: radius.medium, backgroundColor: colors.brand, alignItems: 'center', justifyContent: 'center' }}><Text style={{ color: '#FFFFFF', fontWeight: '800' }}>등록</Text></Pressable>
       </View>
       <View style={{ gap: 10, marginTop: 18 }}>

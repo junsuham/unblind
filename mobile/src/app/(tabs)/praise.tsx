@@ -2,12 +2,13 @@ import { useEffect, useState } from 'react'
 import { ActivityIndicator, Linking, Pressable, Text, View } from 'react-native'
 import { Screen } from '@/components/Screen'
 import { PageTitle } from '@/components/PageTitle'
-import { colors, radius } from '@/constants/design'
+import { radius, useAppTheme } from '@/constants/design'
 import { supabase } from '@/lib/supabase'
 
 type Track = { id: string; rank: number; youtube_id: string; title: string; artist: string }
 
 export default function PraiseScreen() {
+  const colors = useAppTheme()
   const [tracks, setTracks] = useState<Track[]>([])
   const [loading, setLoading] = useState(true)
   useEffect(() => { supabase.from('top100_tracks').select('id, rank, youtube_id, title, artist').eq('is_active', true).order('rank').limit(100).then(({ data }) => { setTracks(data ?? []); setLoading(false) }) }, [])

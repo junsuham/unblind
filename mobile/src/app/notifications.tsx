@@ -3,12 +3,13 @@ import { ActivityIndicator, Pressable, Text, View } from 'react-native'
 import { router } from 'expo-router'
 import { Screen } from '@/components/Screen'
 import { PageTitle } from '@/components/PageTitle'
-import { colors, radius } from '@/constants/design'
+import { radius, useAppTheme } from '@/constants/design'
 import { supabase } from '@/lib/supabase'
 
 type Notification = { id: string; title: string; body: string | null; href: string | null; created_at: string; read_at: string | null }
 
 export default function NotificationsScreen() {
+  const colors = useAppTheme()
   const [items, setItems] = useState<Notification[]>([])
   const [loading, setLoading] = useState(true)
   const load = useCallback(async () => {

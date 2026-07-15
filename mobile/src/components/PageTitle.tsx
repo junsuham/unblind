@@ -1,7 +1,9 @@
 import { Text, View } from 'react-native'
-import { colors } from '@/constants/design'
+import { useAppTheme } from '@/constants/design'
 
 export function PageTitle({ eyebrow, title, description }: { eyebrow?: string; title: string; description?: string }) {
+  const colors = useAppTheme()
+
   return (
     <View style={{ marginBottom: 20 }}>
       {eyebrow ? <Text style={{ color: colors.brand, fontSize: 12, fontWeight: '700', marginBottom: 6 }}>{eyebrow}</Text> : null}

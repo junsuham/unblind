@@ -1,13 +1,14 @@
 import { useState } from 'react'
-import { ActivityIndicator, Alert, Image, Pressable, Text, View } from 'react-native'
+import { ActivityIndicator, Alert, Image, Pressable, ScrollView, Text, View } from 'react-native'
 import { Redirect } from 'expo-router'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import unblindLogo from '../../assets/images/unblind-logo.png'
 import { useAuth } from '@/providers/AuthProvider'
-import { colors, radius } from '@/constants/design'
+import { radius, useAppTheme } from '@/constants/design'
 import { isSupabaseConfigured } from '@/lib/supabase'
 
 export default function LoginScreen() {
+  const colors = useAppTheme()
   const { session, signIn } = useAuth()
   const [pending, setPending] = useState<'google' | 'kakao' | null>(null)
 
@@ -30,40 +31,53 @@ export default function LoginScreen() {
   }
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: colors.brand }}>
-      <View style={{ flex: 1, justifyContent: 'space-between', padding: 24 }}>
-        <View style={{ alignItems: 'center', paddingTop: 28 }}>
-          <Image source={unblindLogo} alt="언블라인드 로고" accessibilityLabel="언블라인드 로고" style={{ width: 154, height: 154 }} resizeMode="contain" />
-          <Text style={{ color: '#FFFFFF', fontSize: 28, fontWeight: '800', marginTop: 18 }}>소셜 계정으로 시작하기</Text>
-          <Text style={{ color: 'rgba(255,255,255,0.85)', textAlign: 'center', fontSize: 15, lineHeight: 22, marginTop: 10 }}>
-            승인된 청년회 구성원만 입장할 수 있습니다.{`\n`}다른 사용자에게 이메일은 공개되지 않습니다.
-          </Text>
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }} edges={['top']}>
+      <ScrollView contentContainerStyle={{ paddingBottom: 40 }} showsVerticalScrollIndicator={false}>
+        <View style={{ backgroundColor: colors.logoSurface, alignItems: 'center', paddingBottom: 10 }}>
+          <Image source={unblindLogo} alt="언블라인드 로고" accessibilityLabel="언블라인드 로고" style={{ width: 92, height: 92 }} resizeMode="contain" />
         </View>
 
-        <View style={{ gap: 12, backgroundColor: '#302521', borderRadius: 28, padding: 18 }}>
-          <Pressable
-            disabled={Boolean(pending)}
-            onPress={() => handleLogin('google')}
-            style={({ pressed }) => ({ minHeight: 56, borderRadius: radius.medium, backgroundColor: pressed ? '#F2F2F2' : '#FFFFFF', alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 10, opacity: pending ? 0.7 : 1 })}
-          >
-            {pending === 'google' ? <ActivityIndicator color={colors.text} /> : <Text style={{ fontSize: 20, fontWeight: '800', color: '#4285F4' }}>G</Text>}
-            <Text style={{ color: '#111111', fontSize: 16, fontWeight: '700' }}>Google로 계속하기</Text>
-          </Pressable>
+        <View style={{ paddingHorizontal: 18, paddingTop: 24 }}>
+          <Text style={{ color: colors.textOnBrandSecondary, fontSize: 12, fontWeight: '700' }}>청년회 내부 베타</Text>
+          <Text style={{ color: colors.textOnBrand, fontSize: 28, lineHeight: 35, fontWeight: '800', letterSpacing: -0.6, marginTop: 6 }}>소셜 계정으로 시작하기</Text>
+          <Text style={{ color: colors.textOnBrandSecondary, fontSize: 15, lineHeight: 22, marginTop: 10 }}>Google 또는 Kakao 계정으로 간편하게 가입하고 로그인할 수 있습니다. 승인된 청년회 구성원만 입장할 수 있습니다.</Text>
 
-          <Pressable
-            disabled={Boolean(pending)}
-            onPress={() => handleLogin('kakao')}
-            style={({ pressed }) => ({ minHeight: 56, borderRadius: radius.medium, backgroundColor: pressed ? '#F2D900' : colors.kakao, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 10, opacity: pending ? 0.7 : 1 })}
-          >
-            {pending === 'kakao' ? <ActivityIndicator color="#111111" /> : <Text style={{ fontSize: 20 }}>●</Text>}
-            <Text style={{ color: '#111111', fontSize: 16, fontWeight: '700' }}>Kakao로 계속하기</Text>
-          </Pressable>
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 18, marginBottom: 20 }}>
+            {['승인제', '사용자 간 익명', '운영자 관리'].map((label) => (
+              <View key={label} style={{ minHeight: 30, justifyContent: 'center', borderRadius: 15, backgroundColor: colors.surface, paddingHorizontal: 12 }}>
+                <Text style={{ color: colors.textSecondary, fontSize: 12, fontWeight: '600' }}>{label}</Text>
+              </View>
+            ))}
+          </View>
 
-          <Text style={{ color: 'rgba(255,255,255,0.62)', textAlign: 'center', fontSize: 11, lineHeight: 17, marginTop: 4 }}>
-            2026년도 기준 20세 이상 59세 이하만 가입할 수 있습니다.
-          </Text>
+          <View style={{ gap: 12, backgroundColor: colors.surface, borderColor: colors.border, borderWidth: 1, borderRadius: 28, padding: 18 }}>
+            <Pressable
+              disabled={Boolean(pending)}
+              onPress={() => handleLogin('google')}
+              style={({ pressed }) => ({ minHeight: 56, borderRadius: radius.medium, backgroundColor: pressed ? '#F2F2F2' : '#FFFFFF', borderWidth: 1, borderColor: '#D1D1D6', alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 10, opacity: pending ? 0.7 : 1 })}
+            >
+              {pending === 'google' ? <ActivityIndicator color="#111111" /> : <Text style={{ fontSize: 20, fontWeight: '800', color: '#4285F4' }}>G</Text>}
+              <Text style={{ color: '#111111', fontSize: 16, fontWeight: '700' }}>Google로 계속하기</Text>
+            </Pressable>
+
+            <Pressable
+              disabled={Boolean(pending)}
+              onPress={() => handleLogin('kakao')}
+              style={({ pressed }) => ({ minHeight: 56, borderRadius: radius.medium, backgroundColor: pressed ? '#F2D900' : colors.kakao, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 10, opacity: pending ? 0.7 : 1 })}
+            >
+              {pending === 'kakao' ? <ActivityIndicator color="#111111" /> : <Text style={{ fontSize: 20, color: '#111111' }}>●</Text>}
+              <Text style={{ color: '#111111', fontSize: 16, fontWeight: '700' }}>Kakao로 계속하기</Text>
+            </Pressable>
+
+            <Text style={{ color: colors.textSecondary, textAlign: 'center', fontSize: 12, lineHeight: 18, marginTop: 4 }}>소셜 인증 후 연령 확인과 기본 정보 입력을 진행합니다. 이메일은 운영자 승인 확인에만 사용됩니다.</Text>
+          </View>
+
+          <View style={{ marginTop: 14, borderRadius: 22, backgroundColor: colors.surface, borderColor: colors.border, borderWidth: 1, padding: 17 }}>
+            <Text style={{ color: colors.text, fontSize: 16, fontWeight: '800' }}>익명성 안내</Text>
+            <Text style={{ color: colors.textSecondary, fontSize: 14, lineHeight: 21, marginTop: 7 }}>다른 사용자에게 소셜 계정 정보와 이메일이 공개되지 않습니다. 운영자는 안전한 운영에 필요한 범위에서만 기록을 확인합니다.</Text>
+          </View>
         </View>
-      </View>
+      </ScrollView>
     </SafeAreaView>
   )
 }

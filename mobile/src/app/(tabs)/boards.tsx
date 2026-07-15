@@ -3,9 +3,10 @@ import { router } from 'expo-router'
 import { Screen } from '@/components/Screen'
 import { PageTitle } from '@/components/PageTitle'
 import { boardInfo } from '@/constants/content'
-import { colors, radius } from '@/constants/design'
+import { radius, useAppTheme } from '@/constants/design'
 
 export default function BoardsScreen() {
+  const colors = useAppTheme()
   return (
     <Screen>
       <PageTitle eyebrow="서로의 마음을 지키는 공간" title="게시판" description="필요한 공간을 골라 익명으로 이야기를 나눠보세요." />

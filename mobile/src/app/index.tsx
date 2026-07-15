@@ -1,9 +1,10 @@
 import { Redirect } from 'expo-router'
 import { ActivityIndicator, View } from 'react-native'
 import { useAuth } from '@/providers/AuthProvider'
-import { colors } from '@/constants/design'
+import { useAppTheme } from '@/constants/design'
 
 export default function IndexScreen() {
+  const colors = useAppTheme()
   const { session, loading, profileComplete } = useAuth()
 
   if (loading) {

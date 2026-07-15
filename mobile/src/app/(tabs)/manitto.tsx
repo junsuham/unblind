@@ -3,7 +3,7 @@ import { ActivityIndicator, Alert, Pressable, Text, TextInput, View } from 'reac
 import { Screen } from '@/components/Screen'
 import { Card } from '@/components/Card'
 import { PageTitle } from '@/components/PageTitle'
-import { colors, radius } from '@/constants/design'
+import { radius, useAppTheme } from '@/constants/design'
 import { authenticatedFetch } from '@/lib/api'
 
 type Manitto = {
@@ -17,6 +17,7 @@ type Manitto = {
 }
 
 export default function ManittoScreen() {
+  const colors = useAppTheme()
   const [data, setData] = useState<Manitto | null>(null)
   const [message, setMessage] = useState('')
   const [loading, setLoading] = useState(true)
@@ -56,7 +57,7 @@ export default function ManittoScreen() {
             <Text style={{ color: colors.brand, fontSize: 12, fontWeight: '800' }}>내가 응원할 마니또</Text>
             <Text style={{ color: colors.text, fontSize: 25, fontWeight: '800', marginTop: 8 }}>{data.recipientNickname ?? (data.isActive ? '배정 대기 중' : '운영 시작 전')}</Text>
             <Text style={{ color: colors.textSecondary, fontSize: 12, marginTop: 8 }}>참여 {data.participantCount}명 · {data.startsOn} ~ {data.endsOn}</Text>
-            {data.recipientNickname ? <><TextInput value={message} onChangeText={setMessage} maxLength={300} placeholder="익명 응원 쪽지" multiline style={{ minHeight: 84, borderRadius: radius.medium, backgroundColor: colors.surfaceMuted, padding: 14, color: colors.text, marginTop: 18 }} /><Pressable onPress={() => action('message')} style={{ minHeight: 46, borderRadius: radius.medium, backgroundColor: colors.brand, alignItems: 'center', justifyContent: 'center', marginTop: 10 }}><Text style={{ color: '#FFFFFF', fontWeight: '800' }}>익명으로 보내기</Text></Pressable></> : null}
+            {data.recipientNickname ? <><TextInput value={message} onChangeText={setMessage} maxLength={300} placeholder="익명 응원 쪽지" placeholderTextColor={colors.textTertiary} multiline style={{ minHeight: 84, borderRadius: radius.medium, backgroundColor: colors.surfaceMuted, padding: 14, color: colors.text, marginTop: 18 }} /><Pressable onPress={() => action('message')} style={{ minHeight: 46, borderRadius: radius.medium, backgroundColor: colors.brand, alignItems: 'center', justifyContent: 'center', marginTop: 10 }}><Text style={{ color: '#FFFFFF', fontWeight: '800' }}>익명으로 보내기</Text></Pressable></> : null}
           </Card>
           {data.receivedMessages.length ? <View><Text style={{ color: colors.text, fontSize: 16, fontWeight: '800', marginBottom: 8 }}>받은 응원 쪽지</Text>{data.receivedMessages.map((item) => <Card key={item.id} style={{ marginBottom: 8, padding: 15 }}><Text style={{ color: colors.text, lineHeight: 21 }}>{item.body}</Text></Card>)}</View> : null}
           <Pressable onPress={() => action('leave')} style={{ minHeight: 46, alignItems: 'center', justifyContent: 'center' }}><Text style={{ color: colors.textTertiary, fontWeight: '700' }}>이번 주 참여 취소</Text></Pressable>

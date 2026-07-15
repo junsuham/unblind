@@ -1,16 +1,52 @@
-export const colors = {
-  brand: '#FF4B22',
-  brandSoft: '#FFF0EA',
-  background: '#F7F4F1',
-  surface: '#FFFFFF',
-  surfaceMuted: '#F0ECE8',
-  text: '#211C19',
-  textSecondary: '#726A65',
-  textTertiary: '#9B928D',
-  separator: '#E7E0DA',
+import { useColorScheme } from 'react-native'
+
+const shared = {
+  brand: '#FC5230',
+  brandSoft: '#FFF1E9',
+  logoSurface: '#FC5230',
   kakao: '#FEE500',
-  danger: '#D93A2F',
+  danger: '#FF3B30',
   success: '#2D8A5B',
+}
+
+export const lightColors = {
+  ...shared,
+  background: '#FC5230',
+  surface: 'rgba(255,255,255,0.92)',
+  surfaceStrong: '#FFFFFF',
+  surfaceMuted: '#F2F2F7',
+  tabSurface: 'rgba(255,255,255,0.96)',
+  text: '#000000',
+  textSecondary: 'rgba(60,60,67,0.68)',
+  textTertiary: 'rgba(60,60,67,0.48)',
+  textOnBrand: '#FFFFFF',
+  textOnBrandSecondary: 'rgba(255,255,255,0.86)',
+  separator: 'rgba(209,209,214,0.72)',
+  border: 'rgba(255,255,255,0.72)',
+}
+
+export const darkColors = {
+  ...shared,
+  brand: '#FF6A2B',
+  background: '#140F0D',
+  surface: 'rgba(37,37,39,0.97)',
+  surfaceStrong: '#1D1D1F',
+  surfaceMuted: '#3A3A3C',
+  tabSurface: 'rgba(31,31,33,0.97)',
+  text: '#F7F7F8',
+  textSecondary: 'rgba(235,235,245,0.72)',
+  textTertiary: 'rgba(235,235,245,0.52)',
+  textOnBrand: '#FFF8F4',
+  textOnBrandSecondary: 'rgba(255,248,244,0.8)',
+  separator: 'rgba(99,99,102,0.72)',
+  border: 'rgba(255,138,86,0.2)',
+}
+
+export const colors = lightColors
+
+export function useAppTheme() {
+  const colorScheme = useColorScheme()
+  return colorScheme === 'dark' ? darkColors : lightColors
 }
 
 export const radius = {

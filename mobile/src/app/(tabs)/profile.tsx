@@ -3,13 +3,14 @@ import { Alert, Pressable, Text, View } from 'react-native'
 import { Screen } from '@/components/Screen'
 import { Card } from '@/components/Card'
 import { PageTitle } from '@/components/PageTitle'
-import { colors, radius } from '@/constants/design'
+import { radius, useAppTheme } from '@/constants/design'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/providers/AuthProvider'
 
 type Profile = { nickname: string; church_name: string; occupation: string }
 
 export default function ProfileScreen() {
+  const colors = useAppTheme()
   const { session, signOut } = useAuth()
   const [profile, setProfile] = useState<Profile | null>(null)
   useEffect(() => { if (session) supabase.from('user_profiles').select('nickname, church_name, occupation').eq('user_id', session.user.id).maybeSingle().then(({ data }) => setProfile(data)) }, [session])

@@ -4,7 +4,7 @@ import { Redirect, router } from 'expo-router'
 import { Screen } from '@/components/Screen'
 import { Card } from '@/components/Card'
 import { PageTitle } from '@/components/PageTitle'
-import { colors, radius } from '@/constants/design'
+import { radius, useAppTheme } from '@/constants/design'
 import { authenticatedFetch } from '@/lib/api'
 import { useAuth } from '@/providers/AuthProvider'
 
@@ -12,6 +12,7 @@ type Church = { id: string; name: string; address: string; roadAddress: string; 
 type Occupation = 'student' | 'worker' | 'other'
 
 export default function ProfileSetupScreen() {
+  const colors = useAppTheme()
   const { session, profileComplete, refreshProfile } = useAuth()
   const [birthDate, setBirthDate] = useState('')
   const [occupation, setOccupation] = useState<Occupation | null>(null)
@@ -79,13 +80,13 @@ export default function ProfileSetupScreen() {
       <Card style={{ gap: 18 }}>
         <View>
           <Text style={{ color: colors.text, fontWeight: '700', marginBottom: 8 }}>생년월일</Text>
-          <TextInput value={birthDate} onChangeText={setBirthDate} placeholder="YYYY-MM-DD" keyboardType="numbers-and-punctuation" style={{ minHeight: 50, borderRadius: radius.small, backgroundColor: colors.surfaceMuted, paddingHorizontal: 14, color: colors.text }} />
+          <TextInput value={birthDate} onChangeText={setBirthDate} placeholder="YYYY-MM-DD" placeholderTextColor={colors.textTertiary} keyboardType="numbers-and-punctuation" style={{ minHeight: 50, borderRadius: radius.small, backgroundColor: colors.surfaceMuted, paddingHorizontal: 14, color: colors.text }} />
         </View>
 
         <View>
           <Text style={{ color: colors.text, fontWeight: '700', marginBottom: 8 }}>출석하는 교회</Text>
           <View style={{ flexDirection: 'row', gap: 8 }}>
-            <TextInput value={churchQuery} onChangeText={setChurchQuery} placeholder="교회 이름 또는 지역" style={{ flex: 1, minHeight: 50, borderRadius: radius.small, backgroundColor: colors.surfaceMuted, paddingHorizontal: 14, color: colors.text }} />
+            <TextInput value={churchQuery} onChangeText={setChurchQuery} placeholder="교회 이름 또는 지역" placeholderTextColor={colors.textTertiary} style={{ flex: 1, minHeight: 50, borderRadius: radius.small, backgroundColor: colors.surfaceMuted, paddingHorizontal: 14, color: colors.text }} />
             <Pressable onPress={searchChurches} style={{ minWidth: 68, alignItems: 'center', justifyContent: 'center', borderRadius: radius.small, backgroundColor: colors.brand }}>
               {searching ? <ActivityIndicator color="#FFFFFF" /> : <Text style={{ color: '#FFFFFF', fontWeight: '700' }}>검색</Text>}
             </Pressable>
