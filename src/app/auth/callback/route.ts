@@ -1,6 +1,10 @@
-import { NextResponse } from 'next/server'
+import { NextResponse, type NextRequest } from 'next/server'
 import type { EmailOtpType } from '@supabase/supabase-js'
 import { createServerSupabase } from '@/lib/supabaseServer'
+import {
+  getSafeMobileAuthRedirect,
+  MOBILE_AUTH_REDIRECT_COOKIE,
+} from '@/lib/mobileAuthRedirect'
 
 const emailOtpTypes = new Set<EmailOtpType>([
   'email',
@@ -18,7 +22,7 @@ function getLoginUrl(requestUrl: URL, message: string) {
   return loginUrl
 }
 
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
   const requestUrl = new URL(request.url)
   const code = requestUrl.searchParams.get('code')
   const tokenHash = requestUrl.searchParams.get('token_hash')
@@ -26,6 +30,43 @@ export async function GET(request: Request) {
   const authError = requestUrl.searchParams.get('error')
   const authErrorCode = requestUrl.searchParams.get('error_code')
   const next = requestUrl.searchParams.get('next') ?? '/profile/setup'
+  const mobileRedirect = getSafeMobileAuthRedirect(
+    request.cookies.get(MOBILE_AUTH_REDIRECT_COOKIE)?.value
+  )
+
+  if (mobileRedirect) {
+    const callbackParams = [
+      'code',
+      'error',
+      'error_code',
+      'error_description',
+    ] as const
+
+    for (const key of callbackParams) {
+      const value = requestUrl.searchParams.get(key)
+      if (value) mobileRedirect.searchParams.set(key, value)
+    }
+
+    if (!code && !authError) {
+      mobileRedirect.searchParams.set(
+        'error_description',
+        '모바일 로그인 인증 정보를 받지 못했습니다.'
+      )
+    }
+
+    const response = NextResponse.redirect(mobileRedirect)
+    response.cookies.set({
+      name: MOBILE_AUTH_REDIRECT_COOKIE,
+      value: '',
+      httpOnly: true,
+      secure: true,
+      sameSite: 'lax',
+      maxAge: 0,
+      path: '/auth/callback',
+    })
+
+    return response
+  }
 
   if (authError) {
     return NextResponse.redirect(

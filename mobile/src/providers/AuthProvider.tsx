@@ -18,6 +18,7 @@ type AuthContextValue = {
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null)
+const webAppUrl = process.env.EXPO_PUBLIC_WEB_API_URL ?? 'https://unblind-omega.vercel.app'
 
 function getRedirectUrl() {
   // Development builds resolve to unblind://auth/callback, while Expo Go
@@ -27,6 +28,12 @@ function getRedirectUrl() {
 
 async function exchangeAuthResult(url: string) {
   const parsed = new URL(url)
+  const authError =
+    parsed.searchParams.get('error_description') ??
+    parsed.searchParams.get('error')
+
+  if (authError) throw new Error(authError)
+
   const code = parsed.searchParams.get('code')
 
   if (code) {
@@ -97,16 +104,24 @@ export function AuthProvider({ children }: PropsWithChildren) {
   }, [refreshProfile])
 
   const signIn = useCallback(async (provider: Provider) => {
-    const redirectTo = getRedirectUrl()
+    const appRedirectTo = getRedirectUrl()
+    const webCallbackUrl = new URL('/auth/callback', webAppUrl).toString()
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider,
-      options: { redirectTo, skipBrowserRedirect: true },
+      options: { redirectTo: webCallbackUrl, skipBrowserRedirect: true },
     })
 
     if (error) throw error
     if (!data.url) throw new Error('로그인 주소를 만들지 못했습니다.')
 
-    const result = await WebBrowser.openAuthSessionAsync(data.url, redirectTo)
+    const mobileStartUrl = new URL('/auth/mobile-start', webAppUrl)
+    mobileStartUrl.searchParams.set('return_to', appRedirectTo)
+    mobileStartUrl.searchParams.set('auth_url', data.url)
+
+    const result = await WebBrowser.openAuthSessionAsync(
+      mobileStartUrl.toString(),
+      appRedirectTo
+    )
     if (result.type === 'success') await exchangeAuthResult(result.url)
   }, [])
 
