@@ -1,6 +1,6 @@
 # 언블라인드 모바일 앱
 
-Expo SDK 57과 React Native로 만든 iOS·Android 공용 네이티브 앱입니다. 웹 화면을 감싸는 PWA/WebView 앱이 아니라 Supabase 데이터와 인증을 직접 사용하는 독립 앱입니다.
+Expo SDK 54와 React Native로 만든 iOS·Android 공용 네이티브 앱입니다. 웹 화면을 감싸는 PWA/WebView 앱이 아니라 Supabase 데이터와 인증을 직접 사용하는 독립 앱입니다. 실제 아이폰의 App Store용 Expo Go와 호환되도록 SDK 54를 사용합니다.
 
 ## 포함된 기능
 
