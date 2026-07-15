@@ -292,13 +292,12 @@ const bottomTabs: {
   label: string
   href: string
   icon?: SystemIconName
-  emoji?: string
 }[] = [
   {
     key: 'prayer',
     label: '기도',
     href: '/board/prayer',
-    emoji: '🙏',
+    icon: 'prayer',
   },
   {
     key: 'faith',
@@ -390,13 +389,7 @@ export function BottomTabBar({ active }: BottomTabBarProps) {
                     : 'text-[var(--ub-text-tertiary)]'
                 }
               >
-                {tab.emoji ? (
-                  <span className="text-[21px] leading-none" aria-hidden>
-                    {tab.emoji}
-                  </span>
-                ) : (
-                  tab.icon && <SystemIcon name={tab.icon} size={22} />
-                )}
+                {tab.icon && <SystemIcon name={tab.icon} size={22} />}
               </span>
 
               <span
