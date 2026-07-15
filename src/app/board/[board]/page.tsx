@@ -93,6 +93,7 @@ export default async function BoardPage({ params }: BoardPageProps) {
       <PageHeader
         eyebrow="언블라인드"
         title={boardName}
+        titleSize="compact"
         description={boardDescription}
       />
 

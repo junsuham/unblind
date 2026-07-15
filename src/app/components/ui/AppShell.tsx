@@ -58,6 +58,7 @@ export function AppShell({
 type PageHeaderProps = {
   eyebrow?: string
   title: string
+  titleSize?: 'large' | 'compact'
   description?: string
   backHref?: string
   backLabel?: string
@@ -67,6 +68,7 @@ type PageHeaderProps = {
 export function PageHeader({
   eyebrow,
   title,
+  titleSize = 'large',
   description,
   backHref,
   backLabel = '뒤로',
@@ -91,7 +93,13 @@ export function PageHeader({
             </p>
           )}
 
-          <h1 className="ios-large-title text-[var(--ub-text-on-brand-primary)]">
+          <h1
+            className={
+              titleSize === 'compact'
+                ? 'text-[27px] font-bold leading-[34px] tracking-[-0.5px] text-[var(--ub-text-on-brand-primary)]'
+                : 'ios-large-title text-[var(--ub-text-on-brand-primary)]'
+            }
+          >
             {title}
           </h1>
         </div>
