@@ -8,15 +8,23 @@ export const isSupabaseConfigured = Boolean(supabaseUrl && supabasePublishableKe
 
 const secureStoreChunkSize = 1800
 
+function chunkCountKey(key: string) {
+  return `${key}__chunks`
+}
+
+function chunkKey(key: string, index: number) {
+  return `${key}__${index}`
+}
+
 const secureStorage = {
   async getItem(key: string) {
-    const chunkCount = Number(await SecureStore.getItemAsync(`${key}:chunks`))
+    const chunkCount = Number(await SecureStore.getItemAsync(chunkCountKey(key)))
 
     if (!chunkCount) return SecureStore.getItemAsync(key)
 
     const chunks = await Promise.all(
       Array.from({ length: chunkCount }, (_, index) =>
-        SecureStore.getItemAsync(`${key}:${index}`)
+        SecureStore.getItemAsync(chunkKey(key, index))
       )
     )
 
@@ -24,7 +32,7 @@ const secureStorage = {
   },
   async setItem(key: string, value: string) {
     const previousChunkCount = Number(
-      await SecureStore.getItemAsync(`${key}:chunks`)
+      await SecureStore.getItemAsync(chunkCountKey(key))
     )
     const chunks = Array.from(
       { length: Math.ceil(value.length / secureStoreChunkSize) },
@@ -37,28 +45,28 @@ const secureStorage = {
 
     await Promise.all(
       chunks.map((chunk, index) =>
-        SecureStore.setItemAsync(`${key}:${index}`, chunk)
+        SecureStore.setItemAsync(chunkKey(key, index), chunk)
       )
     )
-    await SecureStore.setItemAsync(`${key}:chunks`, String(chunks.length))
+    await SecureStore.setItemAsync(chunkCountKey(key), String(chunks.length))
     await SecureStore.deleteItemAsync(key)
 
     if (previousChunkCount > chunks.length) {
       await Promise.all(
         Array.from(
           { length: previousChunkCount - chunks.length },
-          (_, index) => SecureStore.deleteItemAsync(`${key}:${chunks.length + index}`)
+          (_, index) => SecureStore.deleteItemAsync(chunkKey(key, chunks.length + index))
         )
       )
     }
   },
   async removeItem(key: string) {
-    const chunkCount = Number(await SecureStore.getItemAsync(`${key}:chunks`))
+    const chunkCount = Number(await SecureStore.getItemAsync(chunkCountKey(key)))
     await Promise.all([
       SecureStore.deleteItemAsync(key),
-      SecureStore.deleteItemAsync(`${key}:chunks`),
+      SecureStore.deleteItemAsync(chunkCountKey(key)),
       ...Array.from({ length: chunkCount || 0 }, (_, index) =>
-        SecureStore.deleteItemAsync(`${key}:${index}`)
+        SecureStore.deleteItemAsync(chunkKey(key, index))
       ),
     ])
   },
