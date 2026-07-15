@@ -1,12 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { searchChurches } from '@/lib/churchSearch'
-import { createServerSupabase } from '@/lib/supabaseServer'
+import { getRequestUser } from '@/lib/requestUser'
 
 export async function GET(request: NextRequest) {
-  const supabase = await createServerSupabase()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const user = await getRequestUser(request)
 
   if (!user) {
     return NextResponse.json({ error: '로그인이 필요합니다.' }, { status: 401 })

@@ -1,27 +1,27 @@
-import { createServerSupabase } from '@/lib/supabaseServer'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
-import { getManittoAssignment } from '@/lib/manitto'
+import { getManittoAssignment, getWeeklyManitto } from '@/lib/manitto'
+import { getRequestUser } from '@/lib/requestUser'
 
 export const runtime = 'nodejs'
 
-async function getUser() {
-  const supabase = await createServerSupabase()
-  const { data: { user } } = await supabase.auth.getUser()
-  return { supabase, user }
+export async function GET(request: Request) {
+  const user = await getRequestUser(request)
+  if (!user) return Response.json({ error: '로그인이 필요합니다.' }, { status: 401 })
+  return Response.json(await getWeeklyManitto(user.id))
 }
 
 export async function POST(request: Request) {
-  const { supabase, user } = await getUser()
+  const user = await getRequestUser(request)
   if (!user) return Response.json({ error: '로그인이 필요합니다.' }, { status: 401 })
   const body = await request.json().catch(() => null)
 
   if (body?.action === 'join') {
-    const { error } = await supabase.from('manitto_participants').upsert({ user_id: user.id, is_active: true, updated_at: new Date().toISOString() })
+    const { error } = await supabaseAdmin.from('manitto_participants').upsert({ user_id: user.id, is_active: true, updated_at: new Date().toISOString() })
     return error ? Response.json({ error: error.message }, { status: 400 }) : Response.json({ ok: true })
   }
 
   if (body?.action === 'leave') {
-    const { error } = await supabase.from('manitto_participants').update({ is_active: false, updated_at: new Date().toISOString() }).eq('user_id', user.id)
+    const { error } = await supabaseAdmin.from('manitto_participants').update({ is_active: false, updated_at: new Date().toISOString() }).eq('user_id', user.id)
     return error ? Response.json({ error: error.message }, { status: 400 }) : Response.json({ ok: true })
   }
 

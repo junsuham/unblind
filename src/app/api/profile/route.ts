@@ -6,13 +6,11 @@ import {
   isEligibleReferenceAge,
   isOccupation,
 } from '@/lib/profile'
-import { createServerSupabase } from '@/lib/supabaseServer'
+import { getRequestUser } from '@/lib/requestUser'
+import { supabaseAdmin } from '@/lib/supabaseAdmin'
 
 export async function POST(request: Request) {
-  const supabase = await createServerSupabase()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const user = await getRequestUser(request)
 
   if (!user?.email) {
     return NextResponse.json({ error: '로그인이 필요합니다.' }, { status: 401 })
@@ -77,7 +75,7 @@ export async function POST(request: Request) {
     )
   }
 
-  const { error } = await supabase.from('user_profiles').upsert(
+  const { error } = await supabaseAdmin.from('user_profiles').upsert(
     {
       user_id: user.id,
       email: user.email.toLowerCase(),
