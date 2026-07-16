@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { analyzeTextForSafety } from '@/lib/moderation'
 import SafetyIssueList from '@/app/components/SafetyIssueList'
+import PraiseMentionInput from '@/app/components/PraiseMentionInput'
 import {
   AppShell,
   GlassCard,
@@ -290,18 +291,18 @@ export default function NewPostForm({ initialBoard }: NewPostFormProps) {
           </p>
 
           <GlassCard className="p-0">
-            <textarea
+            <PraiseMentionInput
               value={content}
-              onChange={(event) => setContent(event.target.value)}
+              onChange={setContent}
               rows={12}
               maxLength={2000}
-              placeholder="이름, 사역팀, 직책, 구체적인 날짜와 장소처럼 누군가를 특정할 수 있는 정보는 적지 말아주세요."
+              placeholder="내용을 입력해주세요. @를 입력하면 찬양을 추천할 수 있어요."
               className="min-h-[260px] w-full resize-none rounded-[28px] bg-transparent px-5 py-5 text-[17px] leading-[25px] text-[var(--ub-text-primary)] outline-none placeholder:text-[var(--ub-text-tertiary)]"
             />
           </GlassCard>
 
           <div className="mt-2 flex justify-between px-4 text-[13px] text-[var(--ub-text-on-brand-tertiary)]">
-            <span>내 고민과 감정 중심으로 적어주세요.</span>
+            <span>@ + 찬양 이름으로 오·찬·추를 남겨보세요.</span>
             <span>{content.length}/2000</span>
           </div>
 

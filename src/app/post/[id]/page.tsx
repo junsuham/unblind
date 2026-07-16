@@ -7,6 +7,8 @@ import PostViewTracker from './PostViewTracker'
 import ReactionButtons from './ReactionButtons'
 import ReportButton from './ReportButton'
 import BookmarkButton from './BookmarkButton'
+import PraiseMentionText from '@/app/components/PraiseMentionText'
+import type { PraiseMentionTrack } from '@/lib/praiseMention'
 import {
   AppShell,
   BottomTabBar,
@@ -73,6 +75,21 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
     .eq('status', 'visible')
     .order('created_at', { ascending: true })
     .returns<CommentRow[]>()
+
+  const hasPraiseMention =
+    post.content.includes('@오・찬・추💿') ||
+    (comments ?? []).some((comment) =>
+      comment.content.includes('@오・찬・추💿')
+    )
+  const { data: praiseTracks } = hasPraiseMention
+    ? await supabase
+        .from('top100_tracks')
+        .select('youtube_id, title, artist')
+        .eq('is_active', true)
+        .order('rank')
+        .limit(100)
+        .returns<PraiseMentionTrack[]>()
+    : { data: [] as PraiseMentionTrack[] }
 
   const authorIds = Array.from(
     new Set(
@@ -176,7 +193,7 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
 
         <div className="border-t border-[var(--ub-separator)] px-5 py-7">
           <p className="whitespace-pre-wrap text-[16px] leading-[26px] text-[var(--ub-text-primary)]">
-            {post.content}
+            <PraiseMentionText content={post.content} tracks={praiseTracks ?? []} />
           </p>
 
           {post.tags?.length > 0 && (
@@ -256,7 +273,7 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
               </div>
 
               <p className="whitespace-pre-wrap text-[17px] leading-[25px] text-[var(--ub-text-primary)]">
-                {comment.content}
+                <PraiseMentionText content={comment.content} tracks={praiseTracks ?? []} />
               </p>
             </article>
           ))}

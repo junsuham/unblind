@@ -1,11 +1,14 @@
 import * as SecureStore from 'expo-secure-store'
 import { useCallback, useEffect, useState } from 'react'
-import { ActivityIndicator, Alert, Pressable, Text, TextInput, View } from 'react-native'
+import { ActivityIndicator, Alert, Pressable, Text, View } from 'react-native'
 import { router, useLocalSearchParams } from 'expo-router'
 import { Screen } from '@/components/Screen'
 import { Card } from '@/components/Card'
 import { radius, useAppTheme } from '@/constants/design'
 import { supabase } from '@/lib/supabase'
+import { PraiseMentionInput } from '@/components/PraiseMentionInput'
+import { PraiseMentionText } from '@/components/PraiseMentionText'
+import type { PraiseMentionTrack } from '@/lib/praiseMention'
 
 type Post = { id: string; board: string; title: string; content: string; created_at: string; view_count: number; tags: string[] | null }
 type Comment = { id: string; content: string; created_at: string }
@@ -25,19 +28,22 @@ export default function PostDetailScreen() {
   const [post, setPost] = useState<Post | null>(null)
   const [comments, setComments] = useState<Comment[]>([])
   const [counts, setCounts] = useState({ pray: 0, empathize: 0 })
+  const [praiseTracks, setPraiseTracks] = useState<PraiseMentionTrack[]>([])
   const [comment, setComment] = useState('')
   const [loading, setLoading] = useState(true)
 
   const load = useCallback(async () => {
     if (!id) return
-    const [{ data: postData }, { data: commentData }, { data: reactions }] = await Promise.all([
+    const [{ data: postData }, { data: commentData }, { data: reactions }, { data: trackData }] = await Promise.all([
       supabase.from('posts').select('id, board, title, content, created_at, view_count, tags').eq('id', id).eq('status', 'visible').single(),
       supabase.from('comments').select('id, content, created_at').eq('post_id', id).eq('status', 'visible').order('created_at'),
       supabase.from('reactions').select('type').eq('post_id', id),
+      supabase.from('top100_tracks').select('youtube_id, title, artist').eq('is_active', true).order('rank').limit(100),
     ])
     setPost(postData)
     setComments(commentData ?? [])
     setCounts({ pray: reactions?.filter((item) => item.type === 'pray').length ?? 0, empathize: reactions?.filter((item) => item.type === 'empathize').length ?? 0 })
+    setPraiseTracks(trackData ?? [])
     setLoading(false)
   }, [id])
 
@@ -75,7 +81,7 @@ export default function PostDetailScreen() {
         <Text style={{ color: colors.brand, fontSize: 14, fontWeight: '700', marginTop: 12 }}>익명</Text>
         <Text style={{ color: colors.textTertiary, fontSize: 12, marginTop: 7 }}>{new Date(post.created_at).toLocaleDateString('ko-KR')} · 조회 {post.view_count ?? 0} · 댓글 {comments.length}</Text>
         <View style={{ height: 1, backgroundColor: colors.separator, marginVertical: 20 }} />
-        <Text style={{ color: colors.text, fontSize: 16, lineHeight: 26 }}>{post.content}</Text>
+        <PraiseMentionText content={post.content} tracks={praiseTracks} style={{ color: colors.text, fontSize: 16, lineHeight: 26 }} />
         {post.tags?.length ? <Text style={{ color: colors.brand, fontSize: 13, marginTop: 20 }}>{post.tags.map((tag) => `#${tag}`).join('  ')}</Text> : null}
         <View style={{ flexDirection: 'row', gap: 18, marginTop: 24 }}>
           <Pressable onPress={() => react('empathize')}><Text style={{ color: colors.textSecondary, fontSize: 15 }}>♡ {counts.empathize}</Text></Pressable>
@@ -84,11 +90,11 @@ export default function PostDetailScreen() {
         </View>
       </Card>
       <View style={{ flexDirection: 'row', gap: 8, marginTop: 16 }}>
-        <TextInput value={comment} onChangeText={setComment} maxLength={1000} placeholder="함께 들어주는 댓글을 남겨주세요" placeholderTextColor={colors.textTertiary} style={{ flex: 1, minHeight: 46, borderRadius: radius.medium, backgroundColor: colors.surface, paddingHorizontal: 15, color: colors.text }} />
+        <PraiseMentionInput value={comment} onChangeText={setComment} maxLength={1000} placeholder="댓글 또는 @ 찬양 추천" placeholderTextColor={colors.textTertiary} containerStyle={{ flex: 1 }} style={{ minHeight: 46, borderRadius: radius.medium, backgroundColor: colors.surface, paddingHorizontal: 15, color: colors.text }} />
         <Pressable onPress={addComment} style={{ minWidth: 64, borderRadius: radius.medium, backgroundColor: colors.brand, alignItems: 'center', justifyContent: 'center' }}><Text style={{ color: '#FFFFFF', fontWeight: '800' }}>등록</Text></Pressable>
       </View>
       <View style={{ gap: 10, marginTop: 18 }}>
-        {comments.map((item) => <Card key={item.id} style={{ padding: 15 }}><Text style={{ color: colors.text, fontSize: 14, lineHeight: 21 }}>{item.content}</Text><Text style={{ color: colors.textTertiary, fontSize: 11, marginTop: 8 }}>{new Date(item.created_at).toLocaleDateString('ko-KR')}</Text></Card>)}
+        {comments.map((item) => <Card key={item.id} style={{ padding: 15 }}><PraiseMentionText content={item.content} tracks={praiseTracks} style={{ color: colors.text, fontSize: 14, lineHeight: 21 }} /><Text style={{ color: colors.textTertiary, fontSize: 11, marginTop: 8 }}>{new Date(item.created_at).toLocaleDateString('ko-KR')}</Text></Card>)}
       </View>
     </Screen>
   )

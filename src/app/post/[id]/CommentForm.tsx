@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { analyzeTextForSafety } from '@/lib/moderation'
 import SafetyIssueList from '@/app/components/SafetyIssueList'
+import PraiseMentionInput from '@/app/components/PraiseMentionInput'
 
 type CommentFormProps = {
   postId: string
@@ -107,12 +108,12 @@ export default function CommentForm({ postId }: CommentFormProps) {
           정답을 주기보다 함께 들어주는 마음으로 댓글을 남겨주세요.
         </p>
 
-        <textarea
+        <PraiseMentionInput
           value={content}
-          onChange={(event) => setContent(event.target.value)}
+          onChange={setContent}
           rows={3}
           maxLength={1000}
-          placeholder="예: 저도 비슷한 시간을 지난 적이 있어요. 오늘 기도할게요."
+          placeholder="댓글을 입력해주세요. @를 입력하면 찬양을 추천할 수 있어요."
           className="min-h-[88px] w-full resize-none rounded-[16px] bg-[var(--ub-surface-muted)] px-4 py-3 text-[16px] leading-[23px] text-[var(--ub-text-primary)] outline-none placeholder:text-[var(--ub-text-tertiary)] focus:ring-2 focus:ring-[var(--ub-color-brand)]/25"
         />
 

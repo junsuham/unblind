@@ -113,9 +113,17 @@ export const songs: Song[] = [
   ['9RgepmRUshA', '더 낮은 곳으로 흘러', '어노인팅'],
 ].map(([id, title, artist]) => ({ id, title, artist }))
 
-export default function PraiseRecommendations({ initialSongs }: { initialSongs?: Song[] }) {
+export default function PraiseRecommendations({
+  initialSongs,
+  initialTrackId,
+}: {
+  initialSongs?: Song[]
+  initialTrackId?: string
+}) {
   const displayedSongs = initialSongs?.length ? initialSongs : songs
-  const [selectedSong, setSelectedSong] = useState(displayedSongs[0])
+  const [selectedSong, setSelectedSong] = useState(
+    displayedSongs.find((song) => song.id === initialTrackId) ?? displayedSongs[0]
+  )
 
   function selectSong(song: Song) {
     setSelectedSong(song)

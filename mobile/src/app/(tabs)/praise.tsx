@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { ActivityIndicator, Linking, Pressable, Text, useWindowDimensions, View } from 'react-native'
-import { useFocusEffect } from 'expo-router'
+import { useFocusEffect, useLocalSearchParams } from 'expo-router'
 import YoutubePlayer, { PLAYER_STATES } from 'react-native-youtube-iframe'
 import { Screen } from '@/components/Screen'
 import { PageTitle } from '@/components/PageTitle'
@@ -12,6 +12,7 @@ type Track = { id: string; rank: number; youtube_id: string; title: string; arti
 export default function PraiseScreen() {
   const colors = useAppTheme()
   const { width } = useWindowDimensions()
+  const { track: requestedTrackId } = useLocalSearchParams<{ track?: string }>()
   const [tracks, setTracks] = useState<Track[]>([])
   const [loading, setLoading] = useState(true)
   const [selectedTrack, setSelectedTrack] = useState<Track | null>(null)
@@ -33,6 +34,24 @@ export default function PraiseScreen() {
         setLoading(false)
       })
   }, [])
+
+  useEffect(() => {
+    if (!requestedTrackId || !tracks.length) return
+
+    const requestedTrack = tracks.find(
+      (track) => track.youtube_id === requestedTrackId
+    )
+
+    if (requestedTrack) {
+      const frame = requestAnimationFrame(() => {
+        setPlayerError(null)
+        setSelectedTrack(requestedTrack)
+        setPlaying(true)
+      })
+
+      return () => cancelAnimationFrame(frame)
+    }
+  }, [requestedTrackId, tracks])
 
   useFocusEffect(
     useCallback(() => () => {
