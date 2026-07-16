@@ -6,12 +6,13 @@ import { Screen } from '@/components/Screen'
 import { Card } from '@/components/Card'
 import { radius, useAppTheme } from '@/constants/design'
 import { supabase } from '@/lib/supabase'
+import { authenticatedFetch } from '@/lib/api'
 import { PraiseMentionInput } from '@/components/PraiseMentionInput'
 import { PraiseMentionText } from '@/components/PraiseMentionText'
 import type { ContentMention, PraiseMentionTrack } from '@/lib/praiseMention'
 
-type Post = { id: string; board: string; title: string; content: string; mentions: ContentMention[] | null; created_at: string; view_count: number; tags: string[] | null }
-type Comment = { id: string; content: string; mentions: ContentMention[] | null; created_at: string }
+type Post = { id: string; author_user_id: string | null; board: string; title: string; content: string; mentions: ContentMention[] | null; created_at: string; view_count: number; tags: string[] | null }
+type Comment = { id: string; author_user_id: string | null; content: string; mentions: ContentMention[] | null; created_at: string }
 type ReactionType = 'pray' | 'empathize'
 
 async function getActorKey() {
@@ -35,14 +36,16 @@ export default function PostDetailScreen() {
 
   const load = useCallback(async () => {
     if (!id) return
-    const [{ data: postData }, { data: commentData }, { data: reactions }, { data: trackData }] = await Promise.all([
-      supabase.from('posts').select('id, board, title, content, mentions, created_at, view_count, tags').eq('id', id).eq('status', 'visible').single(),
-      supabase.from('comments').select('id, content, mentions, created_at').eq('post_id', id).eq('status', 'visible').order('created_at'),
+    const [{ data: postData }, { data: commentData }, { data: reactions }, { data: trackData }, { data: blockedRows }] = await Promise.all([
+      supabase.from('posts').select('id, author_user_id, board, title, content, mentions, created_at, view_count, tags').eq('id', id).eq('status', 'visible').single(),
+      supabase.from('comments').select('id, author_user_id, content, mentions, created_at').eq('post_id', id).eq('status', 'visible').order('created_at'),
       supabase.from('reactions').select('type').eq('post_id', id),
       supabase.from('top100_tracks').select('youtube_id, title, artist').eq('is_active', true).order('rank').limit(100),
+      supabase.from('user_blocks').select('blocked_user_id'),
     ])
-    setPost(postData)
-    setComments(commentData ?? [])
+    const blockedIds = new Set((blockedRows ?? []).map((item) => item.blocked_user_id))
+    setPost(postData?.author_user_id && blockedIds.has(postData.author_user_id) ? null : postData)
+    setComments((commentData ?? []).filter((item) => !item.author_user_id || !blockedIds.has(item.author_user_id)))
     setCounts({ pray: reactions?.filter((item) => item.type === 'pray').length ?? 0, empathize: reactions?.filter((item) => item.type === 'empathize').length ?? 0 })
     setPraiseTracks(trackData ?? [])
     setLoading(false)
@@ -59,6 +62,7 @@ export default function PostDetailScreen() {
     const { error } = await supabase.from('reactions').upsert({ post_id: id, actor_key: actorKey, type }, { onConflict: 'post_id,actor_key,type', ignoreDuplicates: true })
     if (error) return Alert.alert('반응을 남기지 못했습니다', error.message)
     setCounts((current) => ({ ...current, [type]: current[type] + 1 }))
+    authenticatedFetch('/api/push/dispatch', { method: 'POST' }).catch(() => undefined)
   }
 
   async function addComment() {
@@ -69,7 +73,47 @@ export default function PostDetailScreen() {
     if (error) return Alert.alert('댓글을 등록하지 못했습니다', error.message)
     setComment('')
     setCommentMentions([])
+    authenticatedFetch('/api/push/dispatch', { method: 'POST' }).catch(() => undefined)
     load()
+  }
+
+  function report(targetType: 'post' | 'comment', targetId: string) {
+    async function submit(reason: string) {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+      const { error } = await supabase.from('reports').insert({
+        target_type: targetType,
+        target_id: targetId,
+        reporter_actor_key: user.id,
+        reporter_user_id: user.id,
+        reporter_email: user.email ?? null,
+        reason,
+        status: 'pending',
+      })
+      Alert.alert(error?.code === '23505' ? '이미 신고했습니다' : error ? '신고하지 못했습니다' : '신고를 접수했습니다', error ? error.message : '운영자가 확인한 뒤 처리 결과를 알려드립니다.')
+    }
+    Alert.alert('신고 사유', '가장 가까운 사유를 선택해주세요.', [
+      { text: '개인정보 노출', onPress: () => submit('personal_info') },
+      { text: '공격·비난', onPress: () => submit('attack') },
+      { text: '스팸', onPress: () => submit('spam') },
+      { text: '취소', style: 'cancel' },
+    ])
+  }
+
+  function blockUser(blockedUserId: string, leavePage = false) {
+    Alert.alert('사용자 차단', '이 사용자의 글과 댓글을 내 화면에서 숨길까요?', [
+      { text: '취소', style: 'cancel' },
+      { text: '차단', style: 'destructive', onPress: async () => {
+        const response = await authenticatedFetch('/api/safety/blocks', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ blockedUserId }),
+        })
+        if (!response.ok) return Alert.alert('차단하지 못했습니다', '잠시 후 다시 시도해주세요.')
+        if (leavePage) router.back()
+        else load()
+      } },
+    ])
   }
 
   if (loading) return <Screen><ActivityIndicator color={colors.brand} style={{ marginTop: 80 }} /></Screen>
@@ -77,7 +121,7 @@ export default function PostDetailScreen() {
 
   return (
     <Screen>
-      <Pressable onPress={() => router.back()} style={{ marginBottom: 12 }}><Text style={{ color: colors.brand, fontWeight: '700' }}>‹ 돌아가기</Text></Pressable>
+      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}><Pressable onPress={() => router.back()}><Text style={{ color: colors.brand, fontWeight: '700' }}>‹ 돌아가기</Text></Pressable><View style={{ flexDirection: 'row', gap: 14 }}><Pressable onPress={() => report('post', post.id)}><Text style={{ color: colors.textTertiary, fontSize: 12 }}>신고</Text></Pressable>{post.author_user_id ? <Pressable onPress={() => blockUser(post.author_user_id!, true)}><Text style={{ color: colors.danger, fontSize: 12 }}>사용자 차단</Text></Pressable> : null}</View></View>
       <Card>
         <Text style={{ color: colors.text, fontSize: 24, lineHeight: 32, fontWeight: '800' }}>{post.title}</Text>
         <Text style={{ color: colors.brand, fontSize: 14, fontWeight: '700', marginTop: 12 }}>익명</Text>
@@ -96,7 +140,7 @@ export default function PostDetailScreen() {
         <Pressable onPress={addComment} style={{ minWidth: 64, borderRadius: radius.medium, backgroundColor: colors.brand, alignItems: 'center', justifyContent: 'center' }}><Text style={{ color: '#FFFFFF', fontWeight: '800' }}>등록</Text></Pressable>
       </View>
       <View style={{ gap: 10, marginTop: 18 }}>
-        {comments.map((item) => <Card key={item.id} style={{ padding: 15 }}><PraiseMentionText content={item.content} mentions={item.mentions} tracks={praiseTracks} style={{ color: colors.text, fontSize: 14, lineHeight: 21 }} /><Text style={{ color: colors.textTertiary, fontSize: 11, marginTop: 8 }}>{new Date(item.created_at).toLocaleDateString('ko-KR')}</Text></Card>)}
+        {comments.map((item) => <Card key={item.id} style={{ padding: 15 }}><View style={{ flexDirection: 'row', justifyContent: 'flex-end', gap: 12, marginBottom: 8 }}><Pressable onPress={() => report('comment', item.id)}><Text style={{ color: colors.textTertiary, fontSize: 11 }}>신고</Text></Pressable>{item.author_user_id ? <Pressable onPress={() => blockUser(item.author_user_id!)}><Text style={{ color: colors.danger, fontSize: 11 }}>차단</Text></Pressable> : null}</View><PraiseMentionText content={item.content} mentions={item.mentions} tracks={praiseTracks} style={{ color: colors.text, fontSize: 14, lineHeight: 21 }} /><Text style={{ color: colors.textTertiary, fontSize: 11, marginTop: 8 }}>{new Date(item.created_at).toLocaleDateString('ko-KR')}</Text></Card>)}
       </View>
     </Screen>
   )

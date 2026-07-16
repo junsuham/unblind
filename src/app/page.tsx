@@ -27,6 +27,7 @@ const boardNames: Record<string, string> = {
 
 type PopularPost = {
   id: string
+  author_user_id: string | null
   board: string
   title: string
   content: string
@@ -38,11 +39,12 @@ export default async function HomePage() {
   const { supabase, user } = await requireBetaUser()
   const verse = getRandomBibleVerse()
 
-  const [{ data: popularPosts, error }, { count: unreadCount }] = await Promise.all([
+  const [{ data: popularPosts, error }, { count: unreadCount }, { data: blockedRows }] = await Promise.all([
     supabase
     .from('posts')
     .select(`
       id,
+      author_user_id,
       board,
       title,
       content,
@@ -52,13 +54,16 @@ export default async function HomePage() {
     .eq('status', 'visible')
     .order('view_count', { ascending: false })
     .order('created_at', { ascending: false })
-    .limit(5)
+    .limit(20)
     .returns<PopularPost[]>(),
     supabase
       .from('notifications')
       .select('*', { count: 'exact', head: true })
       .is('read_at', null),
+    supabase.from('user_blocks').select('blocked_user_id').eq('blocker_user_id', user.id),
   ])
+  const blockedIds = new Set((blockedRows ?? []).map((item) => item.blocked_user_id))
+  const visiblePopularPosts = (popularPosts ?? []).filter((post) => !post.author_user_id || !blockedIds.has(post.author_user_id)).slice(0, 5)
 
   return (
     <AppShell showTopLogo={false} bottomBar={<BottomTabBar />}>
@@ -125,7 +130,7 @@ export default async function HomePage() {
         )}
 
         <IosListGroup title="인기글" footer="조회수가 높은 글부터 보여드립니다.">
-          {popularPosts?.map((post) => {
+          {visiblePopularPosts.map((post) => {
             const commentCount = post.comments?.[0]?.count ?? 0
             const preview =
               post.content.length > 58
@@ -147,7 +152,7 @@ export default async function HomePage() {
             )
           })}
 
-          {popularPosts?.length === 0 && !error && (
+          {visiblePopularPosts.length === 0 && !error && (
             <div className="px-5 py-10 text-center">
               <p className="text-[17px] font-semibold text-[var(--ub-text-primary)]">
                 아직 인기글이 없습니다

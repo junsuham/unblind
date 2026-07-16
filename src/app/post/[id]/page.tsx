@@ -7,6 +7,7 @@ import PostViewTracker from './PostViewTracker'
 import ReactionButtons from './ReactionButtons'
 import ReportButton from './ReportButton'
 import BookmarkButton from './BookmarkButton'
+import BlockUserButton from './BlockUserButton'
 import PraiseMentionText from '@/app/components/PraiseMentionText'
 import type { ContentMention, PraiseMentionTrack } from '@/lib/praiseMention'
 import {
@@ -69,13 +70,24 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
     notFound()
   }
 
-  const { data: comments, error: commentsError } = await supabase
+  const { data: blockedRows } = await supabase
+    .from('user_blocks')
+    .select('blocked_user_id')
+    .eq('blocker_user_id', user.id)
+
+  const blockedIds = new Set((blockedRows ?? []).map((item) => item.blocked_user_id))
+  if (post.author_user_id && blockedIds.has(post.author_user_id)) notFound()
+
+  const { data: rawComments, error: commentsError } = await supabase
     .from('comments')
     .select('id, content, mentions, created_at, author_user_id')
     .eq('post_id', post.id)
     .eq('status', 'visible')
     .order('created_at', { ascending: true })
     .returns<CommentRow[]>()
+  const comments = (rawComments ?? []).filter(
+    (comment) => !comment.author_user_id || !blockedIds.has(comment.author_user_id)
+  )
 
   const hasPraiseMention =
     post.content.includes('@오・찬・추💿') ||
@@ -170,6 +182,9 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
                 reporterActorKey={user.id}
                 label="신고"
               />
+              {post.author_user_id && post.author_user_id !== user.id && (
+                <BlockUserButton blockedUserId={post.author_user_id} leavePage />
+              )}
             </div>
           </div>
 
@@ -267,6 +282,9 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
                   reporterActorKey={user.id}
                   label="댓글 신고"
                 />
+                {comment.author_user_id && comment.author_user_id !== user.id && (
+                  <BlockUserButton blockedUserId={comment.author_user_id} />
+                )}
               </div>
 
               <p className="whitespace-pre-wrap text-[17px] leading-[25px] text-[var(--ub-text-primary)]">

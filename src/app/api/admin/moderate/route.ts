@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
 import { isAdminRequest } from '@/lib/adminAuth'
+import { getRequestUser } from '@/lib/requestUser'
 
 type ActionType = 'hide' | 'delete' | 'restore' | 'dismiss'
 type TargetType = 'post' | 'comment'
@@ -22,6 +23,7 @@ export async function POST(request: NextRequest) {
   const targetType = body?.targetType as TargetType | undefined
   const targetId = body?.targetId as string | undefined
   const reportId = body?.reportId as string | undefined
+  const memo = typeof body?.memo === 'string' ? body.memo.trim().slice(0, 500) : null
 
   if (!action || !validActions.includes(action)) {
     return NextResponse.json(
@@ -72,7 +74,7 @@ export async function POST(request: NextRequest) {
 
     const { error: reportError } = await supabaseAdmin
       .from('reports')
-      .update({ status: nextReportStatus })
+      .update({ status: nextReportStatus, resolved_at: new Date().toISOString(), resolution_note: memo })
       .eq('id', reportId)
 
     if (reportError) {
@@ -83,12 +85,14 @@ export async function POST(request: NextRequest) {
     }
   }
 
+  const adminUser = await getRequestUser(request)
   await supabaseAdmin.from('admin_actions').insert({
     action_type: action,
     target_type: targetType,
     target_id: targetId,
     report_id: reportId ?? null,
-    memo: null,
+    memo,
+    admin_email: adminUser?.email ?? null,
   })
 
   return NextResponse.json({ ok: true })

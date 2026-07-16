@@ -41,6 +41,7 @@ type BoardPageProps = {
 
 type PostRow = {
   id: string
+  author_user_id: string | null
   board: string
   title: string
   content: string
@@ -62,7 +63,7 @@ function formatCompactDate(value: string) {
 }
 
 export default async function BoardPage({ params, searchParams }: BoardPageProps) {
-  const { supabase } = await requireBetaUser()
+  const { supabase, user } = await requireBetaUser()
 
   const { board } = await params
   const filters = await searchParams
@@ -75,6 +76,7 @@ export default async function BoardPage({ params, searchParams }: BoardPageProps
     .from('posts')
     .select(`
       id,
+      author_user_id,
       board,
       title,
       content,
@@ -95,7 +97,12 @@ export default async function BoardPage({ params, searchParams }: BoardPageProps
     ? postsQuery.order('view_count', { ascending: false }).order('created_at', { ascending: false })
     : postsQuery.order('created_at', { ascending: false })
 
-  const { data: posts, error } = await postsQuery.limit(50).returns<PostRow[]>()
+  const [{ data: posts, error }, { data: blockedRows }] = await Promise.all([
+    postsQuery.limit(100).returns<PostRow[]>(),
+    supabase.from('user_blocks').select('blocked_user_id').eq('blocker_user_id', user.id),
+  ])
+  const blockedIds = new Set((blockedRows ?? []).map((item) => item.blocked_user_id))
+  const visiblePosts = (posts ?? []).filter((post) => !post.author_user_id || !blockedIds.has(post.author_user_id)).slice(0, 50)
 
   const activeTab =
     board === 'prayer' ||
@@ -145,7 +152,7 @@ export default async function BoardPage({ params, searchParams }: BoardPageProps
         </p>
 
         <div className="overflow-hidden rounded-[20px] bg-[var(--ub-surface-card-strong)] shadow-[var(--ub-shadow-soft)]">
-          {posts?.map((post) => {
+          {visiblePosts.map((post) => {
             const commentCount = post.comments?.[0]?.count ?? 0
             const likeCount =
               post.reactions?.filter(
@@ -214,7 +221,7 @@ export default async function BoardPage({ params, searchParams }: BoardPageProps
             )
           })}
 
-          {posts?.length === 0 && !error && (
+          {visiblePosts.length === 0 && !error && (
             <div className="px-4 py-10 text-center">
               <p className="text-[17px] font-semibold text-[var(--ub-text-primary)]">
                 아직 글이 없습니다

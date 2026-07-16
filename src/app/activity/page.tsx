@@ -21,6 +21,7 @@ export default async function ActivityPage() {
   return (
     <AppShell bottomBar={<BottomTabBar />}>
       <PageHeader eyebrow="나의 기록" title="📚 내 활동" titleSize="compact" />
+      <Link href="/settings/account" className="mb-6 flex min-h-[52px] items-center justify-between rounded-[18px] bg-[var(--ub-surface-card-strong)] px-4 text-[15px] font-semibold text-[var(--ub-color-brand)] shadow-sm">계정·알림·차단 관리 <span className="text-[22px]">›</span></Link>
       <div className="space-y-6">
         {sections.map((section) => (
           <section key={section.title}>

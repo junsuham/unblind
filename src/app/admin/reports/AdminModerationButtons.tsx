@@ -39,6 +39,12 @@ export default function AdminModerationButtons({
       return
     }
 
+    const memo = window.prompt(
+      action === 'dismiss' ? '신고자에게 보일 처리 메모를 입력하세요.' : '조치 사유를 간단히 입력하세요.',
+      action === 'dismiss' ? '운영정책 위반 내용을 확인하지 못했습니다.' : ''
+    )
+    if (memo === null) return
+
     setSubmittingAction(action)
 
     const response = await fetch('/api/admin/moderate', {
@@ -51,6 +57,7 @@ export default function AdminModerationButtons({
         targetType,
         targetId,
         reportId,
+        memo,
       }),
     })
 

@@ -37,6 +37,7 @@ export default function ProfileScreen() {
           <Text style={{ color: '#FFFFFF', fontWeight: '800' }}>관리자 센터</Text>
         </Pressable>
       ) : null}
+      <Pressable onPress={() => router.push('/account' as never)} style={{ minHeight: 52, borderRadius: radius.medium, backgroundColor: colors.surfaceMuted, alignItems: 'center', justifyContent: 'center', marginTop: 12 }}><Text style={{ color: colors.brand, fontWeight: '800' }}>계정·알림·차단 관리</Text></Pressable>
       <Pressable onPress={() => Alert.alert('로그아웃', '로그아웃할까요?', [{ text: '취소', style: 'cancel' }, { text: '로그아웃', style: 'destructive', onPress: signOut }])} style={{ minHeight: 52, borderRadius: radius.medium, backgroundColor: colors.surfaceMuted, alignItems: 'center', justifyContent: 'center', marginTop: 18 }}><Text style={{ color: colors.danger, fontWeight: '800' }}>로그아웃</Text></Pressable>
     </Screen>
   )

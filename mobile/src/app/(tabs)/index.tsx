@@ -12,6 +12,7 @@ import { useAuth } from '@/providers/AuthProvider'
 
 type PopularPost = {
   id: string
+  author_user_id: string | null
   board: keyof typeof boardInfo
   title: string
   content: string
@@ -30,20 +31,22 @@ export default function HomeScreen() {
   const verse = bibleVerses[verseIndex]
 
   const load = useCallback(async () => {
-    const [{ data }, { count }] = await Promise.all([
+    const [{ data }, { count }, { data: blockedRows }] = await Promise.all([
       supabase
         .from('posts')
-        .select('id, board, title, content, view_count, comments(count)')
+        .select('id, author_user_id, board, title, content, view_count, comments(count)')
         .eq('status', 'visible')
         .order('view_count', { ascending: false })
         .order('created_at', { ascending: false })
-        .limit(5),
+        .limit(20),
       supabase
         .from('notifications')
         .select('*', { count: 'exact', head: true })
         .is('read_at', null),
+      supabase.from('user_blocks').select('blocked_user_id'),
     ])
-    setPosts((data as PopularPost[] | null) ?? [])
+    const blockedIds = new Set((blockedRows ?? []).map((item) => item.blocked_user_id))
+    setPosts(((data as PopularPost[] | null) ?? []).filter((post) => !post.author_user_id || !blockedIds.has(post.author_user_id)).slice(0, 5))
     setUnread(count ?? 0)
     setLoading(false)
   }, [])

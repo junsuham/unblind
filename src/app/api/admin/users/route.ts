@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
 import { listAllAuthUsers } from '@/lib/adminUsers'
 import { isAdminRequest } from '@/lib/adminAuth'
+import { getRequestUser } from '@/lib/requestUser'
 
 type UserAction =
   | 'add'
@@ -229,10 +230,12 @@ export async function POST(request: NextRequest) {
     )
   }
 
+  const adminUser = await getRequestUser(request)
   await supabaseAdmin.from('admin_user_actions').insert({
     action_type: action,
     email,
     memo: memo || null,
+    admin_email: adminUser?.email ?? null,
   })
 
   return NextResponse.json({ ok: true })

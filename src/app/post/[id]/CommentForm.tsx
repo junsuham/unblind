@@ -95,6 +95,7 @@ export default function CommentForm({ postId }: CommentFormProps) {
     setContent('')
     setMentions([])
     setCheckedRiskReview(false)
+    void fetch('/api/push/dispatch', { method: 'POST' })
     router.refresh()
   }
 

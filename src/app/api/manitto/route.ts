@@ -50,6 +50,11 @@ export async function POST(request: Request) {
       title: '마니또에게 익명 응원 쪽지가 도착했어요',
       body: message.slice(0, 80),
     })
+    if (process.env.CRON_SECRET) {
+      void fetch(new URL('/api/push/dispatch', request.url), {
+        headers: { Authorization: `Bearer ${process.env.CRON_SECRET}` },
+      }).catch(() => undefined)
+    }
     return Response.json({ ok: true })
   }
 

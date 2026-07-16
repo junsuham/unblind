@@ -3,6 +3,7 @@ import * as Linking from 'expo-linking'
 import * as WebBrowser from 'expo-web-browser'
 import { createContext, PropsWithChildren, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { supabase } from '@/lib/supabase'
+import { withTimeout } from '@/lib/network'
 
 WebBrowser.maybeCompleteAuthSession()
 
@@ -121,11 +122,11 @@ export function AuthProvider({ children }: PropsWithChildren) {
   useEffect(() => {
     let mounted = true
 
-    supabase.auth.getSession().then(async ({ data }) => {
+    withTimeout(supabase.auth.getSession(), 10_000, '로그인 확인 시간이 초과되었습니다.').then(async ({ data }) => {
       if (!mounted) return
       setSession(getSupportedSession(data.session))
       try {
-        await Promise.all([refreshProfile(), refreshAccount()])
+        await withTimeout(Promise.all([refreshProfile(), refreshAccount()]), 12_000, '계정 확인 시간이 초과되었습니다.')
       } finally {
         if (mounted) setLoading(false)
       }

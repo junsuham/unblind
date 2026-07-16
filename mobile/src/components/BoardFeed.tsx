@@ -9,6 +9,7 @@ import { supabase } from '@/lib/supabase'
 type BoardSlug = keyof typeof boardInfo
 type Post = {
   id: string
+  author_user_id: string | null
   title: string
   content: string
   created_at: string
@@ -27,13 +28,17 @@ export function BoardFeed({ slug, showBack = false }: { slug: BoardSlug; showBac
   const load = useCallback(async () => {
     let request = supabase
       .from('posts')
-      .select('id, title, content, created_at, view_count, comments(count), reactions(type)')
+      .select('id, author_user_id, title, content, created_at, view_count, comments(count), reactions(type)')
       .eq('board', slug)
       .eq('status', 'visible')
     const safeQuery = query.trim().replace(/[,%()]/g, ' ')
     if (safeQuery) request = request.or(`title.ilike.%${safeQuery}%,content.ilike.%${safeQuery}%`)
-    const { data } = await request.order('created_at', { ascending: false }).limit(50)
-    setPosts((data as Post[] | null) ?? [])
+    const [{ data }, { data: blockedRows }] = await Promise.all([
+      request.order('created_at', { ascending: false }).limit(100),
+      supabase.from('user_blocks').select('blocked_user_id'),
+    ])
+    const blockedIds = new Set((blockedRows ?? []).map((item) => item.blocked_user_id))
+    setPosts(((data as Post[] | null) ?? []).filter((post) => !post.author_user_id || !blockedIds.has(post.author_user_id)).slice(0, 50))
     setLoading(false)
   }, [query, slug])
 

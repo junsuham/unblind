@@ -114,6 +114,7 @@ export default function ReactionButtons({
       ...previous,
       [type]: previous[type] + 1,
     }))
+    void fetch('/api/push/dispatch', { method: 'POST' })
   }
 
   return (
