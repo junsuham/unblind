@@ -43,6 +43,7 @@
     "env:sync": "node ./scripts/sync-env.mjs",
     "android": "expo run:android",
     "ios": "expo run:ios",
+    "ios:device:release": "expo run:ios --device --configuration Release --no-bundler",
     "lint": "expo lint",
     "typecheck": "tsc --noEmit",
     "doctor": "npx expo-doctor",

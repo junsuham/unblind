@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { ActivityIndicator, Image, Linking, Pressable, Text, View } from 'react-native'
+import { ActivityIndicator, Image, Pressable, Text, View } from 'react-native'
 import { router } from 'expo-router'
 import { SymbolView } from 'expo-symbols'
 import unblindLogo from '../../../assets/images/unblind-logo.png'
@@ -8,7 +8,6 @@ import { Card } from '@/components/Card'
 import { useAppTheme } from '@/constants/design'
 import { bibleVerses, boardInfo } from '@/constants/content'
 import { supabase } from '@/lib/supabase'
-import { webApiUrl } from '@/lib/api'
 import { useAuth } from '@/providers/AuthProvider'
 
 type PopularPost = {
@@ -95,7 +94,7 @@ export default function HomeScreen() {
           {isAdmin ? (
             <Pressable
               accessibilityLabel="관리자 페이지 열기"
-              onPress={() => Linking.openURL(`${webApiUrl}/admin`)}
+              onPress={() => router.push('/admin')}
               style={{ minHeight: 44, borderRadius: 22, backgroundColor: colors.surfaceStrong, justifyContent: 'center', paddingHorizontal: 12 }}
             >
               <Text style={{ color: colors.brand, fontSize: 12, fontWeight: '800' }}>관리자</Text>

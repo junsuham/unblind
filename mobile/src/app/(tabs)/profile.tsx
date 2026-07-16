@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react'
-import { Alert, Linking, Pressable, Text, View } from 'react-native'
+import { Alert, Pressable, Text, View } from 'react-native'
+import { router } from 'expo-router'
 import { Screen } from '@/components/Screen'
 import { Card } from '@/components/Card'
 import { PageTitle } from '@/components/PageTitle'
 import { radius, useAppTheme } from '@/constants/design'
 import { supabase } from '@/lib/supabase'
-import { webApiUrl } from '@/lib/api'
 import { useAuth } from '@/providers/AuthProvider'
 
 type Profile = { nickname: string; church_name: string; occupation: string }
@@ -31,7 +31,7 @@ export default function ProfileScreen() {
       {isAdmin ? (
         <Pressable
           accessibilityLabel="관리자 센터 열기"
-          onPress={() => Linking.openURL(`${webApiUrl}/admin`)}
+          onPress={() => router.push('/admin')}
           style={{ minHeight: 52, borderRadius: radius.medium, backgroundColor: colors.brand, alignItems: 'center', justifyContent: 'center', marginTop: 18 }}
         >
           <Text style={{ color: '#FFFFFF', fontWeight: '800' }}>관리자 센터</Text>
