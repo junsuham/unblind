@@ -139,7 +139,6 @@ export default async function AdminPostsPage() {
   return (
     <AdminPageShell>
         <AdminHeader
-          backHref="/admin"
           title="게시글 관리"
           description="최근 게시글 100개를 확인하고 숨김, 삭제, 복구 처리합니다."
         />

@@ -12,7 +12,6 @@ import {
   GlassCard,
   NoticeCard,
   PageHeader,
-  Pill,
 } from '@/app/components/ui/AppShell'
 
 type BoardId = 'prayer' | 'faith' | 'daily'
@@ -228,16 +227,9 @@ export default function NewPostForm({ initialBoard }: NewPostFormProps) {
       <PageHeader
         backHref={`/board/${board}`}
         backLabel="게시판"
-        eyebrow="언블라인드"
         title="글쓰기"
-        description="선택한 게시판에 익명으로 고민과 기도제목을 남깁니다."
+        description="제목과 내용을 입력한 뒤 작성 전 확인을 완료해주세요."
       />
-
-      <div className="mb-5 flex flex-wrap gap-2">
-        <Pill>익명 작성</Pill>
-        <Pill>사용자 간 비공개</Pill>
-        <Pill>운영자 신고 대응</Pill>
-      </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <section>

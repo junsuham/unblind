@@ -185,10 +185,6 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
               <SystemIcon name="eye" size={14} />
               조회 {(post.view_count ?? 0).toLocaleString('ko-KR')}
             </span>
-            <span className="inline-flex items-center gap-1">
-              <SystemIcon name="message" size={13} />
-              댓글 {comments?.length ?? 0}
-            </span>
           </div>
         </header>
 
@@ -235,7 +231,7 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
 
       <section className="mt-8">
         <p className="mb-2 px-4 text-[13px] font-semibold uppercase tracking-[0.04em] text-[var(--ub-text-on-brand-tertiary)]">
-          댓글 {comments?.length ?? 0}
+          댓글
         </p>
 
         {commentsError && (
@@ -293,14 +289,6 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
         </div>
       </section>
 
-      <div className="mt-8">
-        <Link
-          href={`/board/${post.board}`}
-          className="flex min-h-[52px] items-center justify-center rounded-[16px] bg-[var(--ub-surface-pressed)] px-5 text-[17px] font-semibold text-[var(--ub-color-brand)] active:scale-[0.99]"
-        >
-          {boardName}으로 돌아가기
-        </Link>
-      </div>
     </AppShell>
   )
 }

@@ -10,7 +10,6 @@ import {
   GlassCard,
   NoticeCard,
   PageHeader,
-  Pill,
 } from '@/app/components/ui/AppShell'
 
 type SocialProvider = Extract<Provider, 'google'>
@@ -97,12 +96,6 @@ export default function LoginPage() {
         description="Google 계정으로 가입하고 로그인할 수 있습니다. 계정의 출생연도 확인과 운영자 승인을 마친 청년회 구성원만 입장할 수 있습니다."
       />
 
-      <div className="mb-5 flex flex-wrap gap-2">
-        <Pill>승인제</Pill>
-        <Pill>사용자 간 익명</Pill>
-        <Pill>운영자 관리</Pill>
-      </div>
-
       <GlassCard>
         <div>
           <button
@@ -125,10 +118,6 @@ export default function LoginPage() {
           </div>
         )}
 
-        <p className="mt-4 text-center text-[13px] leading-[19px] text-[var(--ub-text-secondary)]">
-          Google 인증 후 연령 확인과 기본 정보 입력을 진행합니다. Google
-          이메일은 운영자 승인 확인에만 사용됩니다.
-        </p>
       </GlassCard>
 
       <div className="mt-5 space-y-3">

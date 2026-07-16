@@ -272,18 +272,6 @@ export function SecondaryLink({ href, children }: PrimaryButtonLikeProps) {
   )
 }
 
-type PillProps = {
-  children: ReactNode
-}
-
-export function Pill({ children }: PillProps) {
-  return (
-    <span className="inline-flex min-h-7 items-center rounded-[var(--ub-radius-pill)] bg-[var(--ub-surface-card)] px-3 ios-caption font-medium text-[var(--ub-text-primary)]/62 shadow-sm backdrop-blur-xl">
-      {children}
-    </span>
-  )
-}
-
 type BottomTabKey =
   | 'prayer'
   | 'faith'

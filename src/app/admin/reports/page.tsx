@@ -166,7 +166,6 @@ export default async function AdminReportsPage() {
   return (
     <AdminPageShell>
         <AdminHeader
-          backHref="/admin"
           title="신고 관리"
           description="최근 신고 100건을 확인하고 글과 댓글을 조치합니다."
         />

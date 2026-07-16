@@ -4,7 +4,6 @@ import {
   AppShell,
   GlassCard,
   PageHeader,
-  Pill,
 } from '@/app/components/ui/AppShell'
 
 export const dynamic = 'force-dynamic'
@@ -25,12 +24,6 @@ export default async function OnboardingPage() {
             : '이 공간은 익명 폭로 게시판이 아니라, 서로를 살리고 기도하기 위한 나눔 공간입니다.'
         }
       />
-
-      <div className="mb-5 flex flex-wrap gap-2">
-        <Pill>캡처 금지</Pill>
-        <Pill>실명 언급 금지</Pill>
-        <Pill>기도와 경청</Pill>
-      </div>
 
       <GlassCard className="mb-6">
         <p className="text-[13px] font-semibold uppercase tracking-[0.04em] text-[var(--ub-text-tertiary)]">

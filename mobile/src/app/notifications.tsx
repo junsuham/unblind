@@ -32,7 +32,6 @@ export default function NotificationsScreen() {
 
   return (
     <Screen>
-      <Pressable onPress={() => router.back()} style={{ marginBottom: 12 }}><Text style={{ color: colors.brand, fontWeight: '700' }}>‹ 홈</Text></Pressable>
       <View style={{ flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between' }}>
         <PageTitle title="알림" description="댓글, 공감, 기도와 마니또 소식을 확인하세요." />
         <Pressable onPress={markAllRead}><Text style={{ color: colors.brand, fontSize: 12, fontWeight: '700' }}>모두 읽음</Text></Pressable>

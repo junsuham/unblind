@@ -42,15 +42,7 @@ export default function LoginScreen() {
           <Text style={{ color: colors.textOnBrand, fontSize: 28, lineHeight: 35, fontWeight: '800', letterSpacing: -0.6, marginTop: 6 }}>Google 계정으로 시작하기</Text>
           <Text style={{ color: colors.textOnBrandSecondary, fontSize: 15, lineHeight: 22, marginTop: 10 }}>Google 계정의 출생연도 확인과 운영자 승인을 마친 청년회 구성원만 입장할 수 있습니다.</Text>
 
-          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 18, marginBottom: 20 }}>
-            {['승인제', '사용자 간 익명', '운영자 관리'].map((label) => (
-              <View key={label} style={{ minHeight: 30, justifyContent: 'center', borderRadius: 15, backgroundColor: colors.surface, paddingHorizontal: 12 }}>
-                <Text style={{ color: colors.textSecondary, fontSize: 12, fontWeight: '600' }}>{label}</Text>
-              </View>
-            ))}
-          </View>
-
-          <View style={{ gap: 12, backgroundColor: colors.surface, borderColor: colors.border, borderWidth: 1, borderRadius: 28, padding: 18 }}>
+          <View style={{ gap: 12, backgroundColor: colors.surface, borderColor: colors.border, borderWidth: 1, borderRadius: 28, marginTop: 20, padding: 18 }}>
             <Pressable
               disabled={Boolean(pending)}
               onPress={() => handleLogin('google')}
@@ -60,7 +52,6 @@ export default function LoginScreen() {
               <Text style={{ color: '#111111', fontSize: 16, fontWeight: '700' }}>Google로 계속하기</Text>
             </Pressable>
 
-            <Text style={{ color: colors.textSecondary, textAlign: 'center', fontSize: 12, lineHeight: 18, marginTop: 4 }}>Google 인증 후 연령 확인과 기본 정보 입력을 진행합니다. 이메일은 운영자 승인 확인에만 사용됩니다.</Text>
           </View>
 
           <View style={{ marginTop: 14, borderRadius: 22, backgroundColor: colors.surface, borderColor: colors.border, borderWidth: 1, padding: 17 }}>

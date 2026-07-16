@@ -19,8 +19,6 @@ type AdminHeaderProps = {
   eyebrow?: string
   title: string
   description?: string
-  backHref?: string
-  backLabel?: string
   action?: ReactNode
 }
 
@@ -28,21 +26,10 @@ export function AdminHeader({
   eyebrow = '운영자 전용',
   title,
   description,
-  backHref,
-  backLabel = '관리자 홈',
   action,
 }: AdminHeaderProps) {
   return (
     <header className="mb-8">
-      {backHref && (
-        <Link
-          href={backHref}
-          className="mb-4 inline-flex min-h-11 items-center rounded-full bg-[var(--admin-accent-soft)] px-4 ios-title text-[var(--admin-accent)] active:opacity-70"
-        >
-          ‹ {backLabel}
-        </Link>
-      )}
-
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
           <p className="mb-1 ios-caption font-semibold text-[var(--admin-text-tertiary)]">

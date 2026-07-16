@@ -1,4 +1,3 @@
-import Link from 'next/link'
 import { requireAdmin } from '@/lib/adminAuth'
 import { listAllAuthUsers } from '@/lib/adminUsers'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
@@ -163,67 +162,11 @@ export default async function AdminDashboardPage() {
     })
   }
 
-  const quickLinks: Array<{
-    href: string
-    title: string
-    description: string
-    icon: AdminIconName
-  }> = [
-    {
-      href: '/admin/users',
-      title: '참여자 관리',
-      description: '가입 승인, 차단, 동의 상태',
-      icon: 'users',
-    },
-    {
-      href: '/admin/reports',
-      title: '신고 관리',
-      description: '신고 내용 확인 및 안전 조치',
-      icon: 'alert',
-    },
-    {
-      href: '/admin/posts',
-      title: '게시글 관리',
-      description: '게시글 숨김, 삭제, 복구',
-      icon: 'post',
-    },
-    {
-      href: '/admin/comments',
-      title: '댓글 관리',
-      description: '댓글 숨김, 삭제, 복구',
-      icon: 'comment',
-    },
-    {
-      href: '/admin/manitto',
-      title: '마니또 운영',
-      description: '참여 기간과 공개 정책',
-      icon: 'gift',
-    },
-    {
-      href: '/admin/top100',
-      title: '언블 TOP 100',
-      description: '찬양 순위와 곡 정보',
-      icon: 'music',
-    },
-    {
-      href: '/admin/safety',
-      title: '안전 설정',
-      description: '금칙어와 자동 보호 정책',
-      icon: 'shield',
-    },
-    {
-      href: '/admin/analytics',
-      title: '운영 통계',
-      description: '활동량과 신고 흐름',
-      icon: 'chart',
-    },
-  ]
-
   return (
     <AdminPageShell>
       <AdminHeader
         eyebrow="오늘의 운영"
-        title="관리자 센터"
+        title="오늘 할 일"
         description="처리가 필요한 항목부터 확인하고 앱 전체 상태를 관리하세요."
         action={<AdminLogoutButton />}
       />
@@ -304,8 +247,24 @@ export default async function AdminDashboardPage() {
         </AdminStatGrid>
       </section>
 
-      <AdminListGroup title="서비스 상태">
+      <AdminListGroup title="콘텐츠 관리">
         <AdminListRow
+          href="/admin/posts"
+          title="게시글"
+          subtitle={`노출 ${visiblePostsResult.count ?? 0}건 · 숨김 ${hiddenPostCount}건`}
+          leading={<AdminIcon name="post" className="h-6 w-6" />}
+        />
+        <AdminListRow
+          href="/admin/comments"
+          title="댓글"
+          subtitle={`노출 ${visibleCommentsResult.count ?? 0}건 · 숨김 ${hiddenCommentCount}건`}
+          leading={<AdminIcon name="comment" className="h-6 w-6" />}
+        />
+      </AdminListGroup>
+
+      <AdminListGroup title="운영 상태">
+        <AdminListRow
+          href="/admin/users"
           title="활성 사용자"
           subtitle={`약속 동의 ${agreedUsersResult.count ?? 0}명`}
           leading={<AdminIcon name="users" className="h-6 w-6" />}
@@ -316,16 +275,7 @@ export default async function AdminDashboardPage() {
           }
         />
         <AdminListRow
-          title="노출 콘텐츠"
-          subtitle={`게시글 ${visiblePostsResult.count ?? 0} · 댓글 ${visibleCommentsResult.count ?? 0}`}
-          leading={<AdminIcon name="activity" className="h-6 w-6" />}
-          trailing={
-            <span className="text-[13px] font-semibold text-[var(--admin-success)]">
-              정상
-            </span>
-          }
-        />
-        <AdminListRow
+          href="/admin/safety"
           title="자동 안전 필터"
           subtitle={`활성 금칙어 ${bannedWordsResult.count ?? 0}개`}
           leading={<AdminIcon name="shield" className="h-6 w-6" />}
@@ -336,11 +286,13 @@ export default async function AdminDashboardPage() {
           }
         />
         <AdminListRow
+          href="/admin/top100"
           title="언블 TOP 100"
           subtitle={`현재 노출 중인 공식 찬양 ${activeTrackResult.count ?? 0}곡`}
           leading={<AdminIcon name="music" className="h-6 w-6" />}
         />
         <AdminListRow
+          href="/admin/manitto"
           title="마니또"
           subtitle={manittoResult.data?.is_active ? '현재 참여 기간입니다.' : '현재 운영하지 않습니다.'}
           leading={<AdminIcon name="gift" className="h-6 w-6" />}
@@ -358,31 +310,11 @@ export default async function AdminDashboardPage() {
         />
       </AdminListGroup>
 
-      <AdminListGroup title="전체 관리 메뉴">
-        {quickLinks.map((item) => (
-          <AdminListRow
-            key={item.href}
-            href={item.href}
-            title={item.title}
-            subtitle={item.description}
-            leading={<AdminIcon name={item.icon} className="h-6 w-6" />}
-          />
-        ))}
-      </AdminListGroup>
-
       <div className="px-4 text-center ios-caption text-[var(--admin-text-tertiary)]">
         마지막 새로고침{' '}
         {new Date().toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' })}
       </div>
 
-      <div className="mt-4 text-center">
-        <Link
-          href="/"
-          className="inline-flex min-h-11 items-center px-4 text-[15px] font-semibold text-[var(--admin-accent)] active:opacity-70"
-        >
-          사용자 화면으로 이동
-        </Link>
-      </div>
     </AdminPageShell>
   )
 }

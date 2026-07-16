@@ -327,7 +327,6 @@ export default async function AdminUsersPage() {
   return (
     <AdminPageShell>
       <AdminHeader
-        backHref="/admin"
         title="참여자 관리"
         description="Google로 가입한 계정을 확인하고 승인하거나 차단합니다."
       />

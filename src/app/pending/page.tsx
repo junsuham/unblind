@@ -7,7 +7,6 @@ import {
   GlassCard,
   NoticeCard,
   PageHeader,
-  Pill,
 } from '@/app/components/ui/AppShell'
 
 export const dynamic = 'force-dynamic'
@@ -54,11 +53,6 @@ export default async function PendingPage() {
             : 'Google 가입이 접수되었습니다. 운영자가 관리자 페이지에서 승인하면 입장할 수 있습니다.'
         }
       />
-
-      <div className="mb-5 flex flex-wrap gap-2">
-        <Pill>{isBlocked ? '이용 제한' : '승인 대기'}</Pill>
-        <Pill>청년회 내부</Pill>
-      </div>
 
       <GlassCard>
         <p className="text-[13px] font-semibold uppercase tracking-[0.04em] text-[var(--ub-text-tertiary)]">

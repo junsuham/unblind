@@ -288,7 +288,7 @@ export default function AgreementForm({
     <div className="space-y-6">
       <section>
         <p className="mb-2 px-4 text-[13px] font-semibold uppercase tracking-[0.04em] text-[var(--ub-text-on-brand-tertiary)]">
-          커뮤니티 약속
+          함께 지킬 내용
         </p>
 
         <div className="overflow-hidden rounded-[22px] bg-[var(--ub-surface-card-strong)] shadow-[var(--ub-shadow-soft)]">

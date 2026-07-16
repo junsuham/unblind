@@ -81,7 +81,7 @@ export default function PostDetailScreen() {
       <Card>
         <Text style={{ color: colors.text, fontSize: 24, lineHeight: 32, fontWeight: '800' }}>{post.title}</Text>
         <Text style={{ color: colors.brand, fontSize: 14, fontWeight: '700', marginTop: 12 }}>익명</Text>
-        <Text style={{ color: colors.textTertiary, fontSize: 12, marginTop: 7 }}>{new Date(post.created_at).toLocaleDateString('ko-KR')} · 조회 {post.view_count ?? 0} · 댓글 {comments.length}</Text>
+        <Text style={{ color: colors.textTertiary, fontSize: 12, marginTop: 7 }}>{new Date(post.created_at).toLocaleDateString('ko-KR')} · 조회 {post.view_count ?? 0}</Text>
         <View style={{ height: 1, backgroundColor: colors.separator, marginVertical: 20 }} />
         <PraiseMentionText content={post.content} mentions={post.mentions} tracks={praiseTracks} style={{ color: colors.text, fontSize: 16, lineHeight: 26 }} />
         {post.tags?.length ? <Text style={{ color: colors.brand, fontSize: 13, marginTop: 20 }}>{post.tags.map((tag) => `#${tag}`).join('  ')}</Text> : null}

@@ -133,7 +133,6 @@ export default async function AdminCommentsPage({
   return (
     <AdminPageShell>
         <AdminHeader
-          backHref="/admin"
           title="댓글 관리"
           description="최근 댓글 100개를 확인하고 숨김, 삭제, 복구 처리합니다."
         />

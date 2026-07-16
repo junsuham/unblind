@@ -224,12 +224,6 @@ export default async function BoardPage({ params, searchParams }: BoardPageProps
                 첫 번째 고민이나 기도제목을 조용히 나눠보세요.
               </p>
 
-              <Link
-                href={`/post/new?board=${board}`}
-                className="mt-5 inline-flex min-h-[44px] items-center rounded-full bg-[#ff4b00] px-5 text-[15px] font-semibold text-white"
-              >
-                첫 글 쓰기
-              </Link>
             </div>
           )}
         </div>

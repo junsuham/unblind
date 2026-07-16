@@ -335,7 +335,6 @@ export default async function AdminAnalyticsPage() {
   return (
     <AdminPageShell>
         <AdminHeader
-          backHref="/admin"
           title="운영 통계"
           description="최근 14일 기준으로 참여, 글, 댓글, 반응, 신고 흐름을 확인합니다."
         />
