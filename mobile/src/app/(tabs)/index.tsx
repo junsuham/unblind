@@ -95,10 +95,10 @@ export default function HomeScreen() {
           {isAdmin ? (
             <Pressable
               accessibilityLabel="관리자 페이지 열기"
-              onPress={() => Linking.openURL(`${webApiUrl}/admin`)}
+              onPress={() => Linking.openURL(`${webApiUrl}/admin/login`)}
               style={{ minHeight: 44, borderRadius: 22, backgroundColor: colors.surfaceStrong, justifyContent: 'center', paddingHorizontal: 12 }}
             >
-              <Text style={{ color: colors.brand, fontSize: 12, fontWeight: '800' }}>관리</Text>
+              <Text style={{ color: colors.brand, fontSize: 12, fontWeight: '800' }}>관리자</Text>
             </Pressable>
           ) : null}
           <Pressable onPress={() => router.push('/profile')} style={{ minHeight: 44, borderRadius: 22, backgroundColor: colors.surfaceStrong, justifyContent: 'center', paddingHorizontal: 13 }}>

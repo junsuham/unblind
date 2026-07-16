@@ -10,11 +10,11 @@ import { isSupabaseConfigured } from '@/lib/supabase'
 export default function LoginScreen() {
   const colors = useAppTheme()
   const { session, signIn } = useAuth()
-  const [pending, setPending] = useState<'google' | 'kakao' | null>(null)
+  const [pending, setPending] = useState<'google' | null>(null)
 
   if (session) return <Redirect href="/" />
 
-  async function handleLogin(provider: 'google' | 'kakao') {
+  async function handleLogin(provider: 'google') {
     if (!isSupabaseConfigured) {
       Alert.alert('환경 설정이 필요합니다', 'mobile/.env.local에 Supabase 공개 키를 입력해주세요.')
       return
@@ -39,8 +39,8 @@ export default function LoginScreen() {
 
         <View style={{ paddingHorizontal: 18, paddingTop: 24 }}>
           <Text style={{ color: colors.textOnBrandSecondary, fontSize: 12, fontWeight: '700' }}>청년회 내부 베타</Text>
-          <Text style={{ color: colors.textOnBrand, fontSize: 28, lineHeight: 35, fontWeight: '800', letterSpacing: -0.6, marginTop: 6 }}>소셜 계정으로 시작하기</Text>
-          <Text style={{ color: colors.textOnBrandSecondary, fontSize: 15, lineHeight: 22, marginTop: 10 }}>Google 또는 Kakao 계정으로 간편하게 가입하고 로그인할 수 있습니다. 승인된 청년회 구성원만 입장할 수 있습니다.</Text>
+          <Text style={{ color: colors.textOnBrand, fontSize: 28, lineHeight: 35, fontWeight: '800', letterSpacing: -0.6, marginTop: 6 }}>Google 계정으로 시작하기</Text>
+          <Text style={{ color: colors.textOnBrandSecondary, fontSize: 15, lineHeight: 22, marginTop: 10 }}>Google 계정의 출생연도 확인과 운영자 승인을 마친 청년회 구성원만 입장할 수 있습니다.</Text>
 
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 18, marginBottom: 20 }}>
             {['승인제', '사용자 간 익명', '운영자 관리'].map((label) => (
@@ -60,16 +60,7 @@ export default function LoginScreen() {
               <Text style={{ color: '#111111', fontSize: 16, fontWeight: '700' }}>Google로 계속하기</Text>
             </Pressable>
 
-            <Pressable
-              disabled={Boolean(pending)}
-              onPress={() => handleLogin('kakao')}
-              style={({ pressed }) => ({ minHeight: 56, borderRadius: radius.medium, backgroundColor: pressed ? '#F2D900' : colors.kakao, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 10, opacity: pending ? 0.7 : 1 })}
-            >
-              {pending === 'kakao' ? <ActivityIndicator color="#111111" /> : <Text style={{ fontSize: 20, color: '#111111' }}>●</Text>}
-              <Text style={{ color: '#111111', fontSize: 16, fontWeight: '700' }}>Kakao로 계속하기</Text>
-            </Pressable>
-
-            <Text style={{ color: colors.textSecondary, textAlign: 'center', fontSize: 12, lineHeight: 18, marginTop: 4 }}>소셜 인증 후 연령 확인과 기본 정보 입력을 진행합니다. 이메일은 운영자 승인 확인에만 사용됩니다.</Text>
+            <Text style={{ color: colors.textSecondary, textAlign: 'center', fontSize: 12, lineHeight: 18, marginTop: 4 }}>Google 인증 후 연령 확인과 기본 정보 입력을 진행합니다. 이메일은 운영자 승인 확인에만 사용됩니다.</Text>
           </View>
 
           <View style={{ marginTop: 14, borderRadius: 22, backgroundColor: colors.surface, borderColor: colors.border, borderWidth: 1, padding: 17 }}>

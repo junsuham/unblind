@@ -329,7 +329,7 @@ export default async function AdminUsersPage() {
       <AdminHeader
         backHref="/admin"
         title="참여자 관리"
-        description="Google·Kakao로 가입한 계정을 확인하고 승인하거나 차단합니다."
+        description="Google로 가입한 계정을 확인하고 승인하거나 차단합니다."
       />
 
       <div className="mb-6">
@@ -361,7 +361,7 @@ export default async function AdminUsersPage() {
           <UserRows
             users={pendingUsers}
             emptyTitle="승인을 기다리는 가입자가 없습니다"
-            emptyDescription="새 Google·Kakao 가입자가 생기면 이곳에 표시됩니다."
+            emptyDescription="새 Google 가입자가 생기면 이곳에 표시됩니다."
           />
         </AdminListGroup>
       </div>

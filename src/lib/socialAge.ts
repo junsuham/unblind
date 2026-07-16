@@ -7,7 +7,7 @@ import {
 } from '@/lib/profile'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
 
-type SocialProvider = 'google' | 'kakao'
+type SocialProvider = 'google'
 
 type VerifiedAge = {
   birthDate: string
@@ -67,35 +67,6 @@ async function getGoogleAge(providerToken: string): Promise<VerifiedAge> {
   return { birthDate, referenceAge, provider: 'google' }
 }
 
-async function getKakaoAge(providerToken: string): Promise<VerifiedAge> {
-  const response = await fetch('https://kapi.kakao.com/v2/user/me', {
-    headers: { Authorization: `Bearer ${providerToken}` },
-    cache: 'no-store',
-  })
-
-  if (!response.ok) {
-    throw new SocialAgeError(
-      'PROVIDER_REQUEST_FAILED',
-      'Kakao 계정의 출생 연도를 확인하지 못했습니다. 출생 연도 제공에 동의한 뒤 다시 로그인해주세요.'
-    )
-  }
-
-  const data = await response.json()
-  const account = data?.kakao_account ?? {}
-  const year = Number(account.birthyear)
-  const birthDate = normalizeDate(year)
-  const referenceAge = birthDate ? getReferenceAge(birthDate) : null
-
-  if (!birthDate || referenceAge === null) {
-    throw new SocialAgeError(
-      'AGE_INFORMATION_REQUIRED',
-      'Kakao 계정에서 출생 연도를 제공하지 않아 가입할 수 없습니다. Kakao 로그인 동의항목에서 출생 연도를 허용해주세요.'
-    )
-  }
-
-  return { birthDate, referenceAge, provider: 'kakao' }
-}
-
 export function getVerifiedSocialAge(user: User) {
   const birthDate = user.app_metadata?.social_birth_date
   const referenceAge = Number(user.app_metadata?.social_reference_age)
@@ -104,7 +75,7 @@ export function getVerifiedSocialAge(user: User) {
   if (
     typeof birthDate !== 'string' ||
     !Number.isInteger(referenceAge) ||
-    (provider !== 'google' && provider !== 'kakao')
+    provider !== 'google'
   ) {
     return null
   }
@@ -118,17 +89,14 @@ export async function verifyAndStoreSocialAge(
 ) {
   const provider = user.app_metadata?.provider as SocialProvider | undefined
 
-  if (provider !== 'google' && provider !== 'kakao') {
+  if (provider !== 'google') {
     throw new SocialAgeError(
       'PROVIDER_MISMATCH',
-      'Google 또는 Kakao 소셜 계정으로 다시 로그인해주세요.'
+      'Google 계정으로 다시 로그인해주세요.'
     )
   }
 
-  const verified =
-    provider === 'google'
-      ? await getGoogleAge(providerToken)
-      : await getKakaoAge(providerToken)
+  const verified = await getGoogleAge(providerToken)
 
   if (!isEligibleReferenceAge(verified.referenceAge)) {
     throw new SocialAgeError(

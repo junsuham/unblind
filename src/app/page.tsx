@@ -84,8 +84,9 @@ export default async function HomePage() {
               {(unreadCount ?? 0) > 0 && <span className="absolute right-0 top-0 min-w-5 rounded-full bg-[#FF3B30] px-1 text-center text-[10px] font-bold leading-5 text-white">{Math.min(unreadCount ?? 0, 99)}</span>}
             </Link>
             {isAdminEmail(user.email) && (
-              <Link href="/admin" className="flex min-h-11 items-center rounded-full bg-[var(--ub-surface-card)] px-3 text-[12px] font-semibold text-[var(--ub-color-brand)] shadow-sm">
-                관리
+              <Link href="/admin" className="flex min-h-11 items-center gap-1.5 rounded-full bg-[var(--ub-surface-card)] px-3 text-[12px] font-semibold text-[var(--ub-color-brand)] shadow-sm">
+                <SystemIcon name="people" size={16} />
+                관리자
               </Link>
             )}
             <Link href="/activity" className="flex min-h-11 items-center rounded-full bg-[var(--ub-surface-card)] px-3 text-[12px] font-semibold text-[var(--ub-color-brand)] shadow-sm">내 활동</Link>

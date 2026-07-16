@@ -51,7 +51,7 @@ export default async function PendingPage() {
         description={
           isBlocked
             ? '현재 이 계정의 이용이 제한되어 있습니다. 청년회 운영자에게 문의해주세요.'
-            : '소셜 가입이 접수되었습니다. 운영자가 관리자 페이지에서 승인하면 입장할 수 있습니다.'
+            : 'Google 가입이 접수되었습니다. 운영자가 관리자 페이지에서 승인하면 입장할 수 있습니다.'
         }
       />
 

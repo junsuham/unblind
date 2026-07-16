@@ -28,7 +28,15 @@ export async function requireAllowedUser() {
   if (!user.email) {
     const searchParams = new URLSearchParams({
       error:
-        '소셜 계정에서 이메일을 받지 못했습니다. Kakao 이메일 동의 설정을 확인해주세요.',
+        'Google 계정에서 이메일을 받지 못했습니다. Google 계정의 이메일 제공 동의를 확인해주세요.',
+    })
+
+    redirect(`/login?${searchParams}`)
+  }
+
+  if (user.app_metadata?.provider !== 'google') {
+    const searchParams = new URLSearchParams({
+      error: '현재는 Google 계정으로만 이용할 수 있습니다. Google로 다시 로그인해주세요.',
     })
 
     redirect(`/login?${searchParams}`)

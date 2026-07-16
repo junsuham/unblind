@@ -1,17 +1,18 @@
 import { useEffect, useState } from 'react'
-import { Alert, Pressable, Text, View } from 'react-native'
+import { Alert, Linking, Pressable, Text, View } from 'react-native'
 import { Screen } from '@/components/Screen'
 import { Card } from '@/components/Card'
 import { PageTitle } from '@/components/PageTitle'
 import { radius, useAppTheme } from '@/constants/design'
 import { supabase } from '@/lib/supabase'
+import { webApiUrl } from '@/lib/api'
 import { useAuth } from '@/providers/AuthProvider'
 
 type Profile = { nickname: string; church_name: string; occupation: string }
 
 export default function ProfileScreen() {
   const colors = useAppTheme()
-  const { session, signOut } = useAuth()
+  const { session, signOut, isAdmin } = useAuth()
   const [profile, setProfile] = useState<Profile | null>(null)
   useEffect(() => { if (session) supabase.from('user_profiles').select('nickname, church_name, occupation').eq('user_id', session.user.id).maybeSingle().then(({ data }) => setProfile(data)) }, [session])
   const occupation = profile?.occupation === 'student' ? '학생' : profile?.occupation === 'worker' ? '직장인' : '기타'
@@ -27,6 +28,15 @@ export default function ProfileScreen() {
         <Text style={{ color: colors.textSecondary, fontSize: 12, marginTop: 16 }}>현재 상태</Text>
         <Text style={{ color: colors.text, fontSize: 15, fontWeight: '700', marginTop: 4 }}>{occupation}</Text>
       </Card>
+      {isAdmin ? (
+        <Pressable
+          accessibilityLabel="관리자 센터 열기"
+          onPress={() => Linking.openURL(`${webApiUrl}/admin/login`)}
+          style={{ minHeight: 52, borderRadius: radius.medium, backgroundColor: colors.brand, alignItems: 'center', justifyContent: 'center', marginTop: 18 }}
+        >
+          <Text style={{ color: '#FFFFFF', fontWeight: '800' }}>관리자 센터</Text>
+        </Pressable>
+      ) : null}
       <Pressable onPress={() => Alert.alert('로그아웃', '로그아웃할까요?', [{ text: '취소', style: 'cancel' }, { text: '로그아웃', style: 'destructive', onPress: signOut }])} style={{ minHeight: 52, borderRadius: radius.medium, backgroundColor: colors.surfaceMuted, alignItems: 'center', justifyContent: 'center', marginTop: 18 }}><Text style={{ color: colors.danger, fontWeight: '800' }}>로그아웃</Text></Pressable>
     </Screen>
   )

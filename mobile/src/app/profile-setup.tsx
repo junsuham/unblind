@@ -27,7 +27,7 @@ export default function ProfileSetupScreen() {
   if (!ageVerified) {
     return (
       <Screen>
-        <PageTitle eyebrow="연령 확인" title="소셜 계정 확인이 필요합니다" description="직접 입력한 생년월일은 사용하지 않습니다. Google 또는 Kakao 계정이 제공한 정보로만 가입 연령을 확인합니다." />
+        <PageTitle eyebrow="연령 확인" title="Google 계정 확인이 필요합니다" description="직접 입력한 생년월일은 사용하지 않습니다. Google 계정이 제공한 출생연도로만 가입 연령을 확인합니다." />
         <Card style={{ gap: 14 }}>
           <Text style={{ color: colors.text, fontSize: 16, fontWeight: '800' }}>다시 로그인해주세요</Text>
           <Text style={{ color: colors.textSecondary, fontSize: 14, lineHeight: 21 }}>로그인할 때 생년월일 또는 출생 연도 제공에 동의하면 자동으로 확인됩니다.</Text>

@@ -6,7 +6,7 @@ import { supabase } from '@/lib/supabase'
 
 WebBrowser.maybeCompleteAuthSession()
 
-type Provider = 'google' | 'kakao'
+type Provider = 'google'
 
 type AuthContextValue = {
   session: Session | null
@@ -22,6 +22,10 @@ type AuthContextValue = {
 
 const AuthContext = createContext<AuthContextValue | null>(null)
 const webAppUrl = process.env.EXPO_PUBLIC_WEB_API_URL ?? 'https://unblind-omega.vercel.app'
+
+function getSupportedSession(session: Session | null) {
+  return session?.user.app_metadata?.provider === 'google' ? session : null
+}
 
 function getRedirectUrl() {
   // Development builds resolve to unblind://auth/callback, while Expo Go
@@ -109,14 +113,15 @@ export function AuthProvider({ children }: PropsWithChildren) {
 
     supabase.auth.getSession().then(async ({ data }) => {
       if (!mounted) return
-      setSession(data.session)
+      setSession(getSupportedSession(data.session))
       await Promise.all([refreshProfile(), refreshAccount()])
       if (mounted) setLoading(false)
     })
 
     const { data: listener } = supabase.auth.onAuthStateChange((_event, nextSession) => {
-      setSession(nextSession)
-      if (nextSession) {
+      const supportedSession = getSupportedSession(nextSession)
+      setSession(supportedSession)
+      if (supportedSession) {
         refreshProfile()
         refreshAccount()
       } else {
@@ -141,9 +146,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
         redirectTo: webCallbackUrl,
         skipBrowserRedirect: true,
         scopes:
-          provider === 'google'
-            ? 'openid email profile https://www.googleapis.com/auth/user.birthday.read'
-            : 'profile_nickname account_email birthyear',
+          'openid email profile https://www.googleapis.com/auth/user.birthday.read',
       },
     })
 
