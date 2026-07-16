@@ -47,7 +47,7 @@ export function BoardFeed({ slug, showBack = false }: { slug: BoardSlug; showBac
     <>
       {showBack ? (
         <Pressable onPress={() => router.back()} style={{ minHeight: 44, justifyContent: 'center', marginBottom: 4 }}>
-          <Text style={{ color: colors.textOnBrand, fontWeight: '700' }}>‹ 게시판</Text>
+          <Text style={{ color: colors.brand, fontWeight: '700' }}>‹ 게시판</Text>
         </Pressable>
       ) : null}
 

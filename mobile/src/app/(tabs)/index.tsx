@@ -1,12 +1,14 @@
 import { useCallback, useEffect, useState } from 'react'
-import { ActivityIndicator, Image, Pressable, Text, View } from 'react-native'
+import { ActivityIndicator, Image, Linking, Pressable, Text, View } from 'react-native'
 import { router } from 'expo-router'
+import { SymbolView } from 'expo-symbols'
 import unblindLogo from '../../../assets/images/unblind-logo.png'
 import { Screen } from '@/components/Screen'
 import { Card } from '@/components/Card'
 import { useAppTheme } from '@/constants/design'
 import { bibleVerses, boardInfo } from '@/constants/content'
 import { supabase } from '@/lib/supabase'
+import { webApiUrl } from '@/lib/api'
 import { useAuth } from '@/providers/AuthProvider'
 
 type PopularPost = {
@@ -22,7 +24,7 @@ const verseIndex = Math.floor(Date.now() / 86_400_000) % bibleVerses.length
 
 export default function HomeScreen() {
   const colors = useAppTheme()
-  const { signOut } = useAuth()
+  const { signOut, isAdmin } = useAuth()
   const [posts, setPosts] = useState<PopularPost[]>([])
   const [unread, setUnread] = useState(0)
   const [loading, setLoading] = useState(true)
@@ -75,15 +77,30 @@ export default function HomeScreen() {
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
           <Pressable
             onPress={() => router.push('/notifications')}
+            accessibilityLabel="알림 확인"
             style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: colors.surfaceStrong, alignItems: 'center', justifyContent: 'center' }}
           >
-            <Text style={{ color: colors.brand, fontSize: 19 }}>♧</Text>
+            <SymbolView
+              name="bell.fill"
+              size={21}
+              tintColor={colors.brand}
+              fallback={<Text style={{ color: colors.brand, fontSize: 19 }}>🔔</Text>}
+            />
             {unread > 0 ? (
               <View style={{ position: 'absolute', right: -1, top: -1, minWidth: 18, height: 18, borderRadius: 9, backgroundColor: '#FF3B30', alignItems: 'center', justifyContent: 'center', paddingHorizontal: 4 }}>
                 <Text style={{ color: '#FFFFFF', fontSize: 9, fontWeight: '800' }}>{Math.min(unread, 99)}</Text>
               </View>
             ) : null}
           </Pressable>
+          {isAdmin ? (
+            <Pressable
+              accessibilityLabel="관리자 페이지 열기"
+              onPress={() => Linking.openURL(`${webApiUrl}/admin`)}
+              style={{ minHeight: 44, borderRadius: 22, backgroundColor: colors.surfaceStrong, justifyContent: 'center', paddingHorizontal: 12 }}
+            >
+              <Text style={{ color: colors.brand, fontSize: 12, fontWeight: '800' }}>관리</Text>
+            </Pressable>
+          ) : null}
           <Pressable onPress={() => router.push('/profile')} style={{ minHeight: 44, borderRadius: 22, backgroundColor: colors.surfaceStrong, justifyContent: 'center', paddingHorizontal: 13 }}>
             <Text style={{ color: colors.brand, fontSize: 12, fontWeight: '700' }}>내 활동</Text>
           </Pressable>

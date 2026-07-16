@@ -4,6 +4,7 @@ import { requireBetaUser } from '@/lib/betaAuth'
 import { getRandomBibleVerse } from '@/lib/bibleVerses'
 import LogoutButton from '@/app/components/LogoutButton'
 import { SystemIcon } from '@/app/components/ui/SystemIcon'
+import { isAdminEmail } from '@/lib/adminIdentity'
 import {
   AppShell,
   BottomTabBar,
@@ -34,7 +35,7 @@ type PopularPost = {
 }
 
 export default async function HomePage() {
-  const { supabase } = await requireBetaUser()
+  const { supabase, user } = await requireBetaUser()
   const verse = getRandomBibleVerse()
 
   const [{ data: popularPosts, error }, { count: unreadCount }] = await Promise.all([
@@ -82,6 +83,11 @@ export default async function HomePage() {
               <SystemIcon name="bell" size={21} />
               {(unreadCount ?? 0) > 0 && <span className="absolute right-0 top-0 min-w-5 rounded-full bg-[#FF3B30] px-1 text-center text-[10px] font-bold leading-5 text-white">{Math.min(unreadCount ?? 0, 99)}</span>}
             </Link>
+            {isAdminEmail(user.email) && (
+              <Link href="/admin" className="flex min-h-11 items-center rounded-full bg-[var(--ub-surface-card)] px-3 text-[12px] font-semibold text-[var(--ub-color-brand)] shadow-sm">
+                관리
+              </Link>
+            )}
             <Link href="/activity" className="flex min-h-11 items-center rounded-full bg-[var(--ub-surface-card)] px-3 text-[12px] font-semibold text-[var(--ub-color-brand)] shadow-sm">내 활동</Link>
             <LogoutButton compact />
           </div>

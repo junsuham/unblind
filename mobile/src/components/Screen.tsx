@@ -25,13 +25,12 @@ export function Screen({ children, contentStyle, showLogo = true }: ScreenProps)
             <View
               style={{
                 alignItems: 'center',
-                borderBottomColor: colors.border,
-                borderBottomWidth: 1,
+                backgroundColor: colors.logoSurface,
                 marginBottom: 20,
                 marginHorizontal: -18,
                 marginTop: -18,
-                paddingBottom: 8,
-                paddingTop: 8,
+                paddingBottom: 10,
+                paddingTop: 6,
               }}
             >
               <Pressable
@@ -44,7 +43,7 @@ export function Screen({ children, contentStyle, showLogo = true }: ScreenProps)
                   alt="UNBLIND"
                   resizeMode="contain"
                   source={unblindLogo}
-                  style={{ height: 58, width: 58 }}
+                  style={{ height: 84, width: 84 }}
                 />
               </Pressable>
             </View>

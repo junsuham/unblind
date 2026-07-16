@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
+import { isAdminRequest } from '@/lib/adminAuth'
 
 type ActionType = 'hide' | 'delete' | 'restore' | 'dismiss'
 type TargetType = 'post' | 'comment'
@@ -8,10 +9,7 @@ const validActions: ActionType[] = ['hide', 'delete', 'restore', 'dismiss']
 const validTargetTypes: TargetType[] = ['post', 'comment']
 
 export async function POST(request: NextRequest) {
-  const expectedToken = process.env.ADMIN_SESSION_TOKEN
-  const currentToken = request.cookies.get('admin_session')?.value
-
-  if (!expectedToken || currentToken !== expectedToken) {
+  if (!(await isAdminRequest(request))) {
     return NextResponse.json(
       { error: '관리자 권한이 없습니다.' },
       { status: 401 }

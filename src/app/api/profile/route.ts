@@ -2,11 +2,11 @@ import { NextResponse } from 'next/server'
 import { searchChurches } from '@/lib/churchSearch'
 import {
   generateBiblicalNickname,
-  getReferenceAge,
   isEligibleReferenceAge,
   isOccupation,
 } from '@/lib/profile'
 import { getRequestUser } from '@/lib/requestUser'
+import { getVerifiedSocialAge } from '@/lib/socialAge'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
 
 export async function POST(request: Request) {
@@ -17,7 +17,6 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json().catch(() => null)
-  const birthDate = typeof body?.birthDate === 'string' ? body.birthDate : ''
   const occupation = body?.occupation
   const churchPlaceId =
     typeof body?.churchPlaceId === 'string' ? body.churchPlaceId : ''
@@ -26,9 +25,19 @@ export async function POST(request: Request) {
   const churchAddress =
     typeof body?.churchAddress === 'string' ? body.churchAddress.trim() : ''
 
-  const referenceAge = getReferenceAge(birthDate)
+  const verifiedAge = getVerifiedSocialAge(user)
 
-  if (!isEligibleReferenceAge(referenceAge)) {
+  if (!verifiedAge) {
+    return NextResponse.json(
+      {
+        code: 'AGE_VERIFICATION_REQUIRED',
+        error: '소셜 계정으로 연령 확인을 다시 진행해주세요.',
+      },
+      { status: 403 }
+    )
+  }
+
+  if (!isEligibleReferenceAge(verifiedAge.referenceAge)) {
     return NextResponse.json(
       {
         code: 'AGE_RESTRICTED',
@@ -80,8 +89,8 @@ export async function POST(request: Request) {
       user_id: user.id,
       email: user.email.toLowerCase(),
       nickname: generateBiblicalNickname(user.id),
-      birth_date: birthDate,
-      reference_age: referenceAge,
+      birth_date: verifiedAge.birthDate,
+      reference_age: verifiedAge.referenceAge,
       church_place_id: verifiedChurch.id,
       church_name: verifiedChurch.name,
       church_address: verifiedChurch.roadAddress || verifiedChurch.address,

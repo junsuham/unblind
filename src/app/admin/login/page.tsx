@@ -1,6 +1,7 @@
 'use client'
 
 import { FormEvent, useState } from 'react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 
 export default function AdminLoginPage() {
@@ -52,6 +53,13 @@ export default function AdminLoginPage() {
             신고 처리, 참여자 승인, 게시글 관리를 위한 운영자 화면입니다.
           </p>
         </header>
+
+        <Link
+          href="/login?next=/admin"
+          className="mb-4 flex min-h-[52px] w-full items-center justify-center rounded-[16px] bg-white px-5 text-[17px] font-semibold text-[#111111] shadow-sm active:scale-[0.99]"
+        >
+          Google 관리자 계정으로 로그인
+        </Link>
 
         <form
           onSubmit={handleSubmit}

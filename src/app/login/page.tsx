@@ -55,6 +55,11 @@ function KakaoIcon() {
 
 export default function LoginPage() {
   const searchParams = useSearchParams()
+  const requestedNext = searchParams.get('next')
+  const safeNext =
+    requestedNext?.startsWith('/') && !requestedNext.startsWith('//')
+      ? requestedNext
+      : '/profile/setup'
   const [pendingProvider, setPendingProvider] =
     useState<SocialProvider | null>(null)
   const [errorMessage, setErrorMessage] = useState(
@@ -73,7 +78,11 @@ export default function LoginPage() {
       const { error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
-          redirectTo: `${siteUrl}/auth/callback`,
+          redirectTo: `${siteUrl}/auth/callback?next=${encodeURIComponent(safeNext)}`,
+          scopes:
+            provider === 'google'
+              ? 'openid email profile https://www.googleapis.com/auth/user.birthday.read'
+              : 'profile_nickname account_email age_range birthday birthyear',
         },
       })
 

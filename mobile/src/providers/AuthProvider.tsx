@@ -12,9 +12,12 @@ type AuthContextValue = {
   session: Session | null
   loading: boolean
   profileComplete: boolean
+  ageVerified: boolean
+  isAdmin: boolean
   signIn: (provider: Provider) => Promise<void>
   signOut: () => Promise<void>
   refreshProfile: () => Promise<void>
+  refreshAccount: () => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null)
@@ -37,9 +40,10 @@ async function exchangeAuthResult(url: string) {
   const code = parsed.searchParams.get('code')
 
   if (code) {
-    const { error } = await supabase.auth.exchangeCodeForSession(code)
+    const { data, error } = await supabase.auth.exchangeCodeForSession(code)
     if (error) throw error
-    return
+    if (!data.session) throw new Error('로그인 세션을 확인하지 못했습니다.')
+    return data.session
   }
 
   const fragment = new URLSearchParams(parsed.hash.replace(/^#/, ''))
@@ -47,9 +51,10 @@ async function exchangeAuthResult(url: string) {
   const refreshToken = fragment.get('refresh_token')
 
   if (accessToken && refreshToken) {
-    const { error } = await supabase.auth.setSession({ access_token: accessToken, refresh_token: refreshToken })
+    const { data, error } = await supabase.auth.setSession({ access_token: accessToken, refresh_token: refreshToken })
     if (error) throw error
-    return
+    if (!data.session) throw new Error('로그인 세션을 확인하지 못했습니다.')
+    return data.session
   }
 
   throw new Error('로그인 결과를 확인하지 못했습니다.')
@@ -59,6 +64,27 @@ export function AuthProvider({ children }: PropsWithChildren) {
   const [session, setSession] = useState<Session | null>(null)
   const [loading, setLoading] = useState(true)
   const [profileComplete, setProfileComplete] = useState(false)
+  const [ageVerified, setAgeVerified] = useState(false)
+  const [isAdmin, setIsAdmin] = useState(false)
+
+  const refreshAccount = useCallback(async () => {
+    const { data } = await supabase.auth.getSession()
+    const token = data.session?.access_token
+
+    if (!token) {
+      setAgeVerified(false)
+      setIsAdmin(false)
+      return
+    }
+
+    const response = await fetch(`${webAppUrl}/api/account`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+    const result = await response.json().catch(() => null)
+
+    setAgeVerified(Boolean(response.ok && result?.ageVerified))
+    setIsAdmin(Boolean(response.ok && result?.isAdmin))
+  }, [])
 
   const refreshProfile = useCallback(async () => {
     const { data: sessionData } = await supabase.auth.getSession()
@@ -84,7 +110,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
     supabase.auth.getSession().then(async ({ data }) => {
       if (!mounted) return
       setSession(data.session)
-      await refreshProfile()
+      await Promise.all([refreshProfile(), refreshAccount()])
       if (mounted) setLoading(false)
     })
 
@@ -92,8 +118,11 @@ export function AuthProvider({ children }: PropsWithChildren) {
       setSession(nextSession)
       if (nextSession) {
         refreshProfile()
+        refreshAccount()
       } else {
         setProfileComplete(false)
+        setAgeVerified(false)
+        setIsAdmin(false)
       }
     })
 
@@ -101,14 +130,21 @@ export function AuthProvider({ children }: PropsWithChildren) {
       mounted = false
       listener.subscription.unsubscribe()
     }
-  }, [refreshProfile])
+  }, [refreshAccount, refreshProfile])
 
   const signIn = useCallback(async (provider: Provider) => {
     const appRedirectTo = getRedirectUrl()
     const webCallbackUrl = new URL('/auth/callback', webAppUrl).toString()
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider,
-      options: { redirectTo: webCallbackUrl, skipBrowserRedirect: true },
+      options: {
+        redirectTo: webCallbackUrl,
+        skipBrowserRedirect: true,
+        scopes:
+          provider === 'google'
+            ? 'openid email profile https://www.googleapis.com/auth/user.birthday.read'
+            : 'profile_nickname account_email age_range birthday birthyear',
+      },
     })
 
     if (error) throw error
@@ -122,17 +158,45 @@ export function AuthProvider({ children }: PropsWithChildren) {
       mobileStartUrl.toString(),
       appRedirectTo
     )
-    if (result.type === 'success') await exchangeAuthResult(result.url)
-  }, [])
+    if (result.type === 'success') {
+      const nextSession = await exchangeAuthResult(result.url)
+      const providerToken = nextSession.provider_token
+
+      if (!providerToken) {
+        await supabase.auth.signOut()
+        throw new Error('소셜 계정의 연령 확인 권한을 받지 못했습니다. 다시 로그인해주세요.')
+      }
+
+      const response = await fetch(`${webAppUrl}/api/profile/verify-age`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${nextSession.access_token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ providerToken }),
+      })
+      const verification = await response.json().catch(() => null)
+
+      if (!response.ok) {
+        await supabase.auth.signOut()
+        throw new Error(verification?.error ?? '소셜 계정의 연령을 확인하지 못했습니다.')
+      }
+
+      setAgeVerified(true)
+      await refreshAccount()
+    }
+  }, [refreshAccount])
 
   const signOut = useCallback(async () => {
     await supabase.auth.signOut()
     setProfileComplete(false)
+    setAgeVerified(false)
+    setIsAdmin(false)
   }, [])
 
   const value = useMemo(
-    () => ({ session, loading, profileComplete, signIn, signOut, refreshProfile }),
-    [session, loading, profileComplete, signIn, signOut, refreshProfile]
+    () => ({ session, loading, profileComplete, ageVerified, isAdmin, signIn, signOut, refreshProfile, refreshAccount }),
+    [session, loading, profileComplete, ageVerified, isAdmin, signIn, signOut, refreshProfile, refreshAccount]
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

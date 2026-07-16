@@ -1,12 +1,9 @@
 import { NextRequest } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
-
-function isAdmin(request: NextRequest) {
-  return Boolean(process.env.ADMIN_SESSION_TOKEN) && request.cookies.get('admin_session')?.value === process.env.ADMIN_SESSION_TOKEN
-}
+import { isAdminRequest } from '@/lib/adminAuth'
 
 export async function POST(request: NextRequest) {
-  if (!isAdmin(request)) return Response.json({ error: '관리자 권한이 없습니다.' }, { status: 401 })
+  if (!(await isAdminRequest(request))) return Response.json({ error: '관리자 권한이 없습니다.' }, { status: 401 })
   const body = await request.json().catch(() => null)
   const action = body?.action
 

@@ -13,8 +13,7 @@ type Occupation = 'student' | 'worker' | 'other'
 
 export default function ProfileSetupScreen() {
   const colors = useAppTheme()
-  const { session, profileComplete, refreshProfile } = useAuth()
-  const [birthDate, setBirthDate] = useState('')
+  const { session, profileComplete, ageVerified, refreshProfile, signOut } = useAuth()
   const [occupation, setOccupation] = useState<Occupation | null>(null)
   const [churchQuery, setChurchQuery] = useState('')
   const [churches, setChurches] = useState<Church[]>([])
@@ -24,6 +23,21 @@ export default function ProfileSetupScreen() {
 
   if (!session) return <Redirect href="/login" />
   if (profileComplete) return <Redirect href="/(tabs)" />
+
+  if (!ageVerified) {
+    return (
+      <Screen>
+        <PageTitle eyebrow="연령 확인" title="소셜 계정 확인이 필요합니다" description="직접 입력한 생년월일은 사용하지 않습니다. Google 또는 Kakao 계정이 제공한 정보로만 가입 연령을 확인합니다." />
+        <Card style={{ gap: 14 }}>
+          <Text style={{ color: colors.text, fontSize: 16, fontWeight: '800' }}>다시 로그인해주세요</Text>
+          <Text style={{ color: colors.textSecondary, fontSize: 14, lineHeight: 21 }}>로그인할 때 생년월일 또는 출생 연도 제공에 동의하면 자동으로 확인됩니다.</Text>
+          <Pressable onPress={signOut} style={{ minHeight: 52, alignItems: 'center', justifyContent: 'center', borderRadius: radius.medium, backgroundColor: colors.brand }}>
+            <Text style={{ color: '#FFFFFF', fontWeight: '800' }}>소셜 계정으로 다시 확인</Text>
+          </Pressable>
+        </Card>
+      </Screen>
+    )
+  }
 
   async function searchChurches() {
     if (churchQuery.trim().length < 2) {
@@ -45,8 +59,8 @@ export default function ProfileSetupScreen() {
   }
 
   async function saveProfile() {
-    if (!selectedChurch || !occupation || !/^\d{4}-\d{2}-\d{2}$/.test(birthDate)) {
-      Alert.alert('정보를 확인해주세요', '생년월일, 출석 교회, 현재 상태를 모두 입력해주세요.')
+    if (!selectedChurch || !occupation) {
+      Alert.alert('정보를 확인해주세요', '출석 교회와 현재 상태를 모두 입력해주세요.')
       return
     }
 
@@ -56,7 +70,6 @@ export default function ProfileSetupScreen() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          birthDate,
           occupation,
           churchPlaceId: selectedChurch.id,
           churchName: selectedChurch.name,
@@ -79,8 +92,8 @@ export default function ProfileSetupScreen() {
       <PageTitle eyebrow="첫 가입 정보" title="프로필을 완성해주세요" description="앱 아이디는 성경 인물과 알파벳 조합으로 자동 생성됩니다." />
       <Card style={{ gap: 18 }}>
         <View>
-          <Text style={{ color: colors.text, fontWeight: '700', marginBottom: 8 }}>생년월일</Text>
-          <TextInput value={birthDate} onChangeText={setBirthDate} placeholder="YYYY-MM-DD" placeholderTextColor={colors.textTertiary} keyboardType="numbers-and-punctuation" style={{ minHeight: 50, borderRadius: radius.small, backgroundColor: colors.surfaceMuted, paddingHorizontal: 14, color: colors.text }} />
+          <Text style={{ color: colors.text, fontWeight: '800' }}>소셜 계정 연령 확인 완료</Text>
+          <Text style={{ color: colors.textSecondary, fontSize: 13, lineHeight: 19, marginTop: 5 }}>가입 가능 연령인 20~59세로 확인했습니다. 생년월일은 다른 사용자에게 공개되지 않습니다.</Text>
         </View>
 
         <View>

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
 import { listAllAuthUsers } from '@/lib/adminUsers'
+import { isAdminRequest } from '@/lib/adminAuth'
 
 type UserAction =
   | 'add'
@@ -32,10 +33,7 @@ function isValidEmail(email: string) {
 }
 
 export async function POST(request: NextRequest) {
-  const expectedToken = process.env.ADMIN_SESSION_TOKEN
-  const currentToken = request.cookies.get('admin_session')?.value
-
-  if (!expectedToken || currentToken !== expectedToken) {
+  if (!(await isAdminRequest(request))) {
     return NextResponse.json(
       { error: '관리자 권한이 없습니다.' },
       { status: 401 }
