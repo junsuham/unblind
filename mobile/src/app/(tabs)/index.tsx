@@ -54,7 +54,7 @@ export default function HomeScreen() {
   }, [load])
 
   return (
-    <Screen contentStyle={{ paddingTop: 0 }}>
+    <Screen contentStyle={{ paddingTop: 0 }} showLogo={false}>
       <View
         style={{
           backgroundColor: colors.logoSurface,
