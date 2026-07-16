@@ -1,5 +1,5 @@
 import { Redirect, router } from 'expo-router'
-import { useRef, useState } from 'react'
+import { useState } from 'react'
 import { ActivityIndicator, Linking, Pressable, Text, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import WebView, { type WebViewNavigation } from 'react-native-webview'
@@ -10,8 +10,6 @@ import { useAuth } from '@/providers/AuthProvider'
 export default function AdminScreen() {
   const colors = useAppTheme()
   const { session, loading, isAdmin } = useAuth()
-  const webViewRef = useRef<WebView>(null)
-  const [canGoBack, setCanGoBack] = useState(false)
   const [pageError, setPageError] = useState('')
 
   if (!loading && (!session || !isAdmin)) {
@@ -21,17 +19,17 @@ export default function AdminScreen() {
   const adminSessionUrl = new URL('/api/admin/mobile-session', webApiUrl)
   const allowedOrigin = new URL(webApiUrl).origin
 
-  function closeAdmin() {
-    if (canGoBack) {
-      webViewRef.current?.goBack()
-      return
-    }
-
-    router.back()
-  }
-
   function handleNavigation(request: WebViewNavigation) {
-    if (request.url.startsWith(allowedOrigin)) return true
+    const requestUrl = new URL(request.url)
+
+    if (requestUrl.origin === allowedOrigin) {
+      if (requestUrl.pathname === '/' && requestUrl.search === '') {
+        router.replace('/(tabs)')
+        return false
+      }
+
+      return true
+    }
 
     Linking.openURL(request.url).catch(() => undefined)
     return false
@@ -47,30 +45,6 @@ export default function AdminScreen() {
 
   return (
     <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: colors.background }}>
-      <View
-        style={{
-          minHeight: 54,
-          paddingHorizontal: 14,
-          borderBottomWidth: 1,
-          borderBottomColor: colors.separator,
-          backgroundColor: colors.surfaceStrong,
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-        }}
-      >
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={canGoBack ? '관리자 이전 화면' : '관리자 화면 닫기'}
-          onPress={closeAdmin}
-          style={{ minWidth: 64, minHeight: 44, justifyContent: 'center' }}
-        >
-          <Text style={{ color: colors.brand, fontSize: 15, fontWeight: '700' }}>{canGoBack ? '‹ 이전' : '닫기'}</Text>
-        </Pressable>
-        <Text style={{ color: colors.text, fontSize: 16, fontWeight: '800' }}>관리자 센터</Text>
-        <View style={{ width: 64 }} />
-      </View>
-
       {pageError ? (
         <View style={{ flex: 1, padding: 28, alignItems: 'center', justifyContent: 'center' }}>
           <Text style={{ color: colors.text, fontSize: 18, fontWeight: '800', textAlign: 'center' }}>관리자 화면을 불러오지 못했습니다.</Text>
@@ -84,7 +58,6 @@ export default function AdminScreen() {
         </View>
       ) : (
         <WebView
-          ref={webViewRef}
           source={{
             uri: adminSessionUrl.toString(),
             headers: { Authorization: `Bearer ${session.access_token}` },
@@ -99,7 +72,6 @@ export default function AdminScreen() {
               <ActivityIndicator color={colors.brand} />
             </View>
           )}
-          onNavigationStateChange={(state) => setCanGoBack(state.canGoBack)}
           onShouldStartLoadWithRequest={handleNavigation}
           onHttpError={(event) => {
             if (event.nativeEvent.statusCode >= 400) {

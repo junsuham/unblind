@@ -12,7 +12,15 @@ type Track = { id: string; rank: number; youtube_id: string; title: string; arti
 export default function PraiseScreen() {
   const colors = useAppTheme()
   const { width } = useWindowDimensions()
-  const { track: requestedTrackId } = useLocalSearchParams<{ track?: string }>()
+  const {
+    track: requestedTrackId,
+    title: requestedTrackTitle,
+    artist: requestedTrackArtist,
+  } = useLocalSearchParams<{
+    track?: string
+    title?: string
+    artist?: string
+  }>()
   const [tracks, setTracks] = useState<Track[]>([])
   const [loading, setLoading] = useState(true)
   const [selectedTrack, setSelectedTrack] = useState<Track | null>(null)
@@ -20,6 +28,11 @@ export default function PraiseScreen() {
   const [playerError, setPlayerError] = useState<string | null>(null)
   const playerWidth = Math.max(200, width - 36)
   const playerHeight = Math.max(200, Math.round(playerWidth * 9 / 16))
+  const playableRequestedTrackId =
+    typeof requestedTrackId === 'string' &&
+    /^[A-Za-z0-9_-]{6,20}$/.test(requestedTrackId)
+      ? requestedTrackId
+      : undefined
 
   useEffect(() => {
     supabase
@@ -36,22 +49,34 @@ export default function PraiseScreen() {
   }, [])
 
   useEffect(() => {
-    if (!requestedTrackId || !tracks.length) return
+    if (!playableRequestedTrackId || loading) return
 
     const requestedTrack = tracks.find(
-      (track) => track.youtube_id === requestedTrackId
+      (track) => track.youtube_id === playableRequestedTrackId
     )
 
-    if (requestedTrack) {
-      const frame = requestAnimationFrame(() => {
-        setPlayerError(null)
-        setSelectedTrack(requestedTrack)
-        setPlaying(true)
-      })
-
-      return () => cancelAnimationFrame(frame)
+    const playableTrack = requestedTrack ?? {
+      id: `mention-${playableRequestedTrackId}`,
+      rank: 0,
+      youtube_id: playableRequestedTrackId,
+      title:
+        typeof requestedTrackTitle === 'string'
+          ? requestedTrackTitle.slice(0, 160)
+          : '추천 찬양',
+      artist:
+        typeof requestedTrackArtist === 'string'
+          ? requestedTrackArtist.slice(0, 100)
+          : 'YouTube',
     }
-  }, [requestedTrackId, tracks])
+
+    const frame = requestAnimationFrame(() => {
+      setPlayerError(null)
+      setSelectedTrack(playableTrack)
+      setPlaying(true)
+    })
+
+    return () => cancelAnimationFrame(frame)
+  }, [loading, playableRequestedTrackId, requestedTrackArtist, requestedTrackTitle, tracks])
 
   useFocusEffect(
     useCallback(() => () => {
@@ -126,7 +151,7 @@ export default function PraiseScreen() {
           />
           <View style={{ backgroundColor: colors.surfaceStrong, gap: 4, padding: 14 }}>
             <Text numberOfLines={1} style={{ color: colors.text, fontSize: 16, fontWeight: '800' }}>
-              {selectedRank || selectedTrack.rank}위 · {selectedTrack.title}
+              {selectedRank > 0 ? `${selectedRank}위 · ` : ''}{selectedTrack.title}
             </Text>
             <View style={{ alignItems: 'center', flexDirection: 'row', gap: 10, justifyContent: 'space-between' }}>
               <Text numberOfLines={1} style={{ color: colors.textSecondary, flex: 1, fontSize: 12 }}>

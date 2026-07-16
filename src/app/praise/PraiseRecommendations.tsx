@@ -16,13 +16,17 @@ export const songs: Song[] = officialPraiseTracks
 export default function PraiseRecommendations({
   initialSongs,
   initialTrackId,
+  initialMentionSong,
 }: {
   initialSongs?: Song[]
   initialTrackId?: string
+  initialMentionSong?: Song
 }) {
   const displayedSongs = initialSongs?.length ? initialSongs : songs
   const [selectedSong, setSelectedSong] = useState(
-    displayedSongs.find((song) => song.id === initialTrackId) ?? displayedSongs[0]
+    displayedSongs.find((song) => song.id === initialTrackId) ??
+      (initialMentionSong?.id === initialTrackId ? initialMentionSong : undefined) ??
+      displayedSongs[0]
   )
 
   function selectSong(song: Song) {

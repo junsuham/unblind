@@ -51,7 +51,13 @@ export default function PraiseMentionText({
         const className = 'inline rounded-md bg-[var(--ub-surface-brand-soft)] px-1 py-0.5 font-semibold text-[var(--ub-color-brand)] underline decoration-[var(--ub-color-brand)]/35 underline-offset-2'
 
         return mention.type === 'praise' ? (
-          <Link key={`${mention.youtubeId}-${index}`} href={`/praise?track=${encodeURIComponent(mention.youtubeId)}`} className={className}>{part}</Link>
+          <Link
+            key={`${mention.youtubeId}-${index}`}
+            href={`/praise?track=${encodeURIComponent(mention.youtubeId)}&title=${encodeURIComponent(mention.title)}&artist=${encodeURIComponent(mention.subtitle)}`}
+            className={className}
+          >
+            {part}
+          </Link>
         ) : (
           <a key={`${mention.placeId}-${index}`} href={getLocationMapUrl(mention.placeId)} target="_blank" rel="noreferrer" className={className}>{part}</a>
         )

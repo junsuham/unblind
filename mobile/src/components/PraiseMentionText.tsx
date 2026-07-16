@@ -27,7 +27,23 @@ export function PraiseMentionText({ content, mentions = [], tracks = [], style }
   content.split(pattern).forEach((part, index) => {
     const mention = mentionByLabel.get(part)
     parts.push(mention ? (
-      <Text key={`${mention.type}-${mention.label}-${index}`} accessibilityRole="link" onPress={() => mention.type === 'praise' ? router.push({ pathname: '/(tabs)/praise', params: { track: mention.youtubeId } }) : Linking.openURL(getLocationMapUrl(mention.placeId))} style={{ color: colors.brand, fontWeight: '800', textDecorationLine: 'underline' }}>{part}</Text>
+      <Text
+        key={`${mention.type}-${mention.label}-${index}`}
+        accessibilityRole="link"
+        onPress={() => mention.type === 'praise'
+          ? router.push({
+              pathname: '/(tabs)/praise',
+              params: {
+                track: mention.youtubeId,
+                title: mention.title,
+                artist: mention.subtitle,
+              },
+            })
+          : Linking.openURL(getLocationMapUrl(mention.placeId))}
+        style={{ color: colors.brand, fontWeight: '800', textDecorationLine: 'underline' }}
+      >
+        {part}
+      </Text>
     ) : part)
   })
 
