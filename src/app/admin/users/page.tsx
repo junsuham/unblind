@@ -107,7 +107,7 @@ function UserRows({
           user.status === 'pending'
             ? 'bg-[var(--ub-warning-soft)] text-[var(--ub-warning-text)]'
             : user.status === 'active'
-              ? 'bg-green-50 text-green-700'
+              ? 'bg-[var(--admin-success-soft)] text-[var(--admin-success)]'
               : 'bg-[var(--ub-danger-soft)] text-[var(--ub-danger-text)]'
 
         return (

@@ -25,7 +25,11 @@ function normalizeEmail(value: unknown) {
     return ''
   }
 
-  return value.trim().toLowerCase()
+  return value
+    .normalize('NFKC')
+    .replace(/[\u200B-\u200D\uFEFF]/g, '')
+    .trim()
+    .toLowerCase()
 }
 
 function isValidEmail(email: string) {
@@ -43,7 +47,9 @@ export async function POST(request: NextRequest) {
   const body = await request.json().catch(() => null)
 
   const action = body?.action as UserAction | undefined
-  const email = normalizeEmail(body?.email)
+  const email =
+    normalizeEmail(body?.email) ||
+    normalizeEmail(request.headers.get('x-unblind-target-email'))
   const memo =
     typeof body?.memo === 'string' ? body.memo.trim() : null
 
@@ -56,10 +62,26 @@ export async function POST(request: NextRequest) {
 
   if (!email || !isValidEmail(email)) {
     return NextResponse.json(
-      { error: '이메일을 정확히 입력해주세요.' },
+      { error: '선택한 사용자의 이메일을 확인할 수 없습니다. 화면을 새로고침한 뒤 다시 시도해주세요.' },
       { status: 400 }
     )
   }
+
+  const { data: allowedRows, error: allowedLookupError } = await supabaseAdmin
+    .from('allowed_users')
+    .select('email')
+    .returns<{ email: string }[]>()
+
+  if (allowedLookupError) {
+    return NextResponse.json(
+      { error: allowedLookupError.message },
+      { status: 500 }
+    )
+  }
+
+  const storedEmail = allowedRows?.find(
+    (row) => normalizeEmail(row.email) === email
+  )?.email
 
   let actionError: { message: string } | null = null
 
@@ -88,82 +110,114 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    const { error } = await supabaseAdmin
+    const request = supabaseAdmin
       .from('allowed_users')
-      .upsert(
-        {
-          email,
-          status: 'active',
-          memo: memo || null,
-        },
-        {
-          onConflict: 'email',
-        }
-      )
+
+    const { error } = storedEmail
+      ? await request
+          .update({ status: 'active', memo: memo || null })
+          .eq('email', storedEmail)
+      : await request.upsert(
+          {
+            email,
+            status: 'active',
+            memo: memo || null,
+          },
+          {
+            onConflict: 'email',
+          }
+        )
 
     actionError = error
   }
 
   if (action === 'block') {
-    const { error } = await supabaseAdmin
+    const request = supabaseAdmin
       .from('allowed_users')
-      .upsert(
-        {
-          email,
-          status: 'blocked',
-        },
-        {
-          onConflict: 'email',
-        }
-      )
+
+    const { error } = storedEmail
+      ? await request.update({ status: 'blocked' }).eq('email', storedEmail)
+      : await request.upsert(
+          {
+            email,
+            status: 'blocked',
+          },
+          {
+            onConflict: 'email',
+          }
+        )
 
     actionError = error
   }
 
   if (action === 'unblock') {
-    const { error } = await supabaseAdmin
+    const request = supabaseAdmin
       .from('allowed_users')
-      .upsert(
-        {
-          email,
-          status: 'active',
-        },
-        {
-          onConflict: 'email',
-        }
-      )
+
+    const { error } = storedEmail
+      ? await request.update({ status: 'active' }).eq('email', storedEmail)
+      : await request.upsert(
+          {
+            email,
+            status: 'active',
+          },
+          {
+            onConflict: 'email',
+          }
+        )
 
     actionError = error
   }
 
   if (action === 'reset_agreement') {
+    if (!storedEmail) {
+      return NextResponse.json(
+        { error: '승인 목록에서 해당 사용자를 찾을 수 없습니다.' },
+        { status: 404 }
+      )
+    }
+
     const { error } = await supabaseAdmin
       .from('allowed_users')
       .update({
         agreed_at: null,
         agreed_version: null,
       })
-      .eq('email', email)
+      .eq('email', storedEmail)
 
     actionError = error
   }
 
   if (action === 'remove') {
+    if (!storedEmail) {
+      return NextResponse.json(
+        { error: '이미 승인 목록에서 제거된 사용자입니다.' },
+        { status: 404 }
+      )
+    }
+
     const { error } = await supabaseAdmin
       .from('allowed_users')
       .delete()
-      .eq('email', email)
+      .eq('email', storedEmail)
 
     actionError = error
   }
 
   if (action === 'update_memo') {
+    if (!storedEmail) {
+      return NextResponse.json(
+        { error: '승인 목록에서 해당 사용자를 찾을 수 없습니다.' },
+        { status: 404 }
+      )
+    }
+
     const { error } = await supabaseAdmin
       .from('allowed_users')
       .update({
         memo: memo || null,
       })
-      .eq('email', email)
+      .eq('email', storedEmail)
 
     actionError = error
   }

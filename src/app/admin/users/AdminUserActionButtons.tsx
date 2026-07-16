@@ -18,6 +18,14 @@ type AdminUserActionButtonsProps = {
   profileComplete: boolean
 }
 
+function normalizeActionEmail(value: string) {
+  return value
+    .normalize('NFKC')
+    .replace(/[\u200B-\u200D\uFEFF]/g, '')
+    .trim()
+    .toLowerCase()
+}
+
 export default function AdminUserActionButtons({
   email,
   status,
@@ -31,6 +39,13 @@ export default function AdminUserActionButtons({
   )
 
   async function runAction(action: UserAction) {
+    const targetEmail = normalizeActionEmail(email)
+
+    if (!targetEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(targetEmail)) {
+      window.alert('선택한 사용자의 이메일을 확인할 수 없습니다. 화면을 새로고침한 뒤 다시 시도해주세요.')
+      return
+    }
+
     let nextMemo: string | null = memo
 
     const confirmMessage =
@@ -60,31 +75,43 @@ export default function AdminUserActionButtons({
 
     setSubmittingAction(action)
 
-    const response = await fetch('/api/admin/users', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        action,
-        email,
-        memo: nextMemo,
-      }),
-    })
+    try {
+      const response = await fetch('/api/admin/users', {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Unblind-Target-Email': targetEmail,
+        },
+        body: JSON.stringify({
+          action,
+          email: targetEmail,
+          memo: nextMemo,
+        }),
+      })
 
-    setSubmittingAction(null)
+      if (!response.ok) {
+        const result = await response.json().catch(() => null)
+        window.alert(result?.error ?? '처리에 실패했습니다.')
+        return
+      }
 
-    if (!response.ok) {
-      const result = await response.json().catch(() => null)
-      alert(result?.error ?? '처리에 실패했습니다.')
-      return
+      router.refresh()
+    } catch {
+      window.alert('서버에 연결하지 못했습니다. 잠시 후 다시 시도해주세요.')
+    } finally {
+      setSubmittingAction(null)
     }
-
-    router.refresh()
   }
 
   const baseButtonClass =
-    'min-h-[44px] rounded-[14px] px-3 ios-caption font-semibold active:scale-[0.99] disabled:opacity-50'
+    'min-h-[46px] rounded-[14px] border px-3 text-[14px] font-bold active:scale-[0.99] disabled:opacity-45'
+  const successButtonClass =
+    'border-[var(--admin-success)]/30 bg-[var(--admin-success-soft)] text-[var(--admin-success)]'
+  const dangerButtonClass =
+    'border-[var(--admin-danger)]/30 bg-[var(--admin-danger-soft)] text-[var(--admin-danger)]'
+  const accentButtonClass =
+    'border-[var(--admin-accent)]/25 bg-[var(--admin-accent-soft)] text-[var(--admin-accent)]'
 
   if (status === 'pending') {
     return (
@@ -93,7 +120,7 @@ export default function AdminUserActionButtons({
           type="button"
           onClick={() => runAction('add')}
           disabled={submittingAction !== null || !profileComplete}
-          className={`${baseButtonClass} border border-green-200 bg-green-50 text-green-700`}
+          className={`${baseButtonClass} ${successButtonClass}`}
         >
           {submittingAction === 'add'
             ? '승인 중...'
@@ -106,7 +133,7 @@ export default function AdminUserActionButtons({
           type="button"
           onClick={() => runAction('block')}
           disabled={submittingAction !== null}
-          className={`${baseButtonClass} border border-[#FF3B30]/20 bg-[#FF3B30]/10 text-[#7A1A16]`}
+          className={`${baseButtonClass} ${dangerButtonClass}`}
         >
           {submittingAction === 'block' ? '처리 중...' : '가입 차단'}
         </button>
@@ -121,7 +148,7 @@ export default function AdminUserActionButtons({
           type="button"
           onClick={() => runAction('block')}
           disabled={submittingAction !== null}
-          className={`${baseButtonClass} border border-[#FF3B30]/20 bg-[#FF3B30]/10 text-[#7A1A16]`}
+          className={`${baseButtonClass} ${dangerButtonClass}`}
         >
           {submittingAction === 'block' ? '처리 중...' : '차단'}
         </button>
@@ -130,7 +157,7 @@ export default function AdminUserActionButtons({
           type="button"
           onClick={() => runAction('unblock')}
           disabled={submittingAction !== null}
-          className={`${baseButtonClass} border border-green-200 bg-green-50 text-green-700`}
+          className={`${baseButtonClass} ${successButtonClass}`}
         >
           {submittingAction === 'unblock' ? '처리 중...' : '차단 해제'}
         </button>
@@ -140,7 +167,7 @@ export default function AdminUserActionButtons({
         type="button"
         onClick={() => runAction('reset_agreement')}
         disabled={submittingAction !== null}
-        className={`${baseButtonClass} bg-[#ffe2d2] text-[#ff4b00]`}
+        className={`${baseButtonClass} ${accentButtonClass}`}
       >
         {submittingAction === 'reset_agreement' ? '처리 중...' : '동의 초기화'}
       </button>
@@ -149,7 +176,7 @@ export default function AdminUserActionButtons({
         type="button"
         onClick={() => runAction('update_memo')}
         disabled={submittingAction !== null}
-        className={`${baseButtonClass} bg-[#ffe2d2] text-[#ff4b00]`}
+        className={`${baseButtonClass} ${accentButtonClass}`}
       >
         {submittingAction === 'update_memo' ? '처리 중...' : '메모 수정'}
       </button>
@@ -158,9 +185,9 @@ export default function AdminUserActionButtons({
         type="button"
         onClick={() => runAction('remove')}
         disabled={submittingAction !== null}
-        className={`${baseButtonClass} bg-[#F2F2F7] text-[#8E8E93]`}
+        className={`${baseButtonClass} border-[var(--admin-danger)]/35 bg-[var(--admin-card-secondary)] text-[var(--admin-danger)]`}
       >
-        {submittingAction === 'remove' ? '처리 중...' : '승인 제거'}
+        {submittingAction === 'remove' ? '처리 중...' : '승인목록 제거'}
       </button>
     </div>
   )
