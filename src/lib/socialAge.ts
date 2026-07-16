@@ -54,7 +54,7 @@ async function getGoogleAge(providerToken: string): Promise<VerifiedAge> {
     ) ??
     birthdays.find((item: { date?: { year?: number } }) => Number(item?.date?.year) > 0)
   const date = birthday?.date
-  const birthDate = normalizeDate(Number(date?.year), Number(date?.month) || 1, Number(date?.day) || 1)
+  const birthDate = normalizeDate(Number(date?.year))
   const referenceAge = birthDate ? getReferenceAge(birthDate) : null
 
   if (!birthDate || referenceAge === null) {
@@ -83,10 +83,7 @@ async function getKakaoAge(providerToken: string): Promise<VerifiedAge> {
   const data = await response.json()
   const account = data?.kakao_account ?? {}
   const year = Number(account.birthyear)
-  const birthday = typeof account.birthday === 'string' ? account.birthday : ''
-  const month = /^\d{4}$/.test(birthday) ? Number(birthday.slice(0, 2)) : 1
-  const day = /^\d{4}$/.test(birthday) ? Number(birthday.slice(2, 4)) : 1
-  const birthDate = normalizeDate(year, month, day)
+  const birthDate = normalizeDate(year)
   const referenceAge = birthDate ? getReferenceAge(birthDate) : null
 
   if (!birthDate || referenceAge === null) {

@@ -143,7 +143,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
         scopes:
           provider === 'google'
             ? 'openid email profile https://www.googleapis.com/auth/user.birthday.read'
-            : 'profile_nickname account_email age_range birthday birthyear',
+            : 'profile_nickname account_email birthyear',
       },
     })
 
