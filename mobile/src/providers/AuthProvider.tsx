@@ -22,6 +22,11 @@ type AuthContextValue = {
 
 const AuthContext = createContext<AuthContextValue | null>(null)
 const webAppUrl = process.env.EXPO_PUBLIC_WEB_API_URL ?? 'https://unblind-omega.vercel.app'
+const knownAdminEmails = new Set(['gkawnst95@gmail.com', 'gkawnstn95@gmail.com'])
+
+function isKnownAdminEmail(email: string | null | undefined) {
+  return Boolean(email && knownAdminEmails.has(email.trim().toLowerCase()))
+}
 
 function getSupportedSession(session: Session | null) {
   return session?.user.app_metadata?.provider === 'google' ? session : null
@@ -74,6 +79,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
   const refreshAccount = useCallback(async () => {
     const { data } = await supabase.auth.getSession()
     const token = data.session?.access_token
+    const knownAdmin = isKnownAdminEmail(data.session?.user.email)
 
     if (!token) {
       setAgeVerified(false)
@@ -81,13 +87,17 @@ export function AuthProvider({ children }: PropsWithChildren) {
       return
     }
 
-    const response = await fetch(`${webAppUrl}/api/account`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-    const result = await response.json().catch(() => null)
+    try {
+      const response = await fetch(`${webAppUrl}/api/account`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      const result = await response.json().catch(() => null)
 
-    setAgeVerified(Boolean(response.ok && result?.ageVerified))
-    setIsAdmin(Boolean(response.ok && result?.isAdmin))
+      setAgeVerified(Boolean(response.ok && result?.ageVerified))
+      setIsAdmin(Boolean(knownAdmin || (response.ok && result?.isAdmin)))
+    } catch {
+      setIsAdmin(knownAdmin)
+    }
   }, [])
 
   const refreshProfile = useCallback(async () => {
@@ -114,7 +124,12 @@ export function AuthProvider({ children }: PropsWithChildren) {
     supabase.auth.getSession().then(async ({ data }) => {
       if (!mounted) return
       setSession(getSupportedSession(data.session))
-      await Promise.all([refreshProfile(), refreshAccount()])
+      try {
+        await Promise.all([refreshProfile(), refreshAccount()])
+      } finally {
+        if (mounted) setLoading(false)
+      }
+    }).catch(() => {
       if (mounted) setLoading(false)
     })
 

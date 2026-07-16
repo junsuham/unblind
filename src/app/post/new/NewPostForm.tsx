@@ -6,6 +6,7 @@ import { supabase } from '@/lib/supabase'
 import { analyzeTextForSafety } from '@/lib/moderation'
 import SafetyIssueList from '@/app/components/SafetyIssueList'
 import PraiseMentionInput from '@/app/components/PraiseMentionInput'
+import type { ContentMention } from '@/lib/praiseMention'
 import {
   AppShell,
   GlassCard,
@@ -94,6 +95,7 @@ export default function NewPostForm({ initialBoard }: NewPostFormProps) {
 
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
+  const [mentions, setMentions] = useState<ContentMention[]>([])
   const [tagsInput, setTagsInput] = useState('')
   const [checkedPrivacy, setCheckedPrivacy] = useState(false)
   const [checkedPurpose, setCheckedPurpose] = useState(false)
@@ -199,6 +201,7 @@ export default function NewPostForm({ initialBoard }: NewPostFormProps) {
         status: 'visible',
         author_user_id: user.id,
         tags,
+        mentions,
       })
       .select('id')
       .single()
@@ -294,15 +297,17 @@ export default function NewPostForm({ initialBoard }: NewPostFormProps) {
             <PraiseMentionInput
               value={content}
               onChange={setContent}
+              mentions={mentions}
+              onMentionsChange={setMentions}
               rows={12}
               maxLength={2000}
-              placeholder="내용을 입력해주세요. @를 입력하면 찬양을 추천할 수 있어요."
+              placeholder="내용을 입력해주세요. @를 입력하면 찬양이나 위치를 태그할 수 있어요."
               className="min-h-[260px] w-full resize-none rounded-[28px] bg-transparent px-5 py-5 text-[17px] leading-[25px] text-[var(--ub-text-primary)] outline-none placeholder:text-[var(--ub-text-tertiary)]"
             />
           </GlassCard>
 
           <div className="mt-2 flex justify-between px-4 text-[13px] text-[var(--ub-text-on-brand-tertiary)]">
-            <span>@ + 찬양 이름으로 오·찬·추를 남겨보세요.</span>
+            <span>@를 입력한 뒤 찬양 또는 위치를 선택하세요.</span>
             <span>{content.length}/2000</span>
           </div>
 

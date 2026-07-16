@@ -14,9 +14,10 @@ Expo SDK 54와 React Native로 만든 iOS·Android 공용 네이티브 앱입니
 ## 로컬 설정
 
 1. 저장소 루트의 웹 환경변수를 사용하는 경우 `npm run env:sync`를 실행합니다. 별도 Supabase 프로젝트라면 `.env.example`을 `.env.local`로 복사합니다.
-2. Supabase 프로젝트 URL과 Publishable Key를 입력합니다. Service Role 키는 절대 앱에 넣지 않습니다.
-3. Supabase Authentication의 Redirect URLs에 `unblind://auth/callback`과 `exp://**`를 추가합니다.
-4. 실제 iPhone에서 빠르게 확인할 때는 Expo Go를 사용하고, 네이티브 설치형 동작을 확인할 때는 Development Build를 사용합니다.
+2. Mac과 iPhone을 같은 Wi-Fi에 연결한 뒤 `npm run start:iphone`을 실행합니다. 설치된 개발 앱을 열면 같은 네트워크의 개발 서버를 자동으로 찾으므로 매번 QR을 스캔할 필요가 없습니다.
+3. 외부 네트워크에서만 `npm run start:tunnel`을 사용합니다. 터널 주소는 시간이 지나면 만료될 수 있습니다.
+4. Supabase 프로젝트 URL과 Publishable Key를 입력합니다. Service Role 키는 절대 앱에 넣지 않습니다.
+5. Supabase Authentication의 Redirect URLs에 `unblind://auth/callback`과 `exp://**`를 추가합니다.
 
 ```bash
 npm install
@@ -25,17 +26,17 @@ npm run ios
 npm run android
 ```
 
-### iPhone에서 Expo Go로 테스트
+### iPhone 개발 앱에서 테스트
 
-1. iPhone과 Mac을 같은 Wi-Fi에 연결하고 App Store에서 Expo Go를 설치합니다.
-2. 아래 명령을 실행합니다.
-3. 표시되는 QR 코드를 iPhone 카메라로 스캔합니다.
+1. iPhone과 Mac을 같은 Wi-Fi에 연결합니다.
+2. 아래 명령을 실행한 뒤 설치된 언블라인드 개발 앱을 엽니다.
+3. 최초 연결 이후에는 코드가 자동 새로고침되며, 서버를 다시 켠 경우에도 같은 네트워크의 서버를 앱에서 선택할 수 있습니다.
 
 ```bash
 npm run start:iphone
 ```
 
-Expo Go에서는 로그인 복귀 주소가 실행 중인 개발 서버의 `exp://` 주소로 자동 생성됩니다. 설치형 개발 빌드에서는 기존 `unblind://auth/callback`을 사용합니다.
+설치형 개발 빌드에서는 `unblind://auth/callback` 로그인 복귀 주소를 사용합니다.
 
 ## Android 설치 파일
 

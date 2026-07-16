@@ -95,7 +95,7 @@ export default function HomeScreen() {
           {isAdmin ? (
             <Pressable
               accessibilityLabel="관리자 페이지 열기"
-              onPress={() => Linking.openURL(`${webApiUrl}/admin/login`)}
+              onPress={() => Linking.openURL(`${webApiUrl}/admin`)}
               style={{ minHeight: 44, borderRadius: 22, backgroundColor: colors.surfaceStrong, justifyContent: 'center', paddingHorizontal: 12 }}
             >
               <Text style={{ color: colors.brand, fontSize: 12, fontWeight: '800' }}>관리자</Text>

@@ -8,7 +8,7 @@ import ReactionButtons from './ReactionButtons'
 import ReportButton from './ReportButton'
 import BookmarkButton from './BookmarkButton'
 import PraiseMentionText from '@/app/components/PraiseMentionText'
-import type { PraiseMentionTrack } from '@/lib/praiseMention'
+import type { ContentMention, PraiseMentionTrack } from '@/lib/praiseMention'
 import {
   AppShell,
   BottomTabBar,
@@ -40,6 +40,7 @@ type ReactionRow = {
 type CommentRow = {
   id: string
   content: string
+  mentions: ContentMention[] | null
   created_at: string
   author_user_id: string | null
 }
@@ -59,7 +60,7 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
 
   const { data: post, error: postError } = await supabase
     .from('posts')
-    .select('id, board, title, content, created_at, author_user_id, view_count, tags')
+    .select('id, board, title, content, mentions, created_at, author_user_id, view_count, tags')
     .eq('id', id)
     .eq('status', 'visible')
     .single()
@@ -70,7 +71,7 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
 
   const { data: comments, error: commentsError } = await supabase
     .from('comments')
-    .select('id, content, created_at, author_user_id')
+    .select('id, content, mentions, created_at, author_user_id')
     .eq('post_id', post.id)
     .eq('status', 'visible')
     .order('created_at', { ascending: true })
@@ -193,7 +194,7 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
 
         <div className="border-t border-[var(--ub-separator)] px-5 py-7">
           <p className="whitespace-pre-wrap text-[16px] leading-[26px] text-[var(--ub-text-primary)]">
-            <PraiseMentionText content={post.content} tracks={praiseTracks ?? []} />
+            <PraiseMentionText content={post.content} mentions={post.mentions as ContentMention[] | null} tracks={praiseTracks ?? []} />
           </p>
 
           {post.tags?.length > 0 && (
@@ -273,7 +274,7 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
               </div>
 
               <p className="whitespace-pre-wrap text-[17px] leading-[25px] text-[var(--ub-text-primary)]">
-                <PraiseMentionText content={comment.content} tracks={praiseTracks ?? []} />
+                <PraiseMentionText content={comment.content} mentions={comment.mentions} tracks={praiseTracks ?? []} />
               </p>
             </article>
           ))}

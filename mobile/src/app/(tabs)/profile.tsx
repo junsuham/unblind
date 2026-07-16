@@ -31,7 +31,7 @@ export default function ProfileScreen() {
       {isAdmin ? (
         <Pressable
           accessibilityLabel="관리자 센터 열기"
-          onPress={() => Linking.openURL(`${webApiUrl}/admin/login`)}
+          onPress={() => Linking.openURL(`${webApiUrl}/admin`)}
           style={{ minHeight: 52, borderRadius: radius.medium, backgroundColor: colors.brand, alignItems: 'center', justifyContent: 'center', marginTop: 18 }}
         >
           <Text style={{ color: '#FFFFFF', fontWeight: '800' }}>관리자 센터</Text>

@@ -38,7 +38,8 @@
   },
   "scripts": {
     "start": "expo start",
-    "start:iphone": "expo start --go --lan",
+    "start:iphone": "expo start --dev-client --lan",
+    "start:tunnel": "expo start --dev-client --tunnel",
     "env:sync": "node ./scripts/sync-env.mjs",
     "android": "expo run:android",
     "ios": "expo run:ios",

@@ -1,4 +1,4 @@
-const defaultAdminEmails = ['gkawnst95@gmail.com']
+const defaultAdminEmails = ['gkawnst95@gmail.com', 'gkawnstn95@gmail.com']
 
 function configuredAdminEmails() {
   const configured = process.env.ADMIN_EMAILS
@@ -6,7 +6,7 @@ function configuredAdminEmails() {
     .map((email) => email.trim().toLowerCase())
     .filter(Boolean)
 
-  return configured?.length ? configured : defaultAdminEmails
+  return Array.from(new Set([...defaultAdminEmails, ...(configured ?? [])]))
 }
 
 export function isAdminEmail(email: string | null | undefined) {

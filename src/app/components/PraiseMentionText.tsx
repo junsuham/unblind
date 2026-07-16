@@ -1,6 +1,8 @@
 import Link from 'next/link'
 import {
+  getLocationMapUrl,
   getPraiseMentionLabel,
+  type ContentMention,
   type PraiseMentionTrack,
 } from '@/lib/praiseMention'
 
@@ -10,17 +12,31 @@ function escapePattern(value: string) {
 
 export default function PraiseMentionText({
   content,
-  tracks,
+  mentions = [],
+  tracks = [],
 }: {
   content: string
-  tracks: PraiseMentionTrack[]
+  mentions?: ContentMention[] | null
+  tracks?: PraiseMentionTrack[]
 }) {
-  const labelToTrack = new Map(
-    tracks.map((track) => [getPraiseMentionLabel(track.title), track])
-  )
-  const labels = Array.from(labelToTrack.keys()).sort(
-    (left, right) => right.length - left.length
-  )
+  const mentionByLabel = new Map<string, ContentMention>()
+
+  for (const track of tracks) {
+    const label = getPraiseMentionLabel(track.title)
+    mentionByLabel.set(label, {
+      type: 'praise',
+      label,
+      youtubeId: track.youtube_id,
+      title: track.title,
+      subtitle: track.artist,
+    })
+  }
+
+  for (const mention of mentions ?? []) mentionByLabel.set(mention.label, mention)
+
+  const labels = Array.from(mentionByLabel.keys())
+    .filter((label) => content.includes(label))
+    .sort((left, right) => right.length - left.length)
 
   if (!labels.length) return <>{content}</>
 
@@ -29,18 +45,15 @@ export default function PraiseMentionText({
   return (
     <>
       {content.split(pattern).map((part, index) => {
-        const track = labelToTrack.get(part)
+        const mention = mentionByLabel.get(part)
+        if (!mention) return part
 
-        if (!track) return part
+        const className = 'inline rounded-md bg-[var(--ub-surface-brand-soft)] px-1 py-0.5 font-semibold text-[var(--ub-color-brand)] underline decoration-[var(--ub-color-brand)]/35 underline-offset-2'
 
-        return (
-          <Link
-            key={`${track.youtube_id}-${index}`}
-            href={`/praise?track=${encodeURIComponent(track.youtube_id)}`}
-            className="inline rounded-md bg-[var(--ub-surface-brand-soft)] px-1 py-0.5 font-semibold text-[var(--ub-color-brand)] underline decoration-[var(--ub-color-brand)]/35 underline-offset-2"
-          >
-            {part}
-          </Link>
+        return mention.type === 'praise' ? (
+          <Link key={`${mention.youtubeId}-${index}`} href={`/praise?track=${encodeURIComponent(mention.youtubeId)}`} className={className}>{part}</Link>
+        ) : (
+          <a key={`${mention.placeId}-${index}`} href={getLocationMapUrl(mention.placeId)} target="_blank" rel="noreferrer" className={className}>{part}</a>
         )
       })}
     </>
