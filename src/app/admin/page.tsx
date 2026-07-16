@@ -3,65 +3,113 @@ import { requireAdmin } from '@/lib/adminAuth'
 import { listAllAuthUsers } from '@/lib/adminUsers'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
 import AdminLogoutButton from './components/AdminLogoutButton'
+import { AdminIcon, type AdminIconName } from './components/AdminIcon'
+import {
+  AdminHeader,
+  AdminListGroup,
+  AdminListRow,
+  AdminPageShell,
+  AdminStatCard,
+  AdminStatGrid,
+} from './components/AdminIOS'
 
 export const dynamic = 'force-dynamic'
+
+type QueueItem = {
+  href: string
+  title: string
+  subtitle: string
+  icon: AdminIconName
+  count: number
+  tone: 'danger' | 'warning' | 'default'
+}
 
 export default async function AdminDashboardPage() {
   await requireAdmin()
 
+  const oneDayAgoDate = new Date()
+  oneDayAgoDate.setDate(oneDayAgoDate.getDate() - 1)
+  const oneDayAgo = oneDayAgoDate.toISOString()
+
   const [
     pendingReportsResult,
-    totalReportsResult,
+    staleReportsResult,
     visiblePostsResult,
-    totalPostsResult,
+    hiddenPostsResult,
     visibleCommentsResult,
-    totalCommentsResult,
+    hiddenCommentsResult,
     allowedUsersResult,
     agreedUsersResult,
     accessEmailsResult,
     authUsersResult,
+    recentPostsResult,
+    recentCommentsResult,
+    recentReportsResult,
+    activeTrackResult,
+    bannedWordsResult,
+    manittoResult,
   ] = await Promise.all([
     supabaseAdmin
       .from('reports')
       .select('*', { count: 'exact', head: true })
       .eq('status', 'pending'),
-
     supabaseAdmin
       .from('reports')
-      .select('*', { count: 'exact', head: true }),
-
+      .select('*', { count: 'exact', head: true })
+      .eq('status', 'pending')
+      .lt('created_at', oneDayAgo),
     supabaseAdmin
       .from('posts')
       .select('*', { count: 'exact', head: true })
       .eq('status', 'visible'),
-
     supabaseAdmin
       .from('posts')
-      .select('*', { count: 'exact', head: true }),
-
+      .select('*', { count: 'exact', head: true })
+      .eq('status', 'hidden'),
     supabaseAdmin
       .from('comments')
       .select('*', { count: 'exact', head: true })
       .eq('status', 'visible'),
-
     supabaseAdmin
       .from('comments')
-      .select('*', { count: 'exact', head: true }),
-
+      .select('*', { count: 'exact', head: true })
+      .eq('status', 'hidden'),
     supabaseAdmin
       .from('allowed_users')
       .select('*', { count: 'exact', head: true })
       .eq('status', 'active'),
-
     supabaseAdmin
       .from('allowed_users')
       .select('*', { count: 'exact', head: true })
       .eq('status', 'active')
       .not('agreed_at', 'is', null),
-
     supabaseAdmin.from('allowed_users').select('email'),
-
     listAllAuthUsers(),
+    supabaseAdmin
+      .from('posts')
+      .select('*', { count: 'exact', head: true })
+      .gte('created_at', oneDayAgo),
+    supabaseAdmin
+      .from('comments')
+      .select('*', { count: 'exact', head: true })
+      .gte('created_at', oneDayAgo),
+    supabaseAdmin
+      .from('reports')
+      .select('*', { count: 'exact', head: true })
+      .gte('created_at', oneDayAgo),
+    supabaseAdmin
+      .from('top100_tracks')
+      .select('*', { count: 'exact', head: true })
+      .eq('is_active', true),
+    supabaseAdmin
+      .from('banned_words')
+      .select('*', { count: 'exact', head: true })
+      .eq('is_active', true),
+    supabaseAdmin
+      .from('manitto_settings')
+      .select('is_active')
+      .eq('id', 1)
+      .maybeSingle<{ is_active: boolean }>(),
   ])
 
   const accessEmails = new Set(
@@ -71,216 +119,270 @@ export default async function AdminDashboardPage() {
     (user) => user.email && !accessEmails.has(user.email.toLowerCase())
   ).length
 
-  const cards = [
-    {
-      label: '미처리 신고',
-      value: pendingReportsResult.count ?? 0,
-      href: '/admin/reports',
-      tone: 'danger',
-    },
-    {
-      label: '전체 신고',
-      value: totalReportsResult.count ?? 0,
-      href: '/admin/reports',
-      tone: 'default',
-    },
-    {
-      label: '가입 승인 대기',
-      value: pendingSignupCount,
-      href: '/admin/users',
-      tone: 'danger',
-    },
-    {
-      label: '승인 사용자',
-      value: allowedUsersResult.count ?? 0,
-      href: '/admin/users',
-      tone: 'default',
-    },
-    {
-      label: '약속 동의',
-      value: agreedUsersResult.count ?? 0,
-      href: '/admin/users',
-      tone: 'default',
-    },
-    {
-      label: '노출 글',
-      value: visiblePostsResult.count ?? 0,
-      href: '/admin/posts',
-      tone: 'default',
-    },
-    {
-      label: '전체 글',
-      value: totalPostsResult.count ?? 0,
-      href: '/admin/posts',
-      tone: 'default',
-    },
-    {
-      label: '노출 댓글',
-      value: visibleCommentsResult.count ?? 0,
-      href: '/admin/comments',
-      tone: 'default',
-    },
-    {
-      label: '전체 댓글',
-      value: totalCommentsResult.count ?? 0,
-      href: '/admin/comments',
-      tone: 'default',
-    },
-  ]
+  const pendingReportCount = pendingReportsResult.count ?? 0
+  const staleReportCount = staleReportsResult.count ?? 0
+  const hiddenPostCount = hiddenPostsResult.count ?? 0
+  const hiddenCommentCount = hiddenCommentsResult.count ?? 0
+  const hiddenContentCount = hiddenPostCount + hiddenCommentCount
 
-  const quickLinks = [
+  const queue: QueueItem[] = []
+
+  if (pendingReportCount > 0) {
+    queue.push({
+      href: '/admin/reports',
+      title: '신고 검토',
+      subtitle:
+        staleReportCount > 0
+          ? `24시간 넘은 신고 ${staleReportCount}건을 먼저 확인하세요.`
+          : '새 신고 내용을 확인하고 처리 상태를 기록하세요.',
+      icon: 'alert',
+      count: pendingReportCount,
+      tone: 'danger',
+    })
+  }
+
+  if (pendingSignupCount > 0) {
+    queue.push({
+      href: '/admin/users',
+      title: '가입 승인',
+      subtitle: '가입 정보와 프로필을 확인한 뒤 승인하세요.',
+      icon: 'users',
+      count: pendingSignupCount,
+      tone: 'warning',
+    })
+  }
+
+  if (hiddenContentCount > 0) {
+    queue.push({
+      href: hiddenPostCount > 0 ? '/admin/posts' : '/admin/comments',
+      title: '숨김 콘텐츠 점검',
+      subtitle: `게시글 ${hiddenPostCount}건 · 댓글 ${hiddenCommentCount}건`,
+      icon: 'shield',
+      count: hiddenContentCount,
+      tone: 'default',
+    })
+  }
+
+  const quickLinks: Array<{
+    href: string
+    title: string
+    description: string
+    icon: AdminIconName
+  }> = [
     {
       href: '/admin/users',
-      title: '베타 참여자 관리',
-      description: '소셜 가입 승인, 차단, 동의 초기화',
-      icon: '👥',
+      title: '참여자 관리',
+      description: '가입 승인, 차단, 동의 상태',
+      icon: 'users',
     },
     {
       href: '/admin/reports',
-      title: '신고 목록 관리',
-      description: '신고된 글과 댓글 확인 및 조치',
-      icon: '🚩',
+      title: '신고 관리',
+      description: '신고 내용 확인 및 안전 조치',
+      icon: 'alert',
     },
     {
       href: '/admin/posts',
-      title: '전체 게시글 관리',
+      title: '게시글 관리',
       description: '게시글 숨김, 삭제, 복구',
-      icon: '📝',
+      icon: 'post',
     },
     {
       href: '/admin/comments',
-      title: '전체 댓글 관리',
+      title: '댓글 관리',
       description: '댓글 숨김, 삭제, 복구',
-      icon: '💬',
-    },
-    {
-      href: '/admin/analytics',
-      title: '베타 운영 통계',
-      description: '최근 활동, 게시판별 글 수, 신고 사유 확인',
-      icon: '📊',
+      icon: 'comment',
     },
     {
       href: '/admin/manitto',
-      title: '마니또 운영 관리',
-      description: '참여 기간과 공개 정책 설정',
-      icon: '🎁',
+      title: '마니또 운영',
+      description: '참여 기간과 공개 정책',
+      icon: 'gift',
     },
     {
       href: '/admin/top100',
-      title: 'TOP 100 관리',
-      description: '찬양 순위와 곡 정보 편집',
-      icon: '🎧',
+      title: '언블 TOP 100',
+      description: '찬양 순위와 곡 정보',
+      icon: 'music',
     },
     {
       href: '/admin/safety',
       title: '안전 설정',
-      description: '금칙어, 도배 제한, 자동 숨김 확인',
-      icon: '🛡️',
+      description: '금칙어와 자동 보호 정책',
+      icon: 'shield',
+    },
+    {
+      href: '/admin/analytics',
+      title: '운영 통계',
+      description: '활동량과 신고 흐름',
+      icon: 'chart',
     },
   ]
 
   return (
-    <main className="ub-app-surface min-h-screen px-4 pb-10 pt-8 text-[var(--ub-text-on-brand-primary)]">
-      <section className="mx-auto max-w-[430px]">
-        <header className="mb-8">
-          <div className="mb-4 flex items-start justify-between gap-4">
-            <div>
-              <p className="mb-1 text-[13px] font-semibold text-[var(--ub-text-on-brand-tertiary)]">
-                운영자 전용
-              </p>
+    <AdminPageShell>
+      <AdminHeader
+        eyebrow="오늘의 운영"
+        title="관리자 센터"
+        description="처리가 필요한 항목부터 확인하고 앱 전체 상태를 관리하세요."
+        action={<AdminLogoutButton />}
+      />
 
-              <h1 className="text-[34px] font-bold leading-[38px] tracking-[-0.7px] text-[var(--ub-text-on-brand-primary)]">
-                관리자
-              </h1>
-            </div>
-
-            <AdminLogoutButton />
-          </div>
-
-          <p className="text-[17px] leading-[25px] text-[var(--ub-text-on-brand-secondary)]">
-            신고, 참여자, 게시글, 댓글 운영 상태를 확인합니다.
-          </p>
-        </header>
-
-        <section className="mb-8">
-          <p className="mb-2 px-4 text-[13px] font-semibold uppercase tracking-[0.04em] text-[var(--ub-text-on-brand-tertiary)]">
-            운영 현황
-          </p>
-
-          <div className="grid grid-cols-2 gap-3">
-            {cards.map((card) => (
-              <Link key={card.label} href={card.href}>
-                <div
-                  className={
-                    card.tone === 'danger' && card.value > 0
-                      ? 'rounded-[24px] border border-[#FF3B30]/20 bg-[#FF3B30]/10 p-5 shadow-sm'
-                      : 'rounded-[24px] border border-[var(--ub-glass-border)] bg-[var(--ub-surface-card)] p-5 shadow-[var(--ub-shadow-card)] backdrop-blur-2xl'
-                  }
-                >
-                  <p
-                    className={
-                      card.tone === 'danger' && card.value > 0
-                        ? 'text-[15px] font-medium text-[#7A1A16]'
-                        : 'text-[15px] font-medium text-[var(--ub-text-secondary)]'
-                    }
-                  >
-                    {card.label}
-                  </p>
-
-                  <p className="mt-2 text-[34px] font-bold leading-[38px] tracking-[-0.7px] text-[var(--ub-text-primary)]">
-                    {card.value}
-                  </p>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </section>
-
-        <section>
-          <p className="mb-2 px-4 text-[13px] font-semibold uppercase tracking-[0.04em] text-[var(--ub-text-on-brand-tertiary)]">
-            관리 메뉴
-          </p>
-
-          <div className="overflow-hidden rounded-[22px] bg-[var(--ub-surface-card-strong)] shadow-[var(--ub-shadow-soft)]">
-            {quickLinks.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className="block active:bg-[var(--ub-surface-pressed)]"
-              >
-                <div className="flex min-h-[72px] items-center gap-3 border-b border-[var(--ub-separator)] px-4 py-3 last:border-b-0">
-                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px] bg-[var(--ub-surface-brand-soft)] text-[24px]">
-                    {item.icon}
-                  </div>
-
-                  <div className="min-w-0 flex-1">
-                    <p className="text-[17px] leading-[22px] text-[var(--ub-text-primary)]">
-                      {item.title}
-                    </p>
-
-                    <p className="mt-0.5 text-[15px] leading-[20px] text-[var(--ub-text-secondary)]">
-                      {item.description}
-                    </p>
-                  </div>
-
-                  <span className="text-[24px] leading-none text-[var(--ub-text-tertiary)]">
-                    ›
-                  </span>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </section>
-
-        <div className="mt-6">
-          <Link
-            href="/"
-            className="flex min-h-[52px] items-center justify-center rounded-[16px] bg-[#ffe2d2] px-5 text-[17px] font-semibold text-[#ff4b00] active:scale-[0.99]"
-          >
-            사용자 화면으로 이동
-          </Link>
+      <form action="/admin/search" className="mb-7" role="search">
+        <label
+          htmlFor="admin-dashboard-search"
+          className="sr-only"
+        >
+          관리자 통합 검색
+        </label>
+        <div className="admin-ios-card flex min-h-[52px] items-center gap-3 rounded-[16px] px-4">
+          <AdminIcon
+            name="search"
+            className="h-5 w-5 shrink-0 text-[var(--admin-text-tertiary)]"
+          />
+          <input
+            id="admin-dashboard-search"
+            name="q"
+            type="search"
+            placeholder="사용자, 게시글, 댓글 검색"
+            className="min-w-0 flex-1 bg-transparent text-[17px] text-[var(--admin-text)] outline-none placeholder:text-[var(--admin-text-tertiary)]"
+          />
         </div>
+      </form>
+
+      <AdminListGroup
+        title={`우선 처리 ${queue.reduce((sum, item) => sum + item.count, 0)}`}
+        footer="신고와 가입 승인을 우선 처리하면 운영 위험을 줄일 수 있습니다."
+      >
+        {queue.map((item) => (
+          <AdminListRow
+            key={item.href}
+            href={item.href}
+            title={item.title}
+            subtitle={item.subtitle}
+            leading={<AdminIcon name={item.icon} className="h-6 w-6" />}
+            trailing={
+              <span
+                className={`min-w-7 rounded-full px-2 py-1 text-center text-[13px] font-bold ${
+                  item.tone === 'danger'
+                    ? 'bg-[var(--admin-danger-soft)] text-[var(--admin-danger)]'
+                    : item.tone === 'warning'
+                      ? 'bg-[var(--admin-warning-soft)] text-[var(--admin-warning)]'
+                      : 'bg-[var(--admin-accent-soft)] text-[var(--admin-accent)]'
+                }`}
+              >
+                {item.count}
+              </span>
+            }
+          />
+        ))}
+
+        {queue.length === 0 && (
+          <AdminListRow
+            title="모두 확인했습니다"
+            subtitle="현재 즉시 처리해야 할 운영 항목이 없습니다."
+            leading={<AdminIcon name="check" className="h-6 w-6" />}
+          />
+        )}
+      </AdminListGroup>
+
+      <section className="mb-7">
+        <p className="mb-2 px-4 ios-caption font-semibold uppercase tracking-[0.04em] text-[var(--admin-text-tertiary)]">
+          최근 24시간
+        </p>
+        <AdminStatGrid>
+          <AdminStatCard label="새 글" value={recentPostsResult.count ?? 0} />
+          <AdminStatCard
+            label="새 댓글"
+            value={recentCommentsResult.count ?? 0}
+          />
+          <AdminStatCard
+            label="새 신고"
+            value={recentReportsResult.count ?? 0}
+            tone={(recentReportsResult.count ?? 0) > 0 ? 'danger' : 'default'}
+          />
+        </AdminStatGrid>
       </section>
-    </main>
+
+      <AdminListGroup title="서비스 상태">
+        <AdminListRow
+          title="활성 사용자"
+          subtitle={`약속 동의 ${agreedUsersResult.count ?? 0}명`}
+          leading={<AdminIcon name="users" className="h-6 w-6" />}
+          trailing={
+            <strong className="text-[17px] text-[var(--admin-text)]">
+              {allowedUsersResult.count ?? 0}
+            </strong>
+          }
+        />
+        <AdminListRow
+          title="노출 콘텐츠"
+          subtitle={`게시글 ${visiblePostsResult.count ?? 0} · 댓글 ${visibleCommentsResult.count ?? 0}`}
+          leading={<AdminIcon name="activity" className="h-6 w-6" />}
+          trailing={
+            <span className="text-[13px] font-semibold text-[var(--admin-success)]">
+              정상
+            </span>
+          }
+        />
+        <AdminListRow
+          title="자동 안전 필터"
+          subtitle={`활성 금칙어 ${bannedWordsResult.count ?? 0}개`}
+          leading={<AdminIcon name="shield" className="h-6 w-6" />}
+          trailing={
+            <span className="text-[13px] font-semibold text-[var(--admin-success)]">
+              작동 중
+            </span>
+          }
+        />
+        <AdminListRow
+          title="언블 TOP 100"
+          subtitle={`현재 노출 중인 공식 찬양 ${activeTrackResult.count ?? 0}곡`}
+          leading={<AdminIcon name="music" className="h-6 w-6" />}
+        />
+        <AdminListRow
+          title="마니또"
+          subtitle={manittoResult.data?.is_active ? '현재 참여 기간입니다.' : '현재 운영하지 않습니다.'}
+          leading={<AdminIcon name="gift" className="h-6 w-6" />}
+          trailing={
+            <span
+              className={`text-[13px] font-semibold ${
+                manittoResult.data?.is_active
+                  ? 'text-[var(--admin-success)]'
+                  : 'text-[var(--admin-text-tertiary)]'
+              }`}
+            >
+              {manittoResult.data?.is_active ? 'ON' : 'OFF'}
+            </span>
+          }
+        />
+      </AdminListGroup>
+
+      <AdminListGroup title="전체 관리 메뉴">
+        {quickLinks.map((item) => (
+          <AdminListRow
+            key={item.href}
+            href={item.href}
+            title={item.title}
+            subtitle={item.description}
+            leading={<AdminIcon name={item.icon} className="h-6 w-6" />}
+          />
+        ))}
+      </AdminListGroup>
+
+      <div className="px-4 text-center ios-caption text-[var(--admin-text-tertiary)]">
+        마지막 새로고침{' '}
+        {new Date().toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' })}
+      </div>
+
+      <div className="mt-4 text-center">
+        <Link
+          href="/"
+          className="inline-flex min-h-11 items-center px-4 text-[15px] font-semibold text-[var(--admin-accent)] active:opacity-70"
+        >
+          사용자 화면으로 이동
+        </Link>
+      </div>
+    </AdminPageShell>
   )
 }

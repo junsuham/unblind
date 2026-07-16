@@ -18,7 +18,7 @@ export default function AdminLogoutButton() {
     <button
       type="button"
       onClick={handleLogout}
-      className="min-h-11 rounded-full bg-[var(--ub-surface-card)] px-4 text-[15px] font-semibold text-[var(--ub-color-brand)] shadow-sm backdrop-blur-xl active:bg-[var(--ub-surface-pressed)]"
+      className="min-h-11 rounded-full bg-[var(--admin-accent-soft)] px-4 text-[15px] font-semibold text-[var(--admin-accent)] active:opacity-70"
     >
       로그아웃
     </button>

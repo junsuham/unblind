@@ -1,4 +1,12 @@
 import Link from 'next/link'
+import Image from 'next/image'
+import type { Metadata } from 'next'
+import AdminNavigation from './components/AdminNavigation'
+
+export const metadata: Metadata = {
+  title: '관리자 센터 | 언블라인드',
+  description: '언블라인드 운영 및 안전 관리 센터',
+}
 
 export default function AdminLayout({
   children,
@@ -6,24 +14,39 @@ export default function AdminLayout({
   children: React.ReactNode
 }>) {
   return (
-    <div className="ub-app-surface min-h-screen">
-      <header className="ub-logo-surface sticky top-0 z-50 pt-[env(safe-area-inset-top)]">
-        <div className="mx-auto flex min-h-[58px] max-w-[430px] items-center justify-center px-4">
+    <div className="admin-ios-root min-h-screen">
+      <header className="admin-ios-topbar sticky top-0 z-40 pt-[env(safe-area-inset-top)]">
+        <div className="mx-auto flex min-h-[54px] max-w-[520px] items-center justify-between gap-3 px-4">
           <Link
-            href="/"
-            aria-label="언블라인드 홈으로 이동"
-            className="flex min-h-11 items-center justify-center active:scale-[0.99]"
+            href="/admin"
+            aria-label="관리자 센터 홈으로 이동"
+            className="flex min-h-11 items-center gap-2 active:opacity-70"
           >
-            <img
+            <Image
               src="/unblind-logo.png"
               alt="UNBLIND"
-              className="block h-11 w-11"
+              width={32}
+              height={32}
+              className="block h-8 w-8 rounded-[9px]"
             />
+
+            <span className="text-[17px] font-semibold tracking-[-0.2px] text-[var(--admin-text)]">
+              관리자 센터
+            </span>
+          </Link>
+
+          <Link
+            href="/"
+            className="flex min-h-10 items-center rounded-full bg-[var(--admin-accent-soft)] px-3 text-[13px] font-semibold text-[var(--admin-accent)] active:opacity-70"
+          >
+            앱 화면
           </Link>
         </div>
       </header>
 
       {children}
+
+      <AdminNavigation />
     </div>
   )
 }

@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { requireAdmin } from '@/lib/adminAuth'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
+import { AdminHeader, AdminPageShell } from '../components/AdminIOS'
 
 export const dynamic = 'force-dynamic'
 
@@ -332,21 +333,12 @@ export default async function AdminAnalyticsPage() {
   ])
 
   return (
-    <main className="ub-app-surface min-h-screen px-5 py-8">
-      <section className="mx-auto max-w-md">
-        <div className="mb-6">
-          <Link href="/admin" className="text-sm text-[#8E8E93]">
-            ← 관리자 홈으로
-          </Link>
-
-          <h1 className="mt-4 text-2xl font-bold text-black">
-            베타 운영 통계
-          </h1>
-
-          <p className="mt-2 text-sm leading-6 text-stone-600">
-            최근 14일 기준으로 참여, 글, 댓글, 반응, 신고 흐름을 확인합니다.
-          </p>
-        </div>
+    <AdminPageShell>
+        <AdminHeader
+          backHref="/admin"
+          title="운영 통계"
+          description="최근 14일 기준으로 참여, 글, 댓글, 반응, 신고 흐름을 확인합니다."
+        />
 
         {errors.length > 0 && (
           <div className="mb-5 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm leading-6 text-red-700">
@@ -535,7 +527,6 @@ export default async function AdminAnalyticsPage() {
             댓글 관리
           </Link>
         </div>
-      </section>
-    </main>
+    </AdminPageShell>
   )
 }

@@ -2,6 +2,11 @@ import Link from 'next/link'
 import { requireAdmin } from '@/lib/adminAuth'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
 import AdminContentActionButtons from '../components/AdminContentActionButtons'
+import {
+  AdminHeader,
+  AdminNotice,
+  AdminPageShell,
+} from '../components/AdminIOS'
 
 export const dynamic = 'force-dynamic'
 
@@ -126,37 +131,30 @@ export default async function AdminCommentsPage({
   ).length
 
   return (
-    <main className="ub-app-surface min-h-screen px-5 py-8">
-      <section className="mx-auto max-w-md">
-        <div className="mb-6">
-          <Link href="/admin" className="text-sm text-[#8E8E93]">
-            ← 관리자 홈으로
-          </Link>
+    <AdminPageShell>
+        <AdminHeader
+          backHref="/admin"
+          title="댓글 관리"
+          description="최근 댓글 100개를 확인하고 숨김, 삭제, 복구 처리합니다."
+        />
 
-          <h1 className="mt-4 text-2xl font-bold text-black">
-            전체 댓글 관리
-          </h1>
-
-          <p className="mt-2 text-sm leading-6 text-stone-600">
-            최근 댓글 100개를 확인하고 숨김, 삭제, 복구 처리합니다.
-          </p>
+        <div className="mb-5">
 
           {postId && (
             <Link
               href="/admin/comments"
-              className="mt-3 inline-block text-xs font-medium text-[#8E8E93] underline underline-offset-4"
+              className="inline-flex min-h-11 items-center text-[15px] font-semibold text-[var(--admin-accent)]"
             >
               전체 댓글 보기로 돌아가기
             </Link>
           )}
         </div>
 
-        <div className="mb-5 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-800">
-          <p className="font-semibold">운영자 주의</p>
-          <p className="mt-1">
+        <div className="mb-5">
+          <AdminNotice title="운영자 주의" tone="warning">
             댓글 작성자 이메일은 운영 목적에 한해서만 확인하세요.
             사용자 화면에는 계속 익명으로 표시됩니다.
-          </p>
+          </AdminNotice>
         </div>
 
         <div className="mb-6 grid grid-cols-3 gap-2">
@@ -198,8 +196,9 @@ export default async function AdminCommentsPage({
 
             return (
               <article
+                id={`comment-${comment.id}`}
                 key={comment.id}
-                className="rounded-2xl border border-white/70 bg-white/86 p-5 shadow-sm backdrop-blur-2xl"
+                className="scroll-mt-24 rounded-2xl border border-white/70 bg-white/86 p-5 shadow-sm backdrop-blur-2xl"
               >
                 <div className="mb-4 flex items-start justify-between gap-3">
                   <div>
@@ -282,7 +281,6 @@ export default async function AdminCommentsPage({
             </div>
           )}
         </div>
-      </section>
-    </main>
+    </AdminPageShell>
   )
 }

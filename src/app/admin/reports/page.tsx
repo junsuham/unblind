@@ -2,6 +2,11 @@ import Link from 'next/link'
 import { requireAdmin } from '@/lib/adminAuth'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
 import AdminModerationButtons from './AdminModerationButtons'
+import {
+  AdminHeader,
+  AdminNotice,
+  AdminPageShell,
+} from '../components/AdminIOS'
 
 export const dynamic = 'force-dynamic'
 
@@ -159,28 +164,18 @@ export default async function AdminReportsPage() {
   }
 
   return (
-    <main className="ub-app-surface min-h-screen px-5 py-8">
-      <section className="mx-auto max-w-md">
-        <div className="mb-6">
-          <Link href="/admin" className="text-sm text-[#8E8E93]">
-            ← 관리자 홈으로
-          </Link>
+    <AdminPageShell>
+        <AdminHeader
+          backHref="/admin"
+          title="신고 관리"
+          description="최근 신고 100건을 확인하고 글과 댓글을 조치합니다."
+        />
 
-          <h1 className="mt-4 text-2xl font-bold text-black">
-            신고 목록
-          </h1>
-
-          <p className="mt-2 text-sm leading-6 text-stone-600">
-            최근 신고 100건을 확인하고 글/댓글을 조치합니다.
-          </p>
-        </div>
-
-        <div className="mb-5 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-800">
-          <p className="font-semibold">운영자 주의</p>
-          <p className="mt-1">
+        <div className="mb-5">
+          <AdminNotice title="운영자 주의" tone="warning">
             작성자와 신고자 정보는 신고 처리와 안전 운영 목적으로만 확인하세요.
             외부 공유나 불필요한 열람은 피해야 합니다.
-          </p>
+          </AdminNotice>
         </div>
 
         {error && (
@@ -336,7 +331,6 @@ export default async function AdminReportsPage() {
             </div>
           )}
         </div>
-      </section>
-    </main>
+    </AdminPageShell>
   )
 }

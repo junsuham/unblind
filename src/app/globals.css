@@ -158,6 +158,125 @@ a {
   box-shadow: var(--ub-shadow-glass);
 }
 
+/* Administrator surfaces follow iOS grouped-list conventions. */
+.admin-ios-root {
+  --admin-bg: #f2f2f7;
+  --admin-card: #ffffff;
+  --admin-card-secondary: #f7f7fa;
+  --admin-text: #000000;
+  --admin-text-secondary: rgba(60, 60, 67, 0.68);
+  --admin-text-tertiary: rgba(60, 60, 67, 0.46);
+  --admin-separator: rgba(60, 60, 67, 0.16);
+  --admin-border: rgba(60, 60, 67, 0.12);
+  --admin-accent: #ff4b00;
+  --admin-accent-soft: rgba(255, 75, 0, 0.12);
+  --admin-danger: #ff3b30;
+  --admin-danger-soft: rgba(255, 59, 48, 0.12);
+  --admin-warning: #c65300;
+  --admin-warning-soft: rgba(255, 149, 0, 0.14);
+  --admin-success: #248a3d;
+  --admin-success-soft: rgba(52, 199, 89, 0.13);
+  --admin-pressed: rgba(60, 60, 67, 0.09);
+  min-height: 100vh;
+  background: var(--admin-bg);
+  color: var(--admin-text);
+  font-family: var(--ub-font-system);
+}
+
+.admin-ios-surface {
+  min-height: 100vh;
+  background: var(--admin-bg);
+  color: var(--admin-text);
+}
+
+.admin-ios-topbar,
+.admin-ios-tabbar {
+  border-color: var(--admin-separator);
+  background: rgba(249, 249, 249, 0.88);
+  -webkit-backdrop-filter: saturate(180%) blur(24px);
+  backdrop-filter: saturate(180%) blur(24px);
+}
+
+.admin-ios-topbar {
+  border-bottom-width: 0.5px;
+}
+
+.admin-ios-tabbar {
+  border-top-width: 0.5px;
+  box-shadow: 0 -10px 32px rgba(0, 0, 0, 0.05);
+}
+
+.admin-ios-card {
+  border: 0.5px solid var(--admin-border);
+  background: var(--admin-card);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.04);
+}
+
+.admin-ios-inset {
+  background: var(--admin-card-secondary);
+}
+
+.admin-ios-root .ub-app-surface {
+  background: transparent;
+  padding-bottom: calc(96px + env(safe-area-inset-bottom));
+}
+
+/* Older management screens inherit the same adaptive system colors. */
+.admin-ios-root .text-black,
+.admin-ios-root .text-stone-700 {
+  color: var(--admin-text) !important;
+}
+
+.admin-ios-root .text-stone-600,
+.admin-ios-root .text-stone-400,
+.admin-ios-root .text-\[\#8E8E93\] {
+  color: var(--admin-text-secondary) !important;
+}
+
+.admin-ios-root [class*="bg-white"] {
+  background-color: var(--admin-card) !important;
+}
+
+.admin-ios-root [class*="border-white/70"],
+.admin-ios-root [class*="border-stone-300"] {
+  border-color: var(--admin-border) !important;
+}
+
+.admin-ios-root [class*="bg-[#fff7f2]"] {
+  background-color: var(--admin-card-secondary) !important;
+}
+
+@media (prefers-color-scheme: dark) {
+  .admin-ios-root {
+    --admin-bg: #000000;
+    --admin-card: #1c1c1e;
+    --admin-card-secondary: #2c2c2e;
+    --admin-text: #ffffff;
+    --admin-text-secondary: rgba(235, 235, 245, 0.68);
+    --admin-text-tertiary: rgba(235, 235, 245, 0.46);
+    --admin-separator: rgba(84, 84, 88, 0.62);
+    --admin-border: rgba(84, 84, 88, 0.5);
+    --admin-accent: #ff7a45;
+    --admin-accent-soft: rgba(255, 122, 69, 0.16);
+    --admin-danger: #ff6961;
+    --admin-danger-soft: rgba(255, 69, 58, 0.17);
+    --admin-warning: #ffb340;
+    --admin-warning-soft: rgba(255, 159, 10, 0.16);
+    --admin-success: #30d158;
+    --admin-success-soft: rgba(48, 209, 88, 0.16);
+    --admin-pressed: rgba(235, 235, 245, 0.1);
+  }
+
+  .admin-ios-topbar,
+  .admin-ios-tabbar {
+    background: rgba(28, 28, 30, 0.88);
+  }
+
+  .admin-ios-card {
+    box-shadow: none;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
