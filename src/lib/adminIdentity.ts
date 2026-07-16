@@ -1,4 +1,4 @@
-const defaultAdminEmails = ['gkawnstn@gmail.com']
+const defaultAdminEmails = ['gkawnst95@gmail.com']
 
 function configuredAdminEmails() {
   const configured = process.env.ADMIN_EMAILS
