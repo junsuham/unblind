@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "dependencies": {
     "@supabase/supabase-js": "^2.110.5",
-    "expo": "~54.0.0",
+    "expo": "~54.0.36",
     "expo-constants": "~18.0.13",
     "expo-dev-client": "~6.0.21",
     "expo-device": "~8.0.10",

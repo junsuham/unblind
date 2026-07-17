@@ -35,12 +35,12 @@ export default function AdminLayout({
             </span>
           </Link>
 
-          <Link
-            href="/"
+          <a
+            href="/admin/exit"
             className="flex min-h-10 items-center rounded-full bg-[var(--admin-accent-soft)] px-3 text-[13px] font-semibold text-[var(--admin-accent)] active:opacity-70"
           >
             앱 화면
-          </Link>
+          </a>
         </div>
       </header>
 

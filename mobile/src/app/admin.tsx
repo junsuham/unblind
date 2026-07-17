@@ -23,7 +23,10 @@ export default function AdminScreen() {
     const requestUrl = new URL(request.url)
 
     if (requestUrl.origin === allowedOrigin) {
-      if (requestUrl.pathname === '/' && requestUrl.search === '') {
+      if (
+        requestUrl.pathname === '/admin/exit' ||
+        (requestUrl.pathname === '/' && requestUrl.search === '')
+      ) {
         router.replace('/(tabs)')
         return false
       }
