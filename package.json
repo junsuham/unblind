@@ -11,6 +11,7 @@
     "test": "vitest",
     "test:run": "vitest run",
     "env:check": "node scripts/validate-env.mjs",
+    "smoke:production": "node scripts/smoke-production.mjs",
     "check": "npm run env:check && npm run lint && npm run typecheck && npm run test:run && npm run build",
     "check:mobile": "npm --prefix mobile run lint && npm --prefix mobile run typecheck && npm --prefix mobile run doctor"
   },

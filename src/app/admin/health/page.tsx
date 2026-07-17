@@ -36,7 +36,7 @@ export default async function AdminHealthPage() {
   const oneDayAgoDate = new Date()
   oneDayAgoDate.setDate(oneDayAgoDate.getDate() - 1)
   const oneDayAgo = oneDayAgoDate.toISOString()
-  const [eventsResult, rolesResult] = await Promise.all([
+  const [eventsResult, fatalCount, errorCount, warningCount, totalCount, rolesResult] = await Promise.all([
     supabaseAdmin
       .from('app_events')
       .select('id, source, severity, name, message, release, route, created_at')
@@ -44,15 +44,20 @@ export default async function AdminHealthPage() {
       .order('created_at', { ascending: false })
       .limit(50)
       .returns<AppEvent[]>(),
+    supabaseAdmin.from('app_events').select('id', { count: 'exact', head: true }).gte('created_at', oneDayAgo).eq('severity', 'fatal'),
+    supabaseAdmin.from('app_events').select('id', { count: 'exact', head: true }).gte('created_at', oneDayAgo).eq('severity', 'error'),
+    supabaseAdmin.from('app_events').select('id', { count: 'exact', head: true }).gte('created_at', oneDayAgo).eq('severity', 'warning'),
+    supabaseAdmin.from('app_events').select('id', { count: 'exact', head: true }).gte('created_at', oneDayAgo),
     supabaseAdmin
       .from('admin_roles')
       .select('*', { count: 'exact', head: true })
       .eq('is_active', true),
   ])
   const events = eventsResult.data ?? []
-  const errors = events.filter((event) => event.severity === 'error').length
-  const fatals = events.filter((event) => event.severity === 'fatal').length
-  const warnings = events.filter((event) => event.severity === 'warning').length
+  const errors = errorCount.count ?? 0
+  const fatals = fatalCount.count ?? 0
+  const warnings = warningCount.count ?? 0
+  const databaseError = eventsResult.error ?? fatalCount.error ?? errorCount.error ?? warningCount.error ?? totalCount.error
 
   return (
     <AdminPageShell>
@@ -62,7 +67,7 @@ export default async function AdminHealthPage() {
         description="최근 24시간의 클라이언트 오류와 서버 연결 상태입니다."
       />
 
-      {eventsResult.error ? (
+      {databaseError ? (
         <div className="mb-6">
           <AdminNotice title="관측 테이블 연결 필요" tone="warning">
             새 Supabase 마이그레이션을 적용하면 오류 기록이 이 화면에 표시됩니다.
@@ -75,7 +80,8 @@ export default async function AdminHealthPage() {
           <AdminStatCard label="치명적 오류" value={fatals} tone={fatals ? 'danger' : 'success'} />
           <AdminStatCard label="오류" value={errors} tone={errors ? 'danger' : 'success'} />
           <AdminStatCard label="경고" value={warnings} tone={warnings ? 'warning' : 'success'} />
-          <AdminStatCard label="DB 연결" value={eventsResult.error ? '점검' : '정상'} tone={eventsResult.error ? 'warning' : 'success'} />
+          <AdminStatCard label="전체 이벤트" value={totalCount.count ?? 0} />
+          <AdminStatCard label="DB 연결" value={databaseError ? '점검' : '정상'} tone={databaseError ? 'warning' : 'success'} />
           <AdminStatCard label="활성 관리자" value={rolesResult.count ?? 0} />
           <AdminStatCard label="릴리스" value={process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 7) ?? 'local'} />
         </AdminStatGrid>

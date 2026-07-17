@@ -19,6 +19,8 @@ type Post = {
   reactions: { type: 'pray' | 'empathize' }[]
 }
 
+type PostCursor = { createdAt: string }
+
 const PAGE_SIZE = 20
 
 export function BoardFeed({ slug, showBack = false }: { slug: BoardSlug; showBack?: boolean }) {
@@ -30,7 +32,7 @@ export function BoardFeed({ slug, showBack = false }: { slug: BoardSlug; showBac
   const [loading, setLoading] = useState(true)
   const [loadingMore, setLoadingMore] = useState(false)
   const [hasMore, setHasMore] = useState(false)
-  const [nextOffset, setNextOffset] = useState(0)
+  const [cursor, setCursor] = useState<PostCursor | null>(null)
   const [error, setError] = useState('')
 
   const loadPage = useCallback(async (reset: boolean) => {
@@ -39,7 +41,7 @@ export function BoardFeed({ slug, showBack = false }: { slug: BoardSlug; showBac
     else setLoadingMore(true)
     setError('')
 
-    const offset = reset ? 0 : nextOffset
+    const pageCursor = reset ? null : cursor
     let request = supabase
       .from('posts')
       .select('id, author_user_id, title, content, created_at, view_count, comments(count), reactions(type)')
@@ -47,10 +49,11 @@ export function BoardFeed({ slug, showBack = false }: { slug: BoardSlug; showBac
       .eq('status', 'visible')
     const safeQuery = activeQuery.trim().replace(/[,%()]/g, ' ')
     if (safeQuery) request = request.or(`title.ilike.%${safeQuery}%,content.ilike.%${safeQuery}%`)
+    if (pageCursor) request = request.lt('created_at', pageCursor.createdAt)
 
     try {
       const [{ data, error: postsError }, { data: blockedRows, error: blocksError }] = await Promise.all([
-        request.order('created_at', { ascending: false }).range(offset, offset + PAGE_SIZE - 1),
+        request.order('created_at', { ascending: false }).limit(PAGE_SIZE),
         supabase.from('user_blocks').select('blocked_user_id'),
       ])
 
@@ -67,7 +70,8 @@ export function BoardFeed({ slug, showBack = false }: { slug: BoardSlug; showBac
         return [...current, ...nextPosts.filter((post) => !existing.has(post.id))]
       })
       setHasMore((data?.length ?? 0) === PAGE_SIZE)
-      setNextOffset(offset + (data?.length ?? 0))
+      const lastPost = data?.at(-1)
+      setCursor(lastPost ? { createdAt: lastPost.created_at } : null)
       reportMobileEvent({
         name: 'mobile.board_loaded',
         route: `/board/${slug}`,
@@ -81,7 +85,7 @@ export function BoardFeed({ slug, showBack = false }: { slug: BoardSlug; showBac
       setLoading(false)
       setLoadingMore(false)
     }
-  }, [activeQuery, nextOffset, slug])
+  }, [activeQuery, cursor, slug])
 
   useEffect(() => {
     // Initial and search-result remote hydration.

@@ -1,33 +1,24 @@
 import { NextResponse } from 'next/server'
+import { clearRequestRateLimit, consumeRequestRateLimit } from '@/lib/rateLimit'
 import { isSafeMutationRequest, secretsEqual } from '@/lib/security'
 
-const attempts = new Map<string, { count: number; resetAt: number }>()
-
-function getClientKey(request: Request) {
-  return request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown'
-}
-
-function isLocked(key: string) {
-  const now = Date.now()
-  const current = attempts.get(key)
-  if (!current || current.resetAt <= now) {
-    attempts.set(key, { count: 1, resetAt: now + 15 * 60_000 })
-    return false
-  }
-  current.count += 1
-  return current.count > 5
-}
+const LOGIN_RATE_LIMIT_BUCKET = 'admin.login'
 
 export async function POST(request: Request) {
   if (!isSafeMutationRequest(request)) {
     return NextResponse.json({ error: '허용되지 않은 요청입니다.' }, { status: 403 })
   }
 
-  const clientKey = getClientKey(request)
-  if (isLocked(clientKey)) {
+  const rateLimit = await consumeRequestRateLimit(request, {
+    bucket: LOGIN_RATE_LIMIT_BUCKET,
+    limit: 5,
+    windowSeconds: 15 * 60,
+  })
+
+  if (!rateLimit.allowed) {
     return NextResponse.json(
-      { error: '로그인 시도가 너무 많습니다. 잠시 후 다시 시도해주세요.' },
-      { status: 429, headers: { 'Retry-After': '900' } }
+      { error: rateLimit.unavailable ? '로그인 보안 확인을 완료하지 못했습니다. 잠시 후 다시 시도해주세요.' : '로그인 시도가 너무 많습니다. 잠시 후 다시 시도해주세요.' },
+      { status: rateLimit.unavailable ? 503 : 429, headers: { 'Retry-After': String(rateLimit.retryAfter) } }
     )
   }
 
@@ -51,7 +42,7 @@ export async function POST(request: Request) {
     )
   }
 
-  attempts.delete(clientKey)
+  await clearRequestRateLimit(LOGIN_RATE_LIMIT_BUCKET, rateLimit.keyHash)
 
   const response = NextResponse.json({ ok: true })
 

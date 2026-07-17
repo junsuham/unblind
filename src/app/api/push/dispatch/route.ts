@@ -176,7 +176,10 @@ export async function GET(request: Request) {
   if (!isAuthorized(request)) {
     return Response.json({ error: '허용되지 않은 요청입니다.' }, { status: 401 })
   }
-  return dispatchPendingNotifications()
+  const response = await dispatchPendingNotifications()
+  const { error } = await supabaseAdmin.rpc('prune_operational_data')
+  if (error) console.error('operational_prune_failed', error.message)
+  return response
 }
 
 export async function POST(request: NextRequest) {
