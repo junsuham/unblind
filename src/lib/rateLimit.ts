@@ -7,6 +7,7 @@ type RateLimitOptions = {
   bucket: string
   limit: number
   windowSeconds: number
+  identity?: string
 }
 
 type RateLimitRow = {
@@ -15,14 +16,14 @@ type RateLimitRow = {
   retry_after: number
 }
 
-function getKeyHash(request: Request) {
+function getKeyHash(request: Request, identity?: string) {
   const salt = process.env.ADMIN_SESSION_TOKEN ?? process.env.CRON_SECRET
   if (!salt) return null
-  return hashRateLimitKey(getRequestIdentity(request), salt)
+  return hashRateLimitKey(identity ?? getRequestIdentity(request), salt)
 }
 
 export async function consumeRequestRateLimit(request: Request, options: RateLimitOptions) {
-  const keyHash = getKeyHash(request)
+  const keyHash = getKeyHash(request, options.identity)
   if (!keyHash) return { allowed: false, remaining: 0, retryAfter: 60, keyHash: null, unavailable: true }
 
   const { data, error } = await supabaseAdmin.rpc('consume_rate_limit', {

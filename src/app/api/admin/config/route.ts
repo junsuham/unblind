@@ -22,9 +22,12 @@ export async function POST(request: NextRequest) {
   if (action === 'seed-tracks') {
     const tracks = Array.isArray(body.tracks) ? body.tracks.slice(0, 100) : []
     if (!tracks.length) return Response.json({ error: '저장할 곡이 없습니다.' }, { status: 400 })
-    await supabaseAdmin.from('top100_tracks').delete().gte('rank', 1)
-    const rows = tracks.map((track: { id: string; title: string; artist: string }, index: number) => ({ rank: index + 1, youtube_id: track.id, title: track.title, artist: track.artist, is_active: true }))
-    const { error } = await supabaseAdmin.from('top100_tracks').insert(rows)
+    const rows = tracks.map((track: { id: string; title: string; artist: string }) => ({
+      youtube_id: String(track.id ?? '').trim(),
+      title: String(track.title ?? '').trim(),
+      artist: String(track.artist ?? '').trim(),
+    }))
+    const { error } = await supabaseAdmin.rpc('replace_top100_tracks', { p_tracks: rows })
     return error ? Response.json({ error: error.message }, { status: 400 }) : Response.json({ ok: true })
   }
 

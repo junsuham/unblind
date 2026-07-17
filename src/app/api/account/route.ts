@@ -60,18 +60,10 @@ export async function DELETE(request: Request) {
     )
   }
 
-  const cleanupOperations = [
-    supabaseAdmin.from('posts').update({ author_user_id: null }).eq('author_user_id', user.id),
-    supabaseAdmin.from('comments').update({ author_user_id: null }).eq('author_user_id', user.id),
-    supabaseAdmin.from('reports').update({ reporter_user_id: null, reporter_email: null }).eq('reporter_user_id', user.id),
-    supabaseAdmin.from('post_author_links').delete().eq('user_id', user.id),
-    supabaseAdmin.from('comment_author_links').delete().eq('user_id', user.id),
-    supabaseAdmin.from('reactions').delete().eq('actor_key', user.id),
-    supabaseAdmin.from('allowed_users').delete().ilike('email', normalizedEmail),
-  ]
-
-  const cleanupResults = await Promise.all(cleanupOperations)
-  const cleanupError = cleanupResults.find((result) => result.error)?.error
+  const { error: cleanupError } = await supabaseAdmin.rpc('anonymize_account_data', {
+    p_user_id: user.id,
+    p_email: normalizedEmail,
+  })
 
   if (cleanupError) {
     await supabaseAdmin
