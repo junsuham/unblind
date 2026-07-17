@@ -1,5 +1,6 @@
+import { type NextRequest } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
-import { getRequestUser } from '@/lib/requestUser'
+import { isAdminRequest } from '@/lib/adminAuth'
 import {
   isMinuteWithinQuietHours,
   getSeoulMinute,
@@ -178,8 +179,9 @@ export async function GET(request: Request) {
   return dispatchPendingNotifications()
 }
 
-export async function POST(request: Request) {
-  const user = await getRequestUser(request)
-  if (!user) return Response.json({ error: '로그인이 필요합니다.' }, { status: 401 })
+export async function POST(request: NextRequest) {
+  if (!(await isAdminRequest(request))) {
+    return Response.json({ error: '관리자 권한이 필요합니다.' }, { status: 403 })
+  }
   return dispatchPendingNotifications()
 }

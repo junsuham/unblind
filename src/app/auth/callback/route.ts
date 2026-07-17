@@ -5,7 +5,7 @@ import {
   getSafeMobileAuthRedirect,
   MOBILE_AUTH_REDIRECT_COOKIE,
 } from '@/lib/mobileAuthRedirect'
-import { isAdminEmail } from '@/lib/adminIdentity'
+import { isAdminUser } from '@/lib/adminRole'
 import { SocialAgeError, verifyAndStoreSocialAge } from '@/lib/socialAge'
 
 const emailOtpTypes = new Set<EmailOtpType>([
@@ -125,11 +125,12 @@ export async function GET(request: NextRequest) {
 
     const session = authResult.data.session
     const user = session?.user
+    const admin = user ? await isAdminUser(user) : false
 
     if (
       code &&
       user &&
-      !isAdminEmail(user.email) &&
+      !admin &&
       safeNext !== '/admin'
     ) {
       if (!session.provider_token) {

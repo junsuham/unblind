@@ -4,7 +4,7 @@ import { requireBetaUser } from '@/lib/betaAuth'
 import { getRandomBibleVerse } from '@/lib/bibleVerses'
 import LogoutButton from '@/app/components/LogoutButton'
 import { SystemIcon } from '@/app/components/ui/SystemIcon'
-import { isAdminEmail } from '@/lib/adminIdentity'
+import { isAdminUser } from '@/lib/adminRole'
 import {
   AppShell,
   BottomTabBar,
@@ -38,6 +38,7 @@ type PopularPost = {
 export default async function HomePage() {
   const { supabase, user } = await requireBetaUser()
   const verse = getRandomBibleVerse()
+  const admin = await isAdminUser(user)
 
   const [{ data: popularPosts, error }, { count: unreadCount }, { data: blockedRows }] = await Promise.all([
     supabase
@@ -88,7 +89,7 @@ export default async function HomePage() {
               <SystemIcon name="bell" size={21} />
               {(unreadCount ?? 0) > 0 && <span className="absolute right-0 top-0 min-w-5 rounded-full bg-[#FF3B30] px-1 text-center text-[10px] font-bold leading-5 text-white">{Math.min(unreadCount ?? 0, 99)}</span>}
             </Link>
-            {isAdminEmail(user.email) && (
+            {admin && (
               <Link href="/admin" className="flex min-h-11 items-center gap-1.5 rounded-full bg-[var(--ub-surface-card)] px-3 text-[12px] font-semibold text-[var(--ub-color-brand)] shadow-sm">
                 <SystemIcon name="people" size={16} />
                 관리자

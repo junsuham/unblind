@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto'
-import { isAdminEmail } from '@/lib/adminIdentity'
+import { isAdminUser } from '@/lib/adminRole'
 import { getRequestUser } from '@/lib/requestUser'
 import { getVerifiedSocialAge } from '@/lib/socialAge'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
@@ -14,9 +14,10 @@ export async function GET(request: Request) {
   }
 
   const verifiedAge = getVerifiedSocialAge(user)
+  const admin = await isAdminUser(user)
 
   return Response.json({
-    isAdmin: isAdminEmail(user.email),
+    isAdmin: admin,
     ageVerified: Boolean(verifiedAge),
     referenceAge: verifiedAge?.referenceAge ?? null,
   })
@@ -37,7 +38,7 @@ export async function DELETE(request: Request) {
     )
   }
 
-  if (isAdminEmail(user.email)) {
+  if (await isAdminUser(user)) {
     return Response.json(
       { error: '관리자 계정은 다른 관리자를 지정한 뒤 삭제할 수 있습니다.' },
       { status: 400 }

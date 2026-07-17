@@ -1,13 +1,13 @@
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import type { NextRequest } from 'next/server'
-import { isAdminEmail } from '@/lib/adminIdentity'
+import { isAdminUser } from '@/lib/adminRole'
 import { getRequestUser } from '@/lib/requestUser'
+import { isSafeMutationRequest, secretsEqual } from '@/lib/security'
 import { createServerSupabase } from '@/lib/supabaseServer'
 
 function hasAdminCookie(currentToken: string | undefined) {
-  const expectedToken = process.env.ADMIN_SESSION_TOKEN
-  return Boolean(expectedToken && currentToken === expectedToken)
+  return secretsEqual(currentToken, process.env.ADMIN_SESSION_TOKEN)
 }
 
 export async function requireAdmin() {
@@ -21,14 +21,15 @@ export async function requireAdmin() {
     data: { user },
   } = await supabase.auth.getUser()
 
-  if (isAdminEmail(user?.email)) return
+  if (await isAdminUser(user)) return
 
   redirect('/admin/login')
 }
 
 export async function isAdminRequest(request: NextRequest) {
+  if (!isSafeMutationRequest(request)) return false
   if (hasAdminCookie(request.cookies.get('admin_session')?.value)) return true
 
   const user = await getRequestUser(request)
-  return isAdminEmail(user?.email)
+  return isAdminUser(user)
 }

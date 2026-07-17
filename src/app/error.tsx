@@ -1,10 +1,12 @@
 'use client'
 
+import { useEffect } from 'react'
 import {
   AppShell,
   GlassCard,
   PageHeader,
 } from '@/app/components/ui/AppShell'
+import { reportClientEvent } from '@/lib/clientTelemetry'
 
 type ErrorPageProps = {
   error: Error & { digest?: string }
@@ -12,6 +14,15 @@ type ErrorPageProps = {
 }
 
 export default function ErrorPage({ error, reset }: ErrorPageProps) {
+  useEffect(() => {
+    reportClientEvent({
+      name: 'web.error_boundary',
+      severity: 'error',
+      message: error.message,
+      fingerprint: error.digest,
+    })
+  }, [error])
+
   return (
     <AppShell>
       <PageHeader
@@ -25,8 +36,8 @@ export default function ErrorPage({ error, reset }: ErrorPageProps) {
           화면을 불러오는 중 문제가 발생했습니다.
         </p>
 
-        <p className="mt-3 break-words text-[15px] leading-[21px] text-[var(--ub-text-secondary)]">
-          {error.message}
+        <p className="mt-3 text-[15px] leading-[21px] text-[var(--ub-text-secondary)]">
+          오류가 반복되면 잠시 후 다시 시도해주세요.
         </p>
       </GlassCard>
 

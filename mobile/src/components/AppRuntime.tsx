@@ -1,11 +1,17 @@
 import * as Notifications from 'expo-notifications'
 import { router } from 'expo-router'
 import { PropsWithChildren, useEffect } from 'react'
+import { ConnectivityBanner } from '@/components/ConnectivityBanner'
 import { registerForPushNotifications } from '@/lib/pushNotifications'
+import { reportMobileEvent } from '@/lib/telemetry'
 import { useAuth } from '@/providers/AuthProvider'
 
 export function AppRuntime({ children }: PropsWithChildren) {
   const { session } = useAuth()
+
+  useEffect(() => {
+    reportMobileEvent({ name: 'mobile.app_started' })
+  }, [])
 
   useEffect(() => {
     if (session) registerForPushNotifications(false).catch(() => undefined)
@@ -21,5 +27,10 @@ export function AppRuntime({ children }: PropsWithChildren) {
     return () => subscription.remove()
   }, [])
 
-  return children
+  return (
+    <>
+      <ConnectivityBanner />
+      {children}
+    </>
+  )
 }

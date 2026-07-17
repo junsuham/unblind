@@ -264,6 +264,12 @@ export default async function AdminDashboardPage() {
 
       <AdminListGroup title="운영 상태">
         <AdminListRow
+          href="/admin/health"
+          title="앱 상태 및 오류"
+          subtitle="웹·앱 오류와 릴리스 상태를 확인합니다."
+          leading={<AdminIcon name="chart" className="h-6 w-6" />}
+        />
+        <AdminListRow
           href="/admin/actions"
           title="운영 조치 이력"
           subtitle="사용자와 콘텐츠에 적용한 조치를 확인합니다."

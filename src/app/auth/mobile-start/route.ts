@@ -4,7 +4,13 @@ import {
   MOBILE_AUTH_REDIRECT_COOKIE,
 } from '@/lib/mobileAuthRedirect'
 
-const SUPABASE_AUTH_HOST = 'ibnxhqnyuoihdnjfpgmb.supabase.co'
+function getSupabaseAuthHost() {
+  try {
+    return new URL(process.env.NEXT_PUBLIC_SUPABASE_URL ?? '').hostname
+  } catch {
+    return null
+  }
+}
 
 export function GET(request: NextRequest) {
   const requestUrl = new URL(request.url)
@@ -28,9 +34,17 @@ export function GET(request: NextRequest) {
   }
 
   const expectedCallback = new URL('/auth/callback', requestUrl.origin).toString()
+  const supabaseAuthHost = getSupabaseAuthHost()
+
+  if (!supabaseAuthHost) {
+    return new NextResponse('인증 서버 설정을 확인할 수 없습니다.', {
+      status: 503,
+    })
+  }
+
   const isSafeAuthUrl =
     authUrl.protocol === 'https:' &&
-    authUrl.hostname === SUPABASE_AUTH_HOST &&
+    authUrl.hostname === supabaseAuthHost &&
     authUrl.pathname === '/auth/v1/authorize' &&
     authUrl.searchParams.get('redirect_to') === expectedCallback
 

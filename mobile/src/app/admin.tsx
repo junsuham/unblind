@@ -4,6 +4,7 @@ import { ActivityIndicator, Linking, Pressable, Text, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import WebView, { type WebViewNavigation } from 'react-native-webview'
 import { useAppTheme } from '@/constants/design'
+import { shouldExitAdminWebView } from '@/lib/adminNavigation'
 import { webApiUrl } from '@/lib/api'
 import { useAuth } from '@/providers/AuthProvider'
 
@@ -20,13 +21,15 @@ export default function AdminScreen() {
   const allowedOrigin = new URL(webApiUrl).origin
 
   function handleNavigation(request: WebViewNavigation) {
-    const requestUrl = new URL(request.url)
+    let requestUrl: URL
+    try {
+      requestUrl = new URL(request.url)
+    } catch {
+      return false
+    }
 
     if (requestUrl.origin === allowedOrigin) {
-      if (
-        requestUrl.pathname === '/admin/exit' ||
-        (requestUrl.pathname === '/' && requestUrl.search === '')
-      ) {
+      if (shouldExitAdminWebView(request.url, allowedOrigin)) {
         router.replace('/(tabs)')
         return false
       }

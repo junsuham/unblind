@@ -53,3 +53,11 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## Release safety
+
+- Copy `.env.example` to a private environment file and run `npm run env:check`.
+- Run `npm run check` and `npm run check:mobile` before release.
+- Apply Supabase migrations in timestamp order.
+- Keep preview and production Supabase/EAS/Vercel environments isolated.
+- Follow `docs/RELEASE_PROCESS.md` for iPhone, OTA, rollback, and TestFlight checks.

@@ -23,12 +23,6 @@ type AuthContextValue = {
 
 const AuthContext = createContext<AuthContextValue | null>(null)
 const webAppUrl = process.env.EXPO_PUBLIC_WEB_API_URL ?? 'https://unblind-omega.vercel.app'
-const knownAdminEmails = new Set(['gkawnst95@gmail.com', 'gkawnstn95@gmail.com'])
-
-function isKnownAdminEmail(email: string | null | undefined) {
-  return Boolean(email && knownAdminEmails.has(email.trim().toLowerCase()))
-}
-
 function getSupportedSession(session: Session | null) {
   return session?.user.app_metadata?.provider === 'google' ? session : null
 }
@@ -80,8 +74,6 @@ export function AuthProvider({ children }: PropsWithChildren) {
   const refreshAccount = useCallback(async () => {
     const { data } = await supabase.auth.getSession()
     const token = data.session?.access_token
-    const knownAdmin = isKnownAdminEmail(data.session?.user.email)
-
     if (!token) {
       setAgeVerified(false)
       setIsAdmin(false)
@@ -95,9 +87,9 @@ export function AuthProvider({ children }: PropsWithChildren) {
       const result = await response.json().catch(() => null)
 
       setAgeVerified(Boolean(response.ok && result?.ageVerified))
-      setIsAdmin(Boolean(knownAdmin || (response.ok && result?.isAdmin)))
+      setIsAdmin(Boolean(response.ok && result?.isAdmin))
     } catch {
-      setIsAdmin(knownAdmin)
+      setIsAdmin(false)
     }
   }, [])
 
