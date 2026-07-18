@@ -81,6 +81,35 @@ a {
   outline-offset: 3px;
 }
 
+.ub-search-control,
+.ub-search-control:focus-within,
+.ub-search-input,
+.ub-search-input:focus,
+.ub-search-input:focus-visible,
+.ub-search-trigger:focus,
+.ub-search-trigger:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.ub-search-control {
+  color-scheme: light dark;
+}
+
+.ub-search-input {
+  appearance: none;
+  border: 0;
+  border-radius: 0;
+  caret-color: var(--ub-color-brand);
+}
+
+.ub-search-input::-webkit-search-decoration,
+.ub-search-input::-webkit-search-cancel-button,
+.ub-search-input::-webkit-search-results-button,
+.ub-search-input::-webkit-search-results-decoration {
+  -webkit-appearance: none;
+}
+
 ::selection {
   background: rgba(var(--ub-color-brand-rgb), 0.22);
 }

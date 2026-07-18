@@ -2,13 +2,14 @@ import { NextResponse } from 'next/server'
 import { searchChurches } from '@/lib/churchSearch'
 import {
   generateBiblicalNickname,
+  getReferenceAge,
   isEligibleReferenceAge,
   isOccupation,
 } from '@/lib/profile'
 import { getRequestUser } from '@/lib/requestUser'
-import { getVerifiedSocialAge } from '@/lib/socialAge'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
 import { guardMutation } from '@/lib/mutationGuard'
+import { AGREEMENT_VERSION } from '@/lib/agreement'
 
 export async function POST(request: Request) {
   const user = await getRequestUser(request)
@@ -27,6 +28,9 @@ export async function POST(request: Request) {
 
   const body = await request.json().catch(() => null)
   const occupation = body?.occupation
+  const birthDate =
+    typeof body?.birthDate === 'string' ? body.birthDate.trim() : ''
+  const agreementAccepted = body?.agreementAccepted === true
   const churchPlaceId =
     typeof body?.churchPlaceId === 'string' ? body.churchPlaceId : ''
   const churchName =
@@ -34,25 +38,25 @@ export async function POST(request: Request) {
   const churchAddress =
     typeof body?.churchAddress === 'string' ? body.churchAddress.trim() : ''
 
-  const verifiedAge = getVerifiedSocialAge(user)
+  const referenceAge = getReferenceAge(birthDate)
 
-  if (!verifiedAge) {
+  if (!agreementAccepted) {
     return NextResponse.json(
       {
-        code: 'AGE_VERIFICATION_REQUIRED',
-        error: '소셜 계정으로 연령 확인을 다시 진행해주세요.',
+        code: 'AGREEMENT_REQUIRED',
+        error: '앱 이용 안내와 개인정보 처리 내용을 모두 확인해주세요.',
       },
-      { status: 403 }
+      { status: 400 }
     )
   }
 
-  if (!isEligibleReferenceAge(verifiedAge.referenceAge)) {
+  if (!isEligibleReferenceAge(referenceAge)) {
     return NextResponse.json(
       {
         code: 'AGE_RESTRICTED',
-        error: '2026년도 기준 20세 이상 59세 이하만 가입할 수 있습니다.',
+        error: '유효한 생년월일을 입력해주세요. 2026년도 기준 20세 이상 59세 이하만 가입할 수 있습니다.',
       },
-      { status: 403 }
+      { status: 400 }
     )
   }
 
@@ -93,20 +97,23 @@ export async function POST(request: Request) {
     )
   }
 
+  const now = new Date().toISOString()
   const { error } = await supabaseAdmin.from('user_profiles').upsert(
     {
       user_id: user.id,
       email: user.email.toLowerCase(),
       nickname: generateBiblicalNickname(user.id),
-      birth_date: verifiedAge.birthDate,
-      reference_age: verifiedAge.referenceAge,
+      birth_date: birthDate,
+      reference_age: referenceAge,
       church_place_id: verifiedChurch.id,
       church_name: verifiedChurch.name,
       church_address: verifiedChurch.roadAddress || verifiedChurch.address,
       church_place_url: verifiedChurch.placeUrl,
       occupation,
-      completed_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
+      agreed_at: now,
+      agreed_version: AGREEMENT_VERSION,
+      completed_at: now,
+      updated_at: now,
     },
     { onConflict: 'user_id' }
   )
@@ -118,6 +125,20 @@ export async function POST(request: Request) {
       { error: '프로필을 저장하지 못했습니다. 잠시 후 다시 시도해주세요.' },
       { status: 500 }
     )
+  }
+
+  const { error: agreementSyncError } = await supabaseAdmin
+    .from('allowed_users')
+    .update({
+      agreed_at: now,
+      agreed_version: AGREEMENT_VERSION,
+      updated_at: now,
+    })
+    .ilike('email', user.email)
+    .eq('status', 'active')
+
+  if (agreementSyncError) {
+    console.warn('Profile agreement sync failed:', agreementSyncError.message)
   }
 
   return NextResponse.json({ ok: true })

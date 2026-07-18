@@ -91,13 +91,24 @@ export async function POST(request: NextRequest) {
     const hasSignedUp = authResult.users.some(
       (user) => user.email?.toLowerCase() === email
     )
+    let completedProfile: {
+      completed_at: string
+      reference_age: number
+      agreed_at: string | null
+      agreed_version: string | null
+    } | null = null
 
     if (hasSignedUp) {
       const { data: profile } = await supabaseAdmin
         .from('user_profiles')
-        .select('completed_at, reference_age')
+        .select('completed_at, reference_age, agreed_at, agreed_version')
         .ilike('email', email)
-        .maybeSingle<{ completed_at: string; reference_age: number }>()
+        .maybeSingle<{
+          completed_at: string
+          reference_age: number
+          agreed_at: string | null
+          agreed_version: string | null
+        }>()
 
       if (
         !profile?.completed_at ||
@@ -109,20 +120,32 @@ export async function POST(request: NextRequest) {
           { status: 400 }
         )
       }
+
+      completedProfile = profile
     }
 
     const request = supabaseAdmin
       .from('allowed_users')
 
+    const approvalValues = {
+      status: 'active',
+      memo: memo || null,
+      ...(completedProfile?.agreed_at
+        ? {
+            agreed_at: completedProfile.agreed_at,
+            agreed_version: completedProfile.agreed_version,
+          }
+        : {}),
+    }
+
     const { error } = storedEmail
       ? await request
-          .update({ status: 'active', memo: memo || null })
+          .update(approvalValues)
           .eq('email', storedEmail)
       : await request.upsert(
           {
             email,
-            status: 'active',
-            memo: memo || null,
+            ...approvalValues,
           },
           {
             onConflict: 'email',
@@ -186,7 +209,16 @@ export async function POST(request: NextRequest) {
       })
       .eq('email', storedEmail)
 
-    actionError = error
+    const { error: profileAgreementError } = await supabaseAdmin
+      .from('user_profiles')
+      .update({
+        agreed_at: null,
+        agreed_version: null,
+        updated_at: new Date().toISOString(),
+      })
+      .ilike('email', email)
+
+    actionError = error ?? profileAgreementError
   }
 
   if (action === 'remove') {

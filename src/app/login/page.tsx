@@ -67,8 +67,7 @@ export default function LoginPage() {
         provider,
         options: {
           redirectTo: `${siteUrl}/auth/callback?next=${encodeURIComponent(safeNext)}`,
-          scopes:
-            'openid email profile https://www.googleapis.com/auth/user.birthday.read',
+          scopes: 'openid email profile',
         },
       })
 

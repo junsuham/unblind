@@ -91,7 +91,7 @@ export function getReferenceAge(birthDate: string) {
   return PROFILE_REFERENCE_YEAR - year
 }
 
-export function isEligibleReferenceAge(age: number | null) {
+export function isEligibleReferenceAge(age: number | null): age is number {
   return age !== null && age >= MIN_PROFILE_AGE && age <= MAX_PROFILE_AGE
 }
 

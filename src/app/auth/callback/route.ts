@@ -5,8 +5,6 @@ import {
   getSafeMobileAuthRedirect,
   MOBILE_AUTH_REDIRECT_COOKIE,
 } from '@/lib/mobileAuthRedirect'
-import { isAdminUser } from '@/lib/adminRole'
-import { SocialAgeError, verifyAndStoreSocialAge } from '@/lib/socialAge'
 
 const emailOtpTypes = new Set<EmailOtpType>([
   'email',
@@ -123,32 +121,8 @@ export async function GET(request: NextRequest) {
         ? next
         : '/'
 
-    const session = authResult.data.session
-    const user = session?.user
-    const admin = user ? await isAdminUser(user) : false
-
-    if (
-      code &&
-      user &&
-      !admin &&
-      safeNext !== '/admin'
-    ) {
-      if (!session.provider_token) {
-        throw new SocialAgeError(
-          'AGE_INFORMATION_REQUIRED',
-          '소셜 계정의 연령 확인 권한을 받지 못했습니다. 다시 로그인해주세요.'
-        )
-      }
-
-      await verifyAndStoreSocialAge(user, session.provider_token)
-    }
-
     return NextResponse.redirect(new URL(safeNext, requestUrl.origin))
   } catch (error) {
-    if (error instanceof SocialAgeError) {
-      return NextResponse.redirect(getLoginUrl(requestUrl, error.message))
-    }
-
     console.error('Unexpected auth callback error:', error)
 
     return NextResponse.redirect(

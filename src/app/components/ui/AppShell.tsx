@@ -26,9 +26,9 @@ function TopLogoBar({ title }: { title?: string }) {
       <div className="mx-auto flex min-h-[56px] max-w-[430px] items-center justify-between gap-2">
         {searchOpen ? (
           <form action="/search" method="get" role="search" className="flex min-w-0 flex-1 items-center gap-2">
-            <label className="flex h-10 min-w-0 flex-1 items-center gap-2 rounded-full bg-white px-3 text-[#1c1c1e] shadow-sm">
-              <SystemIcon name="search" size={18} className="shrink-0 text-[#8e8e93]" />
-              <input ref={searchInputRef} name="q" type="search" placeholder="게시글 검색" className="min-w-0 flex-1 bg-transparent text-[15px] outline-none placeholder:text-[#8e8e93]" />
+            <label className="ub-search-control flex h-10 min-w-0 flex-1 items-center gap-2 rounded-full border border-[var(--ub-control-border)] bg-[var(--ub-surface-input)] px-3 text-[var(--ub-text-primary)] shadow-sm">
+              <SystemIcon name="search" size={18} className="shrink-0 text-[var(--ub-text-tertiary)]" />
+              <input ref={searchInputRef} name="q" type="search" aria-label="게시글 검색" placeholder="게시글 검색" className="ub-search-input min-w-0 flex-1 bg-transparent text-[15px] text-[var(--ub-text-primary)] outline-none placeholder:text-[var(--ub-text-tertiary)]" />
             </label>
             <button type="button" onClick={() => setSearchOpen(false)} className="h-10 shrink-0 px-1 text-[13px] font-semibold text-white">취소</button>
           </form>
@@ -56,7 +56,7 @@ function TopLogoBar({ title }: { title?: string }) {
             type="button"
             onClick={() => setSearchOpen(true)}
             aria-label="게시글 검색"
-            className="flex h-11 w-11 items-center justify-center rounded-full text-white active:bg-white/10"
+            className="ub-search-trigger flex h-11 w-11 items-center justify-center rounded-full text-white active:bg-white/10"
           >
             <SystemIcon name="search" size={23} />
           </button>

@@ -3,6 +3,8 @@
 import { FormEvent, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import {
+  getReferenceAge,
+  isEligibleReferenceAge,
   occupationLabels,
   type Occupation,
 } from '@/lib/profile'
@@ -18,14 +20,31 @@ type ChurchResult = {
 
 type ProfileSetupFormProps = {
   nickname: string
-  referenceAge: number
 }
+
+const onboardingGuides = [
+  {
+    id: 'privacy',
+    title: '개인정보와 익명성',
+    description: '생년월일·이메일·출석교회·현재 상태는 가입 확인과 안전한 운영에만 사용되며 다른 사용자에게 공개되지 않습니다.',
+  },
+  {
+    id: 'community',
+    title: '서로를 살리는 나눔',
+    description: '실명이나 개인을 특정할 정보, 공격·정죄·혐오 표현을 올리지 않고 고민과 기도제목을 중심으로 나눕니다.',
+  },
+  {
+    id: 'sharing',
+    title: '외부 공유와 운영 기준',
+    description: '게시글과 댓글을 외부에 공유하지 않으며, 신고 처리와 공동체 보호를 위한 운영자의 최소한의 확인에 동의합니다.',
+  },
+] as const
 
 export default function ProfileSetupForm({
   nickname,
-  referenceAge,
 }: ProfileSetupFormProps) {
   const router = useRouter()
+  const [birthDate, setBirthDate] = useState('')
   const [churchQuery, setChurchQuery] = useState('')
   const [churchResults, setChurchResults] = useState<ChurchResult[]>([])
   const [selectedChurch, setSelectedChurch] = useState<ChurchResult | null>(null)
@@ -33,6 +52,10 @@ export default function ProfileSetupForm({
   const [isSearching, setIsSearching] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
+  const [confirmedGuides, setConfirmedGuides] = useState<Record<string, boolean>>({})
+  const allGuidesConfirmed = onboardingGuides.every(
+    (guide) => confirmedGuides[guide.id]
+  )
 
   async function searchForChurch(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -67,6 +90,18 @@ export default function ProfileSetupForm({
   }
 
   async function submitProfile() {
+    const referenceAge = getReferenceAge(birthDate)
+
+    if (!isEligibleReferenceAge(referenceAge)) {
+      setErrorMessage('유효한 생년월일을 입력해주세요. 2026년도 기준 20세 이상 59세 이하만 가입할 수 있습니다.')
+      return
+    }
+
+    if (!allGuidesConfirmed) {
+      setErrorMessage('앱 이용 안내와 개인정보 처리 내용을 모두 확인해주세요.')
+      return
+    }
+
     if (!selectedChurch) {
       setErrorMessage('검색 결과에서 출석 교회를 선택해주세요.')
       return
@@ -84,10 +119,12 @@ export default function ProfileSetupForm({
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
+        birthDate,
         churchPlaceId: selectedChurch.id,
         churchName: selectedChurch.name,
         churchAddress: selectedChurch.roadAddress || selectedChurch.address,
         occupation,
+        agreementAccepted: true,
       }),
     })
     const result = await response.json().catch(() => null)
@@ -107,14 +144,43 @@ export default function ProfileSetupForm({
     <div className="space-y-5">
       <section className="rounded-[var(--ub-radius-xl)] border border-[var(--ub-glass-border)] bg-[var(--ub-surface-card)] p-5 text-[var(--ub-text-primary)] shadow-[var(--ub-shadow-card)] backdrop-blur-2xl">
         <p className="ios-caption font-semibold text-[var(--ub-color-brand)]">
-          소셜 계정 확인 완료
+          앱 안내사항
         </p>
-        <p className="mt-2 text-[18px] font-semibold tracking-[-0.2px]">
-          가입 가능 연령으로 확인했습니다
-        </p>
-        <p className="mt-2 ios-secondary">
-          2026년도 기준 {referenceAge}세입니다. 생년월일과 소셜 계정 정보는 다른 사용자에게 공개되지 않습니다.
-        </p>
+        <h2 className="mt-2 text-[19px] font-semibold tracking-[-0.2px]">
+          안전한 익명 공동체를 함께 만들어주세요
+        </h2>
+
+        <div className="mt-4 overflow-hidden rounded-[18px] border border-[var(--ub-separator)]">
+          {onboardingGuides.map((guide) => {
+            const checked = !!confirmedGuides[guide.id]
+
+            return (
+              <label
+                key={guide.id}
+                className="flex cursor-pointer items-start gap-3 border-b border-[var(--ub-separator)] bg-[var(--ub-surface-input)] px-4 py-4 last:border-b-0 active:bg-[var(--ub-surface-pressed)]"
+              >
+                <input
+                  type="checkbox"
+                  checked={checked}
+                  onChange={() => {
+                    setConfirmedGuides((current) => ({
+                      ...current,
+                      [guide.id]: !current[guide.id],
+                    }))
+                    setErrorMessage('')
+                  }}
+                  className="mt-0.5 h-5 w-5 shrink-0 accent-[var(--ub-color-brand)]"
+                />
+                <span className="min-w-0">
+                  <span className="block ios-title">{guide.title}</span>
+                  <span className="mt-1 block ios-secondary">
+                    {guide.description}
+                  </span>
+                </span>
+              </label>
+            )
+          })}
+        </div>
       </section>
 
       <section className="rounded-[var(--ub-radius-xl)] border border-[var(--ub-glass-border)] bg-[var(--ub-surface-card)] p-5 text-[var(--ub-text-primary)] shadow-[var(--ub-shadow-card)] backdrop-blur-2xl">
@@ -133,7 +199,26 @@ export default function ProfileSetupForm({
         <p className="ios-caption font-semibold text-[var(--ub-color-brand)]">
           기본 정보
         </p>
-        <h2 className="mt-2 ios-title">출석 교회를 검색해주세요</h2>
+
+        <label className="mt-4 block">
+          <span className="ios-title">생년월일</span>
+          <input
+            type="date"
+            value={birthDate}
+            min="1967-01-01"
+            max="2006-12-31"
+            onChange={(event) => {
+              setBirthDate(event.target.value)
+              setErrorMessage('')
+            }}
+            className="mt-3 min-h-[52px] w-full rounded-[16px] border border-[var(--ub-control-border)] bg-[var(--ub-surface-input)] px-4 ios-body text-[var(--ub-text-primary)] outline-none focus:border-[var(--ub-color-brand)]"
+          />
+        </label>
+        <p className="mt-2 ios-secondary">
+          2026년도 기준 20세 이상 59세 이하만 가입할 수 있습니다. 생년월일은 다른 사용자에게 공개되지 않습니다.
+        </p>
+
+        <h2 className="mt-6 ios-title">출석 교회를 검색해주세요</h2>
         <p className="mt-2 ios-secondary">
           지도 장소 데이터에 등록된 실제 교회 중 하나를 선택해야 합니다. 이름에서 ‘교회’는 생략해도 됩니다.
         </p>

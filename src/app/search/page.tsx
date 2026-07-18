@@ -31,9 +31,9 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   return (
     <AppShell bottomBar={<BottomTabBar />}>
       <form method="get" role="search" className="mb-4 flex gap-2">
-        <label className="flex min-h-12 min-w-0 flex-1 items-center gap-2 rounded-[16px] bg-white px-4 text-[var(--ub-text-primary)] shadow-sm">
+        <label className="ub-search-control flex min-h-12 min-w-0 flex-1 items-center gap-2 rounded-[16px] border border-[var(--ub-control-border)] bg-[var(--ub-surface-input)] px-4 text-[var(--ub-text-primary)] shadow-sm">
           <SystemIcon name="search" size={19} className="shrink-0 text-[var(--ub-text-tertiary)]" />
-          <input autoFocus name="q" defaultValue={query} placeholder="게시글 검색" className="min-w-0 flex-1 bg-transparent text-[15px] outline-none" />
+          <input autoFocus name="q" defaultValue={query} aria-label="게시글 검색" placeholder="게시글 검색" className="ub-search-input min-w-0 flex-1 bg-transparent text-[15px] text-[var(--ub-text-primary)] outline-none placeholder:text-[var(--ub-text-tertiary)]" />
         </label>
         <button className="min-h-12 rounded-[16px] bg-white/16 px-4 text-[13px] font-bold text-white">검색</button>
       </form>

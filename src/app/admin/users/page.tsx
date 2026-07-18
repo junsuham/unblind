@@ -38,6 +38,8 @@ type ProfileRow = {
   church_address: string
   occupation: Occupation
   completed_at: string
+  agreed_at: string | null
+  agreed_version: string | null
 }
 
 type ManagedUserRow = {
@@ -241,7 +243,7 @@ export default async function AdminUsersPage() {
     supabaseAdmin
       .from('user_profiles')
       .select(
-        'user_id, email, nickname, birth_date, reference_age, church_name, church_address, occupation, completed_at'
+        'user_id, email, nickname, birth_date, reference_age, church_name, church_address, occupation, completed_at, agreed_at, agreed_version'
       )
       .returns<ProfileRow[]>(),
   ])
@@ -284,7 +286,7 @@ export default async function AdminUsersPage() {
       memo: allowedUser?.memo ?? null,
       accessCreatedAt: allowedUser?.created_at ?? null,
       signedUpAt: authUser?.created_at ?? null,
-      agreedAt: allowedUser?.agreed_at ?? null,
+      agreedAt: profile?.agreed_at ?? allowedUser?.agreed_at ?? null,
       lastSeenAt:
         allowedUser?.last_seen_at ?? authUser?.last_sign_in_at ?? null,
       profileComplete: !!profile?.completed_at,
