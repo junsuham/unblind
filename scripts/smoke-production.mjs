@@ -52,7 +52,7 @@ await expectResponse('/manifest.webmanifest', async (response) => {
 
 await expectResponse('/sw.js', async (response) => {
   const body = await response.text()
-  if (!response.ok || !body.includes("WORKER_VERSION = '17'")) {
+  if (!response.ok || !body.includes("WORKER_VERSION = '18'")) {
     throw new Error('Service worker version is not current')
   }
   if (!response.headers.get('cache-control')?.includes('no-store')) {

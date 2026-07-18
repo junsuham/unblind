@@ -228,7 +228,14 @@ body:has(.ub-app-frame) {
 }
 
 .ub-app-tabbar {
-  min-height: calc(54px + env(safe-area-inset-bottom, 0px));
+  /*
+   * Keep the iOS home-indicator inset inside one explicit border-box.
+   * A min-height plus a fixed 54px child lets standalone WebKit count the
+   * bottom padding again while resolving the app-frame grid track.
+   */
+  box-sizing: border-box;
+  height: calc(55px + env(safe-area-inset-bottom, 0px));
+  min-height: 0;
   padding-bottom: env(safe-area-inset-bottom, 0px);
   background-color: var(--ub-tabbar-background);
   box-shadow: none;
