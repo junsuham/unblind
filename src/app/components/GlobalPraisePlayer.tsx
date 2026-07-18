@@ -3,6 +3,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { usePathname } from 'next/navigation'
 import { SystemIcon } from '@/app/components/ui/SystemIcon'
 import {
   OPEN_PRAISE_PLAYER_EVENT,
@@ -18,6 +19,7 @@ function formatPlaybackTime(value: number) {
 }
 
 export function GlobalPraisePlayer() {
+  const pathname = usePathname()
   const iframeRef = useRef<HTMLIFrameElement>(null)
   const [tracks, setTracks] = useState<PraisePlayerTrack[]>([])
   const [trackIndex, setTrackIndex] = useState(0)
@@ -43,6 +45,13 @@ export function GlobalPraisePlayer() {
     setPlaying(false)
     setOpen(false)
   }, [sendPlayerCommand])
+
+  useEffect(() => {
+    if (!pathname.startsWith('/praise')) return
+
+    const closeTimer = window.setTimeout(closePlayer, 0)
+    return () => window.clearTimeout(closeTimer)
+  }, [pathname, closePlayer])
 
   function togglePlayback() {
     const nextPlaying = !playing
@@ -126,7 +135,7 @@ export function GlobalPraisePlayer() {
     }
   }, [open, selectedTrack?.id, sendPlayerCommand])
 
-  if (!open || !selectedTrack) return null
+  if (!open || !selectedTrack || pathname.startsWith('/praise')) return null
 
   return (
     <div className="pointer-events-none fixed inset-x-0 top-[calc(env(safe-area-inset-top)+6px)] z-[80] flex justify-center px-3">
@@ -154,11 +163,6 @@ export function GlobalPraisePlayer() {
                 {selectedTrack.artist}
               </p>
             </div>
-            <span className="flex h-7 shrink-0 items-center gap-[2px] text-[#d38aaf]" aria-hidden>
-              {[8, 15, 22, 12, 18, 10].map((height, index) => (
-                <span key={`${height}-${index}`} className="w-[2px] rounded-full bg-current" style={{ height }} />
-              ))}
-            </span>
           </div>
 
           <div className="absolute right-3 top-3 flex gap-1">
@@ -199,10 +203,10 @@ export function GlobalPraisePlayer() {
             <span className="text-right">−{formatPlaybackTime(duration - currentTime)}</span>
           </div>
 
-          <div className="mt-1 grid grid-cols-[34px_1fr_54px_1fr] items-center gap-2 pr-7">
+          <div className="mt-1 grid grid-cols-[34px_1fr_54px_1fr] items-center gap-2">
             <Link
               href={praisePageHref}
-              onClick={() => setExpanded(false)}
+              onClick={closePlayer}
               aria-label="오・찬・추 페이지로 이동"
               title="오・찬・추 페이지"
               className="flex h-8 w-8 items-center justify-center rounded-full text-white/70 active:bg-white/10 active:text-white"
@@ -235,7 +239,6 @@ export function GlobalPraisePlayer() {
             </button>
           </div>
 
-          <SystemIcon name="speaker" size={21} className="absolute bottom-[27px] right-4 text-white/62" />
         </section>
       ) : (
         <section className="ub-player-card pointer-events-auto flex h-[48px] w-full max-w-[280px] items-center gap-2 rounded-full border border-white/10 bg-black/95 p-1.5 pr-2 text-white shadow-[0_14px_40px_rgba(0,0,0,0.38)] backdrop-blur-2xl">
@@ -269,7 +272,7 @@ export function GlobalPraisePlayer() {
           </button>
           <Link
             href={praisePageHref}
-            onClick={() => setExpanded(false)}
+            onClick={closePlayer}
             aria-label="오・찬・추 페이지로 이동"
             title="오・찬・추 페이지"
             className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-white/55 active:bg-white/10"

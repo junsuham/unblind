@@ -23,9 +23,14 @@ export async function POST(request: Request) {
   if (blocked) return blocked
   const body = await request.json().catch(() => null)
 
-  if (body?.action === 'join') {
+  if (body?.action === 'join' || body?.action === 'find') {
     const { error } = await supabaseAdmin.from('manitto_participants').upsert({ user_id: user.id, is_active: true, updated_at: new Date().toISOString() })
-    return error ? Response.json({ error: '마니또 참여 상태를 변경하지 못했습니다.' }, { status: 400 }) : Response.json({ ok: true })
+    if (error) {
+      return Response.json({ error: '마니또 참여 상태를 변경하지 못했습니다.' }, { status: 400 })
+    }
+
+    const manitto = await getWeeklyManitto(user.id)
+    return Response.json({ ok: true, manitto })
   }
 
   if (body?.action === 'leave') {

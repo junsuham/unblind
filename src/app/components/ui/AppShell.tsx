@@ -18,23 +18,19 @@ function TopLogoBar({ title }: { title?: string }) {
   const searchInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
-    if (searchOpen) searchInputRef.current?.focus()
+    if (!searchOpen) return
+
+    const focusFrame = window.requestAnimationFrame(() => {
+      searchInputRef.current?.focus()
+    })
+
+    return () => window.cancelAnimationFrame(focusFrame)
   }, [searchOpen])
 
   return (
     <div className="ub-logo-surface -mx-4 -mt-[calc(18px+env(safe-area-inset-top))] mb-4 border-b border-white/18 px-4 pt-[env(safe-area-inset-top)]">
-      <div className="mx-auto flex min-h-[56px] max-w-[430px] items-center justify-between gap-2">
-        {searchOpen ? (
-          <form action="/search" method="get" role="search" className="flex min-w-0 flex-1 items-center gap-2">
-            <label className="ub-search-control flex h-10 min-w-0 flex-1 items-center gap-2 rounded-full border border-[var(--ub-control-border)] bg-[var(--ub-surface-input)] px-3 text-[var(--ub-text-primary)] shadow-sm">
-              <SystemIcon name="search" size={18} className="shrink-0 text-[var(--ub-text-tertiary)]" />
-              <input ref={searchInputRef} name="q" type="search" aria-label="게시글 검색" placeholder="게시글 검색" className="ub-search-input min-w-0 flex-1 bg-transparent text-[15px] text-[var(--ub-text-primary)] outline-none placeholder:text-[var(--ub-text-tertiary)]" />
-            </label>
-            <button type="button" onClick={() => setSearchOpen(false)} className="h-10 shrink-0 px-1 text-[13px] font-semibold text-white">취소</button>
-          </form>
-        ) : (
-          <>
-        <div className="flex min-w-0 items-center gap-2">
+      <div className="mx-auto flex min-h-[56px] max-w-[430px] items-center gap-1">
+        <div className="flex min-w-0 shrink-0 items-center gap-2">
           <Link
             href="/"
             aria-label="언블라인드 홈으로 이동"
@@ -48,28 +44,67 @@ function TopLogoBar({ title }: { title?: string }) {
               className="block h-[42px] w-[42px]"
             />
           </Link>
-          {title && <span className="truncate text-[22px] font-extrabold tracking-[-0.6px] text-white">{title}</span>}
+          {title && (
+            <span
+              className={`overflow-hidden whitespace-nowrap text-[22px] font-extrabold tracking-[-0.6px] text-white transition-[max-width,opacity] duration-200 ease-out ${
+                searchOpen ? 'max-w-0 opacity-0' : 'max-w-[180px] opacity-100'
+              }`}
+            >
+              {title}
+            </span>
+          )}
         </div>
 
-        <div className="flex shrink-0 items-center">
-          <button
-            type="button"
-            onClick={() => setSearchOpen(true)}
-            aria-label="게시글 검색"
-            className="ub-search-trigger flex h-11 w-11 items-center justify-center rounded-full text-white active:bg-white/10"
-          >
-            <SystemIcon name="search" size={23} />
-          </button>
+        <div className="ml-auto flex min-w-0 flex-1 items-center justify-end">
+          {searchOpen ? (
+            <form
+              action="/search"
+              method="get"
+              role="search"
+              className="ub-top-search min-w-0 flex-1"
+            >
+              <div className="ub-search-control flex h-10 min-w-0 items-center gap-2 rounded-full border border-[var(--ub-control-border)] bg-[var(--ub-surface-input)] pl-3 pr-1 text-[var(--ub-text-primary)] shadow-sm">
+                <SystemIcon
+                  name="search"
+                  size={18}
+                  className="shrink-0 text-[var(--ub-text-tertiary)]"
+                />
+                <input
+                  ref={searchInputRef}
+                  name="q"
+                  type="search"
+                  aria-label="게시글 검색"
+                  placeholder="게시글 검색"
+                  className="ub-search-input min-w-0 flex-1 bg-transparent text-[15px] text-[var(--ub-text-primary)] outline-none placeholder:text-[var(--ub-text-tertiary)]"
+                />
+                <button
+                  type="button"
+                  onClick={() => setSearchOpen(false)}
+                  aria-label="검색창 닫기"
+                  className="ub-search-trigger flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[var(--ub-text-tertiary)] active:bg-[var(--ub-surface-pressed)]"
+                >
+                  <SystemIcon name="close" size={16} />
+                </button>
+              </div>
+            </form>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setSearchOpen(true)}
+              aria-label="게시글 검색"
+              className="ub-search-trigger flex h-11 w-11 items-center justify-center rounded-full text-white active:bg-white/10"
+            >
+              <SystemIcon name="search" size={23} />
+            </button>
+          )}
           <Link
             href="/activity"
             aria-label="내 정보"
-            className="flex h-11 w-11 items-center justify-center rounded-full text-white active:bg-white/10"
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-white active:bg-white/10"
           >
             <SystemIcon name="person" size={25} />
           </Link>
         </div>
-          </>
-        )}
       </div>
     </div>
   )
@@ -515,7 +550,13 @@ export function BottomTabBar({ active }: BottomTabBarProps) {
               <span
                 className={isWrite ? 'text-[var(--ub-color-brand)]' : 'text-white'}
               >
-                {tab.icon && <SystemIcon name={tab.icon} size={isWrite ? 24 : 21} filled={isBoard && isActive} />}
+                {tab.icon && (
+                  <SystemIcon
+                    name={tab.icon}
+                    size={isWrite ? 24 : 22}
+                    filled={isActive && !isWrite}
+                  />
+                )}
               </span>
 
               <span

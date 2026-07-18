@@ -24,4 +24,11 @@ describe('inline search appearance', () => {
     expect(appShell).toContain('border-[var(--ub-control-border)]')
     expect(globalStyles).toContain('color-scheme: light dark;')
   })
+
+  it('keeps the logo visible and expands only inside the remaining header space', () => {
+    expect(appShell).toContain('ub-top-search min-w-0 flex-1')
+    expect(appShell).toContain('searchOpen ? \'max-w-0 opacity-0\'')
+    expect(globalStyles).toContain('@keyframes ub-search-expand')
+    expect(globalStyles).toContain('transform-origin: right center;')
+  })
 })

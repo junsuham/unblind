@@ -8,7 +8,9 @@ import {
 import { AppShell, BottomTabBar, NoticeCard } from '@/app/components/ui/AppShell'
 import { SystemIcon } from '@/app/components/ui/SystemIcon'
 import { HomePraisePlayer } from '@/app/components/HomePraisePlayer'
+import { HomeManittoFinder } from '@/app/components/HomeManittoFinder'
 import { HomeBibleVerse } from '@/app/components/HomeBibleVerse'
+import { getWeeklyManitto } from '@/lib/manitto'
 
 export const dynamic = 'force-dynamic'
 
@@ -66,6 +68,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
     { data: posts, error },
     { data: blockedRows },
     { data: praiseTracks },
+    manitto,
   ] = await Promise.all([
     postsQuery.limit(30).returns<FeedPost[]>(),
     supabase
@@ -79,6 +82,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
       .order('rank', { ascending: true })
       .limit(10)
       .returns<HomePraiseRow[]>(),
+    getWeeklyManitto(user.id),
   ])
 
   const blockedIds = new Set(
@@ -94,10 +98,8 @@ export default async function HomePage({ searchParams }: HomePageProps) {
 
       <section className="mb-4" aria-labelledby="unblind-app-shortcuts">
         <p id="unblind-app-shortcuts" className="mb-1.5 px-1 text-[9px] font-bold tracking-[0.08em] text-white/58">언블라인드 앱</p>
-        <div className="grid grid-cols-2 gap-2">
-          <Link href="/manitto" className="flex min-h-[34px] min-w-0 items-center justify-center whitespace-nowrap rounded-[10px] border border-white/12 bg-white/8 px-2 text-[11px] font-semibold leading-none text-white/86 active:bg-white/14">
-            🎁 마니또 찾기
-          </Link>
+        <div className="overflow-hidden rounded-[22px] bg-[var(--ub-surface-card-strong)] shadow-[var(--ub-shadow-soft)]">
+          <HomeManittoFinder initialState={manitto} />
           <HomePraisePlayer
             initialTracks={(praiseTracks ?? []).map((track) => ({
               id: track.youtube_id,
@@ -108,42 +110,42 @@ export default async function HomePage({ searchParams }: HomePageProps) {
         </div>
       </section>
 
-      <nav
-        aria-label="게시글 정렬"
-        className="mb-3 grid w-[136px] grid-cols-2 gap-1.5"
-      >
-        <Link
-          href="/?sort=latest"
-          aria-current={sort === 'latest' ? 'page' : undefined}
-          className={sort === 'latest'
-            ? 'flex min-h-[28px] min-w-0 items-center justify-center whitespace-nowrap rounded-[9px] bg-white px-2 text-[10px] font-bold leading-none text-[#fc5230] shadow-sm'
-            : 'flex min-h-[28px] min-w-0 items-center justify-center whitespace-nowrap rounded-[9px] border border-white/12 bg-black/10 px-2 text-[10px] font-semibold leading-none text-white/72'}
-        >
-          최신순
-        </Link>
-        <Link
-          href="/?sort=popular"
-          aria-current={sort === 'popular' ? 'page' : undefined}
-          className={sort === 'popular'
-            ? 'flex min-h-[28px] min-w-0 items-center justify-center whitespace-nowrap rounded-[9px] bg-white px-2 text-[10px] font-bold leading-none text-[#fc5230] shadow-sm'
-            : 'flex min-h-[28px] min-w-0 items-center justify-center whitespace-nowrap rounded-[9px] border border-white/12 bg-black/10 px-2 text-[10px] font-semibold leading-none text-white/72'}
-        >
-          인기순
-        </Link>
-      </nav>
-
-      {error && (
-        <div className="mb-4">
-          <NoticeCard title="글을 불러오지 못했습니다" tone="danger">
-            잠시 후 다시 확인해주세요.
-          </NoticeCard>
-        </div>
-      )}
-
       <section
         aria-label={sort === 'popular' ? '인기 게시글' : '최신 게시글'}
         className="overflow-hidden rounded-[22px] bg-[var(--ub-surface-card-strong)] shadow-[var(--ub-shadow-soft)]"
       >
+        <nav
+          aria-label="게시글 정렬"
+          className="flex items-center gap-1.5 border-b border-[var(--ub-separator)] px-4 py-3"
+        >
+          <Link
+            href="/?sort=latest"
+            aria-current={sort === 'latest' ? 'page' : undefined}
+            className={sort === 'latest'
+              ? 'flex min-h-[30px] min-w-[58px] items-center justify-center whitespace-nowrap rounded-[10px] bg-[var(--ub-color-brand)] px-3 text-[11px] font-bold leading-none text-white shadow-sm'
+              : 'flex min-h-[30px] min-w-[58px] items-center justify-center whitespace-nowrap rounded-[10px] bg-[var(--ub-surface-muted)] px-3 text-[11px] font-semibold leading-none text-[var(--ub-text-secondary)]'}
+          >
+            최신순
+          </Link>
+          <Link
+            href="/?sort=popular"
+            aria-current={sort === 'popular' ? 'page' : undefined}
+            className={sort === 'popular'
+              ? 'flex min-h-[30px] min-w-[58px] items-center justify-center whitespace-nowrap rounded-[10px] bg-[var(--ub-color-brand)] px-3 text-[11px] font-bold leading-none text-white shadow-sm'
+              : 'flex min-h-[30px] min-w-[58px] items-center justify-center whitespace-nowrap rounded-[10px] bg-[var(--ub-surface-muted)] px-3 text-[11px] font-semibold leading-none text-[var(--ub-text-secondary)]'}
+          >
+            인기순
+          </Link>
+        </nav>
+
+        {error && (
+          <div className="p-4">
+            <NoticeCard title="글을 불러오지 못했습니다" tone="danger">
+              잠시 후 다시 확인해주세요.
+            </NoticeCard>
+          </div>
+        )}
+
         {visiblePosts.map((post) => {
           const board = getBoardPresentation(post.board)
           const commentCount = post.comments?.[0]?.count ?? 0

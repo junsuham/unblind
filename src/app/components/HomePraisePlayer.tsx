@@ -5,6 +5,7 @@ import {
   OPEN_PRAISE_PLAYER_EVENT,
   type PraisePlayerTrack,
 } from '@/app/components/praisePlayerEvents'
+import { SystemIcon } from '@/app/components/ui/SystemIcon'
 
 type HomePraisePlayerProps = {
   initialTracks: PraisePlayerTrack[]
@@ -24,9 +25,18 @@ export function HomePraisePlayer({ initialTracks }: HomePraisePlayerProps) {
           detail: { tracks: playlist },
         }))
       }}
-      className="flex min-h-[34px] min-w-0 items-center justify-center whitespace-nowrap rounded-[10px] border border-white/12 bg-white/8 px-2 text-[11px] font-semibold leading-none text-white/86 active:bg-white/14 disabled:text-white/45"
+      className="flex min-h-[68px] w-full items-center gap-3 border-t border-[var(--ub-separator)] px-4 py-3 text-left text-[var(--ub-text-primary)] active:bg-[var(--ub-surface-pressed)] disabled:opacity-60"
     >
-      📀 오늘의 찬양
+      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[13px] bg-[var(--ub-surface-brand-soft)] text-[var(--ub-color-brand)]">
+        <SystemIcon name="disc" size={21} />
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="block text-[15px] font-bold tracking-[-0.2px]">오늘의 찬양</span>
+        <span className="mt-0.5 block truncate text-[11px] text-[var(--ub-text-secondary)]">
+          홈에서 바로 재생하기
+        </span>
+      </span>
+      <span className="text-[22px] leading-none text-[var(--ub-text-tertiary)]" aria-hidden>›</span>
     </button>
   )
 }

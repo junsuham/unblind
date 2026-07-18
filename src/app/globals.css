@@ -110,6 +110,24 @@ a {
   -webkit-appearance: none;
 }
 
+@keyframes ub-search-expand {
+  from {
+    opacity: 0;
+    clip-path: inset(0 0 0 86% round 999px);
+    transform: translateX(6px);
+  }
+  to {
+    opacity: 1;
+    clip-path: inset(0 0 0 0 round 999px);
+    transform: translateX(0);
+  }
+}
+
+.ub-top-search {
+  animation: ub-search-expand 280ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  transform-origin: right center;
+}
+
 ::selection {
   background: rgba(var(--ub-color-brand-rgb), 0.22);
 }
@@ -272,6 +290,7 @@ body:has(.ub-app-frame) {
   box-shadow: none;
   isolation: isolate;
   transform: translate3d(0, 0, 0);
+  border-radius: 20px 20px 0 0;
 }
 
 .ub-home-quick-menu {
@@ -327,6 +346,19 @@ body:has(.ub-app-frame) {
 @keyframes ub-player-card-in {
   from { opacity: 0; transform: translateY(-18px) scale(0.94); }
   to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes ub-manitto-dialog-in {
+  from { opacity: 0; transform: translateY(14px) scale(0.95); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.ub-manitto-dialog-backdrop {
+  animation: ub-player-backdrop-in 180ms ease-out both;
+}
+
+.ub-manitto-dialog {
+  animation: ub-manitto-dialog-in 300ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 .ub-player-backdrop {
