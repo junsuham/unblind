@@ -10,6 +10,7 @@
 
 :root {
   color-scheme: light dark;
+  --ub-tabbar-background: #f5f5f7;
 }
 
 html {
@@ -21,6 +22,10 @@ html {
 @media (prefers-color-scheme: dark) {
   html {
     background: #1c1c1e;
+  }
+
+  :root {
+    --ub-tabbar-background: #1c1c1e;
   }
 }
 
@@ -188,32 +193,47 @@ a {
 }
 
 html.ub-splash-active,
-html.ub-splash-active body {
+html.ub-splash-active body,
+html:has(.ub-launch-splash),
+body:has(.ub-launch-splash) {
   background: #ff5133 !important;
 }
 
+.ub-app-frame {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  width: 100%;
+  overflow: hidden;
+  background: var(--ub-tabbar-background);
+  isolation: isolate;
+}
+
+.ub-app-scroll {
+  min-width: 0;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+html:has(.ub-app-frame),
+body:has(.ub-app-frame) {
+  height: 100%;
+  min-height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
+  background: var(--ub-tabbar-background);
+}
+
 .ub-app-tabbar {
-  --ub-tabbar-background: #f5f5f7;
-  bottom: 0;
-  height: 54px;
-  padding-bottom: 0;
+  min-height: calc(54px + env(safe-area-inset-bottom, 0px));
+  padding-bottom: env(safe-area-inset-bottom, 0px);
   background-color: var(--ub-tabbar-background);
   box-shadow: none;
   isolation: isolate;
   transform: translate3d(0, 0, 0);
-}
-
-/* Fill only a possible fractional paint gap below the fixed bar. This does
-   not add layout height, so the controls stay anchored to the first frame. */
-.ub-app-tabbar::after {
-  position: absolute;
-  z-index: -1;
-  top: 100%;
-  right: 0;
-  left: 0;
-  height: 2px;
-  background: var(--ub-tabbar-background);
-  content: "";
 }
 
 .ub-home-quick-menu {
@@ -234,13 +254,8 @@ html.ub-splash-active body {
   padding-bottom: max(4px, env(safe-area-inset-bottom));
 }
 
-.ub-bottom-fade {
-  bottom: 0;
-}
-
 @media (prefers-color-scheme: dark) {
   .ub-app-tabbar {
-    --ub-tabbar-background: #1c1c1e;
     box-shadow: none;
   }
 }
@@ -354,20 +369,11 @@ html.ub-splash-active body {
 
 .ub-app-surface {
   background: var(--ub-app-background);
-  min-height: 100dvh;
+  min-height: 0;
 }
 
 .ub-logo-surface {
   background: var(--ub-surface-logo);
-}
-
-.ub-bottom-fade {
-  background: linear-gradient(
-    to top,
-    var(--ub-surface-app),
-    color-mix(in srgb, var(--ub-surface-app) 82%, transparent),
-    transparent
-  );
 }
 
 .ub-provider-google {

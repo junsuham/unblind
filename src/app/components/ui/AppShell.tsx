@@ -82,19 +82,18 @@ export function AppShell({
   topTitle,
 }: AppShellProps) {
   return (
-    <main className="ub-app-surface min-h-[100dvh] overflow-x-hidden px-4 pb-[calc(112px+env(safe-area-inset-bottom))] pt-[calc(18px+env(safe-area-inset-top))] text-[var(--ub-text-on-brand-primary)]">
-      {showTopLogo && <TopLogoBar title={topTitle} />}
+    <div className="ub-app-frame">
+      <main
+        className={`ub-app-scroll ub-app-surface overflow-x-hidden px-4 pt-[calc(18px+env(safe-area-inset-top))] text-[var(--ub-text-on-brand-primary)] ${bottomBar ? 'pb-6' : 'pb-[calc(24px+env(safe-area-inset-bottom))]'}`}
+      >
+        {showTopLogo && <TopLogoBar title={topTitle} />}
 
-      <section className="mx-auto max-w-[430px]">
-        {children}
-      </section>
-
-      {bottomBar && (
-        <div className="ub-bottom-fade pointer-events-none fixed inset-x-0 bottom-0 z-30 h-32" />
-      )}
-
+        <section className="mx-auto max-w-[430px]">
+          {children}
+        </section>
+      </main>
       {bottomBar}
-    </main>
+    </div>
   )
 }
 
@@ -490,8 +489,8 @@ export function BottomTabBar({ active }: BottomTabBarProps) {
   }
 
   return (
-    <nav className="ub-app-tabbar fixed inset-x-0 z-40 flex justify-center border-t border-[var(--ub-separator)] bg-[var(--ub-surface-glass)] backdrop-blur-2xl">
-      <div className="grid min-h-[54px] w-full max-w-[430px] grid-cols-6 items-center overflow-visible px-1">
+    <nav className="ub-app-tabbar relative z-40 flex w-full shrink-0 justify-center border-t border-[var(--ub-separator)] backdrop-blur-2xl">
+      <div className="grid h-[54px] w-full max-w-[430px] grid-cols-6 items-center overflow-visible px-1">
         {bottomTabs.map((tab) => {
           const isActive = active === tab.key
           const isBoard = tab.key === 'prayer' || tab.key === 'faith' || tab.key === 'daily'
