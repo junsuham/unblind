@@ -4,6 +4,7 @@ import { AppLaunchSplash } from "@/app/components/AppLaunchSplash";
 import { GlobalPraisePlayer } from "@/app/components/GlobalPraisePlayer";
 import { ConnectionStatus } from "@/app/components/ConnectionStatus";
 import { WebVitalsReporter } from "@/app/components/WebVitalsReporter";
+import { StandaloneViewportBoundary } from "@/app/components/StandaloneViewportBoundary";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -49,6 +50,7 @@ export default function RootLayout({
   return (
     <html lang="ko">
       <body>
+        <StandaloneViewportBoundary />
         <AppLaunchSplash />
         {children}
         <GlobalPraisePlayer />
