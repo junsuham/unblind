@@ -2,6 +2,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import type { Metadata } from 'next'
 import AdminNavigation from './components/AdminNavigation'
+import { AdminIcon } from './components/AdminIcon'
 
 export const metadata: Metadata = {
   title: '관리자 센터 | 언블라인드',
@@ -37,9 +38,11 @@ export default function AdminLayout({
 
           <a
             href="/admin/exit"
-            className="flex min-h-10 items-center rounded-full bg-[var(--admin-accent-soft)] px-3 text-[13px] font-semibold text-[var(--admin-accent)] active:opacity-70"
+            aria-label="앱 홈 화면으로 이동"
+            title="앱 홈 화면"
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--admin-accent-soft)] text-[var(--admin-accent)] active:opacity-70"
           >
-            앱 화면
+            <AdminIcon name="home" className="h-5 w-5" />
           </a>
         </div>
       </header>

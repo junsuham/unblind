@@ -1,44 +1,81 @@
 'use client'
 
-import { FormEvent, ReactNode, useMemo, useState } from 'react'
+import { ChangeEvent, FormEvent, ReactNode, useEffect, useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { analyzeTextForSafety } from '@/lib/moderation'
 import SafetyIssueList from '@/app/components/SafetyIssueList'
-import PraiseMentionInput from '@/app/components/PraiseMentionInput'
-import type { ContentMention } from '@/lib/praiseMention'
+import PraiseMentionInput, { type PraiseMentionInputHandle } from '@/app/components/PraiseMentionInput'
+import type { ContentMention, ImageContentMention } from '@/lib/praiseMention'
 import {
-  AppShell,
-  GlassCard,
   NoticeCard,
-  PageHeader,
 } from '@/app/components/ui/AppShell'
 
 type BoardId = 'prayer' | 'faith' | 'daily'
 
-const boardOptions: { id: BoardId; name: string; icon: string; description: string }[] = [
-  {
-    id: 'prayer',
-    name: '기도요청',
-    icon: '🙏',
-    description: '함께 기도받고 싶은 제목을 나눠요.',
-  },
-  {
-    id: 'faith',
-    name: '신앙',
-    icon: '🕊️',
-    description: '신앙 속 고민을 나눠요.',
-  },
-  {
-    id: 'daily',
-    name: '일상',
-    icon: '☀️',
-    description: '일상 속 고민을 나눠요.',
-  },
+const boardOptions: { id: BoardId; name: string }[] = [
+  { id: 'prayer', name: '기도요청' },
+  { id: 'faith', name: '신앙고민' },
+  { id: 'daily', name: '일상고민' },
 ]
 
+const DRAFT_STORAGE_KEY = 'unblind-post-draft-v1'
+
+type StoredDraft = {
+  board: BoardId | ''
+  title: string
+  content: string
+  savedAt: number
+}
+
+function isBoardId(value: unknown): value is BoardId {
+  return value === 'prayer' || value === 'faith' || value === 'daily'
+}
+
 type NewPostFormProps = {
-  initialBoard: BoardId
+  initialBoard: BoardId | null
+}
+
+type UploadedImage = {
+  attachment: ImageContentMention
+  previewUrl: string
+}
+
+async function prepareImage(file: File) {
+  if (file.size <= 1_500_000 && ['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+    return file
+  }
+
+  const objectUrl = URL.createObjectURL(file)
+
+  try {
+    const image = await new Promise<HTMLImageElement>((resolve, reject) => {
+      const element = new Image()
+      element.onload = () => resolve(element)
+      element.onerror = () => reject(new Error('선택한 이미지를 읽지 못했습니다.'))
+      element.src = objectUrl
+    })
+    const maxDimension = 1600
+    const scale = Math.min(1, maxDimension / Math.max(image.naturalWidth, image.naturalHeight))
+    const canvas = document.createElement('canvas')
+    canvas.width = Math.max(1, Math.round(image.naturalWidth * scale))
+    canvas.height = Math.max(1, Math.round(image.naturalHeight * scale))
+    const context = canvas.getContext('2d')
+    if (!context) throw new Error('이미지를 변환하지 못했습니다.')
+
+    context.drawImage(image, 0, 0, canvas.width, canvas.height)
+    const blob = await new Promise<Blob>((resolve, reject) => {
+      canvas.toBlob(
+        (result) => result ? resolve(result) : reject(new Error('이미지를 변환하지 못했습니다.')),
+        'image/jpeg',
+        0.84
+      )
+    })
+    const baseName = file.name.replace(/\.[^.]+$/, '') || 'unblind-image'
+    return new File([blob], `${baseName}.jpg`, { type: 'image/jpeg' })
+  } finally {
+    URL.revokeObjectURL(objectUrl)
+  }
 }
 
 function CheckRow({
@@ -51,16 +88,16 @@ function CheckRow({
   children: ReactNode
 }) {
   return (
-    <label className="flex min-h-[56px] cursor-pointer items-start gap-3 border-b border-[var(--ub-separator)] px-4 py-4 last:border-b-0">
+    <label className="flex min-h-[50px] cursor-pointer items-start gap-3 border-b border-white/8 py-3.5 last:border-b-0">
       <span
         className={
           checked
-            ? 'mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#ff4b00] text-white'
-            : 'mt-0.5 h-6 w-6 shrink-0 rounded-full border border-[var(--ub-control-border)] bg-[var(--ub-surface-card-strong)]'
+            ? 'mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#fc5230] text-white'
+            : 'mt-0.5 h-5 w-5 shrink-0 rounded-full border border-white/28 bg-white/5'
         }
       >
         {checked && (
-          <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden>
+          <svg width="12" height="12" viewBox="0 0 14 14" aria-hidden>
             <path
               d="M3 7.1 5.6 9.7 11 4.3"
               fill="none"
@@ -72,15 +109,13 @@ function CheckRow({
           </svg>
         )}
       </span>
-
       <input
         type="checkbox"
         checked={checked}
         onChange={(event) => onChange(event.target.checked)}
         className="sr-only"
       />
-
-      <span className="text-[15px] leading-[21px] text-[var(--ub-text-secondary)]">
+      <span className="text-[13px] leading-[19px] text-white/66">
         {children}
       </span>
     </label>
@@ -89,66 +124,193 @@ function CheckRow({
 
 export default function NewPostForm({ initialBoard }: NewPostFormProps) {
   const router = useRouter()
-
-  const board = initialBoard
-
+  const [board, setBoard] = useState<BoardId | ''>(initialBoard ?? '')
+  const [boardPickerOpen, setBoardPickerOpen] = useState(false)
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
   const [mentions, setMentions] = useState<ContentMention[]>([])
-  const [tagsInput, setTagsInput] = useState('')
+  const [uploadedImages, setUploadedImages] = useState<UploadedImage[]>([])
+  const [isUploading, setIsUploading] = useState(false)
   const [checkedPrivacy, setCheckedPrivacy] = useState(false)
   const [checkedPurpose, setCheckedPurpose] = useState(false)
   const [checkedRiskReview, setCheckedRiskReview] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
+  const [draftRestored, setDraftRestored] = useState(false)
+  const draftReadyRef = useRef(false)
+  const imageInputRef = useRef<HTMLInputElement>(null)
+  const mentionInputRef = useRef<PraiseMentionInputHandle>(null)
 
-  const selectedBoard = boardOptions.find((option) => option.id === board)
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      try {
+        const stored = window.localStorage.getItem(DRAFT_STORAGE_KEY)
+        if (stored) {
+          const draft = JSON.parse(stored) as Partial<StoredDraft>
+          const isRecent = typeof draft.savedAt === 'number' && Date.now() - draft.savedAt < 7 * 24 * 60 * 60 * 1000
+          const hasContent = Boolean(draft.title?.trim() || draft.content?.trim())
+          if (isRecent && hasContent) {
+            if (!initialBoard && isBoardId(draft.board)) setBoard(draft.board)
+            if (typeof draft.title === 'string') setTitle(draft.title.slice(0, 80))
+            if (typeof draft.content === 'string') setContent(draft.content.slice(0, 2000))
+            setDraftRestored(true)
+          }
+        }
+      } catch {
+        window.localStorage.removeItem(DRAFT_STORAGE_KEY)
+      } finally {
+        draftReadyRef.current = true
+      }
+    }, 0)
+
+    return () => window.clearTimeout(timer)
+  }, [initialBoard])
+
+  useEffect(() => {
+    if (!draftReadyRef.current) return
+
+    const timer = window.setTimeout(() => {
+      try {
+        if (!title.trim() && !content.trim()) {
+          window.localStorage.removeItem(DRAFT_STORAGE_KEY)
+          return
+        }
+
+        const draft: StoredDraft = { board, title, content, savedAt: Date.now() }
+        window.localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(draft))
+      } catch {
+        // Private browsing can reject persistent storage; writing still works.
+      }
+    }, 450)
+
+    return () => window.clearTimeout(timer)
+  }, [board, content, title])
+
+  function clearDraft() {
+    try {
+      window.localStorage.removeItem(DRAFT_STORAGE_KEY)
+    } catch {
+      // The visible form can still be reset when storage is unavailable.
+    }
+    setBoard(initialBoard ?? '')
+    setTitle('')
+    setContent('')
+    setMentions([])
+    setDraftRestored(false)
+  }
 
   const safetyAnalysis = useMemo(() => {
-    return analyzeTextForSafety(`${title}\n${content}\n${tagsInput}`)
-  }, [title, content, tagsInput])
+    return analyzeTextForSafety(`${title}\n${content}`)
+  }, [title, content])
 
   const needsRiskReview =
     safetyAnalysis.warningIssues.length > 0 ||
     safetyAnalysis.dangerIssues.length > 0
 
+  const canSubmit = Boolean(
+    board &&
+    title.trim().length >= 2 &&
+    content.trim().length >= 10 &&
+    checkedPrivacy &&
+    checkedPurpose &&
+    (!needsRiskReview || checkedRiskReview) &&
+    !isUploading &&
+    !isSubmitting
+  )
+
+  async function handleImageSelect(event: ChangeEvent<HTMLInputElement>) {
+    const selectedFiles = Array.from(event.target.files ?? [])
+    event.target.value = ''
+    event.currentTarget.blur()
+
+    if (!selectedFiles.length) return
+    const availableSlots = 3 - uploadedImages.length
+    if (availableSlots <= 0) {
+      setErrorMessage('이미지는 최대 3장까지 올릴 수 있습니다.')
+      return
+    }
+
+    setErrorMessage('')
+    setIsUploading(true)
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session?.access_token) throw new Error('로그인 정보를 확인하지 못했습니다.')
+
+      for (const originalFile of selectedFiles.slice(0, availableSlots)) {
+        const file = await prepareImage(originalFile)
+        if (file.size > 5 * 1024 * 1024) {
+          throw new Error('이미지는 5MB 이하만 올릴 수 있습니다.')
+        }
+
+        const formData = new FormData()
+        formData.set('file', file)
+        const response = await fetch('/api/uploads/post-image', {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${session.access_token}` },
+          body: formData,
+        })
+        const result = await response.json().catch(() => null)
+        if (!response.ok || !result?.attachment) {
+          throw new Error(result?.error ?? '이미지를 올리지 못했습니다.')
+        }
+
+        const attachment = result.attachment as ImageContentMention
+        const previewUrl = URL.createObjectURL(file)
+        setUploadedImages((current) => [...current, { attachment, previewUrl }])
+        setMentions((current) => [...current, attachment])
+      }
+
+      if (selectedFiles.length > availableSlots) {
+        setErrorMessage(`이미지는 최대 3장까지 등록되어 ${availableSlots}장만 추가했습니다.`)
+      }
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : '이미지를 올리지 못했습니다.')
+    } finally {
+      setIsUploading(false)
+    }
+  }
+
+  async function removeImage(image: UploadedImage) {
+    setUploadedImages((current) => current.filter((item) => item.attachment.storagePath !== image.attachment.storagePath))
+    setMentions((current) => current.filter((mention) => mention.type !== 'image' || mention.storagePath !== image.attachment.storagePath))
+    URL.revokeObjectURL(image.previewUrl)
+
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session?.access_token) return
+    void fetch('/api/uploads/post-image', {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${session.access_token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ storagePath: image.attachment.storagePath }),
+    })
+  }
+
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     setErrorMessage('')
 
+    if (!board) {
+      setErrorMessage('게시판을 선택해주세요.')
+      return
+    }
+
     const trimmedTitle = title.trim()
     const trimmedContent = content.trim()
-    const tags = Array.from(
-      new Set(
-        tagsInput
-          .split(/[\s,]+/)
-          .map((tag) => tag.replace(/^#+/, '').trim())
-          .filter(Boolean)
-      )
-    )
+    const tags: string[] = []
 
     if (trimmedTitle.length < 2) {
       setErrorMessage('제목을 2자 이상 입력해주세요.')
       return
     }
-
     if (trimmedContent.length < 10) {
       setErrorMessage('내용을 10자 이상 입력해주세요.')
       return
     }
-
-    if (tags.length > 5) {
-      setErrorMessage('태그는 최대 5개까지 입력할 수 있습니다.')
-      return
-    }
-
-    if (tags.some((tag) => tag.length > 12)) {
-      setErrorMessage('각 태그는 12자 이하로 입력해주세요.')
-      return
-    }
-
     const finalSafetyAnalysis = analyzeTextForSafety(
-      `${trimmedTitle}\n${trimmedContent}\n${tags.join(' ')}`
+      `${trimmedTitle}\n${trimmedContent}`
     )
 
     if (finalSafetyAnalysis.blockingIssues.length > 0) {
@@ -163,56 +325,37 @@ export default function NewPostForm({ initialBoard }: NewPostFormProps) {
       finalSafetyAnalysis.dangerIssues.length > 0
 
     if (hasWarnings && !checkedRiskReview) {
-      setErrorMessage(
-        '경고 내용을 확인한 뒤, 개인이 특정되지 않도록 수정했거나 위험성을 이해했다는 항목에 체크해주세요.'
-      )
+      setErrorMessage('경고 내용을 확인하고 등록 전 확인 항목에 체크해주세요.')
       return
     }
-
-    if (!checkedPrivacy) {
-      setErrorMessage('개인을 특정할 수 있는 정보를 적지 않았다는 항목에 체크해주세요.')
-      return
-    }
-
-    if (!checkedPurpose) {
-      setErrorMessage('공격이나 폭로가 아닌 고민 나눔이라는 항목에 체크해주세요.')
+    if (!checkedPrivacy || !checkedPurpose) {
+      setErrorMessage('등록 전 확인 항목을 모두 체크해주세요.')
       return
     }
 
     setIsSubmitting(true)
-
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-
-    if (!user) {
+    let data: { id?: string; error?: string } | null = null
+    try {
+      const response = await fetch('/api/posts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ board, title: trimmedTitle, content: trimmedContent, tags, mentions }),
+      })
+      data = await response.json().catch(() => null)
+      if (!response.ok) throw new Error(data?.error ?? '게시글을 등록하지 못했습니다.')
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : '게시글을 등록하지 못했습니다. 연결을 확인한 뒤 다시 시도해주세요.')
       setIsSubmitting(false)
-      setErrorMessage('로그인 정보를 확인하지 못했습니다. 다시 로그인해주세요.')
       return
     }
-
-    const { data, error } = await supabase
-      .from('posts')
-      .insert({
-        board,
-        title: trimmedTitle,
-        content: trimmedContent,
-        status: 'visible',
-        author_user_id: user.id,
-        tags,
-        mentions,
-      })
-      .select('id')
-      .single()
 
     setIsSubmitting(false)
-
-    if (error) {
-      setErrorMessage(error.message)
-      return
-    }
-
     if (data?.id) {
+      try {
+        window.localStorage.removeItem(DRAFT_STORAGE_KEY)
+      } catch {
+        // The saved draft expires automatically even if Safari blocks removal.
+      }
       router.push(`/post/${data.id}`)
       router.refresh()
       return
@@ -223,160 +366,215 @@ export default function NewPostForm({ initialBoard }: NewPostFormProps) {
   }
 
   return (
-    <AppShell>
-      <PageHeader
-        backHref={`/board/${board}`}
-        backLabel="게시판"
-        title="글쓰기"
-        description="제목과 내용을 입력한 뒤 작성 전 확인을 완료해주세요."
-      />
-
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <section>
-          <p className="mb-2 px-4 text-[13px] font-semibold uppercase tracking-[0.04em] text-[var(--ub-text-on-brand-tertiary)]">
-            선택된 게시판
-          </p>
-
-          <GlassCard>
-            <div className="flex items-center gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-[14px] bg-[var(--ub-surface-muted)] text-[24px]">
-                {selectedBoard?.icon}
-              </div>
-
-              <div>
-                <p className="text-[17px] font-semibold text-[var(--ub-text-primary)]">
-                  {selectedBoard?.name}
-                </p>
-
-                <p className="mt-0.5 text-[15px] leading-[20px] text-[var(--ub-text-secondary)]">
-                  {selectedBoard?.description}
-                </p>
-              </div>
-            </div>
-          </GlassCard>
-
-          <p className="mt-2 px-4 text-[13px] leading-[18px] text-[var(--ub-text-on-brand-tertiary)]">
-            게시판을 바꾸려면 이전 화면에서 다른 게시판을 선택해주세요.
-          </p>
-        </section>
-
-        <section>
-          <p className="mb-2 px-4 text-[13px] font-semibold uppercase tracking-[0.04em] text-[var(--ub-text-on-brand-tertiary)]">
-            제목
-          </p>
-
-          <GlassCard className="p-0">
-            <input
-              value={title}
-              onChange={(event) => setTitle(event.target.value)}
-              maxLength={80}
-              placeholder="예: 요즘 기도가 잘 안 됩니다"
-              className="min-h-[60px] w-full rounded-[28px] bg-transparent px-5 text-[17px] text-[var(--ub-text-primary)] outline-none placeholder:text-[var(--ub-text-tertiary)]"
-            />
-          </GlassCard>
-
-          <p className="mt-2 px-4 text-[13px] leading-[18px] text-[var(--ub-text-on-brand-tertiary)]">
-            제목은 짧고 구체적으로 적되, 누군가를 특정할 수 있는 표현은 피해주세요.
-          </p>
-        </section>
-
-        <section>
-          <p className="mb-2 px-4 text-[13px] font-semibold uppercase tracking-[0.04em] text-[var(--ub-text-on-brand-tertiary)]">
-            내용
-          </p>
-
-          <GlassCard className="p-0">
-            <PraiseMentionInput
-              value={content}
-              onChange={setContent}
-              mentions={mentions}
-              onMentionsChange={setMentions}
-              rows={12}
-              maxLength={2000}
-              placeholder="내용을 입력해주세요. @를 입력하면 찬양이나 위치를 태그할 수 있어요."
-              className="min-h-[260px] w-full resize-none rounded-[28px] bg-transparent px-5 py-5 text-[17px] leading-[25px] text-[var(--ub-text-primary)] outline-none placeholder:text-[var(--ub-text-tertiary)]"
-            />
-          </GlassCard>
-
-          <div className="mt-2 flex justify-between px-4 text-[13px] text-[var(--ub-text-on-brand-tertiary)]">
-            <span>@를 입력한 뒤 찬양 또는 위치를 선택하세요.</span>
-            <span>{content.length}/2000</span>
+    <main className="ub-writer-no-tab min-h-[100dvh] overflow-x-hidden bg-[#101011] pb-[calc(72px+env(safe-area-inset-bottom))] text-white">
+      <form
+        onSubmit={handleSubmit}
+        className="ub-writer mx-auto min-h-[100dvh] max-w-[430px]"
+      >
+        <header className="sticky top-0 z-30 border-b border-white/8 bg-[#101011]/98 pt-[env(safe-area-inset-top)] shadow-[0_8px_24px_rgba(0,0,0,0.18)] backdrop-blur-xl">
+          <div className="flex min-h-[56px] items-center justify-between px-4">
+            <button
+              type="button"
+              onClick={() => router.push('/')}
+              className="min-h-11 px-1 text-[16px] text-white/72 active:text-white"
+            >
+              취소
+            </button>
+            <button
+              type="submit"
+              disabled={!canSubmit}
+              className="min-h-11 px-1 text-[16px] font-semibold text-[#fc5230] disabled:text-white/24"
+            >
+              {isSubmitting ? '등록 중' : '등록'}
+            </button>
           </div>
 
+          <div className="px-4 pb-3">
+            <button
+              type="button"
+              onClick={() => setBoardPickerOpen((open) => !open)}
+              aria-expanded={boardPickerOpen}
+              aria-controls="writer-board-options"
+              className="flex min-h-[54px] w-full items-center justify-between gap-3 rounded-[14px] border border-[#fc5230]/45 bg-[#fc5230]/10 px-4 text-left active:bg-[#fc5230]/16"
+            >
+              <span className="min-w-0">
+                <span className="block text-[15px] font-bold tracking-[-0.2px] text-white">
+                  게시판을 선택해주세요
+                </span>
+                {board && (
+                  <span className="mt-0.5 block truncate text-[11px] font-semibold text-[#ff7559]">
+                    {boardOptions.find((option) => option.id === board)?.name}
+                  </span>
+                )}
+              </span>
+              <span className={`text-[21px] text-[#ff7559] transition-transform ${boardPickerOpen ? 'rotate-180' : ''}`} aria-hidden>⌄</span>
+            </button>
+
+            {boardPickerOpen && (
+              <div id="writer-board-options" className="mt-2 overflow-hidden rounded-[14px] border border-white/10 bg-[#242426] shadow-xl">
+                {boardOptions.map((option) => (
+                  <button
+                    key={option.id}
+                    type="button"
+                    onClick={() => {
+                      setBoard(option.id)
+                      setBoardPickerOpen(false)
+                    }}
+                    aria-pressed={board === option.id}
+                    className={`flex min-h-[48px] w-full items-center justify-between border-b border-white/8 px-4 text-left text-[15px] font-semibold last:border-b-0 ${board === option.id ? 'bg-[#fc5230]/14 text-[#ff7559]' : 'text-white/82 active:bg-white/6'}`}
+                  >
+                    <span>{option.name}</span>
+                    {board === option.id && <span className="text-[#fc5230]" aria-hidden>✓</span>}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        </header>
+
+        {draftRestored && (
+          <div className="mx-4 mt-3 flex min-h-10 items-center justify-between gap-3 rounded-[12px] bg-[#fc5230]/12 px-3 text-[11px] font-semibold text-[#ff8269]" role="status">
+            <span>작성 중이던 글을 복원했습니다.</span>
+            <button type="button" onClick={clearDraft} className="min-h-9 shrink-0 px-1 font-bold text-[#ff9a86]">초기화</button>
+          </div>
+        )}
+
+        <input
+          value={title}
+          onChange={(event) => setTitle(event.target.value)}
+          maxLength={80}
+          placeholder="제목을 입력해주세요."
+          aria-label="제목"
+          className="min-h-[82px] w-full border-b border-white/8 bg-transparent px-4 text-[23px] font-semibold tracking-[-0.4px] text-white outline-none placeholder:text-white/18"
+        />
+
+        <section className="relative border-b border-white/8">
+          <PraiseMentionInput
+            ref={mentionInputRef}
+            value={content}
+            onChange={setContent}
+            mentions={mentions}
+            onMentionsChange={setMentions}
+            rows={13}
+            maxLength={2000}
+            placeholder="내용을 입력해주세요."
+            aria-label="내용"
+            className="min-h-[390px] w-full resize-none bg-transparent px-4 py-5 text-[17px] leading-[25px] text-white outline-none placeholder:text-white/16"
+          />
+          <span className="absolute bottom-3 right-4 text-[10px] tabular-nums text-white/24">
+            {content.length}/2000
+          </span>
+        </section>
+
+        {uploadedImages.length > 0 && (
+          <section className="border-b border-white/8 px-4 py-4">
+            <div className="grid grid-cols-3 gap-2">
+              {uploadedImages.map((image) => (
+                <div key={image.attachment.storagePath} className="relative aspect-square overflow-hidden rounded-[14px] bg-white/6">
+                  {/* 업로드 직후의 로컬 미리보기이므로 Next 이미지 최적화 대상이 아닙니다. */}
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={image.previewUrl} alt="첨부 이미지 미리보기" className="h-full w-full object-cover" />
+                  <button
+                    type="button"
+                    onClick={() => void removeImage(image)}
+                    aria-label="첨부 이미지 삭제"
+                    className="absolute right-1.5 top-1.5 flex h-7 w-7 items-center justify-center rounded-full bg-black/65 text-[16px] text-white"
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        <div className="px-4">
           <SafetyIssueList issues={safetyAnalysis.issues} />
-        </section>
+        </div>
 
-        <section>
-          <p className="mb-2 px-4 text-[13px] font-semibold uppercase tracking-[0.04em] text-[var(--ub-text-on-brand-tertiary)]">
-            태그 <span className="font-normal normal-case">(선택)</span>
-          </p>
-
-          <GlassCard className="p-0">
-            <input
-              value={tagsInput}
-              onChange={(event) => setTagsInput(event.target.value)}
-              maxLength={80}
-              placeholder="예: 취업, 기도, 인간관계"
-              className="min-h-[56px] w-full rounded-[28px] bg-transparent px-5 text-[16px] text-[var(--ub-text-primary)] outline-none placeholder:text-[var(--ub-text-tertiary)]"
-            />
-          </GlassCard>
-
-          <p className="mt-2 px-4 text-[13px] leading-[18px] text-[var(--ub-text-on-brand-tertiary)]">
-            쉼표나 띄어쓰기로 구분해 최대 5개까지 입력할 수 있습니다. 비워두면 태그가 표시되지 않습니다.
-          </p>
-        </section>
-
-        <section>
-          <p className="mb-2 px-4 text-[13px] font-semibold uppercase tracking-[0.04em] text-[var(--ub-text-on-brand-tertiary)]">
-            작성 전 확인
-          </p>
-
-          <div className="overflow-hidden rounded-[22px] bg-[var(--ub-surface-card-strong)] shadow-[var(--ub-shadow-soft)]">
-            <CheckRow
-              checked={checkedPrivacy}
-              onChange={setCheckedPrivacy}
-            >
-              개인을 특정할 수 있는 이름, 사역팀, 직책, 구체적인 사건을 적지 않았습니다.
+        <section id="writer-checks" className="scroll-mt-20 border-b border-white/8 px-4 py-5">
+          <h2 className="text-[13px] font-semibold text-white/48">등록 전 확인</h2>
+          <div className="mt-2">
+            <CheckRow checked={checkedPrivacy} onChange={setCheckedPrivacy}>
+              이름, 직책, 사역팀 등 개인을 특정할 수 있는 정보를 적지 않았습니다.
             </CheckRow>
-
-            <CheckRow
-              checked={checkedPurpose}
-              onChange={setCheckedPurpose}
-            >
-              이 글은 공격이나 폭로가 아니라 고민 나눔을 위한 글입니다.
+            <CheckRow checked={checkedPurpose} onChange={setCheckedPurpose}>
+              공격이나 폭로가 아닌 기도와 고민 나눔을 위한 글입니다.
             </CheckRow>
-
             {needsRiskReview && (
-              <CheckRow
-                checked={checkedRiskReview}
-                onChange={setCheckedRiskReview}
-              >
-                위 경고를 확인했고, 개인이 특정되지 않도록 수정했거나 위험성을 이해했습니다.
+              <CheckRow checked={checkedRiskReview} onChange={setCheckedRiskReview}>
+                표시된 안전 경고를 확인하고 필요한 내용을 수정했습니다.
               </CheckRow>
             )}
           </div>
-
-          <p className="mt-2 px-4 text-[13px] leading-[18px] text-[var(--ub-text-on-brand-tertiary)]">
-            사용자에게는 익명이지만, 신고 처리와 안전 운영을 위해 운영자는 필요한 범위에서 기록을 확인할 수 있습니다.
-          </p>
         </section>
 
+        <p className="px-4 py-4 text-[11px] leading-[17px] text-white/34">
+          사용자에게는 랜덤 익명 ID만 표시되며 신고 처리에 필요한 기록은 운영 정책에 따라 보호됩니다.
+        </p>
+
         {errorMessage && (
-          <NoticeCard title="등록할 수 없습니다" tone="danger">
-            <p>{errorMessage}</p>
-          </NoticeCard>
+          <div className="px-4 pb-5">
+            <NoticeCard title="등록할 수 없습니다" tone="danger">
+              <p>{errorMessage}</p>
+            </NoticeCard>
+          </div>
         )}
 
-        <div className="sticky bottom-[calc(18px+env(safe-area-inset-bottom))] z-30 rounded-[24px] border border-[var(--ub-glass-border)] bg-[var(--ub-surface-glass)] p-3 shadow-[var(--ub-shadow-glass)] backdrop-blur-2xl">
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="flex min-h-[52px] w-full items-center justify-center rounded-[16px] bg-[#ff4b00] px-5 text-[17px] font-semibold text-white shadow-sm active:scale-[0.99] disabled:bg-[#8E8E93]"
-          >
-            {isSubmitting ? '등록 중...' : '익명으로 등록하기'}
-          </button>
+        <div className="ub-writer-toolbar fixed inset-x-0 z-30 border-t border-white/8 bg-[#1c1c1e]/98 backdrop-blur-xl">
+          <div className="mx-auto flex min-h-[54px] max-w-[430px] items-center gap-1 px-3 text-white/52">
+            <input
+              ref={imageInputRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp,image/heic,image/heif"
+              multiple
+              onChange={handleImageSelect}
+              className="sr-only"
+              aria-label="이미지 선택"
+            />
+            <button
+              type="button"
+              onClick={() => imageInputRef.current?.click()}
+              disabled={isUploading || uploadedImages.length >= 3}
+              aria-label="이미지 업로드"
+              className="flex h-11 w-11 items-center justify-center rounded-[10px] active:bg-white/8 disabled:opacity-35"
+            >
+              <svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden>
+                <rect x="3" y="4" width="18" height="16" rx="2" />
+                <circle cx="8" cy="9" r="1.5" />
+                <path d="m4 18 5-5 4 4 2-2 5 5" />
+              </svg>
+            </button>
+            <button
+              type="button"
+              onClick={() => mentionInputRef.current?.startMention('location')}
+              aria-label="위치 추가"
+              className="flex h-11 w-11 items-center justify-center rounded-[10px] active:bg-white/8"
+            >
+              <svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden>
+                <path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z" />
+                <circle cx="12" cy="10" r="2.5" />
+              </svg>
+            </button>
+            <button
+              type="button"
+              onClick={() => mentionInputRef.current?.startMention('praise')}
+              aria-label="찬양 추가"
+              className="flex h-11 w-11 items-center justify-center rounded-[10px] active:bg-white/8"
+            >
+              <svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden>
+                <path d="M9 18V5l10-2v13" />
+                <circle cx="6" cy="18" r="3" />
+                <circle cx="16" cy="16" r="3" />
+              </svg>
+            </button>
+            <span className="ml-auto pr-1 text-[10px] text-white/34">
+              {isUploading ? '이미지 올리는 중…' : `${uploadedImages.length}/3 · 위치 · 찬양`}
+            </span>
+          </div>
         </div>
       </form>
-    </AppShell>
+
+    </main>
   )
 }

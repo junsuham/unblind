@@ -1,7 +1,7 @@
 'use client'
 
 import { FormEvent, useState } from 'react'
-import { supabase } from '@/lib/supabase'
+import { SystemIcon } from '@/app/components/ui/SystemIcon'
 
 type TargetType = 'post' | 'comment'
 
@@ -18,7 +18,6 @@ type ReportReason =
 type ReportButtonProps = {
   targetType: TargetType
   targetId: string
-  reporterActorKey: string
   label?: string
 }
 
@@ -36,7 +35,6 @@ const reasons: { value: ReportReason; label: string }[] = [
 export default function ReportButton({
   targetType,
   targetId,
-  reporterActorKey,
   label = '신고',
 }: ReportButtonProps) {
   const [isOpen, setIsOpen] = useState(false)
@@ -55,38 +53,26 @@ export default function ReportButton({
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
 
-    if (!reporterActorKey) {
-      setErrorMessage('로그인 정보를 확인하지 못했습니다. 새로고침 후 다시 시도해주세요.')
-      return
-    }
-
     setIsSubmitting(true)
     setErrorMessage('')
     setMessage('')
 
-    const { error } = await supabase.from('reports').insert({
-      target_type: targetType,
-      target_id: targetId,
-      reporter_actor_key: reporterActorKey,
-      reason,
-      detail: detail.trim() || null,
-      status: 'pending',
-    })
-
-    setIsSubmitting(false)
-
-    if (error) {
-      if (error.code === '23505') {
-        setMessage('이미 신고한 항목입니다. 운영자가 확인하겠습니다.')
-        return
-      }
-
-      setErrorMessage(error.message)
-      return
+    try {
+      const response = await fetch('/api/reports', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ targetType, targetId, reason, detail: detail.trim() }),
+      })
+      const result = await response.json().catch(() => null)
+      if (!response.ok) throw new Error(result?.error ?? '신고를 접수하지 못했습니다.')
+      setMessage(result?.duplicate ? '이미 신고한 항목입니다. 운영자가 확인하겠습니다.' : '신고가 접수되었습니다. 운영자가 확인하겠습니다.')
+      setDetail('')
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : '신고를 접수하지 못했습니다.')
+    } finally {
+      setIsSubmitting(false)
     }
 
-    setMessage('신고가 접수되었습니다. 운영자가 확인하겠습니다.')
-    setDetail('')
   }
 
   return (
@@ -94,9 +80,11 @@ export default function ReportButton({
       <button
         type="button"
         onClick={() => setIsOpen(true)}
-        className="inline-flex min-h-9 items-center rounded-full bg-[var(--ub-surface-muted)] px-3 text-[13px] font-medium text-[var(--ub-text-tertiary)] active:bg-[var(--ub-surface-pressed)]"
+        aria-label={label}
+        title={label}
+        className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[var(--ub-surface-muted)] text-[var(--ub-text-tertiary)] active:bg-[var(--ub-surface-pressed)]"
       >
-        {label}
+        <SystemIcon name="flag" size={18} />
       </button>
 
       {isOpen && (

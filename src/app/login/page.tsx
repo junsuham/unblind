@@ -1,16 +1,10 @@
 'use client'
 
-import { useState } from 'react'
-import Link from 'next/link'
+import { useEffect, useState } from 'react'
+import Image from 'next/image'
 import { useSearchParams } from 'next/navigation'
 import type { Provider } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabase'
-import {
-  AppShell,
-  GlassCard,
-  NoticeCard,
-  PageHeader,
-} from '@/app/components/ui/AppShell'
 
 type SocialProvider = Extract<Provider, 'google'>
 
@@ -47,19 +41,27 @@ export default function LoginPage() {
   const safeNext =
     requestedNext?.startsWith('/') && !requestedNext.startsWith('//')
       ? requestedNext
-      : '/profile/setup'
+      : '/'
   const [pendingProvider, setPendingProvider] =
     useState<SocialProvider | null>(null)
   const [errorMessage, setErrorMessage] = useState(
     searchParams.get('error') ?? ''
   )
 
+  useEffect(() => {
+    document.documentElement.classList.add('ub-login-active')
+    return () => document.documentElement.classList.remove('ub-login-active')
+  }, [])
+
   async function handleSocialLogin(provider: SocialProvider) {
     setPendingProvider(provider)
     setErrorMessage('')
 
     try {
-      const siteUrl = window.location.origin.replace(/\/$/, '')
+      const siteUrl =
+        window.location.hostname.endsWith('.vercel.app')
+          ? 'https://unbd.vercel.app'
+          : window.location.origin.replace(/\/$/, '')
 
       const { error } = await supabase.auth.signInWithOAuth({
         provider,
@@ -87,61 +89,54 @@ export default function LoginPage() {
   const isSubmitting = pendingProvider !== null
 
   return (
-    <AppShell>
-      <PageHeader
-        eyebrow="청년회 내부 베타"
-        title="Google 계정으로 시작하기"
-        description="Google 계정으로 가입하고 로그인할 수 있습니다. 계정의 출생연도 확인과 운영자 승인을 마친 청년회 구성원만 입장할 수 있습니다."
-      />
+    <main className="ub-login-hero relative flex min-h-[100dvh] flex-col overflow-hidden bg-[#fc5230] px-6 pb-[calc(24px+env(safe-area-inset-bottom))] pt-[calc(22px+env(safe-area-inset-top))] text-white">
+      <div aria-hidden className="pointer-events-none absolute -right-24 top-[22%] h-80 w-80 rounded-full border-[48px] border-black/5" />
+      <div aria-hidden className="pointer-events-none absolute -left-24 bottom-[12%] h-72 w-72 rotate-12 rounded-[72px] border-[44px] border-black/5" />
 
-      <GlassCard>
-        <div>
+      <div className="relative z-10 mx-auto flex w-full max-w-[430px] flex-1 flex-col">
+        <div className="flex justify-center pt-[4vh]">
+          <Image
+            src="/unblind-logo.png"
+            alt="UNBLIND"
+            width={104}
+            height={104}
+            priority
+            className="h-[104px] w-[104px]"
+          />
+        </div>
+
+        <section className="flex flex-1 flex-col items-center justify-center pb-[7vh] text-center">
+          <p className="text-[18px] font-semibold leading-[26px] tracking-[-0.02em] text-white/88">
+            세상을 바꾸는 사랑의 목소리
+          </p>
+          <h1 className="mt-3 break-keep text-[36px] font-extrabold leading-[45px] tracking-[-0.045em] text-white sm:text-[40px] sm:leading-[50px]">
+            기독교 익명 중보 커뮤니티
+          </h1>
+          <p className="mt-6 max-w-[340px] break-keep text-[13px] font-medium leading-[20px] text-white/76">
+            내가 너희를 사랑한 것 같이 너희도 서로 사랑하라 -요15:2-
+          </p>
+        </section>
+
+        <div className="relative z-10">
           <button
             type="button"
             disabled={isSubmitting}
             onClick={() => handleSocialLogin('google')}
-            className="ub-provider-google flex min-h-[54px] w-full items-center justify-center gap-3 rounded-[16px] border px-5 text-[17px] font-semibold shadow-sm active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-55"
+            className="flex min-h-[58px] w-full items-center justify-center gap-3 rounded-[17px] border border-white/60 bg-white px-5 text-[17px] font-bold text-[#191919] shadow-[0_12px_30px_rgba(92,24,0,0.2)] active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-55"
           >
             <GoogleIcon />
             {pendingProvider === 'google'
-              ? 'Google 연결 중...'
-              : 'Google로 계속하기'}
+              ? '구글 연결 중...'
+              : '구글로 회원가입'}
           </button>
-
         </div>
 
         {errorMessage && (
-          <div className="mt-4 rounded-[18px] border border-[var(--ub-danger-border)] bg-[var(--ub-danger-soft)] p-4 text-[15px] leading-[21px] text-[var(--ub-danger-text)]">
+          <div role="alert" className="mt-3 rounded-[16px] border border-white/35 bg-black/16 p-4 text-[14px] leading-[20px] text-white">
             {errorMessage}
           </div>
         )}
-
-      </GlassCard>
-
-      <div className="mt-5 space-y-3">
-        <NoticeCard title="승인 이메일 안내" tone="warning">
-          <p>
-            Google 계정에 등록된 이메일이 승인 목록의 이메일과 같아야
-            합니다. 이메일이 다르면 운영자에게 Google 계정 이메일을
-            알려주세요.
-          </p>
-        </NoticeCard>
-
-        <NoticeCard title="익명성 안내">
-          <p>
-            다른 사용자에게는 소셜 계정 정보와 이메일이 공개되지 않습니다.
-            신고 처리와 안전한 운영을 위해 운영자는 필요한 범위에서 기록을
-            확인할 수 있습니다.
-          </p>
-        </NoticeCard>
       </div>
-
-      <Link
-        href="/admin/login"
-        className="mx-auto mt-6 flex min-h-11 w-fit items-center px-4 text-[13px] font-semibold text-[var(--ub-text-secondary)]"
-      >
-        운영자 로그인
-      </Link>
-    </AppShell>
+    </main>
   )
 }

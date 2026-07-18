@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { supabase } from '@/lib/supabase'
 import { SystemIcon } from '@/app/components/ui/SystemIcon'
 
 type ReactionType = 'pray' | 'empathize'
@@ -11,27 +10,6 @@ type ReactionButtonsProps = {
   initialPrayCount: number
   initialEmpathizeCount: number
   commentCount: number
-}
-
-const actorStorageKey = 'youth_anonymous_actor_key'
-
-function createActorKey() {
-  if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
-    return crypto.randomUUID()
-  }
-
-  return `${Date.now()}-${Math.random().toString(36).slice(2)}`
-}
-
-function getActorKey() {
-  let key = localStorage.getItem(actorStorageKey)
-
-  if (!key) {
-    key = createActorKey()
-    localStorage.setItem(actorStorageKey, key)
-  }
-
-  return key
 }
 
 export default function ReactionButtons({
@@ -55,26 +33,21 @@ export default function ReactionButtons({
   const [errorMessage, setErrorMessage] = useState('')
 
   useEffect(() => {
-    const key = getActorKey()
-
     async function loadMyReactions() {
-      const { data, error } = await supabase
-        .from('reactions')
-        .select('type')
-        .eq('post_id', postId)
-        .eq('actor_key', key)
-
-      if (!error && data) {
+      try {
+        const response = await fetch(`/api/reactions?postId=${encodeURIComponent(postId)}`)
+        const result = await response.json().catch(() => null)
+        const types = response.ok && Array.isArray(result?.types) ? result.types as string[] : []
         setClicked({
-          pray: data.some((reaction) => reaction.type === 'pray'),
-          empathize: data.some((reaction) => reaction.type === 'empathize'),
+          pray: types.includes('pray'),
+          empathize: types.includes('empathize'),
         })
+      } finally {
+        setIsLoadingMyReactions(false)
       }
-
-      setIsLoadingMyReactions(false)
     }
 
-    loadMyReactions()
+    void loadMyReactions()
   }, [postId])
 
   async function handleReaction(type: ReactionType) {
@@ -82,28 +55,24 @@ export default function ReactionButtons({
       return
     }
 
-    const actorKey = getActorKey()
     setErrorMessage('')
     setSubmittingType(type)
 
-    const { error } = await supabase.from('reactions').upsert(
-      {
-        post_id: postId,
-        actor_key: actorKey,
-        type,
-      },
-      {
-        onConflict: 'post_id,actor_key,type',
-        ignoreDuplicates: true,
-      }
-    )
-
-    setSubmittingType(null)
-
-    if (error) {
-      setErrorMessage(error.message)
+    try {
+      const response = await fetch('/api/reactions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ postId, type }),
+      })
+      const result = await response.json().catch(() => null)
+      if (!response.ok) throw new Error(result?.error ?? '공감을 남기지 못했습니다.')
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : '공감을 남기지 못했습니다.')
+      setSubmittingType(null)
       return
     }
+
+    setSubmittingType(null)
 
     setClicked((previous) => ({
       ...previous,

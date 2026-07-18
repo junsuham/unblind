@@ -1,9 +1,18 @@
 import { getRequestUser } from '@/lib/requestUser'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
+import { guardMutation } from '@/lib/mutationGuard'
 
 export async function POST(request: Request) {
   const user = await getRequestUser(request)
   if (!user) return Response.json({ error: '로그인이 필요합니다.' }, { status: 401 })
+
+  const blocked = await guardMutation(request, {
+    bucket: 'push-register',
+    identity: user.id,
+    limit: 12,
+    windowSeconds: 60,
+  })
+  if (blocked) return blocked
 
   const body = await request.json().catch(() => null)
   const token = typeof body?.token === 'string' ? body.token.trim() : ''
@@ -24,13 +33,21 @@ export async function POST(request: Request) {
     updated_at: new Date().toISOString(),
   })
 
-  if (error) return Response.json({ error: error.message }, { status: 500 })
+  if (error) return Response.json({ error: '알림 기기를 등록하지 못했습니다.' }, { status: 500 })
   return Response.json({ ok: true })
 }
 
 export async function DELETE(request: Request) {
   const user = await getRequestUser(request)
   if (!user) return Response.json({ error: '로그인이 필요합니다.' }, { status: 401 })
+
+  const blocked = await guardMutation(request, {
+    bucket: 'push-register',
+    identity: user.id,
+    limit: 12,
+    windowSeconds: 60,
+  })
+  if (blocked) return blocked
 
   const body = await request.json().catch(() => null)
   const token = typeof body?.token === 'string' ? body.token.trim() : ''

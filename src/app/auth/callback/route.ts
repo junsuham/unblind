@@ -31,7 +31,7 @@ export async function GET(request: NextRequest) {
   const type = requestUrl.searchParams.get('type')
   const authError = requestUrl.searchParams.get('error')
   const authErrorCode = requestUrl.searchParams.get('error_code')
-  const next = requestUrl.searchParams.get('next') ?? '/profile/setup'
+  const next = requestUrl.searchParams.get('next') ?? '/'
   const mobileRedirect = getSafeMobileAuthRedirect(
     request.cookies.get(MOBILE_AUTH_REDIRECT_COOKIE)?.value
   )

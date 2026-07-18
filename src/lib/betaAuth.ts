@@ -42,11 +42,18 @@ export async function requireAllowedUser() {
     redirect(`/login?${searchParams}`)
   }
 
-  const { data: profile } = await supabase
-    .from('user_profiles')
-    .select('completed_at, reference_age')
-    .eq('user_id', user.id)
-    .maybeSingle<UserProfileGate>()
+  const [{ data: profile }, { data: allowedUser }] = await Promise.all([
+    supabase
+      .from('user_profiles')
+      .select('completed_at, reference_age')
+      .eq('user_id', user.id)
+      .maybeSingle<UserProfileGate>(),
+    supabase
+      .from('allowed_users')
+      .select('email, status, agreed_at, agreed_version')
+      .ilike('email', user.email)
+      .maybeSingle<AllowedUser>(),
+  ])
 
   if (
     !profile?.completed_at ||
@@ -55,12 +62,6 @@ export async function requireAllowedUser() {
   ) {
     redirect('/profile/setup')
   }
-
-  const { data: allowedUser } = await supabase
-    .from('allowed_users')
-    .select('email, status, agreed_at, agreed_version')
-    .ilike('email', user.email)
-    .maybeSingle<AllowedUser>()
 
   if (!allowedUser || allowedUser.status !== 'active') {
     redirect('/pending')

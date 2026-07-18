@@ -1,7 +1,7 @@
 {
   "name": "unblind-mobile",
   "main": "expo-router/entry",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "dependencies": {
     "@supabase/supabase-js": "^2.110.5",
     "expo": "~54.0.36",
@@ -52,6 +52,8 @@
     "build:android:preview": "eas build --platform android --profile preview",
     "build:android:production": "eas build --platform android --profile production",
     "build:ios:development": "eas build --platform ios --profile development",
+    "build:ios:production": "eas build --platform ios --profile production",
+    "submit:ios:production": "eas submit --platform ios --profile production",
     "update:preview": "eas update --channel preview --environment preview",
     "update:production": "eas update --channel production --environment production"
   },

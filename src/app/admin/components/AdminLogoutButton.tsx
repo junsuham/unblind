@@ -18,9 +18,11 @@ export default function AdminLogoutButton() {
     <button
       type="button"
       onClick={handleLogout}
-      className="min-h-11 rounded-full bg-[var(--admin-accent-soft)] px-4 text-[15px] font-semibold text-[var(--admin-accent)] active:opacity-70"
+      aria-label="로그아웃"
+      title="로그아웃"
+      className="flex h-11 w-11 items-center justify-center rounded-full bg-[var(--admin-accent-soft)] text-[23px] font-semibold text-[var(--admin-accent)] active:opacity-70"
     >
-      로그아웃
+      ⏻
     </button>
   )
 }

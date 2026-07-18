@@ -1,33 +1,75 @@
 'use client'
 
-import { useEffect, useState, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
+import { useRouter } from 'next/navigation'
 import { SystemIcon, type SystemIconName } from './SystemIcon'
 
 type AppShellProps = {
   children: ReactNode
   bottomBar?: ReactNode
   showTopLogo?: boolean
+  topTitle?: string
 }
 
-function TopLogoBar() {
+function TopLogoBar({ title }: { title?: string }) {
+  const [searchOpen, setSearchOpen] = useState(false)
+  const searchInputRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    if (searchOpen) searchInputRef.current?.focus()
+  }, [searchOpen])
+
   return (
-    <div className="ub-logo-surface -mx-4 -mt-[calc(18px+env(safe-area-inset-top))] mb-6 px-4 pt-[calc(10px+env(safe-area-inset-top))] pb-3">
-      <div className="mx-auto flex max-w-[430px] justify-center">
-        <Link
-          href="/"
-          aria-label="언블라인드 홈으로 이동"
-          className="flex min-h-11 items-center justify-center active:scale-[0.99]"
-        >
-          <Image
-            src="/unblind-logo.png"
-            alt="UNBLIND"
-            width={84}
-            height={84}
-            className="block h-[84px] w-[84px]"
-          />
-        </Link>
+    <div className="ub-logo-surface -mx-4 -mt-[calc(18px+env(safe-area-inset-top))] mb-4 border-b border-white/18 px-4 pt-[env(safe-area-inset-top)]">
+      <div className="mx-auto flex min-h-[56px] max-w-[430px] items-center justify-between gap-2">
+        {searchOpen ? (
+          <form action="/search" method="get" role="search" className="flex min-w-0 flex-1 items-center gap-2">
+            <label className="flex h-10 min-w-0 flex-1 items-center gap-2 rounded-full bg-white px-3 text-[#1c1c1e] shadow-sm">
+              <SystemIcon name="search" size={18} className="shrink-0 text-[#8e8e93]" />
+              <input ref={searchInputRef} name="q" type="search" placeholder="게시글 검색" className="min-w-0 flex-1 bg-transparent text-[15px] outline-none placeholder:text-[#8e8e93]" />
+            </label>
+            <button type="button" onClick={() => setSearchOpen(false)} className="h-10 shrink-0 px-1 text-[13px] font-semibold text-white">취소</button>
+          </form>
+        ) : (
+          <>
+        <div className="flex min-w-0 items-center gap-2">
+          <Link
+            href="/"
+            aria-label="언블라인드 홈으로 이동"
+            className="flex h-11 w-11 shrink-0 items-center justify-start active:scale-[0.96]"
+          >
+            <Image
+              src="/unblind-logo.png"
+              alt="UNBLIND"
+              width={42}
+              height={42}
+              className="block h-[42px] w-[42px]"
+            />
+          </Link>
+          {title && <span className="truncate text-[22px] font-extrabold tracking-[-0.6px] text-white">{title}</span>}
+        </div>
+
+        <div className="flex shrink-0 items-center">
+          <button
+            type="button"
+            onClick={() => setSearchOpen(true)}
+            aria-label="게시글 검색"
+            className="flex h-11 w-11 items-center justify-center rounded-full text-white active:bg-white/10"
+          >
+            <SystemIcon name="search" size={23} />
+          </button>
+          <Link
+            href="/activity"
+            aria-label="내 정보"
+            className="flex h-11 w-11 items-center justify-center rounded-full text-white active:bg-white/10"
+          >
+            <SystemIcon name="person" size={25} />
+          </Link>
+        </div>
+          </>
+        )}
       </div>
     </div>
   )
@@ -37,10 +79,11 @@ export function AppShell({
   children,
   bottomBar,
   showTopLogo = true,
+  topTitle,
 }: AppShellProps) {
   return (
-    <main className="ub-app-surface min-h-screen px-4 pb-[calc(108px+env(safe-area-inset-bottom))] pt-[calc(18px+env(safe-area-inset-top))] text-[var(--ub-text-on-brand-primary)]">
-      {showTopLogo && <TopLogoBar />}
+    <main className="ub-app-surface min-h-[100dvh] overflow-x-hidden px-4 pb-[calc(112px+env(safe-area-inset-bottom))] pt-[calc(18px+env(safe-area-inset-top))] text-[var(--ub-text-on-brand-primary)]">
+      {showTopLogo && <TopLogoBar title={topTitle} />}
 
       <section className="mx-auto max-w-[430px]">
         {children}
@@ -273,14 +316,22 @@ export function SecondaryLink({ href, children }: PrimaryButtonLikeProps) {
 }
 
 type BottomTabKey =
+  | 'home'
   | 'prayer'
   | 'faith'
   | 'daily'
-  | 'manitto'
-  | 'praise'
+  | 'notifications'
+  | 'write'
 
 type BottomTabBarProps = {
   active?: string
+}
+
+type BoardActivity = Record<'prayer' | 'faith' | 'daily', string | null>
+
+type NavigationBadgesResult = {
+  activity?: BoardActivity
+  unreadNotifications?: number
 }
 
 const bottomTabs: {
@@ -289,6 +340,12 @@ const bottomTabs: {
   href: string
   icon?: SystemIconName
 }[] = [
+  {
+    key: 'home',
+    label: '홈',
+    href: '/',
+    icon: 'home',
+  },
   {
     key: 'prayer',
     label: '기도',
@@ -308,21 +365,24 @@ const bottomTabs: {
     icon: 'sun',
   },
   {
-    key: 'manitto',
-    label: '마니또',
-    href: '/manitto',
-    icon: 'gift',
+    key: 'notifications',
+    label: '알림',
+    href: '/notifications',
+    icon: 'bell',
   },
   {
-    key: 'praise',
-    label: '찬양',
-    href: '/praise',
-    icon: 'music',
+    key: 'write',
+    label: '글쓰기',
+    href: '/post/new',
+    icon: 'compose',
   },
 ]
 
 export function BottomTabBar({ active }: BottomTabBarProps) {
+  const router = useRouter()
   const [isKeyboardActive, setIsKeyboardActive] = useState(false)
+  const [newBoards, setNewBoards] = useState<Set<string>>(new Set())
+  const [hasUnreadNotifications, setHasUnreadNotifications] = useState(false)
 
   useEffect(() => {
     function isTextInputTarget(target: EventTarget | null) {
@@ -362,37 +422,110 @@ export function BottomTabBar({ active }: BottomTabBarProps) {
     }
   }, [])
 
+  useEffect(() => {
+    const storageKey = 'unblind-board-seen-v1'
+
+    function refreshBadges() {
+      fetch('/api/navigation/badges')
+        .then((response) => response.ok ? response.json() : null)
+        .then((result: NavigationBadgesResult | null) => {
+        if (!result?.activity) return
+
+        setHasUnreadNotifications(active === 'notifications' ? false : (result.unreadNotifications ?? 0) > 0)
+
+        let stored: string | null = null
+        let seen: Partial<BoardActivity> = {}
+        try {
+          stored = window.localStorage.getItem(storageKey)
+          seen = stored ? JSON.parse(stored) as Partial<BoardActivity> : {}
+        } catch {
+          stored = null
+          seen = {}
+        }
+
+        if (!stored) {
+          try {
+            window.localStorage.setItem(storageKey, JSON.stringify(result.activity))
+          } catch {
+            // Badges remain optional when Safari blocks local storage.
+          }
+          return
+        }
+
+        const next = new Set<string>()
+        for (const board of ['prayer', 'faith', 'daily'] as const) {
+          const newest = result.activity[board]
+          if (newest && newest > (seen[board] ?? '')) next.add(board)
+        }
+
+        if (active === 'prayer' || active === 'faith' || active === 'daily') {
+          seen[active] = result.activity[active]
+          next.delete(active)
+          try {
+            window.localStorage.setItem(storageKey, JSON.stringify(seen))
+          } catch {
+            // Keep the in-memory badge state without failing the tab bar.
+          }
+        }
+        setNewBoards(next)
+        })
+        .catch(() => undefined)
+    }
+
+    refreshBadges()
+    const interval = window.setInterval(refreshBadges, 30_000)
+    return () => window.clearInterval(interval)
+  }, [active])
+
+  useEffect(() => {
+    const routes = ['/', '/board/prayer', '/board/faith', '/board/daily', '/notifications', '/post/new']
+    const prefetchTimer = window.setTimeout(() => {
+      routes.forEach((route) => router.prefetch(route))
+    }, 700)
+    return () => window.clearTimeout(prefetchTimer)
+  }, [router])
+
   if (isKeyboardActive) {
     return null
   }
 
   return (
-    <nav className="fixed inset-x-0 bottom-[calc(18px+env(safe-area-inset-bottom))] z-40 flex justify-center px-5">
-      <div className="grid min-h-[66px] w-full max-w-[390px] grid-cols-5 items-center rounded-[var(--ub-radius-pill)] border border-[var(--ub-glass-border)] bg-[var(--ub-surface-glass)] px-2 shadow-[0_18px_48px_rgba(0,0,0,0.16)] backdrop-blur-2xl">
+    <nav className="ub-app-tabbar fixed inset-x-0 z-40 flex justify-center border-t border-[var(--ub-separator)] bg-[var(--ub-surface-glass)] backdrop-blur-2xl">
+      <div className="grid min-h-[54px] w-full max-w-[430px] grid-cols-6 items-center overflow-visible px-1">
         {bottomTabs.map((tab) => {
           const isActive = active === tab.key
+          const isBoard = tab.key === 'prayer' || tab.key === 'faith' || tab.key === 'daily'
+          const isWrite = tab.key === 'write'
+          const hasNewActivity = (isBoard && newBoards.has(tab.key)) || (tab.key === 'notifications' && hasUnreadNotifications)
 
           return (
             <Link
               key={tab.key}
               href={tab.href}
-              className="flex min-h-[56px] flex-col items-center justify-center rounded-[var(--ub-radius-pill)] active:bg-black/5"
+              prefetch
+              className="relative flex min-h-[50px] min-w-0 flex-col items-center justify-center rounded-[14px] active:bg-black/5"
             >
+              {isWrite && (
+                <span className="pointer-events-none absolute -top-[38px] right-0 w-[184px] rounded-[13px] bg-white px-2.5 py-2 text-center text-[10px] font-bold leading-[13px] text-[#fc5230] shadow-lg after:absolute after:right-5 after:top-full after:border-x-[6px] after:border-t-[7px] after:border-x-transparent after:border-t-white">
+                  익명으로 기도・고민 나눠주세요
+                </span>
+              )}
+              {hasNewActivity && (
+                <span className="absolute left-[calc(50%+8px)] top-2 h-2 w-2 rounded-full bg-[#ff3b30] ring-2 ring-[var(--ub-surface-glass)]" aria-label="새 글 또는 댓글 있음" />
+              )}
               <span
-                className={
-                  isActive
-                    ? 'text-[var(--ub-color-brand)]'
-                    : 'text-[var(--ub-text-tertiary)]'
-                }
+                className={isWrite ? 'text-[var(--ub-color-brand)]' : 'text-white'}
               >
-                {tab.icon && <SystemIcon name={tab.icon} size={22} />}
+                {tab.icon && <SystemIcon name={tab.icon} size={isWrite ? 24 : 21} filled={isBoard && isActive} />}
               </span>
 
               <span
                 className={
-                  isActive
-                    ? 'mt-1 ios-tab-label font-semibold text-[var(--ub-color-brand)]'
-                    : 'mt-1 ios-tab-label text-[var(--ub-text-tertiary)]'
+                  isWrite
+                    ? 'mt-1 max-w-full truncate text-[10px] font-semibold leading-3 text-[var(--ub-color-brand)]'
+                    : isActive
+                      ? 'mt-1 max-w-full truncate text-[10px] font-bold leading-3 text-white'
+                      : 'mt-1 max-w-full truncate text-[10px] leading-3 text-white/70'
                 }
               >
                 {tab.label}

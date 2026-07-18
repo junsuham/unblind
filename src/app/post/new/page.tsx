@@ -17,9 +17,9 @@ export default async function NewPostPage({ searchParams }: NewPostPageProps) {
   const params = await searchParams
   const requestedBoard = params.board
 
-  const initialBoard: BoardId = validBoards.includes(requestedBoard as BoardId)
+  const initialBoard: BoardId | null = validBoards.includes(requestedBoard as BoardId)
     ? (requestedBoard as BoardId)
-    : 'prayer'
+    : null
 
   return <NewPostForm initialBoard={initialBoard} />
 }

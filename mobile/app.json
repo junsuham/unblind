@@ -18,10 +18,15 @@
     },
     "ios": {
       "bundleIdentifier": "kr.unblind.app",
+      "buildNumber": "1",
       "supportsTablet": false,
       "icon": "./assets/images/unblind-logo.png",
+      "entitlements": {
+        "aps-environment": "development"
+      },
       "infoPlist": {
-        "CFBundleDisplayName": "언블라인드"
+        "CFBundleDisplayName": "언블라인드",
+        "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {

@@ -16,5 +16,12 @@ describe('request security', () => {
       method: 'POST',
       headers: { origin: 'https://app.example' },
     }))).toBe(true)
+    expect(isSafeMutationRequest(new Request('https://app.example/api/admin', {
+      method: 'POST',
+    }))).toBe(false)
+    expect(isSafeMutationRequest(new Request('https://app.example/api/admin', {
+      method: 'POST',
+      headers: { authorization: 'Bearer valid-user-token' },
+    }))).toBe(true)
   })
 })

@@ -1,10 +1,8 @@
 import { requireAdmin } from '@/lib/adminAuth'
 import { listAllAuthUsers } from '@/lib/adminUsers'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
-import AdminLogoutButton from './components/AdminLogoutButton'
 import { AdminIcon, type AdminIconName } from './components/AdminIcon'
 import {
-  AdminHeader,
   AdminListGroup,
   AdminListRow,
   AdminPageShell,
@@ -164,14 +162,7 @@ export default async function AdminDashboardPage() {
 
   return (
     <AdminPageShell>
-      <AdminHeader
-        eyebrow="오늘의 운영"
-        title="오늘 할 일"
-        description="처리가 필요한 항목부터 확인하고 앱 전체 상태를 관리하세요."
-        action={<AdminLogoutButton />}
-      />
-
-      <form action="/admin/search" className="mb-7" role="search">
+      <form action="/admin/search" className="mb-7 mt-1" role="search">
         <label
           htmlFor="admin-dashboard-search"
           className="sr-only"
@@ -264,6 +255,12 @@ export default async function AdminDashboardPage() {
 
       <AdminListGroup title="운영 상태">
         <AdminListRow
+          href="/admin/account"
+          title="계정·알림·차단 관리"
+          subtitle="계정 설정과 알림, 차단 목록을 관리합니다."
+          leading={<AdminIcon name="users" className="h-6 w-6" />}
+        />
+        <AdminListRow
           href="/admin/health"
           title="앱 상태 및 오류"
           subtitle="웹·앱 오류와 릴리스 상태를 확인합니다."
@@ -299,9 +296,9 @@ export default async function AdminDashboardPage() {
         />
         <AdminListRow
           href="/admin/top100"
-          title="언블 TOP 100"
-          subtitle={`현재 노출 중인 공식 찬양 ${activeTrackResult.count ?? 0}곡`}
+          title="📀오・찬・추"
           leading={<AdminIcon name="music" className="h-6 w-6" />}
+          trailing={<strong className="text-[17px] text-[var(--admin-text)]">{activeTrackResult.count ?? 0}</strong>}
         />
         <AdminListRow
           href="/admin/manitto"

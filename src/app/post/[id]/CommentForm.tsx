@@ -2,7 +2,6 @@
 
 import { FormEvent, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { supabase } from '@/lib/supabase'
 import { analyzeTextForSafety } from '@/lib/moderation'
 import SafetyIssueList from '@/app/components/SafetyIssueList'
 import PraiseMentionInput from '@/app/components/PraiseMentionInput'
@@ -67,30 +66,21 @@ export default function CommentForm({ postId }: CommentFormProps) {
 
     setIsSubmitting(true)
 
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-
-    if (!user) {
+    try {
+      const response = await fetch('/api/comments', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ postId, content: trimmedContent, mentions }),
+      })
+      const result = await response.json().catch(() => null)
+      if (!response.ok) throw new Error(result?.error ?? '댓글을 등록하지 못했습니다.')
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : '댓글을 등록하지 못했습니다.')
       setIsSubmitting(false)
-      setErrorMessage('로그인 정보를 확인하지 못했습니다. 다시 로그인해주세요.')
       return
     }
-
-    const { error } = await supabase.from('comments').insert({
-      post_id: postId,
-      content: trimmedContent,
-      status: 'visible',
-      author_user_id: user.id,
-      mentions,
-    })
 
     setIsSubmitting(false)
-
-    if (error) {
-      setErrorMessage(error.message)
-      return
-    }
 
     setContent('')
     setMentions([])
@@ -100,19 +90,11 @@ export default function CommentForm({ postId }: CommentFormProps) {
   }
 
   return (
-    <section>
-      <p className="mb-2 px-4 text-[13px] font-semibold uppercase tracking-[0.04em] text-[var(--ub-text-on-brand-tertiary)]">
-        댓글 작성
-      </p>
-
+    <section aria-label="댓글 작성">
       <form
         onSubmit={handleSubmit}
-        className="rounded-[22px] bg-[var(--ub-surface-card-strong)] p-4 shadow-[var(--ub-shadow-soft)]"
+        className="rounded-[22px] border border-[var(--ub-glass-border)] bg-[var(--ub-surface-glass)] p-3 shadow-[var(--ub-shadow-glass)] backdrop-blur-2xl"
       >
-        <p className="mb-3 text-[15px] leading-[21px] text-[var(--ub-text-secondary)]">
-          정답을 주기보다 함께 들어주는 마음으로 댓글을 남겨주세요.
-        </p>
-
         <PraiseMentionInput
           value={content}
           onChange={setContent}
@@ -120,8 +102,8 @@ export default function CommentForm({ postId }: CommentFormProps) {
           onMentionsChange={setMentions}
           rows={3}
           maxLength={1000}
-          placeholder="댓글을 입력해주세요. @를 입력하면 찬양이나 위치를 태그할 수 있어요."
-          className="min-h-[88px] w-full resize-none rounded-[16px] bg-[var(--ub-surface-muted)] px-4 py-3 text-[16px] leading-[23px] text-[var(--ub-text-primary)] outline-none placeholder:text-[var(--ub-text-tertiary)] focus:ring-2 focus:ring-[var(--ub-color-brand)]/25"
+          placeholder="댓글을 남겨주세요."
+          className="min-h-[84px] w-full resize-none rounded-[16px] bg-[var(--ub-surface-card-strong)] px-4 py-3 text-[16px] leading-[23px] text-[var(--ub-text-primary)] outline-none placeholder:text-[var(--ub-text-tertiary)] focus:ring-2 focus:ring-[var(--ub-color-brand)]/25"
         />
 
         <div className="mt-2 flex justify-end text-[13px] text-[var(--ub-text-tertiary)]">
@@ -172,13 +154,15 @@ export default function CommentForm({ postId }: CommentFormProps) {
           </div>
         )}
 
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          className="mt-4 flex min-h-[52px] w-full items-center justify-center rounded-[16px] bg-[#ff4b00] px-5 text-[17px] font-semibold text-white shadow-sm active:scale-[0.99] disabled:bg-[#8E8E93]"
-        >
-          {isSubmitting ? '등록 중...' : '댓글 등록하기'}
-        </button>
+        <div className="mt-3 flex justify-end">
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="flex min-h-11 min-w-[96px] items-center justify-center rounded-full bg-[#ff4b00] px-5 text-[15px] font-bold text-white shadow-sm active:scale-[0.99] disabled:bg-[#8E8E93]"
+          >
+            {isSubmitting ? '등록 중...' : '댓글 등록'}
+          </button>
+        </div>
       </form>
     </section>
   )

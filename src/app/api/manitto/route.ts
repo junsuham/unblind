@@ -1,6 +1,7 @@
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
 import { getManittoAssignment, getWeeklyManitto } from '@/lib/manitto'
 import { getRequestUser } from '@/lib/requestUser'
+import { guardMutation } from '@/lib/mutationGuard'
 
 export const runtime = 'nodejs'
 
@@ -13,16 +14,23 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   const user = await getRequestUser(request)
   if (!user) return Response.json({ error: '로그인이 필요합니다.' }, { status: 401 })
+  const blocked = await guardMutation(request, {
+    bucket: 'manitto-write',
+    identity: user.id,
+    limit: 12,
+    windowSeconds: 60,
+  })
+  if (blocked) return blocked
   const body = await request.json().catch(() => null)
 
   if (body?.action === 'join') {
     const { error } = await supabaseAdmin.from('manitto_participants').upsert({ user_id: user.id, is_active: true, updated_at: new Date().toISOString() })
-    return error ? Response.json({ error: error.message }, { status: 400 }) : Response.json({ ok: true })
+    return error ? Response.json({ error: '마니또 참여 상태를 변경하지 못했습니다.' }, { status: 400 }) : Response.json({ ok: true })
   }
 
   if (body?.action === 'leave') {
     const { error } = await supabaseAdmin.from('manitto_participants').update({ is_active: false, updated_at: new Date().toISOString() }).eq('user_id', user.id)
-    return error ? Response.json({ error: error.message }, { status: 400 }) : Response.json({ ok: true })
+    return error ? Response.json({ error: '마니또 참여 상태를 변경하지 못했습니다.' }, { status: 400 }) : Response.json({ ok: true })
   }
 
   if (body?.action === 'message') {
@@ -42,13 +50,14 @@ export async function POST(request: Request) {
       recipient_id: assignment.recipientUserId,
       body: message,
     })
-    if (error) return Response.json({ error: error.message }, { status: 400 })
+    if (error) return Response.json({ error: '응원 쪽지를 보내지 못했습니다.' }, { status: 400 })
 
     await supabaseAdmin.from('notifications').insert({
       user_id: assignment.recipientUserId,
       type: 'manitto',
       title: '마니또에게 익명 응원 쪽지가 도착했어요',
       body: message.slice(0, 80),
+      href: '/manitto',
     })
     if (process.env.CRON_SECRET) {
       void fetch(new URL('/api/push/dispatch', request.url), {

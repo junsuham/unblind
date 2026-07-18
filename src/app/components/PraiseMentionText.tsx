@@ -32,7 +32,9 @@ export default function PraiseMentionText({
     })
   }
 
-  for (const mention of mentions ?? []) mentionByLabel.set(mention.label, mention)
+  for (const mention of mentions ?? []) {
+    if (mention.type !== 'image') mentionByLabel.set(mention.label, mention)
+  }
 
   const labels = Array.from(mentionByLabel.keys())
     .filter((label) => content.includes(label))
@@ -47,6 +49,7 @@ export default function PraiseMentionText({
       {content.split(pattern).map((part, index) => {
         const mention = mentionByLabel.get(part)
         if (!mention) return part
+        if (mention.type === 'image') return part
 
         const className = 'inline rounded-md bg-[var(--ub-surface-brand-soft)] px-1 py-0.5 font-semibold text-[var(--ub-color-brand)] underline decoration-[var(--ub-color-brand)]/35 underline-offset-2'
 

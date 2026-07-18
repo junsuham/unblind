@@ -23,7 +23,16 @@ export type LocationContentMention = {
   address: string
 }
 
-export type ContentMention = PraiseContentMention | LocationContentMention
+export type ImageContentMention = {
+  type: 'image'
+  label: ''
+  storagePath: string
+  fileName: string
+  mimeType: string
+  size: number
+}
+
+export type ContentMention = PraiseContentMention | LocationContentMention | ImageContentMention
 
 export type ActiveMention = {
   start: number
@@ -77,6 +86,11 @@ export function keepPresentMentions(content: string, mentions: ContentMention[])
   const unique = new Map<string, ContentMention>()
 
   for (const mention of mentions) {
+    if (mention.type === 'image') {
+      unique.set(`image:${mention.storagePath}`, mention)
+      continue
+    }
+
     if (content.includes(mention.label)) unique.set(`${mention.type}:${mention.label}`, mention)
   }
 

@@ -1,7 +1,12 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { notFound } from 'next/navigation'
 import { requireBetaUser } from '@/lib/betaAuth'
-import { supabaseAdmin } from '@/lib/supabaseAdmin'
+import {
+  formatRelativeTime,
+  getAnonymousId,
+  getBoardPresentation,
+} from '@/lib/communityPresentation'
 import CommentForm from './CommentForm'
 import PostViewTracker from './PostViewTracker'
 import ReactionButtons from './ReactionButtons'
@@ -9,24 +14,12 @@ import ReportButton from './ReportButton'
 import BookmarkButton from './BookmarkButton'
 import BlockUserButton from './BlockUserButton'
 import PraiseMentionText from '@/app/components/PraiseMentionText'
-import type { ContentMention, PraiseMentionTrack } from '@/lib/praiseMention'
-import {
-  AppShell,
-  BottomTabBar,
-  NoticeCard,
-} from '@/app/components/ui/AppShell'
+import type { ContentMention, ImageContentMention, PraiseMentionTrack } from '@/lib/praiseMention'
+import { AppShell, BottomTabBar, NoticeCard } from '@/app/components/ui/AppShell'
 import { SystemIcon } from '@/app/components/ui/SystemIcon'
+import { supabaseAdmin } from '@/lib/supabaseAdmin'
 
 export const dynamic = 'force-dynamic'
-
-const boardNames: Record<string, string> = {
-  prayer: '🙏 기도요청',
-  faith: '🕊️ 신앙',
-  daily: '☀️ 일상',
-  church: '⛪ 교회생활',
-  work: '🌱 진로/직장',
-  relationship: '💞 연애/결혼',
-}
 
 type PostDetailPageProps = {
   params: Promise<{
@@ -46,167 +39,172 @@ type CommentRow = {
   author_user_id: string | null
 }
 
-function formatDate(value: string) {
-  const date = new Date(value)
-  const month = String(date.getMonth() + 1).padStart(2, '0')
-  const day = String(date.getDate()).padStart(2, '0')
-
-  return `${date.getFullYear()}.${month}.${day}`
-}
-
 export default async function PostDetailPage({ params }: PostDetailPageProps) {
-  const { supabase, user } = await requireBetaUser()
+  const [{ supabase, user }, { id }] = await Promise.all([
+    requireBetaUser(),
+    params,
+  ])
 
-  const { id } = await params
+  const [{ data: post, error: postError }, { data: blockedRows }] = await Promise.all([
+    supabase
+      .from('posts')
+      .select('id, board, title, content, mentions, created_at, author_user_id, view_count, tags')
+      .eq('id', id)
+      .eq('status', 'visible')
+      .single(),
+    supabase
+      .from('user_blocks')
+      .select('blocked_user_id')
+      .eq('blocker_user_id', user.id),
+  ])
 
-  const { data: post, error: postError } = await supabase
-    .from('posts')
-    .select('id, board, title, content, mentions, created_at, author_user_id, view_count, tags')
-    .eq('id', id)
-    .eq('status', 'visible')
-    .single()
+  if (postError || !post) notFound()
 
-  if (postError || !post) {
-    notFound()
-  }
-
-  const { data: blockedRows } = await supabase
-    .from('user_blocks')
-    .select('blocked_user_id')
-    .eq('blocker_user_id', user.id)
-
-  const blockedIds = new Set((blockedRows ?? []).map((item) => item.blocked_user_id))
+  const blockedIds = new Set(
+    (blockedRows ?? []).map((item) => item.blocked_user_id)
+  )
   if (post.author_user_id && blockedIds.has(post.author_user_id)) notFound()
 
-  const { data: rawComments, error: commentsError } = await supabase
-    .from('comments')
-    .select('id, content, mentions, created_at, author_user_id')
-    .eq('post_id', post.id)
-    .eq('status', 'visible')
-    .order('created_at', { ascending: true })
-    .returns<CommentRow[]>()
+  const [
+    { data: rawComments, error: commentsError },
+    { data: reactions, error: reactionsError },
+    { data: savedPost },
+  ] = await Promise.all([
+    supabase
+      .from('comments')
+      .select('id, content, mentions, created_at, author_user_id')
+      .eq('post_id', post.id)
+      .eq('status', 'visible')
+      .order('created_at', { ascending: true })
+      .limit(200)
+      .returns<CommentRow[]>(),
+    supabase
+      .from('reactions')
+      .select('type')
+      .eq('post_id', post.id)
+      .returns<ReactionRow[]>(),
+    supabase
+      .from('saved_posts')
+      .select('post_id')
+      .eq('user_id', user.id)
+      .eq('post_id', post.id)
+      .maybeSingle(),
+  ])
   const comments = (rawComments ?? []).filter(
-    (comment) => !comment.author_user_id || !blockedIds.has(comment.author_user_id)
+    (comment) =>
+      !comment.author_user_id || !blockedIds.has(comment.author_user_id)
   )
 
   const hasPraiseMention =
     post.content.includes('@오・찬・추💿') ||
-    (comments ?? []).some((comment) =>
-      comment.content.includes('@오・찬・추💿')
-    )
-  const { data: praiseTracks } = hasPraiseMention
-    ? await supabase
-        .from('top100_tracks')
-        .select('youtube_id, title, artist')
-        .eq('is_active', true)
-        .order('rank')
-        .limit(100)
-        .returns<PraiseMentionTrack[]>()
-    : { data: [] as PraiseMentionTrack[] }
-
-  const authorIds = Array.from(
-    new Set(
-      [post.author_user_id, ...(comments ?? []).map((comment) => comment.author_user_id)]
-        .filter((value): value is string => !!value)
-    )
-  )
-
-  const { data: authorProfiles } = authorIds.length
-    ? await supabaseAdmin
-        .from('user_profiles')
-        .select('user_id, nickname')
-        .in('user_id', authorIds)
-        .returns<{ user_id: string; nickname: string }[]>()
-    : { data: [] }
-
-  const nicknameByUserId = new Map(
-    (authorProfiles ?? []).map((profile) => [profile.user_id, profile.nickname])
-  )
-  const postNickname = post.author_user_id
-    ? nicknameByUserId.get(post.author_user_id) ?? '익명'
-    : '익명'
-
-  const { data: reactions, error: reactionsError } = await supabase
-    .from('reactions')
-    .select('type')
-    .eq('post_id', post.id)
-    .returns<ReactionRow[]>()
+    comments.some((comment) => comment.content.includes('@오・찬・추💿'))
+  const imageAttachments = ((post.mentions ?? []) as ContentMention[])
+    .filter((mention): mention is ImageContentMention => mention.type === 'image')
+    .slice(0, 3)
+  const [{ data: praiseTracks }, { data: signedImageRows }] = await Promise.all([
+    hasPraiseMention
+      ? supabase
+          .from('top100_tracks')
+          .select('youtube_id, title, artist')
+          .eq('is_active', true)
+          .order('rank')
+          .limit(100)
+          .returns<PraiseMentionTrack[]>()
+      : Promise.resolve({ data: [] as PraiseMentionTrack[] }),
+    imageAttachments.length
+      ? supabaseAdmin.storage
+          .from('post-images')
+          .createSignedUrls(imageAttachments.map((attachment) => attachment.storagePath), 60 * 60)
+      : Promise.resolve({ data: [] }),
+  ])
+  const signedImages = (signedImageRows ?? [])
+    .map((row, index) => ({
+      url: row.signedUrl,
+      alt: imageAttachments[index]?.fileName || '게시글 첨부 이미지',
+    }))
+    .filter((image): image is { url: string; alt: string } => Boolean(image.url))
 
   const prayCount =
     reactions?.filter((reaction) => reaction.type === 'pray').length ?? 0
-
   const empathizeCount =
     reactions?.filter((reaction) => reaction.type === 'empathize').length ?? 0
 
-  const boardName = boardNames[post.board] ?? '게시판'
-  const { data: savedPost } = await supabase
-    .from('saved_posts')
-    .select('post_id')
-    .eq('user_id', user.id)
-    .eq('post_id', post.id)
-    .maybeSingle()
-  const activeTab =
-    post.board === 'prayer' ||
-    post.board === 'faith' ||
-    post.board === 'daily'
-      ? post.board
-      : undefined
+  const board = getBoardPresentation(post.board)
+  const postAnonymousId = getAnonymousId(post.id, post.author_user_id)
+  const activeTab = ['prayer', 'faith', 'daily'].includes(post.board)
+    ? post.board
+    : undefined
 
   return (
-    <AppShell bottomBar={<BottomTabBar active={activeTab} />}>
+    <AppShell
+      topTitle={board.name}
+      bottomBar={<BottomTabBar active={activeTab} />}
+    >
       <PostViewTracker postId={post.id} />
 
-      <article className="overflow-hidden rounded-[22px] bg-[var(--ub-surface-card-strong)] shadow-[var(--ub-shadow-soft)]">
-        <header className="px-5 pb-5 pt-4">
-          <Link
-            href={`/board/${post.board}`}
-            className="inline-flex min-h-[36px] items-center text-[13px] font-medium text-[var(--ub-color-brand)]"
-          >
-            ‹ {boardName}
-          </Link>
+      <header className="mb-4 flex min-h-11 items-center justify-between gap-3 border-b border-white/20 pb-3">
+        <Link
+          href="/"
+          className="inline-flex min-h-11 items-center text-[16px] font-black tracking-[-0.02em] text-white"
+        >
+          {'< UNBLIND'}
+        </Link>
+        <div className="flex items-center gap-1 rounded-full bg-white/12 px-1.5 py-1 text-white backdrop-blur-xl">
+          <BookmarkButton
+            postId={post.id}
+            userId={user.id}
+            initialSaved={Boolean(savedPost)}
+          />
+          <ReportButton
+            targetType="post"
+            targetId={post.id}
+            label="신고"
+          />
+        </div>
+      </header>
 
-          <h1 className="mt-2 break-words text-[24px] font-bold leading-[32px] tracking-[-0.02em] text-[var(--ub-text-primary)]">
+      <article className="overflow-hidden rounded-[22px] bg-[var(--ub-surface-card-strong)] shadow-[var(--ub-shadow-soft)]">
+        <header className="px-5 pb-5 pt-5">
+          <div className="flex items-center gap-1.5 text-[13px] text-[var(--ub-text-tertiary)]">
+            <span className="text-[18px] leading-none" aria-hidden>{board.emoji}</span>
+            <span className="font-bold text-[var(--ub-text-primary)]">{board.name}</span>
+            <span>·</span>
+            <time dateTime={post.created_at}>{formatRelativeTime(post.created_at)}</time>
+          </div>
+          <p className="mt-1.5 text-[13px] font-semibold text-[var(--ub-text-secondary)]">
+            {postAnonymousId}
+          </p>
+
+          <h1 className="mt-6 break-words text-[26px] font-extrabold leading-[35px] tracking-[-0.035em] text-[var(--ub-text-primary)]">
             {post.title}
           </h1>
-
-          <div className="mt-3 flex items-center justify-between gap-4">
-            <p className="truncate text-[14px] font-semibold text-[var(--ub-color-brand)]">
-              {postNickname}
-            </p>
-
-            <div className="flex items-center gap-2">
-              <BookmarkButton postId={post.id} userId={user.id} initialSaved={Boolean(savedPost)} />
-              <ReportButton
-                targetType="post"
-                targetId={post.id}
-                reporterActorKey={user.id}
-                label="신고"
-              />
-              {post.author_user_id && post.author_user_id !== user.id && (
-                <BlockUserButton blockedUserId={post.author_user_id} leavePage />
-              )}
-            </div>
-          </div>
-
-          <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[12px] text-[var(--ub-text-tertiary)]">
-            <time
-              className="inline-flex items-center gap-1"
-              dateTime={post.created_at}
-            >
-              <SystemIcon name="calendar" size={14} />
-              {formatDate(post.created_at)}
-            </time>
-            <span className="inline-flex items-center gap-1">
-              <SystemIcon name="eye" size={14} />
-              조회 {(post.view_count ?? 0).toLocaleString('ko-KR')}
-            </span>
-          </div>
         </header>
 
         <div className="border-t border-[var(--ub-separator)] px-5 py-7">
-          <p className="whitespace-pre-wrap text-[16px] leading-[26px] text-[var(--ub-text-primary)]">
-            <PraiseMentionText content={post.content} mentions={post.mentions as ContentMention[] | null} tracks={praiseTracks ?? []} />
+          <p className="whitespace-pre-wrap text-[17px] leading-[28px] text-[var(--ub-text-primary)]">
+            <PraiseMentionText
+              content={post.content}
+              mentions={post.mentions as ContentMention[] | null}
+              tracks={praiseTracks ?? []}
+            />
           </p>
+
+          {signedImages.length > 0 && (
+            <div className="mt-6 grid gap-3">
+              {signedImages.map((image) => (
+                <div key={image.url} className="overflow-hidden rounded-[18px] bg-black/8">
+                  <Image
+                    src={image.url}
+                    alt={image.alt}
+                    width={1200}
+                    height={1200}
+                    unoptimized
+                    className="max-h-[520px] h-auto w-full object-contain"
+                  />
+                </div>
+              ))}
+            </div>
+          )}
 
           {post.tags?.length > 0 && (
             <div className="mt-7 flex flex-wrap gap-2">
@@ -221,13 +219,23 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
             </div>
           )}
 
-          <div className="mt-6">
+          <div className="mt-7">
             <ReactionButtons
               postId={post.id}
               initialPrayCount={prayCount}
               initialEmpathizeCount={empathizeCount}
-              commentCount={comments?.length ?? 0}
+              commentCount={comments.length}
             />
+          </div>
+
+          <div className="mt-4 flex items-center justify-between border-t border-[var(--ub-separator)] pt-4 text-[12px] text-[var(--ub-text-tertiary)]">
+            <span className="inline-flex items-center gap-1.5">
+              <SystemIcon name="eye" size={16} />
+              조회 {(post.view_count ?? 0).toLocaleString('ko-KR')}
+            </span>
+            {post.author_user_id && post.author_user_id !== user.id && (
+              <BlockUserButton blockedUserId={post.author_user_id} leavePage />
+            )}
           </div>
         </div>
       </article>
@@ -235,78 +243,81 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
       {reactionsError && (
         <div className="mt-5">
           <NoticeCard title="반응을 불러오지 못했습니다" tone="danger">
-            <p>{reactionsError.message}</p>
+            {reactionsError.message}
           </NoticeCard>
         </div>
       )}
 
-      <div id="comments" className="mt-6 scroll-mt-4">
-        <CommentForm postId={post.id} />
-      </div>
-
-      <section className="mt-8">
-        <p className="mb-2 px-4 text-[13px] font-semibold uppercase tracking-[0.04em] text-[var(--ub-text-on-brand-tertiary)]">
-          댓글
-        </p>
+      <section className="mt-6 overflow-hidden rounded-[22px] bg-[var(--ub-surface-card-strong)] shadow-[var(--ub-shadow-soft)]">
+        <header className="flex min-h-14 items-center justify-between border-b border-[var(--ub-separator)] px-4">
+          <h2 className="text-[16px] font-bold text-[var(--ub-text-primary)]">
+            댓글 {comments.length}
+          </h2>
+          <span className="text-[13px] text-[var(--ub-text-tertiary)]">시간순</span>
+        </header>
 
         {commentsError && (
-          <div className="mb-4">
+          <div className="p-4">
             <NoticeCard title="댓글을 불러오지 못했습니다" tone="danger">
-              <p>{commentsError.message}</p>
+              {commentsError.message}
             </NoticeCard>
           </div>
         )}
 
-        <div className="space-y-3">
-          {comments?.map((comment) => (
-            <article
-              key={comment.id}
-              className="rounded-[22px] bg-[var(--ub-surface-card-strong)] p-4 shadow-[var(--ub-shadow-soft)]"
-            >
-              <div className="mb-3 flex items-center justify-between gap-3">
-                <div>
-                  <p className="text-[15px] font-semibold text-[var(--ub-text-primary)]">
-                    {comment.author_user_id
-                      ? nicknameByUserId.get(comment.author_user_id) ?? '익명'
-                      : '익명'}
-                  </p>
-
-                  <p className="mt-0.5 text-[13px] text-[var(--ub-text-tertiary)]">
-                    {formatDate(comment.created_at)}
-                  </p>
-                </div>
-
+        {comments.map((comment) => (
+          <article
+            key={comment.id}
+            className="border-b border-[var(--ub-separator)] px-4 py-5 last:border-b-0"
+          >
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <p className="truncate text-[14px] font-bold text-[var(--ub-text-secondary)]">
+                  {getAnonymousId(
+                    post.id,
+                    comment.author_user_id ?? comment.id
+                  )}
+                </p>
+                <p className="mt-0.5 text-[12px] text-[var(--ub-text-tertiary)]">
+                  {formatRelativeTime(comment.created_at)}
+                </p>
+              </div>
+              <div className="flex shrink-0 items-center gap-1">
                 <ReportButton
                   targetType="comment"
                   targetId={comment.id}
-                  reporterActorKey={user.id}
-                  label="댓글 신고"
+                  label="신고"
                 />
                 {comment.author_user_id && comment.author_user_id !== user.id && (
                   <BlockUserButton blockedUserId={comment.author_user_id} />
                 )}
               </div>
-
-              <p className="whitespace-pre-wrap text-[17px] leading-[25px] text-[var(--ub-text-primary)]">
-                <PraiseMentionText content={comment.content} mentions={comment.mentions} tracks={praiseTracks ?? []} />
-              </p>
-            </article>
-          ))}
-
-          {comments?.length === 0 && !commentsError && (
-            <div className="rounded-[22px] bg-[var(--ub-surface-card-strong)] px-5 py-10 text-center shadow-[var(--ub-shadow-soft)]">
-              <p className="text-[17px] font-semibold text-[var(--ub-text-primary)]">
-                아직 댓글이 없습니다
-              </p>
-
-              <p className="mt-2 text-[15px] leading-[21px] text-[var(--ub-text-secondary)]">
-                정답을 주기보다 함께 들어주는 첫 댓글을 남겨보세요.
-              </p>
             </div>
-          )}
-        </div>
+
+            <p className="mt-4 whitespace-pre-wrap text-[16px] leading-[25px] text-[var(--ub-text-primary)]">
+              <PraiseMentionText
+                content={comment.content}
+                mentions={comment.mentions}
+                tracks={praiseTracks ?? []}
+              />
+            </p>
+          </article>
+        ))}
+
+        {comments.length === 0 && !commentsError && (
+          <div className="px-5 py-12 text-center">
+            <p className="text-[16px] font-bold text-[var(--ub-text-primary)]">
+              아직 댓글이 없습니다
+            </p>
+            <p className="mt-2 text-[14px] text-[var(--ub-text-secondary)]">
+              첫 번째 중보의 마음을 남겨보세요.
+            </p>
+          </div>
+        )}
       </section>
 
+      <div id="comments" className="mt-5 scroll-mt-4">
+        <CommentForm postId={post.id} />
+      </div>
     </AppShell>
   )
 }

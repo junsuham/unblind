@@ -10,10 +10,10 @@ import { reportClientEvent } from '@/lib/clientTelemetry'
 
 type ErrorPageProps = {
   error: Error & { digest?: string }
-  reset: () => void
+  unstable_retry: () => void
 }
 
-export default function ErrorPage({ error, reset }: ErrorPageProps) {
+export default function ErrorPage({ error, unstable_retry }: ErrorPageProps) {
   useEffect(() => {
     reportClientEvent({
       name: 'web.error_boundary',
@@ -44,7 +44,7 @@ export default function ErrorPage({ error, reset }: ErrorPageProps) {
       <div className="mt-6 space-y-3">
         <button
           type="button"
-          onClick={reset}
+          onClick={unstable_retry}
           className="flex min-h-[52px] w-full items-center justify-center rounded-[16px] bg-[#ff4b00] px-5 text-[17px] font-semibold text-white shadow-sm active:scale-[0.99]"
         >
           다시 시도하기

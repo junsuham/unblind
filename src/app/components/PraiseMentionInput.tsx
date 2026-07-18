@@ -2,8 +2,10 @@
 
 import {
   ChangeEvent,
+  forwardRef,
   TextareaHTMLAttributes,
   useEffect,
+  useImperativeHandle,
   useRef,
   useState,
 } from 'react'
@@ -36,14 +38,18 @@ type Props = Omit<TextareaHTMLAttributes<HTMLTextAreaElement>, 'value' | 'onChan
   onMentionsChange: (mentions: ContentMention[]) => void
 }
 
-export default function PraiseMentionInput({
+export type PraiseMentionInputHandle = {
+  startMention: (kind: 'praise' | 'location') => void
+}
+
+const PraiseMentionInput = forwardRef<PraiseMentionInputHandle, Props>(function PraiseMentionInput({
   value,
   onChange,
   mentions,
   onMentionsChange,
   maxLength = 2000,
   ...props
-}: Props) {
+}: Props, ref) {
   const inputRef = useRef<HTMLTextAreaElement>(null)
   const [cursor, setCursor] = useState(value.length)
   const [searchState, setSearchState] = useState<{ kind: 'praise' | 'location'; query: string; videos: YouTubeResult[]; locations: LocationResult[]; searching: boolean; message: string } | null>(null)
@@ -110,6 +116,26 @@ export default function PraiseMentionInput({
     onMentionsChange(keepPresentMentions(nextValue, mentions))
     setCursor(event.target.selectionStart)
   }
+
+  useImperativeHandle(ref, () => ({
+    startMention(kind) {
+      const currentCursor = inputRef.current?.selectionStart ?? value.length
+      const prefix = kind === 'praise' ? PRAISE_MENTION_PREFIX : LOCATION_MENTION_PREFIX
+      const leadingSpace = currentCursor > 0 && !/\s/.test(value[currentCursor - 1] ?? '') ? ' ' : ''
+      const trailingSpace = currentCursor < value.length && !/\s/.test(value[currentCursor] ?? '') ? ' ' : ''
+      const insertion = `${leadingSpace}${prefix}`
+      const nextValue = value.slice(0, currentCursor) + insertion + trailingSpace + value.slice(currentCursor)
+      if (nextValue.length > Number(maxLength)) return
+      const nextCursor = currentCursor + insertion.length
+      onChange(nextValue)
+      onMentionsChange(keepPresentMentions(nextValue, mentions))
+      setCursor(nextCursor)
+      window.requestAnimationFrame(() => {
+        inputRef.current?.focus()
+        inputRef.current?.setSelectionRange(nextCursor, nextCursor)
+      })
+    },
+  }), [value, mentions, maxLength, onChange, onMentionsChange])
 
   function selectCategory(kind: 'praise' | 'location') {
     if (!activeMention) return
@@ -207,4 +233,8 @@ export default function PraiseMentionInput({
       )}
     </div>
   )
-}
+})
+
+PraiseMentionInput.displayName = 'PraiseMentionInput'
+
+export default PraiseMentionInput

@@ -6,6 +6,8 @@ import {
   AdminHeader,
   AdminNotice,
   AdminPageShell,
+  AdminStatCard,
+  AdminStatGrid,
 } from '../components/AdminIOS'
 
 export const dynamic = 'force-dynamic'
@@ -96,7 +98,15 @@ export default async function AdminReportsPage() {
     .limit(100)
     .returns<ReportRow[]>()
 
-  const reports = data ?? []
+  const reports = [...(data ?? [])].sort((left, right) => {
+    const statusOrder = Number(right.status === 'pending') - Number(left.status === 'pending')
+    return statusOrder || Date.parse(right.created_at) - Date.parse(left.created_at)
+  })
+  const staleCutoff = new Date()
+  staleCutoff.setDate(staleCutoff.getDate() - 1)
+  const pendingCount = reports.filter((report) => report.status === 'pending').length
+  const staleCount = reports.filter((report) => report.status === 'pending' && Date.parse(report.created_at) < staleCutoff.getTime()).length
+  const resolvedCount = reports.filter((report) => report.status !== 'pending').length
 
   const postIds = [
     ...new Set(
@@ -177,9 +187,17 @@ export default async function AdminReportsPage() {
           </AdminNotice>
         </div>
 
+        <section className="mb-6">
+          <AdminStatGrid>
+            <AdminStatCard label="미처리" value={pendingCount} tone={pendingCount ? 'danger' : 'success'} />
+            <AdminStatCard label="24시간 경과" value={staleCount} tone={staleCount ? 'warning' : 'success'} />
+            <AdminStatCard label="처리 완료" value={resolvedCount} />
+          </AdminStatGrid>
+        </section>
+
         {error && (
           <div className="mb-4 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
-            신고 목록을 불러오지 못했습니다: {error.message}
+            신고 목록을 불러오지 못했습니다. 잠시 후 다시 확인해주세요.
           </div>
         )}
 

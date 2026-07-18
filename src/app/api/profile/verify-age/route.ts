@@ -1,5 +1,6 @@
 import { getRequestUser } from '@/lib/requestUser'
 import { SocialAgeError, verifyAndStoreSocialAge } from '@/lib/socialAge'
+import { guardMutation } from '@/lib/mutationGuard'
 
 export async function POST(request: Request) {
   const user = await getRequestUser(request)
@@ -7,6 +8,14 @@ export async function POST(request: Request) {
   if (!user) {
     return Response.json({ error: '로그인이 필요합니다.' }, { status: 401 })
   }
+
+  const blocked = await guardMutation(request, {
+    bucket: 'profile-verify-age',
+    identity: user.id,
+    limit: 6,
+    windowSeconds: 5 * 60,
+  })
+  if (blocked) return blocked
 
   const body = await request.json().catch(() => null)
   const providerToken =

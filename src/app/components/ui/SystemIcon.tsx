@@ -4,22 +4,36 @@ export type SystemIconName =
   | 'bell'
   | 'bookmark'
   | 'calendar'
+  | 'close'
+  | 'disc'
   | 'eye'
+  | 'external'
+  | 'flag'
   | 'gift'
   | 'heart'
+  | 'home'
   | 'leaf'
+  | 'logout'
   | 'message'
   | 'music'
+  | 'next'
+  | 'pause'
   | 'people'
+  | 'person'
   | 'play'
+  | 'previous'
   | 'prayer'
   | 'search'
+  | 'settings'
+  | 'compose'
   | 'sparkles'
+  | 'speaker'
   | 'sun'
 
 type SystemIconProps = SVGProps<SVGSVGElement> & {
   name: SystemIconName
   size?: number
+  filled?: boolean
 }
 
 const paths: Record<SystemIconName, ReactNode> = {
@@ -32,11 +46,30 @@ const paths: Record<SystemIconName, ReactNode> = {
   calendar: (
     <path d="M7 2v3M17 2v3M3.5 9h17M5 4h14a2 2 0 0 1 2 2v14H3V6a2 2 0 0 1 2-2Z" />
   ),
+  close: (
+    <path d="m6 6 12 12M18 6 6 18" />
+  ),
+  disc: (
+    <>
+      <circle cx="12" cy="12" r="9" />
+      <circle cx="12" cy="12" r="2.4" />
+      <path d="M12 3a9 9 0 0 1 9 9M3 12a9 9 0 0 1 9-9" opacity=".45" />
+    </>
+  ),
   eye: (
     <>
       <path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z" />
       <circle cx="12" cy="12" r="2.5" />
     </>
+  ),
+  external: (
+    <>
+      <path d="M14 4h6v6M20 4l-9 9" />
+      <path d="M18 13v6a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h6" />
+    </>
+  ),
+  flag: (
+    <path d="M5 21V4m0 1h11l-1.5 3L16 11H5" />
   ),
   gift: (
     <>
@@ -47,8 +80,17 @@ const paths: Record<SystemIconName, ReactNode> = {
   heart: (
     <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1.1L12 21.2l7.8-7.7 1.1-1.1a5.5 5.5 0 0 0-.1-7.8Z" />
   ),
+  home: (
+    <path d="m3 10 9-7 9 7v10H6V10m4 10v-6h4v6" />
+  ),
   leaf: (
     <path d="M20.6 3.4C12 3.7 5.4 6.2 4 11.8c-1 4.2 2 7.3 5.7 6.8M4.8 20c3.1-5.6 7.5-9.3 13.3-11.2M10 18.5c5.8.7 10.6-3.5 10.6-15.1" />
+  ),
+  logout: (
+    <>
+      <path d="M10 4H5v16h5" />
+      <path d="M8 12h11M15 8l4 4-4 4" />
+    </>
   ),
   message: (
     <path d="M21 14a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4v7Z" />
@@ -56,11 +98,32 @@ const paths: Record<SystemIconName, ReactNode> = {
   music: (
     <path d="M9 18V5l10-2v13M9 9l10-2M6.5 21C4.6 21 3 19.9 3 18.5S4.6 16 6.5 16 10 17.1 10 18.5 8.4 21 6.5 21ZM16.5 19c-1.9 0-3.5-1.1-3.5-2.5s1.6-2.5 3.5-2.5 3.5 1.1 3.5 2.5-1.6 2.5-3.5 2.5Z" />
   ),
+  next: (
+    <>
+      <path d="m5 6 8 6-8 6V6ZM13 6l8 6-8 6V6Z" />
+      <path d="M21 6v12" />
+    </>
+  ),
+  pause: (
+    <path d="M8 5v14M16 5v14" />
+  ),
   people: (
     <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8" />
   ),
+  person: (
+    <>
+      <circle cx="12" cy="7.5" r="4" />
+      <path d="M4.5 21a7.5 7.5 0 0 1 15 0" />
+    </>
+  ),
   play: (
     <path d="m9 7 8 5-8 5V7Z" />
+  ),
+  previous: (
+    <>
+      <path d="m19 6-8 6 8 6V6ZM11 6l-8 6 8 6V6Z" />
+      <path d="M3 6v12" />
+    </>
   ),
   prayer: (
     <>
@@ -75,8 +138,26 @@ const paths: Record<SystemIconName, ReactNode> = {
       <path d="m20 20-4-4" />
     </>
   ),
+  settings: (
+    <>
+      <circle cx="12" cy="12" r="3" />
+      <path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2.8 2.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6v.2h-4V21a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1L4.2 17l.1-.1a1.7 1.7 0 0 0 .3-1.9A1.7 1.7 0 0 0 3 14H2.8v-4H3a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9L4.2 7 7 4.2l.1.1A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-1.6v-.2h4V3a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1L19.8 7l-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.6 1h.2v4H21a1.7 1.7 0 0 0-1.6 1Z" />
+    </>
+  ),
+  compose: (
+    <>
+      <rect x="4" y="4" width="16" height="16" rx="2" />
+      <path d="M12 8v8M8 12h8" />
+    </>
+  ),
   sparkles: (
     <path d="m12 3-1.2 3.8a6 6 0 0 1-4 4L3 12l3.8 1.2a6 6 0 0 1 4 4L12 21l1.2-3.8a6 6 0 0 1 4-4L21 12l-3.8-1.2a6 6 0 0 1-4-4L12 3Z" />
+  ),
+  speaker: (
+    <>
+      <path d="M4 10v4h4l5 4V6l-5 4H4Z" />
+      <path d="M17 9a4 4 0 0 1 0 6M19.5 6.5a8 8 0 0 1 0 11" />
+    </>
   ),
   sun: (
     <>
@@ -89,6 +170,7 @@ const paths: Record<SystemIconName, ReactNode> = {
 export function SystemIcon({
   name,
   size = 24,
+  filled = false,
   className,
   ...props
 }: SystemIconProps) {
@@ -96,7 +178,7 @@ export function SystemIcon({
     <svg
       aria-hidden="true"
       className={className}
-      fill="none"
+      fill={filled ? 'currentColor' : 'none'}
       height={size}
       viewBox="0 0 24 24"
       width={size}

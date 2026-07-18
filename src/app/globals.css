@@ -14,20 +14,39 @@
 
 html {
   min-height: 100%;
-  background: var(--ub-surface-app);
+  background: #f5f5f7;
   -webkit-text-size-adjust: 100%;
 }
 
+@media (prefers-color-scheme: dark) {
+  html {
+    background: #1c1c1e;
+  }
+}
+
 body {
-  min-height: 100vh;
+  min-height: 100dvh;
   margin: 0;
-  background: var(--ub-surface-app);
+  background: #f5f5f7;
   color: var(--ub-text-on-brand-primary);
   font-family: var(--ub-font-system);
   font-synthesis-weight: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+html:has(.ub-login-hero),
+body:has(.ub-login-hero),
+html.ub-login-active,
+html.ub-login-active body {
+  background: #fc5230 !important;
+}
+
+@media (prefers-color-scheme: dark) {
+  body {
+    background: #1c1c1e;
+  }
 }
 
 button,
@@ -109,8 +128,233 @@ a {
   backdrop-filter: blur(var(--ub-blur-glass));
 }
 
+@keyframes pwa-install-rise {
+  from {
+    opacity: 0;
+    transform: translateY(28px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes pwa-install-pop {
+  0% {
+    transform: scale(0.88);
+  }
+  65% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes pwa-share-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(var(--ub-color-brand-rgb), 0.34);
+    transform: translateY(0);
+  }
+  50% {
+    box-shadow: 0 0 0 9px rgba(var(--ub-color-brand-rgb), 0);
+    transform: translateY(-3px);
+  }
+}
+
+@keyframes ub-launch-logo-in {
+  from { opacity: 0; transform: scale(0.88); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes ub-launch-failsafe {
+  0%, 55% { opacity: 1; visibility: visible; pointer-events: auto; }
+  100% { opacity: 0; visibility: hidden; pointer-events: none; }
+}
+
+.ub-launch-splash {
+  opacity: 1;
+  animation: ub-launch-failsafe 700ms ease-out forwards;
+  transition: opacity 220ms ease, visibility 220ms ease;
+}
+
+.ub-launch-splash-logo {
+  animation: ub-launch-logo-in 220ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.ub-launch-splash-leaving {
+  opacity: 0;
+  visibility: hidden;
+}
+
+html.ub-splash-active,
+html.ub-splash-active body {
+  background: #ff5133 !important;
+}
+
+.ub-app-tabbar {
+  --ub-tabbar-background: #f5f5f7;
+  bottom: 0;
+  height: 54px;
+  padding-bottom: 0;
+  background-color: var(--ub-tabbar-background);
+  box-shadow: none;
+  isolation: isolate;
+  transform: translate3d(0, 0, 0);
+}
+
+/* Fill only a possible fractional paint gap below the fixed bar. This does
+   not add layout height, so the controls stay anchored to the first frame. */
+.ub-app-tabbar::after {
+  position: absolute;
+  z-index: -1;
+  top: 100%;
+  right: 0;
+  left: 0;
+  height: 2px;
+  background: var(--ub-tabbar-background);
+  content: "";
+}
+
+.ub-home-quick-menu {
+  -webkit-text-size-adjust: none;
+  text-size-adjust: none;
+}
+
+.ub-writer:has(input:focus, textarea:focus, select:focus) .ub-writer-toolbar {
+  bottom: 0;
+}
+
+.ub-writer-toolbar {
+  bottom: calc(54px + max(4px, calc(env(safe-area-inset-bottom) - 24px)));
+}
+
+.ub-writer-no-tab .ub-writer-toolbar {
+  bottom: 0;
+  padding-bottom: max(4px, env(safe-area-inset-bottom));
+}
+
+.ub-bottom-fade {
+  bottom: 0;
+}
+
+@media (prefers-color-scheme: dark) {
+  .ub-app-tabbar {
+    --ub-tabbar-background: #1c1c1e;
+    box-shadow: none;
+  }
+}
+
+@keyframes ub-page-enter {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes ub-loading-shimmer {
+  from { background-position: 180% 0; }
+  to { background-position: -180% 0; }
+}
+
+.ub-loading-shimmer {
+  background-image: linear-gradient(
+    100deg,
+    rgba(255, 255, 255, 0.08) 20%,
+    rgba(255, 255, 255, 0.18) 38%,
+    rgba(255, 255, 255, 0.08) 56%
+  );
+  background-size: 220% 100%;
+  animation: ub-loading-shimmer 1.15s ease-in-out infinite;
+}
+
+@keyframes ub-player-backdrop-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes ub-player-card-in {
+  from { opacity: 0; transform: translateY(-18px) scale(0.94); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.ub-player-backdrop {
+  animation: ub-player-backdrop-in 180ms ease-out both;
+}
+
+.ub-player-card {
+  animation: ub-player-card-in 320ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.ub-player-range {
+  appearance: none;
+  background: transparent;
+}
+
+.ub-player-range::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 999px;
+  background: #c7c7ca;
+}
+
+.ub-player-range::-webkit-slider-thumb {
+  width: 12px;
+  height: 12px;
+  margin-top: -4px;
+  appearance: none;
+  border: 0;
+  border-radius: 999px;
+  background: #5f5f63;
+}
+
+.ub-player-range::-moz-range-track {
+  height: 4px;
+  border-radius: 999px;
+  background: #c7c7ca;
+}
+
+.ub-player-range::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border: 0;
+  border-radius: 999px;
+  background: #5f5f63;
+}
+
+.ub-player-range-dark::-webkit-slider-runnable-track {
+  background: rgba(255, 255, 255, 0.28);
+}
+
+.ub-player-range-dark::-webkit-slider-thumb {
+  background: #ffffff;
+}
+
+.ub-player-range-dark::-moz-range-track {
+  background: rgba(255, 255, 255, 0.28);
+}
+
+.ub-player-range-dark::-moz-range-thumb {
+  background: #ffffff;
+}
+
+.ub-page-transition {
+  animation: ub-page-enter 120ms ease-out both;
+}
+
+.pwa-install-offer,
+.pwa-install-sheet {
+  animation: pwa-install-rise 280ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.pwa-install-icon {
+  animation: pwa-install-pop 420ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.pwa-share-cue {
+  animation: pwa-share-pulse 1.5s ease-in-out infinite;
+}
+
 .ub-app-surface {
   background: var(--ub-app-background);
+  min-height: 100dvh;
 }
 
 .ub-logo-surface {

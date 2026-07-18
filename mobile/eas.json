@@ -22,5 +22,10 @@
       "channel": "production",
       "environment": "production"
     }
+  },
+  "submit": {
+    "production": {
+      "ios": {}
+    }
   }
 }

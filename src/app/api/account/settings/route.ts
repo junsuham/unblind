@@ -1,5 +1,6 @@
 import { getRequestUser } from '@/lib/requestUser'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
+import { guardMutation } from '@/lib/mutationGuard'
 
 type NotificationPreferences = {
   push_enabled: boolean
@@ -62,6 +63,14 @@ export async function GET(request: Request) {
 export async function PATCH(request: Request) {
   const user = await getRequestUser(request)
   if (!user) return Response.json({ error: '로그인이 필요합니다.' }, { status: 401 })
+
+  const blocked = await guardMutation(request, {
+    bucket: 'account-settings',
+    identity: user.id,
+    limit: 20,
+    windowSeconds: 60,
+  })
+  if (blocked) return blocked
 
   const body = await request.json().catch(() => null)
 

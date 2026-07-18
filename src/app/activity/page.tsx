@@ -1,15 +1,21 @@
 import Link from 'next/link'
 import { requireBetaUser } from '@/lib/betaAuth'
-import { AppShell, BottomTabBar, PageHeader } from '@/app/components/ui/AppShell'
+import { AppShell, BottomTabBar } from '@/app/components/ui/AppShell'
+import { SystemIcon } from '@/app/components/ui/SystemIcon'
+import { isAdminUser } from '@/lib/adminRole'
+import LogoutButton from '@/app/components/LogoutButton'
+import { generateBiblicalNickname } from '@/lib/profile'
 
 export const dynamic = 'force-dynamic'
 
 export default async function ActivityPage() {
   const { supabase, user } = await requireBetaUser()
-  const [{ data: posts }, { data: comments }, { data: saves }] = await Promise.all([
+  const [{ data: posts }, { data: comments }, { data: saves }, { data: profile }, admin] = await Promise.all([
     supabase.from('posts').select('id, title, created_at').eq('author_user_id', user.id).order('created_at', { ascending: false }).limit(20),
     supabase.from('comments').select('id, post_id, content, created_at').eq('author_user_id', user.id).order('created_at', { ascending: false }).limit(20),
     supabase.from('saved_posts').select('post_id, created_at, posts(title)').eq('user_id', user.id).order('created_at', { ascending: false }).limit(20),
+    supabase.from('user_profiles').select('nickname').eq('user_id', user.id).maybeSingle<{ nickname: string }>(),
+    isAdminUser(user),
   ])
 
   const sections = [
@@ -19,9 +25,25 @@ export default async function ActivityPage() {
   ]
 
   return (
-    <AppShell bottomBar={<BottomTabBar />}>
-      <PageHeader eyebrow="나의 기록" title="📚 내 활동" titleSize="compact" />
-      <Link href="/settings/account" className="mb-6 flex min-h-[52px] items-center justify-between rounded-[18px] bg-[var(--ub-surface-card-strong)] px-4 text-[15px] font-semibold text-[var(--ub-color-brand)] shadow-sm">계정·알림·차단 관리 <span className="text-[22px]">›</span></Link>
+    <AppShell topTitle="내 정보" bottomBar={<BottomTabBar />}>
+      <div className="mb-4 flex min-h-10 items-center justify-between gap-3 px-1">
+        <p className="min-w-0 truncate text-left text-[17px] font-bold tracking-[-0.2px] text-white">
+          {profile?.nickname ?? generateBiblicalNickname(user.id)}
+        </p>
+        <div className="flex shrink-0 items-center gap-1">
+          <LogoutButton iconOnly />
+          {admin && (
+            <Link
+              href="/admin"
+              aria-label="관리자 센터"
+              title="관리자 센터"
+              className="flex h-10 w-10 items-center justify-center rounded-full text-white/72 transition-colors active:bg-white/10 active:text-white"
+            >
+              <SystemIcon name="settings" size={21} />
+            </Link>
+          )}
+        </div>
+      </div>
       <div className="space-y-6">
         {sections.map((section) => (
           <section key={section.title}>

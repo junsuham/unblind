@@ -41,9 +41,19 @@ export default function AdminModerationButtons({
 
     const memo = window.prompt(
       action === 'dismiss' ? '신고자에게 보일 처리 메모를 입력하세요.' : '조치 사유를 간단히 입력하세요.',
-      action === 'dismiss' ? '운영정책 위반 내용을 확인하지 못했습니다.' : ''
+      action === 'dismiss'
+        ? '운영정책 위반 내용을 확인하지 못했습니다.'
+        : action === 'restore'
+          ? '재검토 결과 노출 가능한 내용으로 확인되어 복구했습니다.'
+          : action === 'hide'
+            ? '신고 검토 후 운영정책에 따라 숨김 처리했습니다.'
+            : '신고 검토 후 운영정책에 따라 삭제 처리했습니다.'
     )
     if (memo === null) return
+    if (memo.trim().length < 3) {
+      window.alert('조치 사유를 3자 이상 입력해주세요.')
+      return
+    }
 
     setSubmittingAction(action)
 

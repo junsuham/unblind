@@ -4,29 +4,23 @@ import {
   AppShell,
   BottomTabBar,
   NoticeCard,
-  PageHeader,
-  PrimaryLink,
 } from '@/app/components/ui/AppShell'
 import { SystemIcon } from '@/app/components/ui/SystemIcon'
+import {
+  formatRelativeTime,
+  getAnonymousId,
+  getBoardPresentation,
+} from '@/lib/communityPresentation'
 
 export const dynamic = 'force-dynamic'
 
 const boardNames: Record<string, string> = {
-  prayer: '🙏 기도요청',
-  faith: '🕊️ 신앙',
-  daily: '☀️ 일상',
-  church: '⛪ 교회생활',
-  work: '🌱 진로/직장',
-  relationship: '💞 연애/결혼',
-}
-
-const boardDescriptions: Record<string, string> = {
-  prayer: '함께 기도받고 싶은 제목을 조용히 나누는 공간입니다.',
-  faith: '신앙 속 고민을 안전하게 나눕니다.',
-  daily: '일상 속 고민을 편안하게 나눕니다.',
-  church: '공동체, 봉사, 소그룹, 교회생활 고민을 나눕니다.',
-  work: '학업, 취업, 직장, 소명에 대한 고민을 나눕니다.',
-  relationship: '관계와 결혼에 대한 고민을 안전하게 나눕니다.',
+  prayer: '기도요청',
+  faith: '신앙고민',
+  daily: '일상고민',
+  church: '교회생활',
+  work: '일상고민',
+  relationship: '연애/결혼',
 }
 
 type BoardPageProps = {
@@ -34,7 +28,6 @@ type BoardPageProps = {
     board: string
   }>
   searchParams: Promise<{
-    q?: string
     sort?: string
   }>
 }
@@ -51,26 +44,13 @@ type PostRow = {
   reactions: { type: 'pray' | 'empathize' }[]
 }
 
-function formatCompactDate(value: string) {
-  const date = new Date(value)
-  const now = new Date()
-  const month = String(date.getMonth() + 1).padStart(2, '0')
-  const day = String(date.getDate()).padStart(2, '0')
-
-  return date.getFullYear() === now.getFullYear()
-    ? `${month}.${day}`
-    : `${date.getFullYear()}.${month}.${day}`
-}
-
 export default async function BoardPage({ params, searchParams }: BoardPageProps) {
   const { supabase, user } = await requireBetaUser()
 
   const { board } = await params
   const filters = await searchParams
-  const query = (filters.q ?? '').trim().slice(0, 60)
-  const sort = ['latest', 'views'].includes(filters.sort ?? '') ? filters.sort : 'latest'
+  const sort = filters.sort === 'popular' ? 'popular' : 'latest'
   const boardName = boardNames[board] ?? '게시판'
-  const boardDescription = boardDescriptions[board] ?? '익명으로 고민을 나누는 공간입니다.'
 
   let postsQuery = supabase
     .from('posts')
@@ -88,17 +68,12 @@ export default async function BoardPage({ params, searchParams }: BoardPageProps
     .eq('board', board)
     .eq('status', 'visible')
 
-  if (query) {
-    const safeQuery = query.replace(/[,%()]/g, ' ')
-    postsQuery = postsQuery.or(`title.ilike.%${safeQuery}%,content.ilike.%${safeQuery}%`)
-  }
-
-  postsQuery = sort === 'views'
+  postsQuery = sort === 'popular'
     ? postsQuery.order('view_count', { ascending: false }).order('created_at', { ascending: false })
     : postsQuery.order('created_at', { ascending: false })
 
   const [{ data: posts, error }, { data: blockedRows }] = await Promise.all([
-    postsQuery.limit(100).returns<PostRow[]>(),
+    postsQuery.limit(50).returns<PostRow[]>(),
     supabase.from('user_blocks').select('blocked_user_id').eq('blocker_user_id', user.id),
   ])
   const blockedIds = new Set((blockedRows ?? []).map((item) => item.blocked_user_id))
@@ -112,47 +87,31 @@ export default async function BoardPage({ params, searchParams }: BoardPageProps
       : undefined
 
   return (
-    <AppShell bottomBar={<BottomTabBar active={activeTab} />}>
-      <PageHeader
-        eyebrow="언블라인드"
-        title={boardName}
-        titleSize="compact"
-        description={boardDescription}
-      />
-
-      <div className="mb-5">
-        <PrimaryLink href={`/post/new?board=${board}`}>
-          이 게시판에 글쓰기
-        </PrimaryLink>
-      </div>
-
-      <form method="get" className="mb-5 flex gap-2">
-        <label className="flex min-h-12 min-w-0 flex-1 items-center gap-2 rounded-[16px] bg-[var(--ub-surface-card-strong)] px-4 text-[var(--ub-text-primary)] shadow-sm">
-          <SystemIcon name="search" size={18} className="shrink-0 text-[var(--ub-text-tertiary)]" />
-          <input name="q" defaultValue={query} placeholder="제목과 내용 검색" className="min-w-0 flex-1 bg-transparent text-[14px] outline-none placeholder:text-[var(--ub-text-tertiary)]" />
-        </label>
+    <AppShell topTitle={boardName} bottomBar={<BottomTabBar active={activeTab} />}>
+      <form method="get" className="mb-4 flex justify-end">
         <select name="sort" defaultValue={sort} className="min-h-12 rounded-[16px] border-0 bg-[var(--ub-surface-card-strong)] px-3 text-[13px] text-[var(--ub-text-primary)] shadow-sm">
           <option value="latest">최신순</option>
-          <option value="views">조회순</option>
+          <option value="popular">인기순</option>
         </select>
-        <button type="submit" className="min-h-12 rounded-[16px] bg-[var(--ub-color-brand)] px-4 text-[13px] font-semibold text-white">검색</button>
+        <button type="submit" className="sr-only">정렬 적용</button>
       </form>
 
       {error && (
         <div className="mb-5">
           <NoticeCard title="글을 불러오지 못했습니다" tone="danger">
-            <p>{error.message}</p>
+            <p>연결을 확인한 뒤 다시 시도해주세요.</p>
           </NoticeCard>
         </div>
       )}
 
       <section>
         <p className="mb-2 px-1 text-[12px] font-semibold text-[var(--ub-text-tertiary)]">
-          {query ? `“${query}” 검색 결과` : '최근 글'}
+          최근 글
         </p>
 
         <div className="overflow-hidden rounded-[20px] bg-[var(--ub-surface-card-strong)] shadow-[var(--ub-shadow-soft)]">
           {visiblePosts.map((post) => {
+            const postBoard = getBoardPresentation(post.board)
             const commentCount = post.comments?.[0]?.count ?? 0
             const likeCount =
               post.reactions?.filter(
@@ -172,6 +131,14 @@ export default async function BoardPage({ params, searchParams }: BoardPageProps
                 href={`/post/${post.id}`}
                 className="block border-b border-[var(--ub-separator)] px-4 py-4 last:border-b-0 active:bg-[var(--ub-surface-pressed)]"
               >
+                <div className="mb-2 flex min-w-0 items-center gap-1.5 text-[12px] text-[var(--ub-text-tertiary)]">
+                  <span className="text-[15px]" aria-hidden>{postBoard.emoji}</span>
+                  <span className="font-semibold text-[var(--ub-text-secondary)]">{postBoard.name}</span>
+                  <span>·</span>
+                  <time dateTime={post.created_at}>{formatRelativeTime(post.created_at)}</time>
+                  <span>·</span>
+                  <span className="truncate">{getAnonymousId(post.id, post.author_user_id)}</span>
+                </div>
                 <h2 className="truncate text-[16px] font-semibold leading-[22px] text-[var(--ub-text-primary)]">
                   {post.title}
                 </h2>
@@ -210,12 +177,6 @@ export default async function BoardPage({ params, searchParams }: BoardPageProps
                     <SystemIcon name="message" size={14} />
                     {commentCount}
                   </span>
-                  <time
-                    className="ml-auto whitespace-nowrap"
-                    dateTime={post.created_at}
-                  >
-                    {formatCompactDate(post.created_at)}
-                  </time>
                 </div>
               </Link>
             )

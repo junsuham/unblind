@@ -3,6 +3,7 @@ import { isAdminUser } from '@/lib/adminRole'
 import { getRequestUser } from '@/lib/requestUser'
 import { getVerifiedSocialAge } from '@/lib/socialAge'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
+import { guardMutation } from '@/lib/mutationGuard'
 
 export const runtime = 'nodejs'
 
@@ -29,6 +30,14 @@ export async function DELETE(request: Request) {
   if (!user?.email) {
     return Response.json({ error: '로그인이 필요합니다.' }, { status: 401 })
   }
+
+  const blocked = await guardMutation(request, {
+    bucket: 'account-delete',
+    identity: user.id,
+    limit: 3,
+    windowSeconds: 60 * 60,
+  })
+  if (blocked) return blocked
 
   const body = await request.json().catch(() => null)
   if (body?.confirmation !== '탈퇴') {

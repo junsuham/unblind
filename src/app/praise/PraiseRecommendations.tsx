@@ -66,15 +66,7 @@ export default function PraiseRecommendations({
         </div>
       </section>
 
-      <div className="mt-5 flex items-end justify-between px-1">
-        <div>
-          <p className="text-[13px] font-semibold text-[var(--ub-text-on-brand-primary)]">이번 주 TOP 100</p>
-          <p className="mt-0.5 text-[11px] text-[var(--ub-text-on-brand-tertiary)]">언블라인드 에디터 선정</p>
-        </div>
-        <span className="text-[11px] text-[var(--ub-text-on-brand-tertiary)]">곡을 눌러 바로 재생</span>
-      </div>
-
-      <section className="mt-2 overflow-hidden rounded-[22px] bg-[var(--ub-surface-card-strong)] text-[var(--ub-text-primary)] shadow-[var(--ub-shadow-soft)]">
+      <section className="mt-5 overflow-hidden rounded-[22px] bg-[var(--ub-surface-card-strong)] text-[var(--ub-text-primary)] shadow-[var(--ub-shadow-soft)]">
         {displayedSongs.map((song, index) => {
           const isSelected = selectedSong.id === song.id
 
@@ -121,9 +113,6 @@ export default function PraiseRecommendations({
         })}
       </section>
 
-      <p className="mt-3 px-1 text-[11px] leading-[17px] text-[var(--ub-text-on-brand-tertiary)]">
-        YouTube 공식 플레이어로 재생됩니다. 일부 영상은 권리자의 설정에 따라 재생이 제한될 수 있습니다.
-      </p>
     </div>
   )
 }

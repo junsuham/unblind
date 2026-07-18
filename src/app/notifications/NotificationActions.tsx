@@ -1,28 +1,47 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { supabase } from '@/lib/supabase'
+import { useState } from 'react'
 
 export default function NotificationActions({ hasUnread }: { hasUnread: boolean }) {
   const router = useRouter()
+  const [pending, setPending] = useState(false)
+  const [errorMessage, setErrorMessage] = useState('')
 
   async function markAllRead() {
-    await supabase
-      .from('notifications')
-      .update({ read_at: new Date().toISOString() })
-      .is('read_at', null)
-    router.refresh()
+    if (pending) return
+    setPending(true)
+    setErrorMessage('')
+
+    try {
+      const response = await fetch('/api/notifications/read', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ all: true }),
+      })
+      const result = await response.json().catch(() => null)
+      if (!response.ok) throw new Error(result?.error ?? '알림을 읽음 처리하지 못했습니다.')
+      router.refresh()
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : '알림을 읽음 처리하지 못했습니다.')
+    } finally {
+      setPending(false)
+    }
   }
 
   if (!hasUnread) return null
 
   return (
-    <button
-      type="button"
-      onClick={markAllRead}
-      className="min-h-10 rounded-full bg-[var(--ub-surface-card)] px-4 text-[13px] font-semibold text-[var(--ub-color-brand)]"
-    >
-      모두 읽음
-    </button>
+    <div className="flex items-center gap-2">
+      {errorMessage && <span className="text-[11px] font-semibold text-white/75" role="alert">{errorMessage}</span>}
+      <button
+        type="button"
+        onClick={markAllRead}
+        disabled={pending}
+        className="min-h-10 rounded-full bg-[var(--ub-surface-card)] px-4 text-[13px] font-semibold text-[var(--ub-color-brand)] disabled:opacity-55"
+      >
+        {pending ? '처리 중…' : '모두 읽음'}
+      </button>
+    </div>
   )
 }

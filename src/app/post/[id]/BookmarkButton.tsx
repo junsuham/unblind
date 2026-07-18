@@ -1,12 +1,10 @@
 'use client'
 
 import { useState } from 'react'
-import { supabase } from '@/lib/supabase'
 import { SystemIcon } from '@/app/components/ui/SystemIcon'
 
 export default function BookmarkButton({
   postId,
-  userId,
   initialSaved,
 }: {
   postId: string
@@ -15,29 +13,43 @@ export default function BookmarkButton({
 }) {
   const [saved, setSaved] = useState(initialSaved)
   const [loading, setLoading] = useState(false)
+  const [errorMessage, setErrorMessage] = useState('')
 
   async function toggle() {
     if (loading) return
     setLoading(true)
+    setErrorMessage('')
 
-    const { error } = saved
-      ? await supabase.from('saved_posts').delete().eq('user_id', userId).eq('post_id', postId)
-      : await supabase.from('saved_posts').insert({ user_id: userId, post_id: postId })
-
-    if (!error) setSaved(!saved)
-    setLoading(false)
+    try {
+      const nextSaved = !saved
+      const response = await fetch('/api/bookmarks', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ postId, saved: nextSaved }),
+      })
+      const result = await response.json().catch(() => null)
+      if (!response.ok) throw new Error(result?.error ?? '저장 상태를 변경하지 못했습니다.')
+      setSaved(nextSaved)
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : '저장 상태를 변경하지 못했습니다.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
+    <span className="relative">
     <button
       type="button"
       onClick={toggle}
       disabled={loading}
       aria-label={saved ? '저장 취소' : '게시글 저장'}
-      className="inline-flex min-h-9 items-center gap-1 rounded-full bg-[var(--ub-surface-muted)] px-3 text-[13px] text-[var(--ub-text-secondary)] disabled:opacity-50"
+      title={saved ? '저장 취소' : '게시글 저장'}
+      className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[var(--ub-surface-muted)] text-[var(--ub-text-secondary)] disabled:opacity-50"
     >
-      <SystemIcon name="bookmark" size={16} className={saved ? 'fill-current text-[var(--ub-color-brand)]' : ''} />
-      {saved ? '저장됨' : '저장'}
+      <SystemIcon name="bookmark" size={18} className={saved ? 'fill-current text-[var(--ub-color-brand)]' : ''} />
     </button>
+      {errorMessage && <span className="sr-only" role="alert">{errorMessage}</span>}
+    </span>
   )
 }

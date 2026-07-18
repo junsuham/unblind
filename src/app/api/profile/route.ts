@@ -8,6 +8,7 @@ import {
 import { getRequestUser } from '@/lib/requestUser'
 import { getVerifiedSocialAge } from '@/lib/socialAge'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
+import { guardMutation } from '@/lib/mutationGuard'
 
 export async function POST(request: Request) {
   const user = await getRequestUser(request)
@@ -15,6 +16,14 @@ export async function POST(request: Request) {
   if (!user?.email) {
     return NextResponse.json({ error: '로그인이 필요합니다.' }, { status: 401 })
   }
+
+  const blocked = await guardMutation(request, {
+    bucket: 'profile-save',
+    identity: user.id,
+    limit: 10,
+    windowSeconds: 60,
+  })
+  if (blocked) return blocked
 
   const body = await request.json().catch(() => null)
   const occupation = body?.occupation
