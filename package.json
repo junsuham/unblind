@@ -2,6 +2,9 @@
   "name": "youth-anonymous-beta",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": "24.x"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -16,6 +19,7 @@
     "check:mobile": "npm --prefix mobile run lint && npm --prefix mobile run typecheck && npm --prefix mobile run doctor"
   },
   "dependencies": {
+    "@builder.io/sdk-react": "^5.2.4",
     "@supabase/ssr": "^0.12.0",
     "@supabase/supabase-js": "^2.110.0",
     "next": "16.2.10",

@@ -10,14 +10,13 @@ import { SystemIcon } from '@/app/components/ui/SystemIcon'
 import { HomePraisePlayer } from '@/app/components/HomePraisePlayer'
 import { HomeManittoFinder } from '@/app/components/HomeManittoFinder'
 import { HomeBibleVerse } from '@/app/components/HomeBibleVerse'
+import { BuilderHomeSection } from '@/app/components/builder/BuilderHomeSection'
 import { getWeeklyManitto } from '@/lib/manitto'
 
 export const dynamic = 'force-dynamic'
 
 type HomePageProps = {
-  searchParams: Promise<{
-    sort?: string
-  }>
+  searchParams: Promise<Record<string, string | string[] | undefined>>
 }
 
 type FeedPost = {
@@ -95,6 +94,8 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   return (
     <AppShell bottomBar={<BottomTabBar active="home" />}>
       <HomeBibleVerse />
+
+      <BuilderHomeSection searchParams={params} />
 
       <section className="mb-4" aria-labelledby="unblind-app-shortcuts">
         <p id="unblind-app-shortcuts" className="mb-1.5 px-1 text-[9px] font-bold tracking-[0.08em] text-white/58">언블라인드 앱</p>

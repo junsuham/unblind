@@ -40,6 +40,16 @@ await expectResponse('/', async (response) => {
   }
 })
 
+await expectResponse('/builder-preview/home', async (response) => {
+  if (response.status !== 200) {
+    throw new Error(`Builder preview returned ${response.status}`)
+  }
+  const body = await response.text()
+  if (!body.includes('홈 편집 영역')) {
+    throw new Error('Builder preview is incomplete')
+  }
+})
+
 await expectResponse('/manifest.webmanifest', async (response) => {
   const manifest = await response.json()
   if (!response.ok || manifest.name !== '언블라인드' || manifest.display !== 'standalone') {
@@ -52,7 +62,7 @@ await expectResponse('/manifest.webmanifest', async (response) => {
 
 await expectResponse('/sw.js', async (response) => {
   const body = await response.text()
-  if (!response.ok || !body.includes("WORKER_VERSION = '22'")) {
+  if (!response.ok || !body.includes("WORKER_VERSION = '23'")) {
     throw new Error('Service worker version is not current')
   }
   if (!response.headers.get('cache-control')?.includes('no-store')) {
