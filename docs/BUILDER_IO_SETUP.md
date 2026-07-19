@@ -19,15 +19,17 @@ NEXT_PUBLIC_BUILDER_API_KEY=복사한_PUBLIC_API_KEY
 
 환경변수를 처음 등록할 때만 재배포가 필요합니다. 이후 Builder에서 발행한 글씨와 레이아웃 변경은 앱 코드 재배포 없이 반영됩니다.
 
-## 3. 편집과 발행
+## 3. 이 노트북에서 편집과 발행
 
-1. 관리자 센터의 `홈 화면 편집`을 엽니다.
-2. `Builder.io 편집기`에서 `unblind-home-section` 콘텐츠를 만듭니다.
+앱 관리자 센터에는 Builder 메뉴를 표시하지 않습니다. 이 노트북의 프로젝트 폴더에서 `UNBLIND-Builder-편집.command`를 더블클릭하면 기본 브라우저로 Builder 편집기가 열립니다. 터미널에서는 `npm run builder:open`을 실행해도 같습니다.
+
+1. `UNBLIND-Builder-편집.command`를 더블클릭합니다.
+2. Builder 편집기에서 `unblind-home-section` 콘텐츠를 만듭니다.
 3. 기본 블록 또는 UNBLIND 전용 블록을 배치합니다.
    - `UNBLIND 알림 카드`: 작은 제목, 제목, 본문, 버튼 문구와 이동 주소
    - `UNBLIND 작은 제목`: 홈 섹션의 작은 제목
 4. 모바일 폭에서 미리 본 뒤 Publish를 누릅니다.
-5. `/builder-preview/home`에서 단독 화면을 확인하고 실제 홈에서 최종 확인합니다.
+5. Builder 편집기 안의 모바일 미리보기와 실제 홈에서 최종 확인합니다. `/builder-preview/home`은 Builder 미리보기에만 쓰이는 숨겨진 기술 경로이며 앱 메뉴에는 노출되지 않습니다.
 
 ## 안전 원칙
 

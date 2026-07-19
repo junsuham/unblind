@@ -1,4 +1,3 @@
-import Link from 'next/link'
 import {
   BUILDER_HOME_MODEL,
   BUILDER_HOME_PREVIEW_PATH,
@@ -43,12 +42,6 @@ export default async function BuilderPreviewPage({
               <li>Preview URL을 {BUILDER_HOME_PREVIEW_PATH}로 설정합니다.</li>
               <li>NEXT_PUBLIC_BUILDER_API_KEY를 Vercel에 등록합니다.</li>
             </ol>
-            <Link
-              href="https://builder.io/content"
-              className="mt-4 inline-flex min-h-10 items-center rounded-full bg-[var(--ub-color-brand)] px-4 text-[13px] font-bold text-white"
-            >
-              Builder.io 열기
-            </Link>
           </section>
         )}
       </div>

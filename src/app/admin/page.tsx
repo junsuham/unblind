@@ -240,12 +240,6 @@ export default async function AdminDashboardPage() {
 
       <AdminListGroup title="콘텐츠 관리">
         <AdminListRow
-          href="/admin/builder"
-          title="홈 화면 편집"
-          subtitle="글씨와 카드 레이아웃을 Builder.io에서 변경합니다."
-          leading={<AdminIcon name="activity" className="h-6 w-6" />}
-        />
-        <AdminListRow
           href="/admin/posts"
           title="게시글"
           subtitle={`노출 ${visiblePostsResult.count ?? 0}건 · 숨김 ${hiddenPostCount}건`}
