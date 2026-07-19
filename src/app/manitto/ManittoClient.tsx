@@ -3,6 +3,10 @@
 import { FormEvent, useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { SystemIcon } from '@/app/components/ui/SystemIcon'
+import {
+  manittoVerses,
+  type ManittoCardKind,
+} from '@/lib/manittoCards'
 
 type ManittoClientProps = {
   weekKey: string
@@ -13,7 +17,29 @@ type ManittoClientProps = {
   joined: boolean
   isActive: boolean
   revealEnabled: boolean
-  receivedMessages: { id: string; body: string; createdAt: string }[]
+  receivedMessages: {
+    id: string
+    body: string
+    kind: ManittoCardKind
+    verse: { reference: string; text: string } | null
+    createdAt: string
+  }[]
+}
+
+const cardOptions: {
+  kind: ManittoCardKind
+  label: string
+  icon: 'message' | 'heart' | 'bookmark'
+}[] = [
+  { kind: 'encouragement', label: '응원', icon: 'message' },
+  { kind: 'thanks', label: '감사', icon: 'heart' },
+  { kind: 'scripture', label: '말씀', icon: 'bookmark' },
+]
+
+const cardTitles: Record<ManittoCardKind, string> = {
+  encouragement: '익명 응원',
+  thanks: '감사 카드',
+  scripture: '말씀 카드',
 }
 
 const missions = [
@@ -37,8 +63,13 @@ export default function ManittoClient({
 }: ManittoClientProps) {
   const router = useRouter()
   const [message, setMessage] = useState('')
+  const [cardType, setCardType] = useState<ManittoCardKind>('encouragement')
+  const [verseId, setVerseId] = useState(manittoVerses[0].id)
   const [serverMessage, setServerMessage] = useState('')
   const [submitting, setSubmitting] = useState(false)
+  const [testimony, setTestimony] = useState('')
+  const [testimonyMessage, setTestimonyMessage] = useState('')
+  const [publishingTestimony, setPublishingTestimony] = useState(false)
   const storageKey = `unblind-manitto:${weekKey}:${recipientNickname ?? 'waiting'}`
   const [completedMissions, setCompletedMissions] = useState<number[]>([])
   const [isReady, setIsReady] = useState(false)
@@ -89,7 +120,7 @@ export default function ManittoClient({
     const response = await fetch('/api/manitto', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action, message }),
+      body: JSON.stringify({ action, message, cardType, verseId }),
     })
     const result = await response.json()
     setSubmitting(false)
@@ -99,9 +130,43 @@ export default function ManittoClient({
     }
     if (action === 'message') {
       setMessage('')
-      setServerMessage('익명 응원 쪽지를 보냈습니다.')
+      setServerMessage(`${cardTitles[cardType]}를 보냈습니다.`)
     }
     router.refresh()
+  }
+
+  async function publishTestimony(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    const content = testimony.trim()
+    if (content.length < 10) return
+
+    setPublishingTestimony(true)
+    setTestimonyMessage('')
+
+    try {
+      const response = await fetch('/api/posts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          board: 'faith',
+          title: '이번 주 마니또 간증',
+          content,
+          mentions: [],
+        }),
+      })
+      const result = await response.json() as { error?: string; id?: string }
+
+      if (!response.ok || !result.id) {
+        setTestimonyMessage(result.error ?? '간증을 등록하지 못했습니다.')
+        return
+      }
+
+      router.push(`/post/${result.id}`)
+    } catch {
+      setTestimonyMessage('네트워크 연결을 확인한 뒤 다시 시도해주세요.')
+    } finally {
+      setPublishingTestimony(false)
+    }
   }
 
   if (!isActive) {
@@ -187,21 +252,136 @@ export default function ManittoClient({
         </div>
       </section>
 
-      <section className="rounded-[20px] bg-[var(--ub-surface-card-strong)] p-4 text-[var(--ub-text-primary)] shadow-[var(--ub-shadow-soft)]">
-        <h3 className="text-[15px] font-semibold">익명 응원 쪽지</h3>
+      <section className="overflow-hidden rounded-[22px] bg-[var(--ub-surface-card-strong)] text-[var(--ub-text-primary)] shadow-[var(--ub-shadow-soft)]">
+        <div className="border-b border-[var(--ub-separator)] px-4 pb-3 pt-4">
+          <h3 className="text-[15px] font-semibold">마니또에게 마음 보내기</h3>
+          <p className="mt-1 text-[11px] text-[var(--ub-text-secondary)]">응원·감사·말씀 카드는 모두 익명으로 전달됩니다.</p>
+          <div className="mt-3 grid grid-cols-3 gap-1.5 rounded-[14px] bg-[var(--ub-surface-muted)] p-1">
+            {cardOptions.map((option) => {
+              const isSelected = cardType === option.kind
+
+              return (
+                <button
+                  key={option.kind}
+                  type="button"
+                  aria-pressed={isSelected}
+                  onClick={() => {
+                    setCardType(option.kind)
+                    setServerMessage('')
+                  }}
+                  className={isSelected
+                    ? 'flex min-h-9 items-center justify-center gap-1.5 rounded-[11px] bg-[var(--ub-surface-card-strong)] text-[12px] font-bold text-[var(--ub-color-brand)] shadow-sm'
+                    : 'flex min-h-9 items-center justify-center gap-1.5 rounded-[11px] text-[12px] font-semibold text-[var(--ub-text-secondary)]'}
+                >
+                  <SystemIcon name={option.icon} size={15} filled={isSelected} />
+                  {option.label}
+                </button>
+              )
+            })}
+          </div>
+        </div>
+
         <form onSubmit={(event) => runAction('message', event)} className="mt-3">
-          <textarea value={message} onChange={(event) => setMessage(event.target.value)} maxLength={300} rows={3} placeholder="마니또에게 따뜻한 응원을 남겨주세요." className="min-h-[88px] w-full resize-none rounded-[16px] bg-[var(--ub-surface-muted)] px-4 py-3 text-[14px] outline-none" />
-          <button type="submit" disabled={submitting || message.trim().length < 2} className="mt-2 min-h-11 w-full rounded-[14px] bg-[var(--ub-color-brand)] text-[14px] font-semibold text-white disabled:opacity-50">익명으로 보내기</button>
+          {cardType === 'scripture' && (
+            <div className="space-y-2 px-4">
+              {manittoVerses.map((verse) => (
+                <button
+                  key={verse.id}
+                  type="button"
+                  aria-pressed={verseId === verse.id}
+                  onClick={() => setVerseId(verse.id)}
+                  className={verseId === verse.id
+                    ? 'w-full rounded-[15px] border border-[var(--ub-color-brand)] bg-[var(--ub-surface-brand-soft)] px-3 py-3 text-left'
+                    : 'w-full rounded-[15px] border border-[var(--ub-separator)] px-3 py-3 text-left active:bg-[var(--ub-surface-pressed)]'}
+                >
+                  <span className="block text-[11px] font-bold text-[var(--ub-color-brand)]">{verse.reference}</span>
+                  <span className="mt-1 line-clamp-2 block text-[12px] leading-[18px] text-[var(--ub-text-secondary)]">{verse.text}</span>
+                </button>
+              ))}
+            </div>
+          )}
+
+          <div className="px-4 pb-4 pt-3">
+            <textarea
+              value={message}
+              onChange={(event) => setMessage(event.target.value)}
+              maxLength={200}
+              rows={3}
+              placeholder={cardType === 'thanks'
+                ? '이번 주 고마웠던 마음을 남겨주세요.'
+                : cardType === 'scripture'
+                  ? '선택한 말씀과 함께 전할 한마디를 적어주세요. (선택)'
+                  : '마니또에게 따뜻한 응원을 남겨주세요.'}
+              className="min-h-[88px] w-full resize-none rounded-[16px] bg-[var(--ub-surface-muted)] px-4 py-3 text-[14px] outline-none"
+            />
+            <div className="mt-1 text-right text-[10px] tabular-nums text-[var(--ub-text-tertiary)]">{message.length}/200</div>
+            <button
+              type="submit"
+              disabled={submitting || (cardType !== 'scripture' && message.trim().length < 2)}
+              className="mt-2 min-h-11 w-full rounded-[14px] bg-[var(--ub-color-brand)] text-[14px] font-semibold text-white disabled:opacity-50"
+            >
+              {cardTitles[cardType]} 보내기
+            </button>
+            {serverMessage && <p className="mt-2 text-center text-[12px] text-[var(--ub-color-brand)]">{serverMessage}</p>}
+          </div>
         </form>
-        {serverMessage && <p className="mt-2 text-[12px] text-[var(--ub-color-brand)]">{serverMessage}</p>}
       </section>
 
       <section>
-        <p className="mb-2 px-1 text-[13px] font-semibold text-[var(--ub-text-on-brand-primary)]">받은 익명 쪽지</p>
+        <p className="mb-2 px-1 text-[13px] font-semibold text-[var(--ub-text-on-brand-primary)]">받은 마음 카드</p>
         <div className="space-y-2">
-          {receivedMessages.map((item) => <div key={item.id} className="rounded-[18px] bg-[var(--ub-surface-card-strong)] p-4 text-[14px] leading-[21px] text-[var(--ub-text-primary)]"><p>{item.body}</p><time className="mt-2 block text-[11px] text-[var(--ub-text-tertiary)]">{new Date(item.createdAt).toLocaleString('ko-KR')}</time></div>)}
-          {receivedMessages.length === 0 && <p className="rounded-[18px] bg-[var(--ub-surface-card)] p-4 text-center text-[13px] text-[var(--ub-text-secondary)]">아직 받은 쪽지가 없습니다.</p>}
+          {receivedMessages.map((item) => (
+            <article key={item.id} className="rounded-[18px] bg-[var(--ub-surface-card-strong)] p-4 text-[var(--ub-text-primary)] shadow-[var(--ub-shadow-soft)]">
+              <div className="flex items-center gap-2 text-[11px] font-bold text-[var(--ub-color-brand)]">
+                <SystemIcon
+                  name={item.kind === 'thanks' ? 'heart' : item.kind === 'scripture' ? 'bookmark' : 'message'}
+                  size={15}
+                  filled
+                />
+                {cardTitles[item.kind]}
+              </div>
+              {item.verse && (
+                <blockquote className="mt-3 rounded-[14px] bg-[var(--ub-surface-brand-soft)] p-3">
+                  <p className="text-[12px] font-bold text-[var(--ub-color-brand)]">{item.verse.reference}</p>
+                  <p className="mt-1 text-[12px] leading-[19px] text-[var(--ub-text-secondary)]">{item.verse.text}</p>
+                </blockquote>
+              )}
+              {item.body && <p className="mt-3 whitespace-pre-wrap text-[14px] leading-[21px]">{item.body}</p>}
+              <time className="mt-2 block text-[11px] text-[var(--ub-text-tertiary)]">{new Date(item.createdAt).toLocaleString('ko-KR')}</time>
+            </article>
+          ))}
+          {receivedMessages.length === 0 && <p className="rounded-[18px] bg-[var(--ub-surface-card)] p-4 text-center text-[13px] text-[var(--ub-text-secondary)]">아직 받은 카드가 없습니다.</p>}
         </div>
+      </section>
+
+      <section className="rounded-[20px] bg-[var(--ub-surface-card-strong)] p-4 text-[var(--ub-text-primary)] shadow-[var(--ub-shadow-soft)]">
+        <div className="flex items-center gap-2">
+          <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[var(--ub-surface-brand-soft)] text-[var(--ub-color-brand)]">
+            <SystemIcon name="sparkles" size={18} />
+          </span>
+          <div>
+            <h3 className="text-[15px] font-semibold">이번 주 마니또 간증</h3>
+            <p className="mt-0.5 text-[11px] text-[var(--ub-text-secondary)]">활동을 마친 뒤 느낀 점을 익명으로 나눠보세요.</p>
+          </div>
+        </div>
+        <form onSubmit={publishTestimony} className="mt-3">
+          <textarea
+            value={testimony}
+            onChange={(event) => setTestimony(event.target.value)}
+            maxLength={1200}
+            rows={4}
+            placeholder="기도하며 경험한 감사, 변화, 배운 점을 적어주세요."
+            className="min-h-[104px] w-full resize-none rounded-[16px] bg-[var(--ub-surface-muted)] px-4 py-3 text-[14px] outline-none"
+          />
+          <button
+            type="submit"
+            disabled={publishingTestimony || testimony.trim().length < 10}
+            className="mt-2 min-h-11 w-full rounded-[14px] bg-[var(--ub-color-brand)] text-[14px] font-semibold text-white disabled:opacity-50"
+          >
+            신앙고민 게시판에 익명으로 나누기
+          </button>
+        </form>
+        {testimonyMessage && <p className="mt-2 text-center text-[12px] text-[#FF3B30]">{testimonyMessage}</p>}
       </section>
 
       <div className="rounded-[18px] border border-[var(--ub-glass-border)] bg-[var(--ub-surface-card)] p-4 text-[13px] leading-[20px] text-[var(--ub-text-secondary)] backdrop-blur-xl">

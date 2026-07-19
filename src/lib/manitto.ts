@@ -2,6 +2,7 @@ import 'server-only'
 
 import { createHmac } from 'node:crypto'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
+import { decodeManittoCard, type ManittoCardKind } from '@/lib/manittoCards'
 
 type EligibleProfile = {
   user_id: string
@@ -23,7 +24,13 @@ export type WeeklyManitto = {
   joined: boolean
   isActive: boolean
   revealEnabled: boolean
-  receivedMessages: { id: string; body: string; createdAt: string }[]
+  receivedMessages: {
+    id: string
+    body: string
+    kind: ManittoCardKind
+    verse: { reference: string; text: string } | null
+    createdAt: string
+  }[]
 }
 
 export type ManittoAssignment = WeeklyManitto & {
@@ -126,7 +133,18 @@ export async function getManittoAssignment(userId: string): Promise<ManittoAssig
     joined: participantIds.has(userId),
     isActive,
     revealEnabled: Boolean(settings?.reveal_enabled),
-    receivedMessages: (receivedMessages ?? []).map((item) => ({ id: item.id, body: item.body, createdAt: item.created_at })),
+    receivedMessages: (receivedMessages ?? []).map((item) => {
+      const card = decodeManittoCard(item.body)
+      return {
+        id: item.id,
+        body: card.message,
+        kind: card.kind,
+        verse: card.verse
+          ? { reference: card.verse.reference, text: card.verse.text }
+          : null,
+        createdAt: item.created_at,
+      }
+    }),
   }
 }
 
