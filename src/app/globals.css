@@ -274,6 +274,7 @@ body:has(.ub-app-frame) {
    * below because standalone WebKit otherwise reserves an oversized strip.
    */
   box-sizing: border-box;
+  position: relative;
   height: calc(55px + env(safe-area-inset-bottom, 0px));
   min-height: 0;
   padding-bottom: env(safe-area-inset-bottom, 0px);
@@ -292,10 +293,15 @@ body:has(.ub-app-frame) {
   min-height: 50px;
 }
 
+.ub-app-tabbar-label {
+  margin-top: 4px;
+}
+
 @media (display-mode: standalone) {
   .ub-app-frame {
     inset: 0 0 auto;
     height: 100dvh;
+    background: var(--ub-app-background);
   }
 
   .ub-app-tabbar {
@@ -307,16 +313,33 @@ body:has(.ub-app-frame) {
 
     height: 50px;
     padding-bottom: var(--ub-pwa-bottom-inset);
+    border-top-color: transparent;
+    border-radius: 0;
+    background-color: transparent;
+  }
+
+  .ub-app-tabbar::before {
+    position: absolute;
+    z-index: -1;
+    inset: 2px 0 0;
+    border-top: 1px solid var(--ub-separator);
+    border-radius: 20px 20px 0 0;
+    background-color: var(--ub-tabbar-background);
+    content: '';
   }
 
   .ub-app-tabbar-content {
     height: calc(50px - var(--ub-pwa-bottom-inset));
-    transform: translateY(10px);
+    transform: translateY(max(9px, var(--ub-pwa-bottom-inset)));
   }
 
   .ub-app-tabbar-link {
     height: 100%;
     min-height: 0;
+  }
+
+  .ub-app-tabbar-label {
+    margin-top: 2px;
   }
 }
 

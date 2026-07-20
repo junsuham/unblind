@@ -48,12 +48,18 @@ describe('app shell bottom tab bar', () => {
       'height: calc(50px - var(--ub-pwa-bottom-inset));',
     )
     expect(globalStyles).not.toContain('transform: translate3d(0, 8px, 0);')
-    expect(globalStyles).toContain('transform: translateY(10px);')
+    expect(globalStyles).toContain(
+      'transform: translateY(max(9px, var(--ub-pwa-bottom-inset)));',
+    )
+    expect(globalStyles).toMatch(
+      /@media \(display-mode: standalone\) \{[\s\S]*?\.ub-app-tabbar::before\s*\{[\s\S]*?inset: 2px 0 0;/,
+    )
     expect(globalStyles).toMatch(
       /@media \(display-mode: standalone\) \{[\s\S]*?\.ub-app-tabbar-link\s*\{[\s\S]*?height: 100%;[\s\S]*?min-height: 0;/,
     )
     expect(appShell).toContain('ub-app-tabbar-content grid')
     expect(appShell).toContain('ub-app-tabbar-link relative')
+    expect(appShell).toContain('ub-app-tabbar-label max-w-full')
     expect(routeLoading).toContain('ub-app-tabbar-content mx-auto')
   })
 

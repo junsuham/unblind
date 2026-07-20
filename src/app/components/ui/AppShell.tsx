@@ -562,10 +562,10 @@ export function BottomTabBar({ active }: BottomTabBarProps) {
               <span
                 className={
                   isWrite
-                    ? 'mt-1 max-w-full truncate text-[10px] font-semibold leading-3 text-[var(--ub-color-brand)]'
+                    ? 'ub-app-tabbar-label max-w-full truncate text-[10px] font-semibold leading-3 text-[var(--ub-color-brand)]'
                     : isActive
-                      ? 'mt-1 max-w-full truncate text-[10px] font-bold leading-3 text-white'
-                      : 'mt-1 max-w-full truncate text-[10px] leading-3 text-white/70'
+                      ? 'ub-app-tabbar-label max-w-full truncate text-[10px] font-bold leading-3 text-white'
+                      : 'ub-app-tabbar-label max-w-full truncate text-[10px] leading-3 text-white/70'
                 }
               >
                 {tab.label}
