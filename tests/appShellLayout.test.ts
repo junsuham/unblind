@@ -48,7 +48,7 @@ describe('app shell bottom tab bar', () => {
       'height: calc(50px - var(--ub-pwa-bottom-inset));',
     )
     expect(globalStyles).not.toContain('transform: translate3d(0, 8px, 0);')
-    expect(globalStyles).toContain('transform: translateY(8px);')
+    expect(globalStyles).toContain('transform: translateY(10px);')
     expect(globalStyles).toMatch(
       /@media \(display-mode: standalone\) \{[\s\S]*?\.ub-app-tabbar-link\s*\{[\s\S]*?height: 100%;[\s\S]*?min-height: 0;/,
     )
