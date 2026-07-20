@@ -24,6 +24,7 @@ describe('3D emoji image assets', () => {
       'bell',
       'musicDisc',
       'check',
+      'siren',
     ])
   })
 

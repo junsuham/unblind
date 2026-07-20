@@ -15,6 +15,7 @@ export const emoji3DAssets = {
   bell: { src: '/icons/emoji-3d/bell.png', label: '알림' },
   musicDisc: { src: '/icons/emoji-3d/music-disc.png', label: '음반' },
   check: { src: '/icons/emoji-3d/check.png', label: '완료' },
+  siren: { src: '/icons/emoji-3d/siren.png', label: '긴급' },
 } as const
 
 export type Emoji3DName = keyof typeof emoji3DAssets

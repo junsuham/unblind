@@ -7,6 +7,8 @@ import {
 } from '@/app/components/ui/AppShell'
 import { SystemIcon } from '@/app/components/ui/SystemIcon'
 import { Emoji3D } from '@/app/components/ui/Emoji3D'
+import { UrgentPrayerBadge } from '@/app/components/UrgentPrayerBadge'
+import { isUrgentPrayerPost } from '@/lib/urgentPrayer'
 import {
   formatRelativeTime,
   getAnonymousId,
@@ -41,6 +43,7 @@ type PostRow = {
   content: string
   created_at: string
   view_count: number
+  tags: string[] | null
   comments: { count: number }[]
   reactions: { type: 'pray' | 'empathize' }[]
 }
@@ -63,6 +66,7 @@ export default async function BoardPage({ params, searchParams }: BoardPageProps
       content,
       created_at,
       view_count,
+      tags,
       comments(count),
       reactions(type)
     `)
@@ -125,6 +129,7 @@ export default async function BoardPage({ params, searchParams }: BoardPageProps
               post.content.length > 100
                 ? `${post.content.slice(0, 100)}…`
                 : post.content
+            const isUrgent = isUrgentPrayerPost(post.board, post.tags)
 
             return (
               <Link
@@ -140,9 +145,10 @@ export default async function BoardPage({ params, searchParams }: BoardPageProps
                   <span>·</span>
                   <span className="truncate">{getAnonymousId(post.id, post.author_user_id)}</span>
                 </div>
-                <h2 className="truncate text-[16px] font-semibold leading-[22px] text-[var(--ub-text-primary)]">
-                  {post.title}
-                </h2>
+                <div className="flex min-w-0 items-center gap-2">
+                  {isUrgent && <UrgentPrayerBadge compact />}
+                  <h2 className="min-w-0 truncate text-[16px] font-semibold leading-[22px] text-[var(--ub-text-primary)]">{post.title}</h2>
+                </div>
                 <p className="mt-1 line-clamp-2 text-[13px] leading-[19px] text-[var(--ub-text-secondary)]">
                   {preview}
                 </p>

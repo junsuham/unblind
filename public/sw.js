@@ -1,4 +1,4 @@
-const WORKER_VERSION = '36'
+const WORKER_VERSION = '37'
 const CACHE_NAME = `unblind-static-v${WORKER_VERSION}`
 const PRECACHE_URLS = [
   '/offline.html',
@@ -22,6 +22,7 @@ const PRECACHE_URLS = [
   '/icons/emoji-3d/prayer.png',
   '/icons/emoji-3d/prohibited.png',
   '/icons/emoji-3d/sun.png',
+  '/icons/emoji-3d/siren.png',
 ]
 
 self.addEventListener('install', (event) => {

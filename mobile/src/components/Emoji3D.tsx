@@ -15,6 +15,7 @@ import prohibited from '../../assets/emoji-3d/prohibited.png'
 import bell from '../../assets/emoji-3d/bell.png'
 import musicDisc from '../../assets/emoji-3d/music-disc.png'
 import check from '../../assets/emoji-3d/check.png'
+import siren from '../../assets/emoji-3d/siren.png'
 
 const emoji3DSources = {
   prayer,
@@ -33,6 +34,7 @@ const emoji3DSources = {
   bell,
   musicDisc,
   check,
+  siren,
 } as const
 
 const emoji3DLabels: Record<Emoji3DName, string> = {
@@ -52,6 +54,7 @@ const emoji3DLabels: Record<Emoji3DName, string> = {
   bell: '알림',
   musicDisc: '음반',
   check: '완료',
+  siren: '긴급',
 }
 
 export type Emoji3DName = keyof typeof emoji3DSources

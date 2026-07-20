@@ -3,6 +3,7 @@ import { getCommunityRequestUser } from '@/lib/communityRequestUser'
 import { parseBoard, parseContentMentions } from '@/lib/contentInput'
 import { guardMutation } from '@/lib/mutationGuard'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
+import { parsePostTags, URGENT_PRAYER_TAG } from '@/lib/urgentPrayer'
 
 export async function POST(request: Request) {
   const user = await getCommunityRequestUser(request)
@@ -21,6 +22,9 @@ export async function POST(request: Request) {
   const title = typeof body?.title === 'string' ? body.title.trim() : ''
   const content = typeof body?.content === 'string' ? body.content.trim() : ''
   const mentions = parseContentMentions(body?.mentions, user.id)
+  const urgentPrayer = body?.urgentPrayer === true && board === 'prayer'
+  const tags = parsePostTags(body?.tags)
+  if (urgentPrayer) tags.push(URGENT_PRAYER_TAG)
 
   if (!board) return Response.json({ error: '게시판을 선택해주세요.' }, { status: 400 })
   if (title.length < 2 || title.length > 80) return Response.json({ error: '제목은 2자 이상 80자 이하로 작성해주세요.' }, { status: 400 })
@@ -38,7 +42,7 @@ export async function POST(request: Request) {
       content,
       status: 'visible',
       author_user_id: user.id,
-      tags: [],
+      tags,
       mentions,
     })
     .select('id')

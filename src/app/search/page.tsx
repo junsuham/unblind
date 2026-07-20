@@ -4,11 +4,13 @@ import { AppShell, BottomTabBar } from '@/app/components/ui/AppShell'
 import { SystemIcon } from '@/app/components/ui/SystemIcon'
 import { Emoji3D } from '@/app/components/ui/Emoji3D'
 import { formatRelativeTime, getBoardPresentation } from '@/lib/communityPresentation'
+import { UrgentPrayerBadge } from '@/app/components/UrgentPrayerBadge'
+import { isUrgentPrayerPost } from '@/lib/urgentPrayer'
 
 export const dynamic = 'force-dynamic'
 
 type SearchPageProps = { searchParams: Promise<{ q?: string }> }
-type SearchPost = { id: string; board: string; title: string; content: string; created_at: string }
+type SearchPost = { id: string; board: string; title: string; content: string; created_at: string; tags: string[] | null }
 
 export default async function SearchPage({ searchParams }: SearchPageProps) {
   const { supabase } = await requireBetaUser()
@@ -20,7 +22,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
     const safeQuery = query.replace(/[,%()]/g, ' ')
     const { data } = await supabase
       .from('posts')
-      .select('id, board, title, content, created_at')
+      .select('id, board, title, content, created_at, tags')
       .eq('status', 'visible')
       .or(`title.ilike.%${safeQuery}%,content.ilike.%${safeQuery}%`)
       .order('created_at', { ascending: false })
@@ -42,9 +44,10 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
       <section className="overflow-hidden rounded-[20px] bg-[var(--ub-surface-card-strong)] shadow-sm">
         {posts.map((post) => {
           const board = getBoardPresentation(post.board)
+          const isUrgent = isUrgentPrayerPost(post.board, post.tags)
           return <Link key={post.id} href={`/post/${post.id}`} className="block border-b border-[var(--ub-separator)] px-4 py-4 last:border-0">
             <p className="flex items-center gap-1 text-[11px] text-[var(--ub-text-tertiary)]"><Emoji3D name={board.icon} size={16} /> {board.name} · {formatRelativeTime(post.created_at)}</p>
-            <h2 className="mt-1 truncate text-[15px] font-bold text-[var(--ub-text-primary)]">{post.title}</h2>
+            <div className="mt-1 flex min-w-0 items-center gap-1.5">{isUrgent && <UrgentPrayerBadge compact />}<h2 className="min-w-0 truncate text-[15px] font-bold text-[var(--ub-text-primary)]">{post.title}</h2></div>
             <p className="mt-1 line-clamp-2 text-[13px] leading-5 text-[var(--ub-text-secondary)]">{post.content}</p>
           </Link>
         })}

@@ -26,6 +26,7 @@ type StoredDraft = {
   board: BoardId | ''
   title: string
   content: string
+  urgentPrayer: boolean
   savedAt: number
 }
 
@@ -129,6 +130,7 @@ export default function NewPostForm({ initialBoard }: NewPostFormProps) {
   const [boardPickerOpen, setBoardPickerOpen] = useState(false)
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
+  const [urgentPrayer, setUrgentPrayer] = useState(false)
   const [mentions, setMentions] = useState<ContentMention[]>([])
   const [uploadedImages, setUploadedImages] = useState<UploadedImage[]>([])
   const [isUploading, setIsUploading] = useState(false)
@@ -154,6 +156,7 @@ export default function NewPostForm({ initialBoard }: NewPostFormProps) {
             if (!initialBoard && isBoardId(draft.board)) setBoard(draft.board)
             if (typeof draft.title === 'string') setTitle(draft.title.slice(0, 80))
             if (typeof draft.content === 'string') setContent(draft.content.slice(0, 2000))
+            if ((initialBoard ?? draft.board) === 'prayer' && draft.urgentPrayer === true) setUrgentPrayer(true)
             setDraftRestored(true)
           }
         }
@@ -177,7 +180,7 @@ export default function NewPostForm({ initialBoard }: NewPostFormProps) {
           return
         }
 
-        const draft: StoredDraft = { board, title, content, savedAt: Date.now() }
+        const draft: StoredDraft = { board, title, content, urgentPrayer: board === 'prayer' && urgentPrayer, savedAt: Date.now() }
         window.localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(draft))
       } catch {
         // Private browsing can reject persistent storage; writing still works.
@@ -185,7 +188,7 @@ export default function NewPostForm({ initialBoard }: NewPostFormProps) {
     }, 450)
 
     return () => window.clearTimeout(timer)
-  }, [board, content, title])
+  }, [board, content, title, urgentPrayer])
 
   function clearDraft() {
     try {
@@ -197,6 +200,7 @@ export default function NewPostForm({ initialBoard }: NewPostFormProps) {
     setTitle('')
     setContent('')
     setMentions([])
+    setUrgentPrayer(false)
     setDraftRestored(false)
   }
 
@@ -340,7 +344,7 @@ export default function NewPostForm({ initialBoard }: NewPostFormProps) {
       const response = await fetch('/api/posts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ board, title: trimmedTitle, content: trimmedContent, tags, mentions }),
+        body: JSON.stringify({ board, title: trimmedTitle, content: trimmedContent, tags, mentions, urgentPrayer: board === 'prayer' && urgentPrayer }),
       })
       data = await response.json().catch(() => null)
       if (!response.ok) throw new Error(data?.error ?? '게시글을 등록하지 못했습니다.')
@@ -419,6 +423,7 @@ export default function NewPostForm({ initialBoard }: NewPostFormProps) {
                     type="button"
                     onClick={() => {
                       setBoard(option.id)
+                      if (option.id !== 'prayer') setUrgentPrayer(false)
                       setBoardPickerOpen(false)
                     }}
                     aria-pressed={board === option.id}
@@ -438,6 +443,27 @@ export default function NewPostForm({ initialBoard }: NewPostFormProps) {
             <span>작성 중이던 글을 복원했습니다.</span>
             <button type="button" onClick={clearDraft} className="min-h-9 shrink-0 px-1 font-bold text-[#ff9a86]">초기화</button>
           </div>
+        )}
+
+        {board === 'prayer' && (
+          <section className="border-b border-white/8 px-4 py-4">
+            <button
+              type="button"
+              aria-pressed={urgentPrayer}
+              onClick={() => setUrgentPrayer((current) => !current)}
+              className={`flex min-h-[66px] w-full items-center gap-3 rounded-[16px] border px-3.5 text-left transition-colors ${urgentPrayer ? 'border-[#ff5a4f]/65 bg-[#ff3b30]/14' : 'border-white/10 bg-white/5 active:bg-white/8'}`}
+            >
+              <Emoji3D name="siren" size={38} />
+              <span className="min-w-0 flex-1">
+                <strong className="block text-[14px] text-white">긴급 중보기도 요청</strong>
+                <span className="mt-0.5 block text-[11px] leading-[16px] text-white/50">빠른 기도가 꼭 필요한 제목에만 표시해주세요.</span>
+              </span>
+              <span className={`relative h-7 w-12 shrink-0 rounded-full transition-colors ${urgentPrayer ? 'bg-[#ff3b30]' : 'bg-white/16'}`} aria-hidden>
+                <span className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow-sm transition-transform ${urgentPrayer ? 'translate-x-6' : 'translate-x-1'}`} />
+              </span>
+            </button>
+            <p className="mt-2 px-1 text-[10px] leading-[15px] text-white/34">생명 위험이나 즉시 구조가 필요한 상황에서는 앱보다 112·119와 가까운 보호자에게 먼저 연락해주세요.</p>
+          </section>
         )}
 
         <input

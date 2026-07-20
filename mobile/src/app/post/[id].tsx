@@ -11,6 +11,8 @@ import { PraiseMentionInput } from '@/components/PraiseMentionInput'
 import { PraiseMentionText } from '@/components/PraiseMentionText'
 import { Emoji3D } from '@/components/Emoji3D'
 import type { ContentMention, PraiseMentionTrack } from '@/lib/praiseMention'
+import { UrgentPrayerBadge } from '@/components/UrgentPrayerBadge'
+import { getVisiblePostTags, isUrgentPrayerPost } from '@/lib/urgentPrayer'
 
 type Post = { id: string; author_user_id: string | null; board: string; title: string; content: string; mentions: ContentMention[] | null; created_at: string; view_count: number; tags: string[] | null }
 type Comment = { id: string; author_user_id: string | null; content: string; mentions: ContentMention[] | null; created_at: string }
@@ -120,16 +122,20 @@ export default function PostDetailScreen() {
   if (loading) return <Screen><ActivityIndicator color={colors.brand} style={{ marginTop: 80 }} /></Screen>
   if (!post) return <Screen><Text style={{ color: colors.text }}>글을 찾을 수 없습니다.</Text></Screen>
 
+  const isUrgent = isUrgentPrayerPost(post.board, post.tags)
+  const visibleTags = getVisiblePostTags(post.tags)
+
   return (
     <Screen>
       <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}><Pressable onPress={() => router.back()}><Text style={{ color: colors.brand, fontWeight: '700' }}>‹ 돌아가기</Text></Pressable><View style={{ flexDirection: 'row', gap: 14 }}><Pressable onPress={() => report('post', post.id)}><Text style={{ color: colors.textTertiary, fontSize: 12 }}>신고</Text></Pressable>{post.author_user_id ? <Pressable onPress={() => blockUser(post.author_user_id!, true)}><Text style={{ color: colors.danger, fontSize: 12 }}>사용자 차단</Text></Pressable> : null}</View></View>
       <Card>
+        {isUrgent ? <View style={{ marginBottom: 12 }}><UrgentPrayerBadge /></View> : null}
         <Text style={{ color: colors.text, fontSize: 24, lineHeight: 32, fontWeight: '800' }}>{post.title}</Text>
         <Text style={{ color: colors.brand, fontSize: 14, fontWeight: '700', marginTop: 12 }}>익명</Text>
         <Text style={{ color: colors.textTertiary, fontSize: 12, marginTop: 7 }}>{new Date(post.created_at).toLocaleDateString('ko-KR')} · 조회 {post.view_count ?? 0}</Text>
         <View style={{ height: 1, backgroundColor: colors.separator, marginVertical: 20 }} />
         <PraiseMentionText content={post.content} mentions={post.mentions} tracks={praiseTracks} style={{ color: colors.text, fontSize: 16, lineHeight: 26 }} />
-        {post.tags?.length ? <Text style={{ color: colors.brand, fontSize: 13, marginTop: 20 }}>{post.tags.map((tag) => `#${tag}`).join('  ')}</Text> : null}
+        {visibleTags.length ? <Text style={{ color: colors.brand, fontSize: 13, marginTop: 20 }}>{visibleTags.map((tag) => `#${tag}`).join('  ')}</Text> : null}
         <View style={{ flexDirection: 'row', gap: 18, marginTop: 24 }}>
           <Pressable onPress={() => react('empathize')}><Text style={{ color: colors.textSecondary, fontSize: 15 }}>♡ {counts.empathize}</Text></Pressable>
           <Pressable accessibilityLabel={`기도 ${counts.pray}`} onPress={() => react('pray')} style={{ alignItems: 'center', flexDirection: 'row', gap: 4 }}><Emoji3D name="prayer" size={21} /><Text style={{ color: colors.textSecondary, fontSize: 15 }}>{counts.pray}</Text></Pressable>

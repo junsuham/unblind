@@ -19,6 +19,8 @@ import { AppShell, BottomTabBar, NoticeCard } from '@/app/components/ui/AppShell
 import { SystemIcon } from '@/app/components/ui/SystemIcon'
 import { Emoji3D } from '@/app/components/ui/Emoji3D'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
+import { UrgentPrayerBadge } from '@/app/components/UrgentPrayerBadge'
+import { getVisiblePostTags, isUrgentPrayerPost } from '@/lib/urgentPrayer'
 
 export const dynamic = 'force-dynamic'
 
@@ -102,6 +104,8 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
   const imageAttachments = ((post.mentions ?? []) as ContentMention[])
     .filter((mention): mention is ImageContentMention => mention.type === 'image')
     .slice(0, 3)
+  const isUrgent = isUrgentPrayerPost(post.board, post.tags)
+  const visibleTags = getVisiblePostTags(post.tags)
   const [{ data: praiseTracks }, { data: signedImageRows }] = await Promise.all([
     hasPraiseMention
       ? supabase
@@ -176,6 +180,8 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
             {postAnonymousId}
           </p>
 
+          {isUrgent && <div className="mt-4"><UrgentPrayerBadge /></div>}
+
           <h1 className="mt-6 break-words text-[26px] font-extrabold leading-[35px] tracking-[-0.035em] text-[var(--ub-text-primary)]">
             {post.title}
           </h1>
@@ -207,9 +213,9 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
             </div>
           )}
 
-          {post.tags?.length > 0 && (
+          {visibleTags.length > 0 && (
             <div className="mt-7 flex flex-wrap gap-2">
-              {post.tags.map((tag: string) => (
+              {visibleTags.map((tag) => (
                 <span
                   key={tag}
                   className="rounded-full bg-[var(--ub-surface-muted)] px-3 py-1.5 text-[12px] font-medium text-[var(--ub-text-secondary)]"

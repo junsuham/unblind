@@ -7,6 +7,8 @@ import { boardInfo } from '@/constants/content'
 import { radius, useAppTheme } from '@/constants/design'
 import { supabase } from '@/lib/supabase'
 import { reportMobileEvent } from '@/lib/telemetry'
+import { UrgentPrayerBadge } from '@/components/UrgentPrayerBadge'
+import { isUrgentPrayerPost } from '@/lib/urgentPrayer'
 
 type BoardSlug = keyof typeof boardInfo
 type Post = {
@@ -16,6 +18,7 @@ type Post = {
   content: string
   created_at: string
   view_count: number
+  tags: string[] | null
   comments: { count: number }[]
   reactions: { type: 'pray' | 'empathize' }[]
 }
@@ -45,7 +48,7 @@ export function BoardFeed({ slug, showBack = false }: { slug: BoardSlug; showBac
     const pageCursor = reset ? null : cursor
     let request = supabase
       .from('posts')
-      .select('id, author_user_id, title, content, created_at, view_count, comments(count), reactions(type)')
+      .select('id, author_user_id, title, content, created_at, view_count, tags, comments(count), reactions(type)')
       .eq('board', slug)
       .eq('status', 'visible')
     const safeQuery = activeQuery.trim().replace(/[,%()]/g, ' ')
@@ -159,6 +162,7 @@ export function BoardFeed({ slug, showBack = false }: { slug: BoardSlug; showBac
             const comments = post.comments?.[0]?.count ?? 0
             const createdAt = new Date(post.created_at)
             const date = `${String(createdAt.getMonth() + 1).padStart(2, '0')}.${String(createdAt.getDate()).padStart(2, '0')}`
+            const isUrgent = isUrgentPrayerPost(slug, post.tags)
 
             return (
               <Pressable
@@ -174,7 +178,10 @@ export function BoardFeed({ slug, showBack = false }: { slug: BoardSlug; showBac
                   backgroundColor: pressed ? colors.surfaceMuted : colors.surfaceStrong,
                 })}
               >
-                <Text numberOfLines={1} style={{ color: colors.text, fontSize: 16, fontWeight: '700' }}>{post.title}</Text>
+                <View style={{ alignItems: 'center', flexDirection: 'row', gap: 7 }}>
+                  {isUrgent ? <UrgentPrayerBadge compact /> : null}
+                  <Text numberOfLines={1} style={{ color: colors.text, flex: 1, fontSize: 16, fontWeight: '700' }}>{post.title}</Text>
+                </View>
                 <Text numberOfLines={1} style={{ color: colors.textSecondary, fontSize: 13, marginTop: 5 }}>{post.content}</Text>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 12 }}>
                   <View style={{ alignItems: 'center', flexDirection: 'row', gap: 10 }}>

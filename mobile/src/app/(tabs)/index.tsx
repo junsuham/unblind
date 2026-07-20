@@ -10,6 +10,8 @@ import { bibleVerses, boardInfo } from '@/constants/content'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/providers/AuthProvider'
 import { Emoji3D } from '@/components/Emoji3D'
+import { UrgentPrayerBadge } from '@/components/UrgentPrayerBadge'
+import { isUrgentPrayerPost } from '@/lib/urgentPrayer'
 
 type PopularPost = {
   id: string
@@ -18,6 +20,7 @@ type PopularPost = {
   title: string
   content: string
   view_count: number
+  tags: string[] | null
   comments: { count: number }[]
 }
 
@@ -35,7 +38,7 @@ export default function HomeScreen() {
     const [{ data }, { count }, { data: blockedRows }] = await Promise.all([
       supabase
         .from('posts')
-        .select('id, author_user_id, board, title, content, view_count, comments(count)')
+        .select('id, author_user_id, board, title, content, view_count, tags, comments(count)')
         .eq('status', 'visible')
         .order('view_count', { ascending: false })
         .order('created_at', { ascending: false })
@@ -144,7 +147,10 @@ export default function HomeScreen() {
             >
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
                 <View style={{ flex: 1 }}>
-                  <Text numberOfLines={1} style={{ color: colors.text, fontSize: 16, fontWeight: '700' }}>{post.title}</Text>
+                  <View style={{ alignItems: 'center', flexDirection: 'row', gap: 7 }}>
+                    {isUrgentPrayerPost(post.board, post.tags) ? <UrgentPrayerBadge compact /> : null}
+                    <Text numberOfLines={1} style={{ color: colors.text, flex: 1, fontSize: 16, fontWeight: '700' }}>{post.title}</Text>
+                  </View>
                   <Text numberOfLines={1} style={{ color: colors.textSecondary, fontSize: 13, marginTop: 4 }}>{boardInfo[post.board]?.title ?? '게시판'} · {post.content}</Text>
                 </View>
                 <Text style={{ color: colors.textTertiary, fontSize: 11 }}>조회 {post.view_count ?? 0} · 댓글 {post.comments?.[0]?.count ?? 0}  ›</Text>

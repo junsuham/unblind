@@ -13,6 +13,8 @@ import { HomeManittoFinder } from '@/app/components/HomeManittoFinder'
 import { HomeBibleVerse } from '@/app/components/HomeBibleVerse'
 import { BuilderHomeSection } from '@/app/components/builder/BuilderHomeSection'
 import { getWeeklyManitto } from '@/lib/manitto'
+import { UrgentPrayerBadge } from '@/app/components/UrgentPrayerBadge'
+import { isUrgentPrayerPost } from '@/lib/urgentPrayer'
 
 export const dynamic = 'force-dynamic'
 
@@ -28,6 +30,7 @@ type FeedPost = {
   content: string
   created_at: string
   view_count: number
+  tags: string[] | null
   comments: { count: number }[]
   reactions: { type: 'pray' | 'empathize' }[]
 }
@@ -53,6 +56,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
       content,
       created_at,
       view_count,
+      tags,
       comments(count),
       reactions(type)
     `)
@@ -157,6 +161,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
           const preview = post.content.length > 130
             ? `${post.content.slice(0, 130)}…`
             : post.content
+          const isUrgent = isUrgentPrayerPost(post.board, post.tags)
 
           return (
             <Link
@@ -173,9 +178,10 @@ export default async function HomePage({ searchParams }: HomePageProps) {
                 <span className="truncate">{getAnonymousId(post.id, post.author_user_id)}</span>
               </div>
 
-              <h2 className="mt-3 break-words text-[18px] font-bold leading-[25px] tracking-[-0.02em] text-[var(--ub-text-primary)]">
-                {post.title}
-              </h2>
+              <div className="mt-3 flex min-w-0 items-center gap-2">
+                {isUrgent && <UrgentPrayerBadge compact />}
+                <h2 className="min-w-0 break-words text-[18px] font-bold leading-[25px] tracking-[-0.02em] text-[var(--ub-text-primary)]">{post.title}</h2>
+              </div>
               <p className="mt-1.5 line-clamp-3 whitespace-pre-wrap text-[14px] leading-[21px] text-[var(--ub-text-secondary)]">
                 {preview}
               </p>
