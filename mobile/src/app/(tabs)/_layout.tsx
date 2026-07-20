@@ -1,6 +1,7 @@
 import { Redirect, Tabs } from 'expo-router'
 import { Text } from 'react-native'
 import { SymbolView, type SymbolViewProps } from 'expo-symbols'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useAuth } from '@/providers/AuthProvider'
 import { useAppTheme } from '@/constants/design'
 import { AppBootstrapScreen } from '@/components/AppBootstrapScreen'
@@ -24,6 +25,9 @@ const fallbackIcons: Record<string, string> = {
 export default function TabLayout() {
   const { session, loading, profileComplete } = useAuth()
   const colors = useAppTheme()
+  const insets = useSafeAreaInsets()
+  const tabBarHeight = Math.max(64, insets.bottom + 38)
+
   if (loading || (session && profileComplete === null)) return <AppBootstrapScreen />
   if (!session) return <Redirect href="/login" />
   if (profileComplete !== true) return <Redirect href="/profile-setup" />
@@ -38,24 +42,26 @@ export default function TabLayout() {
         tabBarInactiveTintColor: colors.textTertiary,
         sceneStyle: { backgroundColor: colors.background },
         tabBarStyle: {
+          height: tabBarHeight,
           borderTopWidth: 1,
           borderColor: colors.border,
-          borderTopLeftRadius: 22,
-          borderTopRightRadius: 22,
+          borderTopLeftRadius: 16,
+          borderTopRightRadius: 16,
           backgroundColor: colors.tabSurface,
           shadowColor: '#000000',
-          shadowOpacity: 0.1,
-          shadowRadius: 12,
-          shadowOffset: { width: 0, height: -3 },
-          elevation: 8,
+          shadowOpacity: 0.07,
+          shadowRadius: 8,
+          shadowOffset: { width: 0, height: -2 },
+          elevation: 5,
         },
-        tabBarLabelStyle: { fontSize: 11, fontWeight: '600' },
+        tabBarIconStyle: { height: 18 },
+        tabBarLabelStyle: { fontSize: 10, lineHeight: 11, fontWeight: '600' },
         tabBarIcon: ({ color }) => (
           <SymbolView
             name={icons[route.name] ?? 'circle.fill'}
-            size={21}
+            size={18}
             tintColor={color}
-            fallback={<Text style={{ color, fontSize: 20 }}>{fallbackIcons[route.name] ?? '•'}</Text>}
+            fallback={<Text style={{ color, fontSize: 17 }}>{fallbackIcons[route.name] ?? '•'}</Text>}
           />
         ),
       })}

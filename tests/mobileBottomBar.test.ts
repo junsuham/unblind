@@ -22,8 +22,15 @@ describe('native bottom tab bar', () => {
   it('lets React Navigation own the bottom safe area', () => {
     expect(tabLayout).not.toContain("position: 'absolute'")
     expect(tabLayout).not.toContain('bottom: 16')
-    expect(tabLayout).not.toContain('height: 70')
     expect(tabLayout).not.toContain('paddingBottom: 9')
+  })
+
+  it('keeps the dock compact while preserving the device safe area', () => {
+    expect(tabLayout).toContain('useSafeAreaInsets()')
+    expect(tabLayout).toContain('Math.max(64, insets.bottom + 38)')
+    expect(tabLayout).toContain('height: tabBarHeight')
+    expect(tabLayout).toContain('size={18}')
+    expect(tabLayout).toContain('fontSize: 10')
   })
 
   it('uses an opaque dock surface so brand color cannot bleed through', () => {
