@@ -1,17 +1,19 @@
+import type { Emoji3DName } from '@/lib/emoji3d'
+
 export const boardPresentation: Record<
   string,
-  { emoji: string; name: string }
+  { icon: Emoji3DName; name: string }
 > = {
-  prayer: { emoji: '🙏', name: '기도' },
-  faith: { emoji: '🕊️', name: '신앙' },
-  daily: { emoji: '☀️', name: '일상' },
-  church: { emoji: '⛪', name: '교회생활' },
-  work: { emoji: '☀️', name: '일상' },
-  relationship: { emoji: '💞', name: '연애/결혼' },
+  prayer: { icon: 'prayer', name: '기도' },
+  faith: { icon: 'dove', name: '신앙' },
+  daily: { icon: 'sun', name: '일상' },
+  church: { icon: 'church', name: '교회생활' },
+  work: { icon: 'sun', name: '일상' },
+  relationship: { icon: 'hearts', name: '연애/결혼' },
 }
 
 export function getBoardPresentation(board: string) {
-  return boardPresentation[board] ?? { emoji: '💬', name: '게시판' }
+  return boardPresentation[board] ?? { icon: 'chat' as const, name: '게시판' }
 }
 
 function hashSeed(seed: string) {

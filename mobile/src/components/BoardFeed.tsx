@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { ActivityIndicator, Pressable, Text, TextInput, View } from 'react-native'
 import { router } from 'expo-router'
 import { PageTitle } from '@/components/PageTitle'
+import { Emoji3D } from '@/components/Emoji3D'
 import { boardInfo } from '@/constants/content'
 import { radius, useAppTheme } from '@/constants/design'
 import { supabase } from '@/lib/supabase'
@@ -107,7 +108,7 @@ export function BoardFeed({ slug, showBack = false }: { slug: BoardSlug; showBac
         </Pressable>
       ) : null}
 
-      <PageTitle title={board.title} description={board.description} />
+      <PageTitle title={board.title} icon={board.icon} description={board.description} />
 
       <Pressable
         accessibilityRole="button"
@@ -176,7 +177,15 @@ export function BoardFeed({ slug, showBack = false }: { slug: BoardSlug; showBac
                 <Text numberOfLines={1} style={{ color: colors.text, fontSize: 16, fontWeight: '700' }}>{post.title}</Text>
                 <Text numberOfLines={1} style={{ color: colors.textSecondary, fontSize: 13, marginTop: 5 }}>{post.content}</Text>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 12 }}>
-                  <Text style={{ color: colors.textTertiary, fontSize: 12 }}>◉ {post.view_count ?? 0}   ♡ {likes}   🙏 {prayers}   ◯ {comments}</Text>
+                  <View style={{ alignItems: 'center', flexDirection: 'row', gap: 10 }}>
+                    <Text style={{ color: colors.textTertiary, fontSize: 12 }}>◉ {post.view_count ?? 0}</Text>
+                    <Text style={{ color: colors.textTertiary, fontSize: 12 }}>♡ {likes}</Text>
+                    <View style={{ alignItems: 'center', flexDirection: 'row', gap: 3 }}>
+                      <Emoji3D name="prayer" size={17} />
+                      <Text style={{ color: colors.textTertiary, fontSize: 12 }}>{prayers}</Text>
+                    </View>
+                    <Text style={{ color: colors.textTertiary, fontSize: 12 }}>◯ {comments}</Text>
+                  </View>
                   <Text style={{ color: colors.textTertiary, fontSize: 12 }}>{date}</Text>
                 </View>
               </Pressable>

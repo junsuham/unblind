@@ -4,6 +4,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
+import { Emoji3D } from '@/app/components/ui/Emoji3D'
 
 type InstallPromptEvent = Event & {
   prompt: () => Promise<void>
@@ -369,7 +370,7 @@ export function PwaLifecycle() {
 
             {installState === 'installed' ? (
               <div className="mt-6 rounded-[20px] bg-[var(--ub-success-soft)] p-5 text-center">
-                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[var(--ub-success)] text-[25px] font-bold text-white">✓</div>
+                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[var(--ub-success-soft)]"><Emoji3D name="check" size={34} /></div>
                 <p className="mt-3 ios-title">설치가 완료되었습니다</p>
                 <p className="mt-1 ios-secondary">홈 화면에서 언블라인드 아이콘을 눌러 시작하세요.</p>
               </div>

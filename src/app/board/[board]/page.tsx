@@ -6,6 +6,7 @@ import {
   NoticeCard,
 } from '@/app/components/ui/AppShell'
 import { SystemIcon } from '@/app/components/ui/SystemIcon'
+import { Emoji3D } from '@/app/components/ui/Emoji3D'
 import {
   formatRelativeTime,
   getAnonymousId,
@@ -132,7 +133,7 @@ export default async function BoardPage({ params, searchParams }: BoardPageProps
                 className="block border-b border-[var(--ub-separator)] px-4 py-4 last:border-b-0 active:bg-[var(--ub-surface-pressed)]"
               >
                 <div className="mb-2 flex min-w-0 items-center gap-1.5 text-[12px] text-[var(--ub-text-tertiary)]">
-                  <span className="text-[15px]" aria-hidden>{postBoard.emoji}</span>
+                  <Emoji3D name={postBoard.icon} size={18} />
                   <span className="font-semibold text-[var(--ub-text-secondary)]">{postBoard.name}</span>
                   <span>·</span>
                   <time dateTime={post.created_at}>{formatRelativeTime(post.created_at)}</time>
@@ -165,9 +166,7 @@ export default async function BoardPage({ params, searchParams }: BoardPageProps
                     className="inline-flex items-center gap-1"
                     aria-label={`기도 ${prayCount}`}
                   >
-                    <span className="text-[14px] leading-none" aria-hidden>
-                      🙏
-                    </span>
+                    <Emoji3D name="prayer" size={17} />
                     {prayCount}
                   </span>
                   <span

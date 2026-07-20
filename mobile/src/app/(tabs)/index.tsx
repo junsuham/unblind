@@ -9,6 +9,7 @@ import { useAppTheme } from '@/constants/design'
 import { bibleVerses, boardInfo } from '@/constants/content'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/providers/AuthProvider'
+import { Emoji3D } from '@/components/Emoji3D'
 
 type PopularPost = {
   id: string
@@ -86,7 +87,7 @@ export default function HomeScreen() {
               name="bell.fill"
               size={21}
               tintColor={colors.brand}
-              fallback={<Text style={{ color: colors.brand, fontSize: 19 }}>🔔</Text>}
+              fallback={<Emoji3D name="bell" size={22} />}
             />
             {unread > 0 ? (
               <View style={{ position: 'absolute', right: -1, top: -1, minWidth: 18, height: 18, borderRadius: 9, backgroundColor: '#FF3B30', alignItems: 'center', justifyContent: 'center', paddingHorizontal: 4 }}>

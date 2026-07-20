@@ -18,6 +18,7 @@ import {
   keepPresentMentions,
   type ContentMention,
 } from '@/lib/praiseMention'
+import { Emoji3D } from '@/app/components/ui/Emoji3D'
 
 type YouTubeResult = {
   youtubeId: string
@@ -204,10 +205,10 @@ const PraiseMentionInput = forwardRef<PraiseMentionInputHandle, Props>(function 
             <>
               <p className="px-3 py-2 text-[11px] font-semibold text-[var(--ub-text-tertiary)]">태그 종류를 선택하세요</p>
               <button type="button" onMouseDown={(event) => event.preventDefault()} onClick={() => selectCategory('praise')} className="flex min-h-[52px] w-full items-center gap-3 rounded-[14px] px-3 text-left hover:bg-[var(--ub-surface-muted)]">
-                <span className="text-[19px]">💿</span><span><strong className="block text-[14px] text-[var(--ub-text-primary)]">찬양</strong><span className="text-[12px] text-[var(--ub-text-secondary)]">YouTube 전체에서 찬양 검색</span></span>
+                <Emoji3D name="disc" size={24} /><span><strong className="block text-[14px] text-[var(--ub-text-primary)]">찬양</strong><span className="text-[12px] text-[var(--ub-text-secondary)]">YouTube 전체에서 찬양 검색</span></span>
               </button>
               <button type="button" onMouseDown={(event) => event.preventDefault()} onClick={() => selectCategory('location')} className="flex min-h-[52px] w-full items-center gap-3 rounded-[14px] px-3 text-left hover:bg-[var(--ub-surface-muted)]">
-                <span className="text-[19px]">🏞️</span><span><strong className="block text-[14px] text-[var(--ub-text-primary)]">위치</strong><span className="text-[12px] text-[var(--ub-text-secondary)]">지역·장소 이름 검색</span></span>
+                <Emoji3D name="location" size={24} /><span><strong className="block text-[14px] text-[var(--ub-text-primary)]">위치</strong><span className="text-[12px] text-[var(--ub-text-secondary)]">지역·장소 이름 검색</span></span>
               </button>
             </>
           ) : (
@@ -219,12 +220,12 @@ const PraiseMentionInput = forwardRef<PraiseMentionInputHandle, Props>(function 
               {!currentSearch?.searching && currentSearch?.message && <p className="px-3 py-3 text-[13px] text-[var(--ub-text-secondary)]">{currentSearch.message}</p>}
               {(currentSearch?.videos ?? []).map((video) => (
                 <button key={video.youtubeId} type="button" onMouseDown={(event) => event.preventDefault()} onClick={() => selectPraise(video)} className="flex min-h-[54px] w-full items-center gap-3 rounded-[14px] px-3 py-2 text-left hover:bg-[var(--ub-surface-muted)]">
-                  <span className="text-[18px]">💿</span><span className="min-w-0"><span className="block truncate text-[14px] font-semibold text-[var(--ub-text-primary)]">{video.title}</span><span className="block truncate text-[12px] text-[var(--ub-text-secondary)]">{video.channelTitle}</span></span>
+                  <Emoji3D name="disc" size={23} /><span className="min-w-0"><span className="block truncate text-[14px] font-semibold text-[var(--ub-text-primary)]">{video.title}</span><span className="block truncate text-[12px] text-[var(--ub-text-secondary)]">{video.channelTitle}</span></span>
                 </button>
               ))}
               {(currentSearch?.locations ?? []).map((location) => (
                 <button key={location.id} type="button" onMouseDown={(event) => event.preventDefault()} onClick={() => selectLocation(location)} className="flex min-h-[54px] w-full items-center gap-3 rounded-[14px] px-3 py-2 text-left hover:bg-[var(--ub-surface-muted)]">
-                  <span className="text-[18px]">🏞️</span><span className="min-w-0"><span className="block truncate text-[14px] font-semibold text-[var(--ub-text-primary)]">{location.name}</span><span className="block truncate text-[12px] text-[var(--ub-text-secondary)]">{location.address}</span></span>
+                  <Emoji3D name="location" size={23} /><span className="min-w-0"><span className="block truncate text-[14px] font-semibold text-[var(--ub-text-primary)]">{location.name}</span><span className="block truncate text-[12px] text-[var(--ub-text-secondary)]">{location.address}</span></span>
                 </button>
               ))}
             </>

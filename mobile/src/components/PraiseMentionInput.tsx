@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Pressable, StyleProp, Text, TextInput, TextInputProps, TextStyle, View, ViewStyle } from 'react-native'
 import { useAppTheme } from '@/constants/design'
 import { authenticatedFetch } from '@/lib/api'
+import { Emoji3D } from '@/components/Emoji3D'
 import {
   LOCATION_MENTION_PREFIX,
   PRAISE_MENTION_PREFIX,
@@ -115,15 +116,21 @@ export function PraiseMentionInput({ value, onChangeText, mentions, onMentionsCh
           {activeMention.kind === 'category' ? (
             <>
               <Text style={{ color: colors.textTertiary, fontSize: 11, fontWeight: '700', paddingHorizontal: 13, paddingBottom: 6, paddingTop: 11 }}>태그 종류를 선택하세요</Text>
-              <Pressable onPress={() => selectCategory('praise')} style={({ pressed }) => ({ backgroundColor: pressed ? colors.surfaceMuted : colors.surfaceStrong, minHeight: 54, paddingHorizontal: 13, justifyContent: 'center' })}><Text style={{ color: colors.text, fontSize: 14, fontWeight: '800' }}>💿 찬양</Text><Text style={{ color: colors.textSecondary, fontSize: 11, marginTop: 2 }}>YouTube 전체에서 검색</Text></Pressable>
-              <Pressable onPress={() => selectCategory('location')} style={({ pressed }) => ({ backgroundColor: pressed ? colors.surfaceMuted : colors.surfaceStrong, minHeight: 54, paddingHorizontal: 13, justifyContent: 'center' })}><Text style={{ color: colors.text, fontSize: 14, fontWeight: '800' }}>🏞️ 위치</Text><Text style={{ color: colors.textSecondary, fontSize: 11, marginTop: 2 }}>지역·장소 이름 검색</Text></Pressable>
+              <Pressable onPress={() => selectCategory('praise')} style={({ pressed }) => ({ alignItems: 'center', backgroundColor: pressed ? colors.surfaceMuted : colors.surfaceStrong, flexDirection: 'row', gap: 9, minHeight: 58, paddingHorizontal: 13 })}>
+                <Emoji3D name="disc" size={28} />
+                <View><Text style={{ color: colors.text, fontSize: 14, fontWeight: '800' }}>찬양</Text><Text style={{ color: colors.textSecondary, fontSize: 11, marginTop: 2 }}>YouTube 전체에서 검색</Text></View>
+              </Pressable>
+              <Pressable onPress={() => selectCategory('location')} style={({ pressed }) => ({ alignItems: 'center', backgroundColor: pressed ? colors.surfaceMuted : colors.surfaceStrong, flexDirection: 'row', gap: 9, minHeight: 58, paddingHorizontal: 13 })}>
+                <Emoji3D name="location" size={28} />
+                <View><Text style={{ color: colors.text, fontSize: 14, fontWeight: '800' }}>위치</Text><Text style={{ color: colors.textSecondary, fontSize: 11, marginTop: 2 }}>지역·장소 이름 검색</Text></View>
+              </Pressable>
             </>
           ) : (
             <>
               <Text style={{ color: colors.textTertiary, fontSize: 11, fontWeight: '700', paddingHorizontal: 13, paddingBottom: 7, paddingTop: 11 }}>{activeMention.kind === 'praise' ? '찬양 이름을 2자 이상 입력하세요' : '지역·장소 이름을 2자 이상 입력하세요'}</Text>
               {currentSearch?.message ? <Text style={{ color: colors.textSecondary, fontSize: 12, padding: 13 }}>{currentSearch.message}</Text> : null}
-              {(currentSearch?.videos ?? []).map((video) => <Pressable key={video.youtubeId} onPress={() => { const label = getPraiseMentionLabel(video.title); insertMention(label, { type: 'praise', label, youtubeId: video.youtubeId, title: video.title, subtitle: video.channelTitle }) }} style={({ pressed }) => ({ backgroundColor: pressed ? colors.surfaceMuted : colors.surfaceStrong, minHeight: 54, paddingHorizontal: 13, paddingVertical: 8, justifyContent: 'center' })}><Text numberOfLines={1} style={{ color: colors.text, fontSize: 14, fontWeight: '800' }}>💿 {video.title}</Text><Text numberOfLines={1} style={{ color: colors.textSecondary, fontSize: 11, marginTop: 2 }}>{video.channelTitle}</Text></Pressable>)}
-              {(currentSearch?.locations ?? []).map((location) => <Pressable key={location.id} onPress={() => { const label = getLocationMentionLabel(location.name); insertMention(label, { type: 'location', label, placeId: location.id, name: location.name, address: location.address }) }} style={({ pressed }) => ({ backgroundColor: pressed ? colors.surfaceMuted : colors.surfaceStrong, minHeight: 54, paddingHorizontal: 13, paddingVertical: 8, justifyContent: 'center' })}><Text numberOfLines={1} style={{ color: colors.text, fontSize: 14, fontWeight: '800' }}>🏞️ {location.name}</Text><Text numberOfLines={1} style={{ color: colors.textSecondary, fontSize: 11, marginTop: 2 }}>{location.address}</Text></Pressable>)}
+              {(currentSearch?.videos ?? []).map((video) => <Pressable key={video.youtubeId} onPress={() => { const label = getPraiseMentionLabel(video.title); insertMention(label, { type: 'praise', label, youtubeId: video.youtubeId, title: video.title, subtitle: video.channelTitle }) }} style={({ pressed }) => ({ alignItems: 'center', backgroundColor: pressed ? colors.surfaceMuted : colors.surfaceStrong, flexDirection: 'row', gap: 9, minHeight: 58, paddingHorizontal: 13, paddingVertical: 8 })}><Emoji3D name="disc" size={26} /><View style={{ flex: 1 }}><Text numberOfLines={1} style={{ color: colors.text, fontSize: 14, fontWeight: '800' }}>{video.title}</Text><Text numberOfLines={1} style={{ color: colors.textSecondary, fontSize: 11, marginTop: 2 }}>{video.channelTitle}</Text></View></Pressable>)}
+              {(currentSearch?.locations ?? []).map((location) => <Pressable key={location.id} onPress={() => { const label = getLocationMentionLabel(location.name); insertMention(label, { type: 'location', label, placeId: location.id, name: location.name, address: location.address }) }} style={({ pressed }) => ({ alignItems: 'center', backgroundColor: pressed ? colors.surfaceMuted : colors.surfaceStrong, flexDirection: 'row', gap: 9, minHeight: 58, paddingHorizontal: 13, paddingVertical: 8 })}><Emoji3D name="location" size={26} /><View style={{ flex: 1 }}><Text numberOfLines={1} style={{ color: colors.text, fontSize: 14, fontWeight: '800' }}>{location.name}</Text><Text numberOfLines={1} style={{ color: colors.textSecondary, fontSize: 11, marginTop: 2 }}>{location.address}</Text></View></Pressable>)}
             </>
           )}
         </View>

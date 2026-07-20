@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { requireBetaUser } from '@/lib/betaAuth'
 import { AppShell, BottomTabBar } from '@/app/components/ui/AppShell'
 import { SystemIcon } from '@/app/components/ui/SystemIcon'
+import { Emoji3D } from '@/app/components/ui/Emoji3D'
 import { formatRelativeTime, getBoardPresentation } from '@/lib/communityPresentation'
 
 export const dynamic = 'force-dynamic'
@@ -42,7 +43,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
         {posts.map((post) => {
           const board = getBoardPresentation(post.board)
           return <Link key={post.id} href={`/post/${post.id}`} className="block border-b border-[var(--ub-separator)] px-4 py-4 last:border-0">
-            <p className="text-[11px] text-[var(--ub-text-tertiary)]">{board.emoji} {board.name} · {formatRelativeTime(post.created_at)}</p>
+            <p className="flex items-center gap-1 text-[11px] text-[var(--ub-text-tertiary)]"><Emoji3D name={board.icon} size={16} /> {board.name} · {formatRelativeTime(post.created_at)}</p>
             <h2 className="mt-1 truncate text-[15px] font-bold text-[var(--ub-text-primary)]">{post.title}</h2>
             <p className="mt-1 line-clamp-2 text-[13px] leading-5 text-[var(--ub-text-secondary)]">{post.content}</p>
           </Link>

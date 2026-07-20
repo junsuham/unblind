@@ -44,7 +44,7 @@ export default function ManittoScreen() {
 
   return (
     <Screen>
-      <PageTitle eyebrow="한 주 동안 조용히 응원해요" title="🎁 마니또" description="매주 한 명의 익명 친구를 배정받아 기도와 작은 실천으로 응원합니다." />
+      <PageTitle eyebrow="한 주 동안 조용히 응원해요" title="마니또" icon="gift" description="매주 한 명의 익명 친구를 배정받아 기도와 작은 실천으로 응원합니다." />
       {loading ? <ActivityIndicator color={colors.brand} /> : !data?.joined ? (
         <Card>
           <Text style={{ color: colors.text, fontSize: 18, fontWeight: '800' }}>이번 주 마니또에 참여할까요?</Text>

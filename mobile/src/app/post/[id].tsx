@@ -9,6 +9,7 @@ import { supabase } from '@/lib/supabase'
 import { authenticatedFetch } from '@/lib/api'
 import { PraiseMentionInput } from '@/components/PraiseMentionInput'
 import { PraiseMentionText } from '@/components/PraiseMentionText'
+import { Emoji3D } from '@/components/Emoji3D'
 import type { ContentMention, PraiseMentionTrack } from '@/lib/praiseMention'
 
 type Post = { id: string; author_user_id: string | null; board: string; title: string; content: string; mentions: ContentMention[] | null; created_at: string; view_count: number; tags: string[] | null }
@@ -131,7 +132,7 @@ export default function PostDetailScreen() {
         {post.tags?.length ? <Text style={{ color: colors.brand, fontSize: 13, marginTop: 20 }}>{post.tags.map((tag) => `#${tag}`).join('  ')}</Text> : null}
         <View style={{ flexDirection: 'row', gap: 18, marginTop: 24 }}>
           <Pressable onPress={() => react('empathize')}><Text style={{ color: colors.textSecondary, fontSize: 15 }}>♡ {counts.empathize}</Text></Pressable>
-          <Pressable onPress={() => react('pray')}><Text style={{ color: colors.textSecondary, fontSize: 15 }}>🙏 {counts.pray}</Text></Pressable>
+          <Pressable accessibilityLabel={`기도 ${counts.pray}`} onPress={() => react('pray')} style={{ alignItems: 'center', flexDirection: 'row', gap: 4 }}><Emoji3D name="prayer" size={21} /><Text style={{ color: colors.textSecondary, fontSize: 15 }}>{counts.pray}</Text></Pressable>
           <Text style={{ color: colors.textSecondary, fontSize: 15 }}>◯ {comments.length}</Text>
         </View>
       </Card>

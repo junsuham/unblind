@@ -4,6 +4,7 @@ import { SymbolView, type SymbolViewProps } from 'expo-symbols'
 import { useAuth } from '@/providers/AuthProvider'
 import { useAppTheme } from '@/constants/design'
 import { AppBootstrapScreen } from '@/components/AppBootstrapScreen'
+import { Emoji3D, type Emoji3DName } from '@/components/Emoji3D'
 
 const icons: Record<string, SymbolViewProps['name']> = {
   prayer: 'hands.sparkles.fill',
@@ -13,12 +14,12 @@ const icons: Record<string, SymbolViewProps['name']> = {
   praise: 'music.note.list',
 }
 
-const fallbackIcons: Record<string, string> = {
-  prayer: '♧',
-  faith: '♡',
-  daily: '☀',
-  manitto: '◇',
-  praise: '♫',
+const fallbackIcons: Record<string, Emoji3DName> = {
+  prayer: 'prayer',
+  faith: 'hearts',
+  daily: 'sun',
+  manitto: 'gift',
+  praise: 'musicDisc',
 }
 
 export default function TabLayout() {
@@ -59,7 +60,7 @@ export default function TabLayout() {
             name={icons[route.name] ?? 'circle.fill'}
             size={18}
             tintColor={color}
-            fallback={<Text style={{ color, fontSize: 17 }}>{fallbackIcons[route.name] ?? '•'}</Text>}
+            fallback={fallbackIcons[route.name] ? <Emoji3D name={fallbackIcons[route.name]} size={18} /> : <Text style={{ color, fontSize: 17 }}>•</Text>}
           />
         ),
       })}

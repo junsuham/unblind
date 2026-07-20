@@ -120,7 +120,8 @@ export default function PraiseScreen() {
     <Screen>
       <PageTitle
         eyebrow="매주 새롭게 만나는 찬양"
-        title="🎧 언블 TOP 100"
+        title="언블 TOP 100"
+        icon="headphones"
         description="목록을 누르면 앱 안의 YouTube 플레이어에서 재생됩니다. 한 곡이 끝나면 다음 곡을 무작위로 이어갑니다."
       />
 

@@ -3,6 +3,7 @@
 import { FormEvent, useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { SystemIcon } from '@/app/components/ui/SystemIcon'
+import { Emoji3D } from '@/app/components/ui/Emoji3D'
 import {
   manittoVerses,
   type ManittoCardKind,
@@ -241,7 +242,7 @@ export default function ManittoClient({
                       : 'flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-[var(--ub-separator)] text-[12px] text-[var(--ub-text-tertiary)]'
                   }
                 >
-                  {isCompleted ? '✓' : index + 1}
+                  {isCompleted ? <Emoji3D name="check" size={20} /> : index + 1}
                 </span>
                 <span className={isCompleted ? 'text-[14px] text-[var(--ub-text-tertiary)] line-through' : 'text-[14px] text-[var(--ub-text-primary)]'}>
                   {mission}

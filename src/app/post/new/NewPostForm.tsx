@@ -6,6 +6,7 @@ import { supabase } from '@/lib/supabase'
 import { analyzeTextForSafety } from '@/lib/moderation'
 import SafetyIssueList from '@/app/components/SafetyIssueList'
 import PraiseMentionInput, { type PraiseMentionInputHandle } from '@/app/components/PraiseMentionInput'
+import { Emoji3D } from '@/app/components/ui/Emoji3D'
 import type { ContentMention, ImageContentMention } from '@/lib/praiseMention'
 import {
   NoticeCard,
@@ -424,7 +425,7 @@ export default function NewPostForm({ initialBoard }: NewPostFormProps) {
                     className={`flex min-h-[48px] w-full items-center justify-between border-b border-white/8 px-4 text-left text-[15px] font-semibold last:border-b-0 ${board === option.id ? 'bg-[#fc5230]/14 text-[#ff7559]' : 'text-white/82 active:bg-white/6'}`}
                   >
                     <span>{option.name}</span>
-                    {board === option.id && <span className="text-[#fc5230]" aria-hidden>✓</span>}
+                    {board === option.id && <Emoji3D name="check" size={19} />}
                   </button>
                 ))}
               </div>

@@ -62,11 +62,17 @@ await expectResponse('/manifest.webmanifest', async (response) => {
 
 await expectResponse('/sw.js', async (response) => {
   const body = await response.text()
-  if (!response.ok || !body.includes("WORKER_VERSION = '35'")) {
+  if (!response.ok || !body.includes("WORKER_VERSION = '36'")) {
     throw new Error('Service worker version is not current')
   }
   if (!response.headers.get('cache-control')?.includes('no-store')) {
     throw new Error('Service worker must not be cached')
+  }
+})
+
+await expectResponse('/icons/emoji-3d/prayer.png', async (response) => {
+  if (!response.ok || response.headers.get('content-type') !== 'image/png') {
+    throw new Error('3D emoji assets are unavailable')
   }
 })
 

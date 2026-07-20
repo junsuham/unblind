@@ -4,6 +4,7 @@ import { Screen } from '@/components/Screen'
 import { PageTitle } from '@/components/PageTitle'
 import { boardInfo } from '@/constants/content'
 import { radius, useAppTheme } from '@/constants/design'
+import { Emoji3D } from '@/components/Emoji3D'
 
 export default function BoardsScreen() {
   const colors = useAppTheme()
@@ -13,7 +14,7 @@ export default function BoardsScreen() {
       <View style={{ gap: 12 }}>
         {Object.entries(boardInfo).map(([slug, board]) => (
           <Pressable key={slug} onPress={() => router.push(`/board/${slug}`)} style={({ pressed }) => ({ borderRadius: radius.large, backgroundColor: pressed ? colors.surfaceMuted : colors.surface, padding: 18 })}>
-            <Text style={{ color: colors.text, fontSize: 18, fontWeight: '800' }}>{board.title}</Text>
+            <View style={{ alignItems: 'center', flexDirection: 'row', gap: 8 }}><Emoji3D name={board.icon} size={24} /><Text style={{ color: colors.text, fontSize: 18, fontWeight: '800' }}>{board.title}</Text></View>
             <Text style={{ color: colors.textSecondary, fontSize: 13, lineHeight: 19, marginTop: 6 }}>{board.description}</Text>
           </Pressable>
         ))}

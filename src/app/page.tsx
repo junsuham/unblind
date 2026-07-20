@@ -7,6 +7,7 @@ import {
 } from '@/lib/communityPresentation'
 import { AppShell, BottomTabBar, NoticeCard } from '@/app/components/ui/AppShell'
 import { SystemIcon } from '@/app/components/ui/SystemIcon'
+import { Emoji3D } from '@/app/components/ui/Emoji3D'
 import { HomePraisePlayer } from '@/app/components/HomePraisePlayer'
 import { HomeManittoFinder } from '@/app/components/HomeManittoFinder'
 import { HomeBibleVerse } from '@/app/components/HomeBibleVerse'
@@ -164,7 +165,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
               className="block border-b border-[var(--ub-separator)] px-4 py-5 last:border-b-0 active:bg-[var(--ub-surface-pressed)]"
             >
               <div className="flex min-w-0 items-center gap-1.5 text-[12px] text-[var(--ub-text-tertiary)]">
-                <span className="text-[16px] leading-none" aria-hidden>{board.emoji}</span>
+                <Emoji3D name={board.icon} size={19} />
                 <span className="font-semibold text-[var(--ub-text-secondary)]">{board.name}</span>
                 <span>·</span>
                 <time dateTime={post.created_at}>{formatRelativeTime(post.created_at)}</time>

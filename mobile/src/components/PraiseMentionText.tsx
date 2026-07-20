@@ -1,8 +1,9 @@
 import { ReactNode } from 'react'
 import { Linking, StyleProp, Text, TextStyle } from 'react-native'
 import { router } from 'expo-router'
-import { getLocationMapUrl, getPraiseMentionLabel, type ContentMention, type PraiseMentionTrack } from '@/lib/praiseMention'
+import { LOCATION_MENTION_PREFIX, PRAISE_MENTION_PREFIX, getLocationMapUrl, getPraiseMentionLabel, type ContentMention, type PraiseMentionTrack } from '@/lib/praiseMention'
 import { useAppTheme } from '@/constants/design'
+import { Emoji3D } from '@/components/Emoji3D'
 
 function escapePattern(value: string) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
@@ -42,7 +43,19 @@ export function PraiseMentionText({ content, mentions = [], tracks = [], style }
           : Linking.openURL(getLocationMapUrl(mention.placeId))}
         style={{ color: colors.brand, fontWeight: '800', textDecorationLine: 'underline' }}
       >
-        {part}
+        {mention.type === 'praise' ? (
+          <>
+            {part.slice(0, PRAISE_MENTION_PREFIX.length - 2)}
+            <Emoji3D name="disc" size={16} style={{ transform: [{ translateY: 3 }] }} />
+            {part.slice(PRAISE_MENTION_PREFIX.length)}
+          </>
+        ) : (
+          <>
+            {part.slice(0, LOCATION_MENTION_PREFIX.length - 3)}
+            <Emoji3D name="location" size={16} style={{ transform: [{ translateY: 3 }] }} />
+            {part.slice(LOCATION_MENTION_PREFIX.length)}
+          </>
+        )}
       </Text>
     ) : part)
   })

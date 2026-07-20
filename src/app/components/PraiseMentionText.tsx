@@ -1,10 +1,13 @@
 import Link from 'next/link'
 import {
+  LOCATION_MENTION_PREFIX,
+  PRAISE_MENTION_PREFIX,
   getLocationMapUrl,
   getPraiseMentionLabel,
   type ContentMention,
   type PraiseMentionTrack,
 } from '@/lib/praiseMention'
+import { Emoji3D } from '@/app/components/ui/Emoji3D'
 
 function escapePattern(value: string) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
@@ -59,10 +62,16 @@ export default function PraiseMentionText({
             href={`/praise?track=${encodeURIComponent(mention.youtubeId)}&title=${encodeURIComponent(mention.title)}&artist=${encodeURIComponent(mention.subtitle)}`}
             className={className}
           >
-            {part}
+            <span>{part.slice(0, PRAISE_MENTION_PREFIX.length - 2)}</span>
+            <Emoji3D name="disc" size={16} className="mx-0.5 align-[-3px]" />
+            <span>{part.slice(PRAISE_MENTION_PREFIX.length)}</span>
           </Link>
         ) : (
-          <a key={`${mention.placeId}-${index}`} href={getLocationMapUrl(mention.placeId)} target="_blank" rel="noreferrer" className={className}>{part}</a>
+          <a key={`${mention.placeId}-${index}`} href={getLocationMapUrl(mention.placeId)} target="_blank" rel="noreferrer" className={className}>
+            <span>{part.slice(0, LOCATION_MENTION_PREFIX.length - 3)}</span>
+            <Emoji3D name="location" size={16} className="mx-0.5 align-[-3px]" />
+            <span>{part.slice(LOCATION_MENTION_PREFIX.length)}</span>
+          </a>
         )
       })}
     </>

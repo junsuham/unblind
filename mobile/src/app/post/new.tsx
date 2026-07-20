@@ -8,6 +8,7 @@ import { radius, useAppTheme } from '@/constants/design'
 import { supabase } from '@/lib/supabase'
 import { PraiseMentionInput } from '@/components/PraiseMentionInput'
 import type { ContentMention } from '@/lib/praiseMention'
+import { Emoji3D } from '@/components/Emoji3D'
 
 export default function NewPostScreen() {
   const colors = useAppTheme()
@@ -42,7 +43,7 @@ export default function NewPostScreen() {
       <Pressable onPress={() => router.back()} style={{ marginBottom: 12 }}><Text style={{ color: colors.brand, fontWeight: '700' }}>‹ 돌아가기</Text></Pressable>
       <PageTitle title="새 글 작성" description="개인을 특정할 수 있는 이름, 연락처, SNS 정보는 적지 마세요." />
       <View style={{ flexDirection: 'row', gap: 8, marginBottom: 12 }}>
-        {(Object.keys(boardInfo) as (keyof typeof boardInfo)[]).map((key) => <Pressable key={key} onPress={() => setBoard(key)} style={{ flex: 1, minHeight: 42, borderRadius: radius.small, backgroundColor: board === key ? colors.brand : colors.surface, alignItems: 'center', justifyContent: 'center' }}><Text style={{ color: board === key ? '#FFFFFF' : colors.text, fontWeight: '700', fontSize: 12 }}>{boardInfo[key].title}</Text></Pressable>)}
+        {(Object.keys(boardInfo) as (keyof typeof boardInfo)[]).map((key) => <Pressable key={key} onPress={() => setBoard(key)} style={{ flex: 1, minHeight: 48, borderRadius: radius.small, backgroundColor: board === key ? colors.brand : colors.surface, alignItems: 'center', justifyContent: 'center' }}><View style={{ alignItems: 'center', flexDirection: 'row', gap: 4 }}><Emoji3D name={boardInfo[key].icon} size={18} /><Text style={{ color: board === key ? '#FFFFFF' : colors.text, fontWeight: '700', fontSize: 12 }}>{boardInfo[key].title}</Text></View></Pressable>)}
       </View>
       <TextInput value={title} onChangeText={setTitle} maxLength={80} placeholder="제목" placeholderTextColor={colors.textTertiary} style={{ minHeight: 52, borderRadius: radius.medium, backgroundColor: colors.surface, paddingHorizontal: 16, color: colors.text, fontWeight: '700' }} />
       <PraiseMentionInput value={content} onChangeText={setContent} mentions={mentions} onMentionsChange={setMentions} maxLength={3000} placeholder="내용을 입력해주세요. @를 입력하면 찬양이나 위치를 태그할 수 있어요." placeholderTextColor={colors.textTertiary} multiline textAlignVertical="top" style={{ minHeight: 220, borderRadius: radius.medium, backgroundColor: colors.surface, padding: 16, color: colors.text, marginTop: 12, lineHeight: 22 }} />

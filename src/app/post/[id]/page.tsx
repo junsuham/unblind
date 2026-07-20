@@ -14,9 +14,10 @@ import ReportButton from './ReportButton'
 import BookmarkButton from './BookmarkButton'
 import BlockUserButton from './BlockUserButton'
 import PraiseMentionText from '@/app/components/PraiseMentionText'
-import type { ContentMention, ImageContentMention, PraiseMentionTrack } from '@/lib/praiseMention'
+import { PRAISE_MENTION_PREFIX, type ContentMention, type ImageContentMention, type PraiseMentionTrack } from '@/lib/praiseMention'
 import { AppShell, BottomTabBar, NoticeCard } from '@/app/components/ui/AppShell'
 import { SystemIcon } from '@/app/components/ui/SystemIcon'
+import { Emoji3D } from '@/app/components/ui/Emoji3D'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
 
 export const dynamic = 'force-dynamic'
@@ -96,8 +97,8 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
   )
 
   const hasPraiseMention =
-    post.content.includes('@오・찬・추💿') ||
-    comments.some((comment) => comment.content.includes('@오・찬・추💿'))
+    post.content.includes(PRAISE_MENTION_PREFIX) ||
+    comments.some((comment) => comment.content.includes(PRAISE_MENTION_PREFIX))
   const imageAttachments = ((post.mentions ?? []) as ContentMention[])
     .filter((mention): mention is ImageContentMention => mention.type === 'image')
     .slice(0, 3)
@@ -166,7 +167,7 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
       <article className="overflow-hidden rounded-[22px] bg-[var(--ub-surface-card-strong)] shadow-[var(--ub-shadow-soft)]">
         <header className="px-5 pb-5 pt-5">
           <div className="flex items-center gap-1.5 text-[13px] text-[var(--ub-text-tertiary)]">
-            <span className="text-[18px] leading-none" aria-hidden>{board.emoji}</span>
+            <Emoji3D name={board.icon} size={21} />
             <span className="font-bold text-[var(--ub-text-primary)]">{board.name}</span>
             <span>·</span>
             <time dateTime={post.created_at}>{formatRelativeTime(post.created_at)}</time>

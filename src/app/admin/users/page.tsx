@@ -13,6 +13,7 @@ import {
   AdminStatCard,
   AdminStatGrid,
 } from '../components/AdminIOS'
+import { Emoji3D } from '@/app/components/ui/Emoji3D'
 
 export const dynamic = 'force-dynamic'
 
@@ -119,10 +120,10 @@ function UserRows({
             subtitle={`${user.provider} · ${statusText}${user.nickname ? ` · ${user.nickname}` : ''}`}
             leading={
               user.status === 'pending'
-                ? '⏳'
+                ? <Emoji3D name="hourglass" size={27} />
                 : user.status === 'active'
-                  ? '👤'
-                  : '🚫'
+                  ? <Emoji3D name="person" size={27} />
+                  : <Emoji3D name="prohibited" size={27} />
             }
             trailing={
               <span

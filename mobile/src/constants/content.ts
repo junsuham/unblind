@@ -1,7 +1,7 @@
 export const boardInfo = {
-  prayer: { title: '🙏 기도요청', description: '함께 기도받고 싶은 제목을 조용히 나눠요.' },
-  faith: { title: '🕊️ 신앙', description: '신앙 속 고민을 안전하게 나눠요.' },
-  daily: { title: '☀️ 일상', description: '일상 속 고민을 편안하게 나눠요.' },
+  prayer: { title: '기도요청', icon: 'prayer', description: '함께 기도받고 싶은 제목을 조용히 나눠요.' },
+  faith: { title: '신앙', icon: 'dove', description: '신앙 속 고민을 안전하게 나눠요.' },
+  daily: { title: '일상', icon: 'sun', description: '일상 속 고민을 편안하게 나눠요.' },
 } as const
 
 export const bibleVerses = [

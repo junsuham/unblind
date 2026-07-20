@@ -17,7 +17,7 @@ export function AdminPageShell({ children }: AdminPageShellProps) {
 
 type AdminHeaderProps = {
   eyebrow?: string
-  title: string
+  title: ReactNode
   description?: string
   action?: ReactNode
 }
@@ -134,7 +134,7 @@ export function AdminListGroup({
 
 type AdminListRowProps = {
   href?: string
-  title: string
+  title: ReactNode
   subtitle?: string
   leading?: ReactNode
   trailing?: ReactNode

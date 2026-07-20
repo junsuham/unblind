@@ -134,7 +134,7 @@ export function AppShell({
 
 type PageHeaderProps = {
   eyebrow?: string
-  title: string
+  title: ReactNode
   titleSize?: 'large' | 'compact'
   description?: string
   backHref?: string

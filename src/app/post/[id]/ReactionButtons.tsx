@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { SystemIcon } from '@/app/components/ui/SystemIcon'
+import { Emoji3D } from '@/app/components/ui/Emoji3D'
 
 type ReactionType = 'pray' | 'empathize'
 
@@ -117,12 +118,11 @@ export default function ReactionButtons({
           title="기도"
           className="inline-flex min-h-[40px] items-center gap-1.5 rounded-full px-1.5 text-[13px] font-medium text-[var(--ub-text-secondary)] active:bg-[var(--ub-surface-pressed)] disabled:opacity-60"
         >
-          <span
-            className={clicked.pray ? 'text-[20px] opacity-100' : 'text-[20px] opacity-70'}
-            aria-hidden
-          >
-            🙏
-          </span>
+          <Emoji3D
+            name="prayer"
+            size={22}
+            className={clicked.pray ? 'opacity-100' : 'opacity-70'}
+          />
           <span>{counts.pray}</span>
         </button>
 

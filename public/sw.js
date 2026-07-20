@@ -1,4 +1,4 @@
-const WORKER_VERSION = '35'
+const WORKER_VERSION = '36'
 const CACHE_NAME = `unblind-static-v${WORKER_VERSION}`
 const PRECACHE_URLS = [
   '/offline.html',
@@ -6,6 +6,22 @@ const PRECACHE_URLS = [
   '/icons/icon-192-v2.png',
   '/icons/icon-512-v2.png',
   '/icons/apple-touch-icon-v2.png',
+  '/icons/emoji-3d/bell.png',
+  '/icons/emoji-3d/chat.png',
+  '/icons/emoji-3d/check.png',
+  '/icons/emoji-3d/church.png',
+  '/icons/emoji-3d/disc.png',
+  '/icons/emoji-3d/dove.png',
+  '/icons/emoji-3d/gift.png',
+  '/icons/emoji-3d/headphones.png',
+  '/icons/emoji-3d/hearts.png',
+  '/icons/emoji-3d/hourglass.png',
+  '/icons/emoji-3d/location.png',
+  '/icons/emoji-3d/music-disc.png',
+  '/icons/emoji-3d/person.png',
+  '/icons/emoji-3d/prayer.png',
+  '/icons/emoji-3d/prohibited.png',
+  '/icons/emoji-3d/sun.png',
 ]
 
 self.addEventListener('install', (event) => {

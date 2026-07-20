@@ -9,6 +9,7 @@ import {
   AdminStatCard,
   AdminStatGrid,
 } from './components/AdminIOS'
+import { Emoji3D } from '@/app/components/ui/Emoji3D'
 
 export const dynamic = 'force-dynamic'
 
@@ -296,7 +297,7 @@ export default async function AdminDashboardPage() {
         />
         <AdminListRow
           href="/admin/top100"
-          title="📀오・찬・추"
+          title={<span className="inline-flex items-center gap-1.5"><Emoji3D name="musicDisc" size={22} />오・찬・추</span>}
           leading={<AdminIcon name="music" className="h-6 w-6" />}
           trailing={<strong className="text-[17px] text-[var(--admin-text)]">{activeTrackResult.count ?? 0}</strong>}
         />

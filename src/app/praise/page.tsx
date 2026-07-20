@@ -1,6 +1,7 @@
 import { requireBetaUser } from '@/lib/betaAuth'
 import PraiseRecommendations from './PraiseRecommendations'
 import { AppShell, BottomTabBar, PageHeader } from '@/app/components/ui/AppShell'
+import { Emoji3D } from '@/app/components/ui/Emoji3D'
 
 export const dynamic = 'force-dynamic'
 
@@ -25,7 +26,7 @@ export default async function PraisePage({
   return (
     <AppShell bottomBar={<BottomTabBar active="praise" />}>
       <PageHeader
-        title="📀오・찬・추"
+        title={<span className="inline-flex items-center gap-2"><Emoji3D name="musicDisc" size={32} />오・찬・추</span>}
       />
 
       <PraiseRecommendations
