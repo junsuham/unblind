@@ -95,7 +95,7 @@ export default function LoginPage() {
       <div className="relative z-10 mx-auto flex w-full max-w-[430px] flex-1 flex-col">
         <div className="flex justify-center pt-[4vh]">
           <Image
-            src="/brand/unblind-wordmark-glass-v2.png"
+            src="/brand/unblind-wordmark-3d-v3.png"
             alt="UNBLIND"
             width={270}
             height={90}

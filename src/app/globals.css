@@ -497,10 +497,8 @@ body:has(.ub-app-frame) {
 }
 
 .ub-brand-logo {
-  opacity: 0.97;
-  filter:
-    drop-shadow(0 -0.5px 0 rgba(255, 255, 255, 0.24))
-    drop-shadow(0 1px 1px rgba(74, 16, 0, 0.14));
+  opacity: 1;
+  filter: drop-shadow(0 2px 2px rgba(48, 8, 0, 0.16));
 }
 
 .ub-provider-google {

@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { ActivityIndicator, Image, Pressable, Text, View } from 'react-native'
 import { router } from 'expo-router'
 import { SymbolView } from 'expo-symbols'
-import unblindLogo from '../../../assets/brand/unblind-mark-glass-v2.png'
+import unblindLogo from '../../../assets/brand/unblind-mark-3d-v3.png'
 import { Screen } from '@/components/Screen'
 import { Card } from '@/components/Card'
 import { useAppTheme } from '@/constants/design'
@@ -77,7 +77,7 @@ export default function HomeScreen() {
         }}
       >
         <Pressable onPress={() => router.replace('/')} accessibilityLabel="언블라인드 홈">
-          <Image source={unblindLogo} alt="UNBLIND" accessibilityLabel="UNBLIND" style={{ width: 84, height: 84, opacity: 0.97, shadowColor: '#4A1000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.14, shadowRadius: 1 }} resizeMode="contain" />
+          <Image source={unblindLogo} alt="UNBLIND" accessibilityLabel="UNBLIND" style={{ width: 84, height: 84, shadowColor: '#300800', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.12, shadowRadius: 2 }} resizeMode="contain" />
         </Pressable>
 
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>

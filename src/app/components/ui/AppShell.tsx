@@ -37,7 +37,7 @@ function TopLogoBar({ title }: { title?: string }) {
             className={`flex h-11 shrink-0 items-center justify-start active:scale-[0.96] ${title ? 'w-11' : 'w-[116px]'}`}
           >
             <Image
-              src={title ? '/brand/unblind-mark-glass-v2.png' : '/brand/unblind-wordmark-glass-v2.png'}
+              src={title ? '/brand/unblind-mark-3d-v3.png' : '/brand/unblind-wordmark-3d-v3.png'}
               alt="UNBLIND"
               width={title ? 42 : 116}
               height={title ? 42 : 39}

@@ -42,7 +42,7 @@ export function AppLaunchSplash() {
 
   return (
     <div className={`ub-launch-splash fixed inset-0 z-[300] flex items-center justify-center bg-[#fc5230] px-8 pb-[env(safe-area-inset-bottom)] pt-[env(safe-area-inset-top)] ${leaving ? 'ub-launch-splash-leaving' : ''}`} aria-label="언블라인드 시작 화면">
-      <Image src="/brand/unblind-mark-glass-v2.png" alt="UNBLIND" width={164} height={164} preload unoptimized className="ub-brand-logo ub-launch-splash-logo h-[164px] w-[164px] object-contain" />
+      <Image src="/brand/unblind-mark-3d-v3.png" alt="UNBLIND" width={164} height={164} preload unoptimized className="ub-brand-logo ub-launch-splash-logo h-[164px] w-[164px] object-contain" />
     </div>
   )
 }

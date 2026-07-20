@@ -5,7 +5,7 @@
     "version": "0.2.0",
     "orientation": "portrait",
     "platforms": ["ios", "android"],
-    "icon": "./assets/brand/unblind-app-icon-v2.png",
+    "icon": "./assets/brand/unblind-app-icon-v3.png",
     "scheme": "unblind",
     "userInterfaceStyle": "automatic",
     "runtimeVersion": {
@@ -20,7 +20,7 @@
       "bundleIdentifier": "kr.unblind.app",
       "buildNumber": "1",
       "supportsTablet": false,
-      "icon": "./assets/brand/unblind-app-icon-v2.png",
+      "icon": "./assets/brand/unblind-app-icon-v3.png",
       "entitlements": {
         "aps-environment": "development"
       },
@@ -33,7 +33,7 @@
       "package": "kr.unblind.app",
       "adaptiveIcon": {
         "backgroundColor": "#FC5230",
-        "foregroundImage": "./assets/brand/unblind-mark-glass-v2.png"
+        "foregroundImage": "./assets/brand/unblind-mark-3d-v3.png"
       },
       "predictiveBackGestureEnabled": true
     },
@@ -51,7 +51,7 @@
         "expo-splash-screen",
         {
           "backgroundColor": "#FC5230",
-          "image": "./assets/brand/unblind-mark-glass-v2.png",
+          "image": "./assets/brand/unblind-mark-3d-v3.png",
           "imageWidth": 180
         }
       ]
