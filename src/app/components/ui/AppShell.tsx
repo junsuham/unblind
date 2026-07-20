@@ -537,7 +537,7 @@ export function BottomTabBar({ active }: BottomTabBarProps) {
               key={tab.key}
               href={tab.href}
               prefetch
-              className="relative flex min-h-[50px] min-w-0 flex-col items-center justify-center rounded-[14px] active:bg-black/5"
+              className="ub-app-tabbar-link relative flex min-w-0 flex-col items-center justify-center rounded-[14px] active:bg-black/5"
             >
               {isWrite && (
                 <span className="pointer-events-none absolute -top-[38px] right-0 w-[184px] rounded-[13px] bg-white px-2.5 py-2 text-center text-[10px] font-bold leading-[13px] text-[#fc5230] shadow-lg after:absolute after:right-5 after:top-full after:border-x-[6px] after:border-t-[7px] after:border-x-transparent after:border-t-white">
