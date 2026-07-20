@@ -311,7 +311,7 @@ body:has(.ub-app-frame) {
 
   .ub-app-tabbar-content {
     height: calc(50px - var(--ub-pwa-bottom-inset));
-    transform: translateY(4px);
+    transform: translateY(8px);
   }
 
   .ub-app-tabbar-link {
