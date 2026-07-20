@@ -2,7 +2,7 @@ import { router } from 'expo-router'
 import { PropsWithChildren } from 'react'
 import { Image, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleProp, View, ViewStyle } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import unblindLogo from '../../assets/brand/unblind-mark-glass.png'
+import unblindLogo from '../../assets/brand/unblind-mark-glass-v2.png'
 import { useAppTheme } from '@/constants/design'
 
 type ScreenProps = PropsWithChildren<{
@@ -43,7 +43,7 @@ export function Screen({ children, contentStyle, showLogo = true }: ScreenProps)
                   alt="UNBLIND"
                   resizeMode="contain"
                   source={unblindLogo}
-                  style={{ borderRadius: 20, height: 84, width: 84 }}
+                  style={{ height: 84, opacity: 0.97, shadowColor: '#4A1000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.14, shadowRadius: 1, width: 84 }}
                 />
               </Pressable>
             </View>

@@ -40,7 +40,7 @@ export class AppErrorBoundary extends Component<PropsWithChildren, State> {
         <Text style={{ color: 'rgba(255,255,255,0.7)', fontSize: 15, lineHeight: 22, marginTop: 12 }}>
           일시적인 오류일 수 있습니다. 인터넷 연결을 확인하고 다시 시도해주세요.
         </Text>
-        <Pressable accessibilityRole="button" accessibilityLabel="앱 다시 불러오기" onPress={this.retry} style={{ minHeight: 52, borderRadius: 16, backgroundColor: '#FF4B22', justifyContent: 'center', alignItems: 'center', marginTop: 24 }}>
+        <Pressable accessibilityRole="button" accessibilityLabel="앱 다시 불러오기" onPress={this.retry} style={{ minHeight: 52, borderRadius: 16, backgroundColor: '#FC5230', justifyContent: 'center', alignItems: 'center', marginTop: 24 }}>
           <Text style={{ color: '#FFFFFF', fontSize: 16, fontWeight: '800' }}>앱 다시 불러오기</Text>
         </Pressable>
       </View>

@@ -16,19 +16,19 @@ export default function manifest(): MetadataRoute.Manifest {
     categories: ['social', 'lifestyle'],
     icons: [
       {
-        src: '/icons/icon-192-v3.png',
+        src: '/icons/icon-192-v4.png',
         sizes: '192x192',
         type: 'image/png',
         purpose: 'any',
       },
       {
-        src: '/icons/icon-512-v3.png',
+        src: '/icons/icon-512-v4.png',
         sizes: '512x512',
         type: 'image/png',
         purpose: 'any',
       },
       {
-        src: '/icons/icon-512-v3.png',
+        src: '/icons/icon-512-v4.png',
         sizes: '512x512',
         type: 'image/png',
         purpose: 'maskable',
@@ -39,13 +39,13 @@ export default function manifest(): MetadataRoute.Manifest {
         name: '기도 나눔',
         short_name: '기도',
         url: '/board/prayer',
-        icons: [{ src: '/icons/icon-192-v3.png', sizes: '192x192' }],
+        icons: [{ src: '/icons/icon-192-v4.png', sizes: '192x192' }],
       },
       {
         name: '알림',
         short_name: '알림',
         url: '/notifications',
-        icons: [{ src: '/icons/icon-192-v3.png', sizes: '192x192' }],
+        icons: [{ src: '/icons/icon-192-v4.png', sizes: '192x192' }],
       },
     ],
   }

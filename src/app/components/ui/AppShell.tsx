@@ -37,12 +37,12 @@ function TopLogoBar({ title }: { title?: string }) {
             className={`flex h-11 shrink-0 items-center justify-start active:scale-[0.96] ${title ? 'w-11' : 'w-[116px]'}`}
           >
             <Image
-              src={title ? '/brand/unblind-mark-glass.png' : '/brand/unblind-wordmark-glass.png'}
+              src={title ? '/brand/unblind-mark-glass-v2.png' : '/brand/unblind-wordmark-glass-v2.png'}
               alt="UNBLIND"
               width={title ? 42 : 116}
               height={title ? 42 : 39}
               priority
-              className={title ? 'block h-[42px] w-[42px] rounded-[12px]' : 'block h-[39px] w-[116px] object-contain'}
+              className={title ? 'ub-brand-logo block h-[42px] w-[42px] object-contain' : 'ub-brand-logo block h-[39px] w-[116px] object-contain'}
             />
           </Link>
           {title && (

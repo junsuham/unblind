@@ -95,12 +95,12 @@ export default function LoginPage() {
       <div className="relative z-10 mx-auto flex w-full max-w-[430px] flex-1 flex-col">
         <div className="flex justify-center pt-[4vh]">
           <Image
-            src="/brand/unblind-wordmark-glass.png"
+            src="/brand/unblind-wordmark-glass-v2.png"
             alt="UNBLIND"
             width={270}
             height={90}
             priority
-            className="h-[90px] w-[270px] object-contain"
+            className="ub-brand-logo h-[90px] w-[270px] object-contain"
           />
         </div>
 

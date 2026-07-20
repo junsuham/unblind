@@ -24,11 +24,11 @@ export default function AdminLayout({
             className="flex min-h-11 items-center gap-2 active:opacity-70"
           >
             <Image
-              src="/brand/unblind-mark-glass.png"
+              src="/brand/unblind-mark-glass-v2.png"
               alt="UNBLIND"
               width={32}
               height={32}
-              className="block h-8 w-8 rounded-[9px]"
+              className="ub-brand-logo block h-8 w-8 object-contain"
             />
 
             <span className="text-[17px] font-semibold tracking-[-0.2px] text-[var(--admin-text)]">
