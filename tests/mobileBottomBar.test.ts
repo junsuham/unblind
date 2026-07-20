@@ -25,10 +25,10 @@ describe('native bottom tab bar', () => {
     expect(tabLayout).not.toContain('paddingBottom: 9')
   })
 
-  it('keeps the dock compact while preserving the device safe area', () => {
-    expect(tabLayout).toContain('useSafeAreaInsets()')
-    expect(tabLayout).toContain('Math.max(64, insets.bottom + 38)')
-    expect(tabLayout).toContain('height: tabBarHeight')
+  it('keeps the dock compact without adding the full device inset below its labels', () => {
+    expect(tabLayout).not.toContain('useSafeAreaInsets')
+    expect(tabLayout).toContain('height: 60')
+    expect(tabLayout).toContain('paddingBottom: 5')
     expect(tabLayout).toContain('size={18}')
     expect(tabLayout).toContain('fontSize: 10')
   })

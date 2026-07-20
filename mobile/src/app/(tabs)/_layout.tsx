@@ -1,7 +1,6 @@
 import { Redirect, Tabs } from 'expo-router'
 import { Text } from 'react-native'
 import { SymbolView, type SymbolViewProps } from 'expo-symbols'
-import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useAuth } from '@/providers/AuthProvider'
 import { useAppTheme } from '@/constants/design'
 import { AppBootstrapScreen } from '@/components/AppBootstrapScreen'
@@ -25,8 +24,6 @@ const fallbackIcons: Record<string, string> = {
 export default function TabLayout() {
   const { session, loading, profileComplete } = useAuth()
   const colors = useAppTheme()
-  const insets = useSafeAreaInsets()
-  const tabBarHeight = Math.max(64, insets.bottom + 38)
 
   if (loading || (session && profileComplete === null)) return <AppBootstrapScreen />
   if (!session) return <Redirect href="/login" />
@@ -42,7 +39,8 @@ export default function TabLayout() {
         tabBarInactiveTintColor: colors.textTertiary,
         sceneStyle: { backgroundColor: colors.background },
         tabBarStyle: {
-          height: tabBarHeight,
+          height: 60,
+          paddingBottom: 5,
           borderTopWidth: 1,
           borderColor: colors.border,
           borderTopLeftRadius: 16,
