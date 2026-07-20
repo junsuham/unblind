@@ -1,7 +1,7 @@
 import { supabase } from '@/lib/supabase'
 import { fetchWithRetry } from '@/lib/network'
 
-export const webApiUrl = process.env.EXPO_PUBLIC_WEB_API_URL ?? 'https://unblind-omega.vercel.app'
+export const webApiUrl = process.env.EXPO_PUBLIC_WEB_API_URL ?? 'https://unbd.vercel.app'
 
 export async function authenticatedFetch(path: string, init?: RequestInit) {
   const { data } = await supabase.auth.getSession()

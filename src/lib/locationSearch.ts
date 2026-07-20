@@ -37,8 +37,8 @@ export async function searchLocations(query: string) {
   lastRequestAt = Date.now()
   const response = await fetch(url, {
     headers: {
-      'User-Agent': 'Unblind/1.0 (https://unblind-omega.vercel.app)',
-      Referer: 'https://unblind-omega.vercel.app',
+      'User-Agent': 'Unblind/1.0 (https://unbd.vercel.app)',
+      Referer: 'https://unbd.vercel.app',
     },
     cache: 'no-store',
   })

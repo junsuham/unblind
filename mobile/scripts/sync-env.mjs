@@ -25,7 +25,7 @@ await writeFile(
   [
     `EXPO_PUBLIC_SUPABASE_URL=${supabaseUrl}`,
     `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY=${publishableKey}`,
-    'EXPO_PUBLIC_WEB_API_URL=https://unblind-omega.vercel.app',
+    'EXPO_PUBLIC_WEB_API_URL=https://unbd.vercel.app',
     '',
   ].join('\n'),
   { mode: 0o600 }

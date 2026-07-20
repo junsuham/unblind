@@ -23,7 +23,7 @@ type AuthContextValue = {
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null)
-const webAppUrl = process.env.EXPO_PUBLIC_WEB_API_URL ?? 'https://unblind-omega.vercel.app'
+const webAppUrl = process.env.EXPO_PUBLIC_WEB_API_URL ?? 'https://unbd.vercel.app'
 function getSupportedSession(session: Session | null) {
   return session?.user.app_metadata?.provider === 'google' ? session : null
 }

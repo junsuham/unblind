@@ -51,8 +51,8 @@ async function searchNominatim(searchTerm: string) {
 
   const response = await fetch(searchUrl, {
     headers: {
-      'User-Agent': 'Unblind/1.0 (https://unblind-omega.vercel.app)',
-      Referer: 'https://unblind-omega.vercel.app',
+      'User-Agent': 'Unblind/1.0 (https://unbd.vercel.app)',
+      Referer: 'https://unbd.vercel.app',
     },
     cache: 'no-store',
   })
