@@ -34,14 +34,15 @@ function TopLogoBar({ title }: { title?: string }) {
           <Link
             href="/"
             aria-label="언블라인드 홈으로 이동"
-            className="flex h-11 w-11 shrink-0 items-center justify-start active:scale-[0.96]"
+            className={`flex h-11 shrink-0 items-center justify-start active:scale-[0.96] ${title ? 'w-11' : 'w-[116px]'}`}
           >
             <Image
-              src="/unblind-logo.png"
+              src={title ? '/brand/unblind-mark-glass.png' : '/brand/unblind-wordmark-glass.png'}
               alt="UNBLIND"
-              width={42}
-              height={42}
-              className="block h-[42px] w-[42px]"
+              width={title ? 42 : 116}
+              height={title ? 42 : 39}
+              priority
+              className={title ? 'block h-[42px] w-[42px] rounded-[12px]' : 'block h-[39px] w-[116px] object-contain'}
             />
           </Link>
           {title && (

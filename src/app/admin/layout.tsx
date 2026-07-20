@@ -24,7 +24,7 @@ export default function AdminLayout({
             className="flex min-h-11 items-center gap-2 active:opacity-70"
           >
             <Image
-              src="/unblind-logo.png"
+              src="/brand/unblind-mark-glass.png"
               alt="UNBLIND"
               width={32}
               height={32}

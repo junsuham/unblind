@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { ActivityIndicator, Alert, Image, Pressable, ScrollView, Text, View } from 'react-native'
 import { Redirect } from 'expo-router'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import unblindLogo from '../../assets/images/unblind-logo.png'
+import unblindWordmark from '../../assets/brand/unblind-wordmark-glass.png'
 import { useAuth } from '@/providers/AuthProvider'
 import { AppBootstrapScreen } from '@/components/AppBootstrapScreen'
 import { radius, useAppTheme } from '@/constants/design'
@@ -36,7 +36,7 @@ export default function LoginScreen() {
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }} edges={['top']}>
       <ScrollView contentContainerStyle={{ paddingBottom: 40 }} showsVerticalScrollIndicator={false}>
         <View style={{ backgroundColor: colors.logoSurface, alignItems: 'center', paddingBottom: 10 }}>
-          <Image source={unblindLogo} alt="언블라인드 로고" accessibilityLabel="언블라인드 로고" style={{ width: 92, height: 92 }} resizeMode="contain" />
+          <Image source={unblindWordmark} alt="언블라인드 로고" accessibilityLabel="언블라인드 로고" style={{ width: 270, height: 90 }} resizeMode="contain" />
         </View>
 
         <View style={{ paddingHorizontal: 18, paddingTop: 24 }}>
