@@ -42,10 +42,10 @@ describe('app shell bottom tab bar', () => {
       /@media \(display-mode: standalone\) \{[\s\S]*?\.ub-app-frame\s*\{[\s\S]*?height: 100dvh;/,
     )
     expect(globalStyles).toMatch(
-      /@media \(display-mode: standalone\) \{[\s\S]*?--ub-pwa-bottom-inset: clamp\([\s\S]*?env\(safe-area-inset-bottom, 0px\)[\s\S]*?12px[\s\S]*?height: 64px;[\s\S]*?padding-bottom: var\(--ub-pwa-bottom-inset\);/,
+      /@media \(display-mode: standalone\) \{[\s\S]*?--ub-pwa-bottom-inset: clamp\([\s\S]*?env\(safe-area-inset-bottom, 0px\)[\s\S]*?12px[\s\S]*?height: 60px;[\s\S]*?padding-bottom: var\(--ub-pwa-bottom-inset\);/,
     )
     expect(globalStyles).toContain(
-      'height: calc(64px - var(--ub-pwa-bottom-inset));',
+      'height: calc(60px - var(--ub-pwa-bottom-inset));',
     )
     expect(appShell).toContain('ub-app-tabbar-content grid')
     expect(routeLoading).toContain('ub-app-tabbar-content mx-auto')

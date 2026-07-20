@@ -301,12 +301,12 @@ body:has(.ub-app-frame) {
       12px
     );
 
-    height: 64px;
+    height: 60px;
     padding-bottom: var(--ub-pwa-bottom-inset);
   }
 
   .ub-app-tabbar-content {
-    height: calc(64px - var(--ub-pwa-bottom-inset));
+    height: calc(60px - var(--ub-pwa-bottom-inset));
   }
 }
 
