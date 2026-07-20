@@ -27,17 +27,14 @@ export function AppLaunchSplash() {
     } catch {
       // Continue with the timed splash when storage is unavailable.
     }
-    document.documentElement.classList.add('ub-splash-active')
     const fadeTimer = window.setTimeout(() => setLeaving(true), 180)
     const removeTimer = window.setTimeout(() => {
       setVisible(false)
-      document.documentElement.classList.remove('ub-splash-active')
     }, 420)
 
     return () => {
       window.clearTimeout(fadeTimer)
       window.clearTimeout(removeTimer)
-      document.documentElement.classList.remove('ub-splash-active')
     }
   }, [])
 

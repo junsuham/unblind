@@ -4,7 +4,6 @@ import { AppLaunchSplash } from "@/app/components/AppLaunchSplash";
 import { GlobalPraisePlayer } from "@/app/components/GlobalPraisePlayer";
 import { ConnectionStatus } from "@/app/components/ConnectionStatus";
 import { WebVitalsReporter } from "@/app/components/WebVitalsReporter";
-import { StandaloneViewportBoundary } from "@/app/components/StandaloneViewportBoundary";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -39,7 +38,10 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   viewportFit: "cover",
-  themeColor: "#fc5230",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#f5f5f7" },
+    { media: "(prefers-color-scheme: dark)", color: "#1c1c1e" },
+  ],
 };
 
 export default function RootLayout({
@@ -50,7 +52,6 @@ export default function RootLayout({
   return (
     <html lang="ko">
       <body>
-        <StandaloneViewportBoundary />
         <AppLaunchSplash />
         {children}
         <GlobalPraisePlayer />

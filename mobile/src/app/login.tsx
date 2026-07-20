@@ -4,14 +4,16 @@ import { Redirect } from 'expo-router'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import unblindLogo from '../../assets/images/unblind-logo.png'
 import { useAuth } from '@/providers/AuthProvider'
+import { AppBootstrapScreen } from '@/components/AppBootstrapScreen'
 import { radius, useAppTheme } from '@/constants/design'
 import { isSupabaseConfigured } from '@/lib/supabase'
 
 export default function LoginScreen() {
   const colors = useAppTheme()
-  const { session, signIn } = useAuth()
+  const { session, loading, signIn } = useAuth()
   const [pending, setPending] = useState<'google' | null>(null)
 
+  if (loading) return <AppBootstrapScreen />
   if (session) return <Redirect href="/" />
 
   async function handleLogin(provider: 'google') {

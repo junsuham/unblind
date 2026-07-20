@@ -12,7 +12,8 @@ type Provider = 'google'
 type AuthContextValue = {
   session: Session | null
   loading: boolean
-  profileComplete: boolean
+  profileComplete: boolean | null
+  accountReady: boolean
   ageVerified: boolean
   isAdmin: boolean
   signIn: (provider: Provider) => Promise<void>
@@ -67,19 +68,13 @@ async function exchangeAuthResult(url: string) {
 export function AuthProvider({ children }: PropsWithChildren) {
   const [session, setSession] = useState<Session | null>(null)
   const [loading, setLoading] = useState(true)
-  const [profileComplete, setProfileComplete] = useState(false)
+  const [profileComplete, setProfileComplete] = useState<boolean | null>(null)
+  const [accountReady, setAccountReady] = useState(false)
   const [ageVerified, setAgeVerified] = useState(false)
   const [isAdmin, setIsAdmin] = useState(false)
 
-  const refreshAccount = useCallback(async () => {
-    const { data } = await supabase.auth.getSession()
-    const token = data.session?.access_token
-    if (!token) {
-      setAgeVerified(false)
-      setIsAdmin(false)
-      return
-    }
-
+  const loadAccountForToken = useCallback(async (token: string) => {
+    setAccountReady(false)
     try {
       const response = await fetch(`${webAppUrl}/api/account`, {
         headers: { Authorization: `Bearer ${token}` },
@@ -90,7 +85,33 @@ export function AuthProvider({ children }: PropsWithChildren) {
       setIsAdmin(Boolean(response.ok && result?.isAdmin))
     } catch {
       setIsAdmin(false)
+    } finally {
+      setAccountReady(true)
     }
+  }, [])
+
+  const refreshAccount = useCallback(async () => {
+    const { data } = await supabase.auth.getSession()
+    const token = data.session?.access_token
+    if (!token) {
+      setAgeVerified(false)
+      setIsAdmin(false)
+      setAccountReady(false)
+      return
+    }
+
+    await loadAccountForToken(token)
+  }, [loadAccountForToken])
+
+  const loadProfileForUser = useCallback(async (userId: string) => {
+    const { data, error } = await supabase
+      .from('user_profiles')
+      .select('completed_at')
+      .eq('user_id', userId)
+      .maybeSingle()
+
+    if (error) throw error
+    setProfileComplete(Boolean(data?.completed_at))
   }, [])
 
   const refreshProfile = useCallback(async () => {
@@ -102,38 +123,55 @@ export function AuthProvider({ children }: PropsWithChildren) {
       return
     }
 
-    const { data } = await supabase
-      .from('user_profiles')
-      .select('completed_at')
-      .eq('user_id', userId)
-      .maybeSingle()
-
-    setProfileComplete(Boolean(data?.completed_at))
-  }, [])
+    await loadProfileForUser(userId)
+  }, [loadProfileForUser])
 
   useEffect(() => {
     let mounted = true
 
-    withTimeout(supabase.auth.getSession(), 10_000, '로그인 확인 시간이 초과되었습니다.').then(async ({ data }) => {
+    withTimeout(supabase.auth.getSession(), 6_000, '로그인 확인 시간이 초과되었습니다.').then(({ data }) => {
       if (!mounted) return
-      setSession(getSupportedSession(data.session))
-      try {
-        await withTimeout(Promise.all([refreshProfile(), refreshAccount()]), 12_000, '계정 확인 시간이 초과되었습니다.')
-      } finally {
-        if (mounted) setLoading(false)
+      const supportedSession = getSupportedSession(data.session)
+      setSession(supportedSession)
+      setLoading(false)
+
+      if (!supportedSession) {
+        setProfileComplete(false)
+        setAccountReady(false)
+        return
       }
+
+      setProfileComplete(null)
+      void withTimeout(
+        loadProfileForUser(supportedSession.user.id),
+        6_000,
+        '프로필 확인 시간이 초과되었습니다.',
+      ).catch(() => {
+        if (mounted) setProfileComplete(false)
+      })
+      void withTimeout(
+        loadAccountForToken(supportedSession.access_token),
+        6_000,
+        '계정 확인 시간이 초과되었습니다.',
+      ).catch(() => undefined)
     }).catch(() => {
-      if (mounted) setLoading(false)
+      if (mounted) {
+        setProfileComplete(false)
+        setLoading(false)
+      }
     })
 
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, nextSession) => {
+    const { data: listener } = supabase.auth.onAuthStateChange((event, nextSession) => {
+      if (event === 'INITIAL_SESSION') return
       const supportedSession = getSupportedSession(nextSession)
       setSession(supportedSession)
       if (supportedSession) {
-        refreshProfile()
-        refreshAccount()
+        setProfileComplete(null)
+        void loadProfileForUser(supportedSession.user.id).catch(() => setProfileComplete(false))
+        void loadAccountForToken(supportedSession.access_token)
       } else {
         setProfileComplete(false)
+        setAccountReady(false)
         setAgeVerified(false)
         setIsAdmin(false)
       }
@@ -143,7 +181,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
       mounted = false
       listener.subscription.unsubscribe()
     }
-  }, [refreshAccount, refreshProfile])
+  }, [loadAccountForToken, loadProfileForUser])
 
   const signIn = useCallback(async (provider: Provider) => {
     const appRedirectTo = getRedirectUrl()
@@ -201,13 +239,14 @@ export function AuthProvider({ children }: PropsWithChildren) {
   const signOut = useCallback(async () => {
     await supabase.auth.signOut()
     setProfileComplete(false)
+    setAccountReady(false)
     setAgeVerified(false)
     setIsAdmin(false)
   }, [])
 
   const value = useMemo(
-    () => ({ session, loading, profileComplete, ageVerified, isAdmin, signIn, signOut, refreshProfile, refreshAccount }),
-    [session, loading, profileComplete, ageVerified, isAdmin, signIn, signOut, refreshProfile, refreshAccount]
+    () => ({ session, loading, profileComplete, accountReady, ageVerified, isAdmin, signIn, signOut, refreshProfile, refreshAccount }),
+    [session, loading, profileComplete, accountReady, ageVerified, isAdmin, signIn, signOut, refreshProfile, refreshAccount]
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

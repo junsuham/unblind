@@ -1,21 +1,14 @@
 import { Redirect } from 'expo-router'
-import { ActivityIndicator, View } from 'react-native'
 import { useAuth } from '@/providers/AuthProvider'
-import { useAppTheme } from '@/constants/design'
+import { AppBootstrapScreen } from '@/components/AppBootstrapScreen'
 
 export default function IndexScreen() {
-  const colors = useAppTheme()
-  const { session, loading, profileComplete } = useAuth()
+  const { session, loading, profileComplete, accountReady } = useAuth()
 
-  if (loading) {
-    return (
-      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.background }}>
-        <ActivityIndicator color={colors.brand} />
-      </View>
-    )
-  }
+  if (loading || (session && profileComplete === null)) return <AppBootstrapScreen />
 
   if (!session) return <Redirect href="/login" />
+  if (!profileComplete && !accountReady) return <AppBootstrapScreen />
   if (!profileComplete) return <Redirect href="/profile-setup" />
   return <Redirect href="/(tabs)" />
 }

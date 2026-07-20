@@ -11,7 +11,6 @@
 :root {
   color-scheme: light dark;
   --ub-tabbar-background: #f5f5f7;
-  --ub-standalone-bottom-compensation: 0px;
 }
 
 html {
@@ -240,17 +239,9 @@ a {
   visibility: hidden;
 }
 
-html.ub-splash-active,
-html.ub-splash-active body,
-html:has(.ub-launch-splash),
-body:has(.ub-launch-splash) {
-  background: #ff5133 !important;
-}
-
 .ub-app-frame {
   position: fixed;
   inset: 0;
-  bottom: calc(-1 * var(--ub-standalone-bottom-compensation));
   display: grid;
   grid-template-rows: minmax(0, 1fr) auto;
   width: 100%;

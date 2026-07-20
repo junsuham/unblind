@@ -1,4 +1,4 @@
-const WORKER_VERSION = '24'
+const WORKER_VERSION = '25'
 const CACHE_NAME = `unblind-static-v${WORKER_VERSION}`
 const PRECACHE_URLS = [
   '/offline.html',

@@ -21,12 +21,16 @@ describe('app shell bottom tab bar', () => {
     expect(rule).not.toMatch(/min-height:\s*calc\([^;]*safe-area-inset-bottom/)
   })
 
-  it('extends the fixed app frame by the measured standalone viewport gap', () => {
+  it('anchors the fixed app frame to the visible viewport without guessed extension', () => {
     const frameRule = globalStyles.match(/\.ub-app-frame\s*\{([\s\S]*?)\}/)?.[1]
 
     expect(frameRule).toBeDefined()
-    expect(frameRule).toContain(
-      'bottom: calc(-1 * var(--ub-standalone-bottom-compensation));',
-    )
+    expect(frameRule).toContain('inset: 0;')
+    expect(frameRule).not.toContain('standalone-bottom-compensation')
+  })
+
+  it('never lets a hidden launch splash keep the root safe area orange', () => {
+    expect(globalStyles).not.toContain('html:has(.ub-launch-splash)')
+    expect(globalStyles).not.toContain('body:has(.ub-launch-splash)')
   })
 })

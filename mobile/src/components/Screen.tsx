@@ -17,7 +17,7 @@ export function Screen({ children, contentStyle, showLogo = true }: ScreenProps)
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }} edges={['top']}>
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <ScrollView
-          contentContainerStyle={[{ padding: 18, paddingBottom: 120 }, contentStyle]}
+          contentContainerStyle={[{ padding: 18, paddingBottom: 32 }, contentStyle]}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >

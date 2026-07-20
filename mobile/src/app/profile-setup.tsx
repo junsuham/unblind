@@ -7,13 +7,14 @@ import { PageTitle } from '@/components/PageTitle'
 import { radius, useAppTheme } from '@/constants/design'
 import { authenticatedFetch } from '@/lib/api'
 import { useAuth } from '@/providers/AuthProvider'
+import { AppBootstrapScreen } from '@/components/AppBootstrapScreen'
 
 type Church = { id: string; name: string; address: string; roadAddress: string; placeUrl?: string }
 type Occupation = 'student' | 'worker' | 'other'
 
 export default function ProfileSetupScreen() {
   const colors = useAppTheme()
-  const { session, profileComplete, ageVerified, refreshProfile, signOut } = useAuth()
+  const { session, loading: accountLoading, profileComplete, accountReady, ageVerified, refreshProfile, signOut } = useAuth()
   const [occupation, setOccupation] = useState<Occupation | null>(null)
   const [churchQuery, setChurchQuery] = useState('')
   const [churches, setChurches] = useState<Church[]>([])
@@ -21,8 +22,10 @@ export default function ProfileSetupScreen() {
   const [loading, setLoading] = useState(false)
   const [searching, setSearching] = useState(false)
 
+  if (accountLoading) return <AppBootstrapScreen />
   if (!session) return <Redirect href="/login" />
-  if (profileComplete) return <Redirect href="/(tabs)" />
+  if (profileComplete === null || !accountReady) return <AppBootstrapScreen />
+  if (profileComplete === true) return <Redirect href="/(tabs)" />
 
   if (!ageVerified) {
     return (
