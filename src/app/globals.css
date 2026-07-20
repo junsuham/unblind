@@ -305,12 +305,13 @@ body:has(.ub-app-frame) {
       12px
     );
 
-    height: 54px;
+    height: 50px;
     padding-bottom: var(--ub-pwa-bottom-inset);
   }
 
   .ub-app-tabbar-content {
-    height: calc(54px - var(--ub-pwa-bottom-inset));
+    height: calc(50px - var(--ub-pwa-bottom-inset));
+    transform: translateY(2px);
   }
 
   .ub-app-tabbar-link {

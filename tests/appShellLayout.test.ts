@@ -42,11 +42,12 @@ describe('app shell bottom tab bar', () => {
       /@media \(display-mode: standalone\) \{[\s\S]*?\.ub-app-frame\s*\{[\s\S]*?height: 100dvh;/,
     )
     expect(globalStyles).toMatch(
-      /@media \(display-mode: standalone\) \{[\s\S]*?--ub-pwa-bottom-inset: clamp\([\s\S]*?env\(safe-area-inset-bottom, 0px\)[\s\S]*?12px[\s\S]*?height: 54px;[\s\S]*?padding-bottom: var\(--ub-pwa-bottom-inset\);/,
+      /@media \(display-mode: standalone\) \{[\s\S]*?--ub-pwa-bottom-inset: clamp\([\s\S]*?env\(safe-area-inset-bottom, 0px\)[\s\S]*?12px[\s\S]*?height: 50px;[\s\S]*?padding-bottom: var\(--ub-pwa-bottom-inset\);/,
     )
     expect(globalStyles).toContain(
-      'height: calc(54px - var(--ub-pwa-bottom-inset));',
+      'height: calc(50px - var(--ub-pwa-bottom-inset));',
     )
+    expect(globalStyles).toContain('transform: translateY(2px);')
     expect(globalStyles).toMatch(
       /@media \(display-mode: standalone\) \{[\s\S]*?\.ub-app-tabbar-link\s*\{[\s\S]*?height: 100%;[\s\S]*?min-height: 0;/,
     )
