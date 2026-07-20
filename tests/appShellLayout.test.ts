@@ -5,6 +5,14 @@ const globalStyles = readFileSync(
   new URL('../src/app/globals.css', import.meta.url),
   'utf8',
 )
+const appShell = readFileSync(
+  new URL('../src/app/components/ui/AppShell.tsx', import.meta.url),
+  'utf8',
+)
+const routeLoading = readFileSync(
+  new URL('../src/app/components/AppRouteLoading.tsx', import.meta.url),
+  'utf8',
+)
 
 describe('app shell bottom tab bar', () => {
   it('counts the iOS bottom safe area exactly once', () => {
@@ -27,6 +35,20 @@ describe('app shell bottom tab bar', () => {
     expect(frameRule).toBeDefined()
     expect(frameRule).toContain('inset: 0;')
     expect(frameRule).not.toContain('standalone-bottom-compensation')
+  })
+
+  it('uses a compact viewport-bound tab bar only in installed PWA mode', () => {
+    expect(globalStyles).toMatch(
+      /@media \(display-mode: standalone\) \{[\s\S]*?\.ub-app-frame\s*\{[\s\S]*?height: 100dvh;/,
+    )
+    expect(globalStyles).toMatch(
+      /@media \(display-mode: standalone\) \{[\s\S]*?--ub-pwa-bottom-inset: clamp\([\s\S]*?env\(safe-area-inset-bottom, 0px\)[\s\S]*?12px[\s\S]*?height: 64px;[\s\S]*?padding-bottom: var\(--ub-pwa-bottom-inset\);/,
+    )
+    expect(globalStyles).toContain(
+      'height: calc(64px - var(--ub-pwa-bottom-inset));',
+    )
+    expect(appShell).toContain('ub-app-tabbar-content grid')
+    expect(routeLoading).toContain('ub-app-tabbar-content mx-auto')
   })
 
   it('never lets a hidden launch splash keep the root safe area orange', () => {

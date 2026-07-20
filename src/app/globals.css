@@ -269,9 +269,9 @@ body:has(.ub-app-frame) {
 
 .ub-app-tabbar {
   /*
-   * Keep the iOS home-indicator inset inside one explicit border-box.
-   * A min-height plus a fixed 54px child lets standalone WebKit count the
-   * bottom padding again while resolving the app-frame grid track.
+   * Browser mode keeps the full iOS home-indicator inset inside one explicit
+   * border-box. Installed PWAs receive a compact, viewport-bound override
+   * below because standalone WebKit otherwise reserves an oversized strip.
    */
   box-sizing: border-box;
   height: calc(55px + env(safe-area-inset-bottom, 0px));
@@ -282,6 +282,32 @@ body:has(.ub-app-frame) {
   isolation: isolate;
   transform: translate3d(0, 0, 0);
   border-radius: 20px 20px 0 0;
+}
+
+.ub-app-tabbar-content {
+  height: 54px;
+}
+
+@media (display-mode: standalone) {
+  .ub-app-frame {
+    inset: 0 0 auto;
+    height: 100dvh;
+  }
+
+  .ub-app-tabbar {
+    --ub-pwa-bottom-inset: clamp(
+      6px,
+      calc(env(safe-area-inset-bottom, 0px) - 22px),
+      12px
+    );
+
+    height: 64px;
+    padding-bottom: var(--ub-pwa-bottom-inset);
+  }
+
+  .ub-app-tabbar-content {
+    height: calc(64px - var(--ub-pwa-bottom-inset));
+  }
 }
 
 .ub-home-quick-menu {

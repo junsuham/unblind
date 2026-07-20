@@ -525,7 +525,7 @@ export function BottomTabBar({ active }: BottomTabBarProps) {
 
   return (
     <nav className="ub-app-tabbar relative z-40 flex w-full shrink-0 justify-center border-t border-[var(--ub-separator)] backdrop-blur-2xl">
-      <div className="grid h-[54px] w-full max-w-[430px] grid-cols-6 items-center overflow-visible px-1">
+      <div className="ub-app-tabbar-content grid w-full max-w-[430px] grid-cols-6 items-center overflow-visible px-1">
         {bottomTabs.map((tab) => {
           const isActive = active === tab.key
           const isBoard = tab.key === 'prayer' || tab.key === 'faith' || tab.key === 'daily'
