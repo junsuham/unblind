@@ -307,7 +307,6 @@ body:has(.ub-app-frame) {
 
     height: 50px;
     padding-bottom: var(--ub-pwa-bottom-inset);
-    transform: translate3d(0, 8px, 0);
   }
 
   .ub-app-tabbar-content {
