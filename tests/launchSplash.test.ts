@@ -13,6 +13,10 @@ const mobileLayout = readFileSync(
   new URL('../mobile/src/app/_layout.tsx', import.meta.url),
   'utf8',
 )
+const nativeTransition = readFileSync(
+  new URL('../mobile/src/components/NativeLaunchTransition.tsx', import.meta.url),
+  'utf8',
+)
 
 describe('launch splash transitions', () => {
   it('holds the logo before a gradual web fade', () => {
@@ -27,9 +31,19 @@ describe('launch splash transitions', () => {
     expect(webStyles).toContain('@media (prefers-reduced-motion: reduce)')
   })
 
-  it('fades the native splash instead of cutting directly to the app', () => {
-    expect(mobileLayout).toContain('SplashScreen.setOptions({')
-    expect(mobileLayout).toContain('duration: 650')
-    expect(mobileLayout).toContain('fade: true')
+  it('covers the complete native root while the app becomes ready', () => {
+    expect(mobileLayout).not.toContain('SplashScreen.setOptions')
+    expect(mobileLayout).toContain('backgroundColor: colors.brand')
+    expect(mobileLayout).toContain('<NativeLaunchTransition />')
+    expect(nativeTransition).toContain('...StyleSheet.absoluteFillObject')
+    expect(nativeTransition).toContain('backgroundColor: colors.brand')
+    expect(nativeTransition).toContain('zIndex: 9999')
+    expect(nativeTransition).toContain('profileComplete !== null && accountReady')
+  })
+
+  it('hides the native logo before revealing the navigation surface', () => {
+    expect(nativeTransition).toContain('duration: 260')
+    expect(nativeTransition).toContain('duration: 420')
+    expect(nativeTransition).toContain('toValue: 0')
   })
 })
