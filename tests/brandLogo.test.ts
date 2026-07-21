@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
+import sharp from 'sharp'
 import { describe, expect, it } from 'vitest'
 
 function pngSize(relativePath: string) {
@@ -12,6 +13,12 @@ function pngSize(relativePath: string) {
 
 function pngColorType(relativePath: string) {
   return readFileSync(fileURLToPath(new URL(relativePath, import.meta.url))).readUInt8(25)
+}
+
+async function pngAlphaRange(relativePath: string) {
+  const stats = await sharp(fileURLToPath(new URL(relativePath, import.meta.url))).stats()
+  const alpha = stats.channels[3]
+  return { min: alpha.min, max: alpha.max }
 }
 
 function jpegSize(relativePath: string) {
@@ -84,13 +91,25 @@ const mobileConfig = JSON.parse(
 ) as { expo: { icon: string; ios: { icon: string }; android: { adaptiveIcon: { foregroundImage: string } } } }
 
 describe('relief brand logo set', () => {
-  it('keeps all three source compositions and opaque launcher icons', () => {
+  it('keeps the source compositions, transparent display logos, and opaque launcher icons', async () => {
     expect(jpegSize('../public/brand/unblind-monogram-relief-v4.jpg')).toEqual({ width: 800, height: 800 })
     expect(jpegSize('../public/brand/unblind-wordmark-relief-v4.jpg')).toEqual({ width: 1406, height: 310 })
     expect(jpegSize('../public/brand/unblind-slogan-relief-v4.jpg')).toEqual({ width: 810, height: 810 })
-    expect(jpegSize('../mobile/assets/brand/unblind-monogram-relief-v4.jpg')).toEqual({ width: 800, height: 800 })
-    expect(jpegSize('../mobile/assets/brand/unblind-wordmark-relief-v4.jpg')).toEqual({ width: 1406, height: 310 })
-    expect(jpegSize('../mobile/assets/brand/unblind-slogan-relief-v4.jpg')).toEqual({ width: 810, height: 810 })
+    expect(pngSize('../public/brand/unblind-monogram-relief-v5.png')).toEqual({ width: 800, height: 800 })
+    expect(pngSize('../public/brand/unblind-wordmark-relief-v5.png')).toEqual({ width: 1406, height: 310 })
+    expect(pngSize('../public/brand/unblind-slogan-relief-v5.png')).toEqual({ width: 810, height: 810 })
+    expect(pngSize('../mobile/assets/brand/unblind-monogram-relief-v5.png')).toEqual({ width: 800, height: 800 })
+    expect(pngSize('../mobile/assets/brand/unblind-wordmark-relief-v5.png')).toEqual({ width: 1406, height: 310 })
+    expect(pngSize('../mobile/assets/brand/unblind-slogan-relief-v5.png')).toEqual({ width: 810, height: 810 })
+    expect(pngColorType('../public/brand/unblind-monogram-relief-v5.png')).toBe(6)
+    expect(pngColorType('../public/brand/unblind-wordmark-relief-v5.png')).toBe(6)
+    expect(pngColorType('../public/brand/unblind-slogan-relief-v5.png')).toBe(6)
+    expect(pngColorType('../mobile/assets/brand/unblind-monogram-relief-v5.png')).toBe(6)
+    expect(pngColorType('../mobile/assets/brand/unblind-wordmark-relief-v5.png')).toBe(6)
+    expect(pngColorType('../mobile/assets/brand/unblind-slogan-relief-v5.png')).toBe(6)
+    await expect(pngAlphaRange('../public/brand/unblind-monogram-relief-v5.png')).resolves.toEqual({ min: 0, max: 255 })
+    await expect(pngAlphaRange('../public/brand/unblind-wordmark-relief-v5.png')).resolves.toEqual({ min: 0, max: 255 })
+    await expect(pngAlphaRange('../public/brand/unblind-slogan-relief-v5.png')).resolves.toEqual({ min: 0, max: 255 })
     expect(pngSize('../mobile/assets/brand/unblind-app-icon-v4.png')).toEqual({ width: 1024, height: 1024 })
     expect(pngSize('../src/app/icon.png')).toEqual({ width: 512, height: 512 })
     expect(pngSize('../src/app/apple-icon.png')).toEqual({ width: 180, height: 180 })
@@ -98,19 +117,23 @@ describe('relief brand logo set', () => {
   })
 
   it('uses each composition in the context where it remains legible', () => {
-    expect(shellSource).toContain('/brand/unblind-monogram-relief-v4.jpg')
-    expect(webLoginSource).toContain('/brand/unblind-wordmark-relief-v4.jpg')
-    expect(mobileLoginSource).toContain('unblind-wordmark-relief-v4.jpg')
-    expect(splashSource).toContain('/brand/unblind-slogan-relief-v4.jpg')
+    expect(shellSource).toContain('/brand/unblind-monogram-relief-v5.png')
+    expect(webLoginSource).toContain('/brand/unblind-wordmark-relief-v5.png')
+    expect(mobileLoginSource).toContain('unblind-wordmark-relief-v5.png')
+    expect(splashSource).toContain('/brand/unblind-slogan-relief-v5.png')
+    expect(adminLayoutSource).toContain('/brand/unblind-monogram-relief-v5.png')
+    expect(mobileScreenSource).toContain('unblind-monogram-relief-v5.png')
+    expect(mobileHomeSource).toContain('unblind-monogram-relief-v5.png')
   })
 
   it('keeps the first-entry wordmark compact and uses one brand orange', () => {
     expect(webLoginSource).toContain('width={150}')
     expect(webLoginSource).toContain('height={33}')
-    expect(webLoginSource).toContain('bg-[#e5502f]')
-    expect(webLoginSource).toContain('opacity: 0.62')
-    expect(mobileLoginSource).toContain('height: 33, opacity: 0.68, width: 150')
-    expect(mobileLoginSource).toContain("const loginOrange = '#E5502F'")
+    expect(webLoginSource).toContain('bg-[#e45330]')
+    expect(webLoginSource).not.toContain('maskImage')
+    expect(mobileLoginSource).toContain('height: 33')
+    expect(mobileLoginSource).toContain('width: 150')
+    expect(mobileLoginSource).toContain('backgroundColor: colors.wordmarkSurface')
     expect(mobileLoginSource).toContain('accessibilityLabel="UNBLIND"')
     expect(webTokenSource).toContain('--ub-color-brand: #e45330')
     expect(webTokenSource).toContain('--ub-color-brand-rgb: 228, 83, 48')
@@ -124,8 +147,10 @@ describe('relief brand logo set', () => {
     expect(splashSource).toContain('width={172}')
     expect(splashSource).toContain('height={172}')
     expect(adminLayoutSource).toContain('width={26}')
-    expect(mobileScreenSource).toContain('height: 48, width: 48')
-    expect(mobileHomeSource).toContain('width: 48, height: 48')
+    expect(mobileScreenSource).toContain('height: 48')
+    expect(mobileScreenSource).toContain('width: 48')
+    expect(mobileHomeSource).toContain('width: 48')
+    expect(mobileHomeSource).toContain('height: 48')
     expect(mobileConfigSource).toContain('"imageWidth": 172')
   })
 

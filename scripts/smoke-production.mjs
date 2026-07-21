@@ -65,7 +65,7 @@ await expectResponse('/manifest.webmanifest', async (response) => {
 
 await expectResponse('/sw.js', async (response) => {
   const body = await response.text()
-  if (!response.ok || !body.includes("WORKER_VERSION = '45'")) {
+  if (!response.ok || !body.includes("WORKER_VERSION = '46'")) {
     throw new Error('Service worker version is not current')
   }
   if (!response.headers.get('cache-control')?.includes('no-store')) {
@@ -85,14 +85,14 @@ await expectResponse('/icons/emoji-3d/siren.png', async (response) => {
   }
 })
 
-await expectResponse('/brand/unblind-wordmark-relief-v4.jpg', async (response) => {
-  if (!response.ok || !response.headers.get('content-type')?.startsWith('image/jpeg')) {
+await expectResponse('/brand/unblind-wordmark-relief-v5.png', async (response) => {
+  if (!response.ok || response.headers.get('content-type') !== 'image/png') {
     throw new Error('Relief wordmark is unavailable')
   }
 })
 
-await expectResponse('/brand/unblind-slogan-relief-v4.jpg', async (response) => {
-  if (!response.ok || !response.headers.get('content-type')?.startsWith('image/jpeg')) {
+await expectResponse('/brand/unblind-slogan-relief-v5.png', async (response) => {
+  if (!response.ok || response.headers.get('content-type') !== 'image/png') {
     throw new Error('Relief launch logo is unavailable')
   }
 })

@@ -1,10 +1,10 @@
-const WORKER_VERSION = '45'
+const WORKER_VERSION = '46'
 const CACHE_NAME = `unblind-static-v${WORKER_VERSION}`
 const PRECACHE_URLS = [
   '/offline.html',
-  '/brand/unblind-monogram-relief-v4.jpg',
-  '/brand/unblind-wordmark-relief-v4.jpg',
-  '/brand/unblind-slogan-relief-v4.jpg',
+  '/brand/unblind-monogram-relief-v5.png',
+  '/brand/unblind-wordmark-relief-v5.png',
+  '/brand/unblind-slogan-relief-v5.png',
   '/icons/icon-192-v6.png',
   '/icons/icon-512-v6.png',
   '/icons/apple-touch-icon-v6.png',

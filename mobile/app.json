@@ -51,7 +51,7 @@
         "expo-splash-screen",
         {
           "backgroundColor": "#E45330",
-          "image": "./assets/brand/unblind-slogan-relief-v4.jpg",
+          "image": "./assets/brand/unblind-slogan-relief-v5.png",
           "imageWidth": 172
         }
       ]

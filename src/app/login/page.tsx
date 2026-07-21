@@ -88,24 +88,19 @@ export default function LoginPage() {
   const isSubmitting = pendingProvider !== null
 
   return (
-    <main className="ub-login-hero relative flex min-h-[100dvh] flex-col overflow-hidden bg-[#e5502f] px-6 pb-[calc(24px+env(safe-area-inset-bottom))] pt-[calc(22px+env(safe-area-inset-top))] text-white">
+    <main className="ub-login-hero relative flex min-h-[100dvh] flex-col overflow-hidden bg-[#e45330] px-6 pb-[calc(24px+env(safe-area-inset-bottom))] pt-[calc(22px+env(safe-area-inset-top))] text-white">
       <div aria-hidden className="pointer-events-none absolute -right-24 top-[22%] h-80 w-80 rounded-full border-[48px] border-black/5" />
       <div aria-hidden className="pointer-events-none absolute -left-24 bottom-[12%] h-72 w-72 rotate-12 rounded-[72px] border-[44px] border-black/5" />
 
       <div className="relative z-10 mx-auto flex w-full max-w-[430px] flex-1 flex-col">
         <div className="flex justify-center pt-[4vh]">
           <Image
-            src="/brand/unblind-wordmark-relief-v4.jpg"
+            src="/brand/unblind-wordmark-relief-v5.png"
             alt="UNBLIND"
             width={150}
             height={33}
             preload
-            className="ub-brand-logo h-[33px] w-[150px] object-cover"
-            style={{
-              maskImage: 'linear-gradient(to bottom, transparent 0%, black 10%, black 90%, transparent 100%)',
-              opacity: 0.62,
-              WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, black 10%, black 90%, transparent 100%)',
-            }}
+            className="ub-brand-logo h-[33px] w-[150px] object-contain"
           />
         </div>
 

@@ -2,13 +2,11 @@ import { useState } from 'react'
 import { ActivityIndicator, Alert, Image, Pressable, ScrollView, Text, View } from 'react-native'
 import { Redirect } from 'expo-router'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import unblindWordmark from '../../assets/brand/unblind-wordmark-relief-v4.jpg'
+import unblindWordmark from '../../assets/brand/unblind-wordmark-relief-v5.png'
 import { useAuth } from '@/providers/AuthProvider'
 import { AppBootstrapScreen } from '@/components/AppBootstrapScreen'
 import { radius, useAppTheme } from '@/constants/design'
 import { isSupabaseConfigured } from '@/lib/supabase'
-
-const loginOrange = '#E5502F'
 
 export default function LoginScreen() {
   const colors = useAppTheme()
@@ -35,15 +33,15 @@ export default function LoginScreen() {
   }
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: loginOrange }} edges={['top']}>
-      <ScrollView style={{ backgroundColor: loginOrange }} contentContainerStyle={{ paddingBottom: 40 }} showsVerticalScrollIndicator={false}>
-        <View style={{ backgroundColor: loginOrange, alignItems: 'center', paddingBottom: 8, paddingTop: 8 }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.wordmarkSurface }} edges={['top']}>
+      <ScrollView style={{ backgroundColor: colors.wordmarkSurface }} contentContainerStyle={{ paddingBottom: 40 }} showsVerticalScrollIndicator={false}>
+        <View style={{ backgroundColor: colors.wordmarkSurface, alignItems: 'center', paddingBottom: 8, paddingTop: 8 }}>
           <Image
             source={unblindWordmark}
             alt="UNBLIND"
             accessibilityLabel="UNBLIND"
-            style={{ height: 33, opacity: 0.68, width: 150 }}
-            resizeMode="cover"
+            style={{ height: 33, tintColor: colors.logoInk, width: 150 }}
+            resizeMode="contain"
           />
         </View>
 

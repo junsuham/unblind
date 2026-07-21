@@ -4,6 +4,7 @@ const shared = {
   brand: '#E45330',
   brandSoft: '#FFF1E9',
   logoSurface: '#E45330',
+  logoInk: '#852815',
   wordmarkSurface: '#E45330',
   sloganSurface: '#E45330',
   kakao: '#FEE500',

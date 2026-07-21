@@ -38,12 +38,12 @@ function TopLogoBar({ title }: { title?: string }) {
           >
             {title ? (
               <Image
-                src="/brand/unblind-monogram-relief-v4.jpg"
+                src="/brand/unblind-monogram-relief-v5.png"
                 alt="UNBLIND"
                 width={36}
                 height={36}
                 preload
-                className="ub-brand-logo block h-9 w-9 rounded-[9px] object-cover shadow-sm"
+                className="ub-brand-logo block h-9 w-9 object-contain"
               />
             ) : (
               <span

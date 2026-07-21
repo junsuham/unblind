@@ -24,11 +24,11 @@ export default function AdminLayout({
             className="flex min-h-11 items-center gap-2 active:opacity-70"
           >
             <Image
-              src="/brand/unblind-monogram-relief-v4.jpg"
+              src="/brand/unblind-monogram-relief-v5.png"
               alt="UNBLIND"
               width={26}
               height={26}
-              className="ub-brand-logo block h-[26px] w-[26px] rounded-[7px] object-cover"
+              className="ub-brand-logo block h-[26px] w-[26px] object-contain"
             />
 
             <span className="text-[17px] font-semibold tracking-[-0.2px] text-[var(--admin-text)]">
