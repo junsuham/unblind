@@ -45,7 +45,7 @@ html:has(.ub-login-hero),
 body:has(.ub-login-hero),
 html.ub-login-active,
 html.ub-login-active body {
-  background: #e45330 !important;
+  background: #e5502f !important;
 }
 
 @media (prefers-color-scheme: dark) {

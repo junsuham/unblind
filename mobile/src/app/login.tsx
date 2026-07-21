@@ -8,6 +8,8 @@ import { AppBootstrapScreen } from '@/components/AppBootstrapScreen'
 import { radius, useAppTheme } from '@/constants/design'
 import { isSupabaseConfigured } from '@/lib/supabase'
 
+const loginOrange = '#E5502F'
+
 export default function LoginScreen() {
   const colors = useAppTheme()
   const { session, loading, signIn } = useAuth()
@@ -33,14 +35,14 @@ export default function LoginScreen() {
   }
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }} edges={['top']}>
-      <ScrollView contentContainerStyle={{ paddingBottom: 40 }} showsVerticalScrollIndicator={false}>
-        <View style={{ backgroundColor: colors.wordmarkSurface, alignItems: 'center', paddingBottom: 8, paddingTop: 8 }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: loginOrange }} edges={['top']}>
+      <ScrollView style={{ backgroundColor: loginOrange }} contentContainerStyle={{ paddingBottom: 40 }} showsVerticalScrollIndicator={false}>
+        <View style={{ backgroundColor: loginOrange, alignItems: 'center', paddingBottom: 8, paddingTop: 8 }}>
           <Image
             source={unblindWordmark}
             alt="UNBLIND"
             accessibilityLabel="UNBLIND"
-            style={{ height: 33, opacity: 0.94, width: 150 }}
+            style={{ height: 33, opacity: 0.68, width: 150 }}
             resizeMode="cover"
           />
         </View>

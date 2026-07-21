@@ -107,7 +107,10 @@ describe('relief brand logo set', () => {
   it('keeps the first-entry wordmark compact and uses one brand orange', () => {
     expect(webLoginSource).toContain('width={150}')
     expect(webLoginSource).toContain('height={33}')
-    expect(mobileLoginSource).toContain('height: 33, opacity: 0.94, width: 150')
+    expect(webLoginSource).toContain('bg-[#e5502f]')
+    expect(webLoginSource).toContain('opacity: 0.62')
+    expect(mobileLoginSource).toContain('height: 33, opacity: 0.68, width: 150')
+    expect(mobileLoginSource).toContain("const loginOrange = '#E5502F'")
     expect(mobileLoginSource).toContain('accessibilityLabel="UNBLIND"')
     expect(webTokenSource).toContain('--ub-color-brand: #e45330')
     expect(webTokenSource).toContain('--ub-color-brand-rgb: 228, 83, 48')
