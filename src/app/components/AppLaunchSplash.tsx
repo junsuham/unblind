@@ -41,8 +41,8 @@ export function AppLaunchSplash() {
   if (!visible) return null
 
   return (
-    <div className={`ub-launch-splash fixed inset-0 z-[300] flex items-center justify-center bg-[#fc5230] px-8 pb-[env(safe-area-inset-bottom)] pt-[env(safe-area-inset-top)] ${leaving ? 'ub-launch-splash-leaving' : ''}`} aria-label="언블라인드 시작 화면">
-      <Image src="/brand/unblind-mark-3d-v3.png" alt="UNBLIND" width={164} height={164} preload unoptimized className="ub-brand-logo ub-launch-splash-logo h-[164px] w-[164px] object-contain" />
+    <div className={`ub-launch-splash fixed inset-0 z-[300] flex items-center justify-center bg-[#e15331] px-8 pb-[env(safe-area-inset-bottom)] pt-[env(safe-area-inset-top)] ${leaving ? 'ub-launch-splash-leaving' : ''}`} aria-label="언블라인드 시작 화면">
+      <Image src="/brand/unblind-slogan-relief-v4.jpg" alt="Was Blind, Now See" width={232} height={232} preload unoptimized className="ub-brand-logo ub-launch-splash-logo h-[232px] w-[232px] rounded-[28px] object-cover shadow-[0_16px_38px_rgba(90,18,0,0.16)]" />
     </div>
   )
 }

@@ -28,21 +28,21 @@ function TopLogoBar({ title }: { title?: string }) {
   }, [searchOpen])
 
   return (
-    <div className="ub-logo-surface -mx-4 -mt-[calc(18px+env(safe-area-inset-top))] mb-4 border-b border-white/18 px-4 pt-[env(safe-area-inset-top)]">
+    <div className={`ub-logo-surface ${title ? 'ub-logo-surface--monogram' : 'ub-logo-surface--wordmark'} -mx-4 -mt-[calc(18px+env(safe-area-inset-top))] mb-4 border-b border-white/18 px-4 pt-[env(safe-area-inset-top)]`}>
       <div className="mx-auto flex min-h-[56px] max-w-[430px] items-center gap-1">
         <div className="flex min-w-0 shrink-0 items-center gap-2">
           <Link
             href="/"
             aria-label="언블라인드 홈으로 이동"
-            className={`flex h-11 shrink-0 items-center justify-start active:scale-[0.96] ${title ? 'w-11' : 'w-[116px]'}`}
+            className={`flex h-11 shrink-0 items-center justify-start active:scale-[0.96] ${title ? 'w-11' : 'w-[124px]'}`}
           >
             <Image
-              src={title ? '/brand/unblind-mark-3d-v3.png' : '/brand/unblind-wordmark-3d-v3.png'}
+              src={title ? '/brand/unblind-monogram-relief-v4.jpg' : '/brand/unblind-wordmark-relief-v4.jpg'}
               alt="UNBLIND"
-              width={title ? 42 : 116}
-              height={title ? 42 : 39}
-              priority
-              className={title ? 'ub-brand-logo block h-[42px] w-[42px] object-contain' : 'ub-brand-logo block h-[39px] w-[116px] object-contain'}
+              width={title ? 44 : 124}
+              height={title ? 44 : 27}
+              preload
+              className={title ? 'ub-brand-logo block h-11 w-11 rounded-[11px] object-cover shadow-sm' : 'ub-brand-logo block h-[27px] w-[124px] rounded-[6px] object-cover shadow-sm'}
             />
           </Link>
           {title && (

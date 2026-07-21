@@ -1,12 +1,13 @@
-const WORKER_VERSION = '40'
+const WORKER_VERSION = '41'
 const CACHE_NAME = `unblind-static-v${WORKER_VERSION}`
 const PRECACHE_URLS = [
   '/offline.html',
-  '/brand/unblind-wordmark-3d-v3.png',
-  '/brand/unblind-mark-3d-v3.png',
-  '/icons/icon-192-v5.png',
-  '/icons/icon-512-v5.png',
-  '/icons/apple-touch-icon-v5.png',
+  '/brand/unblind-monogram-relief-v4.jpg',
+  '/brand/unblind-wordmark-relief-v4.jpg',
+  '/brand/unblind-slogan-relief-v4.jpg',
+  '/icons/icon-192-v6.png',
+  '/icons/icon-512-v6.png',
+  '/icons/apple-touch-icon-v6.png',
   '/icons/emoji-3d/bell.png',
   '/icons/emoji-3d/chat.png',
   '/icons/emoji-3d/check.png',
@@ -70,8 +71,8 @@ self.addEventListener('push', (event) => {
     typeof payload.title === 'string' && payload.title ? payload.title : '언블라인드',
     {
       body: typeof payload.body === 'string' ? payload.body : '',
-      icon: '/icons/icon-192-v5.png',
-      badge: '/icons/icon-192-v5.png',
+      icon: '/icons/icon-192-v6.png',
+      badge: '/icons/icon-192-v6.png',
       tag: typeof payload.notificationId === 'string' ? `unblind-${payload.notificationId}` : 'unblind-notification',
       data: { href },
     },

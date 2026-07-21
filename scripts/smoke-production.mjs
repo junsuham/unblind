@@ -58,14 +58,14 @@ await expectResponse('/manifest.webmanifest', async (response) => {
   if (!Array.isArray(manifest.icons) || manifest.icons.length < 2) {
     throw new Error('PWA icons are incomplete')
   }
-  if (!manifest.icons.some((icon) => icon.src === '/icons/icon-512-v5.png')) {
+  if (!manifest.icons.some((icon) => icon.src === '/icons/icon-512-v6.png')) {
     throw new Error('PWA glass icon is not current')
   }
 })
 
 await expectResponse('/sw.js', async (response) => {
   const body = await response.text()
-  if (!response.ok || !body.includes("WORKER_VERSION = '40'")) {
+  if (!response.ok || !body.includes("WORKER_VERSION = '41'")) {
     throw new Error('Service worker version is not current')
   }
   if (!response.headers.get('cache-control')?.includes('no-store')) {
@@ -85,13 +85,19 @@ await expectResponse('/icons/emoji-3d/siren.png', async (response) => {
   }
 })
 
-await expectResponse('/brand/unblind-wordmark-3d-v3.png', async (response) => {
-  if (!response.ok || response.headers.get('content-type') !== 'image/png') {
-    throw new Error('Glass wordmark is unavailable')
+await expectResponse('/brand/unblind-wordmark-relief-v4.jpg', async (response) => {
+  if (!response.ok || !response.headers.get('content-type')?.startsWith('image/jpeg')) {
+    throw new Error('Relief wordmark is unavailable')
   }
 })
 
-await expectResponse('/icons/icon-192-v5.png', async (response) => {
+await expectResponse('/brand/unblind-slogan-relief-v4.jpg', async (response) => {
+  if (!response.ok || !response.headers.get('content-type')?.startsWith('image/jpeg')) {
+    throw new Error('Relief launch logo is unavailable')
+  }
+})
+
+await expectResponse('/icons/icon-192-v6.png', async (response) => {
   if (!response.ok || response.headers.get('content-type') !== 'image/png') {
     throw new Error('Glass app icon is unavailable')
   }

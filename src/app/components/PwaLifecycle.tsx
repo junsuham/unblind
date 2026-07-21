@@ -337,7 +337,7 @@ export function PwaLifecycle() {
       {offerVisible && !flowOpen && (
         <aside className="pwa-install-offer fixed inset-x-3 bottom-[calc(12px+env(safe-area-inset-bottom))] z-[100] mx-auto max-w-[430px] overflow-hidden rounded-[24px] border border-white/60 bg-[var(--ub-surface-card-strong)] p-4 text-[var(--ub-text-primary)] shadow-[var(--ub-shadow-glass)]" aria-label="언블라인드 앱 설치">
           <div className="flex items-center gap-3">
-            <Image src="/icons/icon-192-v5.png" alt="" width={56} height={56} className="h-14 w-14 rounded-[14px] shadow-sm" />
+            <Image src="/icons/icon-192-v6.png" alt="" width={56} height={56} className="h-14 w-14 rounded-[14px] shadow-sm" />
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2">
                 <p className="ios-title">언블라인드</p>
@@ -361,7 +361,7 @@ export function PwaLifecycle() {
 
             <div className="text-center">
               <div className="pwa-install-icon mx-auto w-fit rounded-[24px] bg-white p-1 shadow-[0_14px_38px_rgba(0,0,0,0.16)]">
-                <Image src="/icons/icon-192-v5.png" alt="언블라인드" width={88} height={88} className="h-[88px] w-[88px] rounded-[21px]" priority />
+                <Image src="/icons/icon-192-v6.png" alt="언블라인드" width={88} height={88} className="h-[88px] w-[88px] rounded-[21px]" preload />
               </div>
               <span className="mt-4 inline-flex rounded-full bg-[var(--ub-surface-brand-soft)] px-3 py-1 text-[12px] font-bold text-[var(--ub-color-brand)]">{platformLabel(platform)} 무료 설치</span>
               <h2 id="pwa-install-title" className="mt-3 text-[27px] font-bold leading-[34px] tracking-[-0.5px]">언블라인드 설치</h2>

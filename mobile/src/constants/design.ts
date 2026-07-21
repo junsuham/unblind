@@ -3,7 +3,9 @@ import { useColorScheme } from 'react-native'
 const shared = {
   brand: '#FC5230',
   brandSoft: '#FFF1E9',
-  logoSurface: '#FC5230',
+  logoSurface: '#E7552F',
+  wordmarkSurface: '#E5502F',
+  sloganSurface: '#E15331',
   kakao: '#FEE500',
   danger: '#FF3B30',
   success: '#2D8A5B',
