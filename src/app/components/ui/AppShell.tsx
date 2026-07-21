@@ -34,7 +34,7 @@ function TopLogoBar({ title }: { title?: string }) {
           <Link
             href="/"
             aria-label="언블라인드 홈으로 이동"
-            className={`flex h-11 shrink-0 items-center justify-start active:scale-[0.96] ${title ? 'w-9' : 'w-[100px]'}`}
+            className={`flex h-11 shrink-0 items-center justify-start active:scale-[0.96] ${title ? 'w-9' : 'w-[108px]'}`}
           >
             {title ? (
               <Image
@@ -46,12 +46,14 @@ function TopLogoBar({ title }: { title?: string }) {
                 className="ub-brand-logo block h-9 w-9 object-contain"
               />
             ) : (
-              <span
-                aria-label="UNBLIND"
-                className="text-[22px] font-black leading-none tracking-[-0.055em] text-black/72 [font-family:Didot,'Bodoni_72','Times_New_Roman',serif] [text-shadow:0_1px_0_rgba(255,255,255,0.16),0_2px_3px_rgba(87,17,0,0.2)]"
-              >
-                UNBLIND
-              </span>
+              <Image
+                src="/brand/unblind-wordmark-relief-v5.png"
+                alt="UNBLIND"
+                width={104}
+                height={23}
+                preload
+                className="ub-brand-logo block h-[23px] w-[104px] object-contain"
+              />
             )}
           </Link>
           {title && (

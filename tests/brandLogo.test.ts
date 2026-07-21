@@ -118,12 +118,13 @@ describe('relief brand logo set', () => {
 
   it('uses each composition in the context where it remains legible', () => {
     expect(shellSource).toContain('/brand/unblind-monogram-relief-v5.png')
+    expect(shellSource).toContain('/brand/unblind-wordmark-relief-v5.png')
     expect(webLoginSource).toContain('/brand/unblind-wordmark-relief-v5.png')
     expect(mobileLoginSource).toContain('unblind-wordmark-relief-v5.png')
     expect(splashSource).toContain('/brand/unblind-slogan-relief-v5.png')
     expect(adminLayoutSource).toContain('/brand/unblind-monogram-relief-v5.png')
     expect(mobileScreenSource).toContain('unblind-monogram-relief-v5.png')
-    expect(mobileHomeSource).toContain('unblind-monogram-relief-v5.png')
+    expect(mobileHomeSource).toContain('unblind-wordmark-relief-v5.png')
   })
 
   it('keeps the first-entry wordmark compact and uses one brand orange', () => {
@@ -143,14 +144,15 @@ describe('relief brand logo set', () => {
   it('keeps in-app logos subordinate to page content', () => {
     expect(shellSource).toContain('width={36}')
     expect(shellSource).toContain('height={36}')
-    expect(shellSource).toContain('text-[22px]')
+    expect(shellSource).toContain('width={104}')
+    expect(shellSource).toContain('height={23}')
     expect(splashSource).toContain('width={172}')
     expect(splashSource).toContain('height={172}')
     expect(adminLayoutSource).toContain('width={26}')
     expect(mobileScreenSource).toContain('height: 48')
     expect(mobileScreenSource).toContain('width: 48')
-    expect(mobileHomeSource).toContain('width: 48')
-    expect(mobileHomeSource).toContain('height: 48')
+    expect(mobileHomeSource).toContain('width: 112')
+    expect(mobileHomeSource).toContain('height: 25')
     expect(mobileConfigSource).toContain('"imageWidth": 172')
   })
 
