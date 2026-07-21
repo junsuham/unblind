@@ -227,9 +227,6 @@ a {
 
 .ub-launch-splash {
   z-index: 1000 !important;
-  width: 100%;
-  height: 100dvh;
-  min-height: 100%;
   opacity: 1;
   transform: scale(1);
   animation: ub-launch-failsafe 2200ms steps(1, end) forwards;
@@ -284,7 +281,12 @@ body:has(.ub-app-frame) {
   min-height: 100%;
   overflow: hidden;
   overscroll-behavior: none;
-  background: var(--ub-tabbar-background);
+  background: var(--ub-app-background);
+}
+
+html:has(.ub-launch-splash),
+body:has(.ub-launch-splash) {
+  background: var(--ub-color-brand);
 }
 
 .ub-app-tabbar {
@@ -319,8 +321,7 @@ body:has(.ub-app-frame) {
 
 @media (display-mode: standalone) {
   .ub-app-frame {
-    inset: 0 0 auto;
-    height: 100dvh;
+    inset: 0;
     grid-template-rows: minmax(0, 1fr);
     background: var(--ub-app-background);
   }

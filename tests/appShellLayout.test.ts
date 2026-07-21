@@ -13,6 +13,14 @@ const routeLoading = readFileSync(
   new URL('../src/app/components/AppRouteLoading.tsx', import.meta.url),
   'utf8',
 )
+const rootLayout = readFileSync(
+  new URL('../src/app/layout.tsx', import.meta.url),
+  'utf8',
+)
+const launchSplash = readFileSync(
+  new URL('../src/app/components/AppLaunchSplash.tsx', import.meta.url),
+  'utf8',
+)
 
 describe('app shell bottom tab bar', () => {
   it('counts the iOS bottom safe area exactly once', () => {
@@ -41,8 +49,13 @@ describe('app shell bottom tab bar', () => {
 
   it('keeps only floating navigation icons in installed PWA mode', () => {
     expect(globalStyles).toMatch(
-      /@media \(display-mode: standalone\) \{[\s\S]*?\.ub-app-frame\s*\{[\s\S]*?height: 100dvh;[\s\S]*?grid-template-rows: minmax\(0, 1fr\);/,
+      /@media \(display-mode: standalone\) \{[\s\S]*?\.ub-app-frame\s*\{[\s\S]*?inset: 0;[\s\S]*?grid-template-rows: minmax\(0, 1fr\);/,
     )
+    const standaloneFrameRule = globalStyles.match(
+      /@media \(display-mode: standalone\) \{[\s\S]*?\.ub-app-frame\s*\{([\s\S]*?)\}/,
+    )?.[1]
+    expect(standaloneFrameRule).not.toContain('height: 100dvh;')
+    expect(standaloneFrameRule).not.toContain('inset: 0 0 auto;')
     expect(globalStyles).toMatch(
       /@media \(display-mode: standalone\) \{[\s\S]*?\.ub-app-tabbar\s*\{[\s\S]*?position: absolute;[\s\S]*?bottom: 0;[\s\S]*?height: 50px;[\s\S]*?background-color: transparent;/,
     )
@@ -69,10 +82,19 @@ describe('app shell bottom tab bar', () => {
   })
 
   it('covers the complete standalone viewport above the app frame during launch', () => {
+    const splashRule = globalStyles.match(
+      /\.ub-launch-splash\s*\{([\s\S]*?)\}/,
+    )?.[1]
+    expect(splashRule).toContain('z-index: 1000 !important;')
+    expect(splashRule).not.toContain('height: 100dvh;')
+    expect(rootLayout).toContain('viewportFit: "cover"')
+    expect(launchSplash).toContain('fixed inset-0')
+    expect(appShell).toContain('ub-app-frame')
     expect(globalStyles).toMatch(
-      /\.ub-launch-splash\s*\{[\s\S]*?z-index: 1000 !important;[\s\S]*?height: 100dvh;/,
+      /html:has\(\.ub-launch-splash\),[\s\S]*?body:has\(\.ub-launch-splash\)[\s\S]*?background: var\(--ub-color-brand\);/,
     )
-    expect(globalStyles).not.toContain('html:has(.ub-launch-splash)')
-    expect(globalStyles).not.toContain('body:has(.ub-launch-splash)')
+    expect(globalStyles).toMatch(
+      /html:has\(\.ub-app-frame\),[\s\S]*?body:has\(\.ub-app-frame\)[\s\S]*?background: var\(--ub-app-background\);/,
+    )
   })
 })
