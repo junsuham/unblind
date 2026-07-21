@@ -60,6 +60,12 @@ describe('app shell bottom tab bar', () => {
       /@media \(display-mode: standalone\) \{[\s\S]*?\.ub-app-tabbar\s*\{[\s\S]*?position: absolute;[\s\S]*?bottom: 0;[\s\S]*?height: 50px;[\s\S]*?background-color: transparent;/,
     )
     expect(globalStyles).toMatch(
+      /@media \(display-mode: standalone\) \{[\s\S]*?\.ub-app-scroll\s*\{[\s\S]*?padding-bottom: 0 !important;[\s\S]*?scroll-padding-bottom: 50px;/,
+    )
+    expect(globalStyles).toMatch(
+      /@media \(display-mode: standalone\) \{[\s\S]*?\.ub-app-scroll > section\s*\{[\s\S]*?min-height: 100%;[\s\S]*?padding-bottom: 50px;/,
+    )
+    expect(globalStyles).toMatch(
       /@media \(display-mode: standalone\) \{[\s\S]*?\.ub-app-tabbar::before\s*\{[\s\S]*?content: none;/,
     )
     expect(globalStyles).toContain('backdrop-filter: none;')

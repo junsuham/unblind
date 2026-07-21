@@ -327,7 +327,13 @@ body:has(.ub-launch-splash:not(.ub-launch-splash-leaving)) {
   }
 
   .ub-app-scroll {
-    padding-bottom: 52px !important;
+    padding-bottom: 0 !important;
+    scroll-padding-bottom: 50px;
+  }
+
+  .ub-app-scroll > section {
+    min-height: 100%;
+    padding-bottom: 50px;
   }
 
   .ub-app-tabbar {
