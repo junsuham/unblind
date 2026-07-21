@@ -34,16 +34,25 @@ function TopLogoBar({ title }: { title?: string }) {
           <Link
             href="/"
             aria-label="언블라인드 홈으로 이동"
-            className={`flex h-11 shrink-0 items-center justify-start active:scale-[0.96] ${title ? 'w-11' : 'w-[124px]'}`}
+            className={`flex h-11 shrink-0 items-center justify-start active:scale-[0.96] ${title ? 'w-9' : 'w-[100px]'}`}
           >
-            <Image
-              src={title ? '/brand/unblind-monogram-relief-v4.jpg' : '/brand/unblind-wordmark-relief-v4.jpg'}
-              alt="UNBLIND"
-              width={title ? 44 : 124}
-              height={title ? 44 : 27}
-              preload
-              className={title ? 'ub-brand-logo block h-11 w-11 rounded-[11px] object-cover shadow-sm' : 'ub-brand-logo block h-[27px] w-[124px] rounded-[6px] object-cover shadow-sm'}
-            />
+            {title ? (
+              <Image
+                src="/brand/unblind-monogram-relief-v4.jpg"
+                alt="UNBLIND"
+                width={36}
+                height={36}
+                preload
+                className="ub-brand-logo block h-9 w-9 rounded-[9px] object-cover shadow-sm"
+              />
+            ) : (
+              <span
+                aria-label="UNBLIND"
+                className="text-[22px] font-black leading-none tracking-[-0.055em] text-black/72 [font-family:Didot,'Bodoni_72','Times_New_Roman',serif] [text-shadow:0_1px_0_rgba(255,255,255,0.16),0_2px_3px_rgba(87,17,0,0.2)]"
+              >
+                UNBLIND
+              </span>
+            )}
           </Link>
           {title && (
             <span

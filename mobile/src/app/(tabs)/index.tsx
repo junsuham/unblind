@@ -77,7 +77,7 @@ export default function HomeScreen() {
         }}
       >
         <Pressable onPress={() => router.replace('/')} accessibilityLabel="언블라인드 홈">
-          <Image source={unblindLogo} alt="UNBLIND" accessibilityLabel="UNBLIND" style={{ borderRadius: 18, width: 72, height: 72 }} resizeMode="cover" />
+          <Image source={unblindLogo} alt="UNBLIND" accessibilityLabel="UNBLIND" style={{ borderRadius: 12, width: 48, height: 48 }} resizeMode="cover" />
         </Pressable>
 
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>

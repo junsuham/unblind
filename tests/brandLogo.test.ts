@@ -63,6 +63,22 @@ const mobileLoginSource = readFileSync(
   new URL('../mobile/src/app/login.tsx', import.meta.url),
   'utf8',
 )
+const adminLayoutSource = readFileSync(
+  new URL('../src/app/admin/layout.tsx', import.meta.url),
+  'utf8',
+)
+const mobileScreenSource = readFileSync(
+  new URL('../mobile/src/components/Screen.tsx', import.meta.url),
+  'utf8',
+)
+const mobileHomeSource = readFileSync(
+  new URL('../mobile/src/app/(tabs)/index.tsx', import.meta.url),
+  'utf8',
+)
+const mobileConfigSource = readFileSync(
+  new URL('../mobile/app.json', import.meta.url),
+  'utf8',
+)
 const mobileConfig = JSON.parse(
   readFileSync(new URL('../mobile/app.json', import.meta.url), 'utf8'),
 ) as { expo: { icon: string; ios: { icon: string }; android: { adaptiveIcon: { foregroundImage: string } } } }
@@ -82,7 +98,7 @@ describe('relief brand logo set', () => {
   })
 
   it('uses each composition in the context where it remains legible', () => {
-    expect(shellSource).toContain("title ? '/brand/unblind-monogram-relief-v4.jpg' : '/brand/unblind-wordmark-relief-v4.jpg'")
+    expect(shellSource).toContain('/brand/unblind-monogram-relief-v4.jpg')
     expect(splashSource).toContain('/brand/unblind-slogan-relief-v4.jpg')
   })
 
@@ -94,6 +110,18 @@ describe('relief brand logo set', () => {
     expect(webTokenSource).toContain('--ub-color-brand: #e45330')
     expect(webTokenSource).toContain('--ub-color-brand-rgb: 228, 83, 48')
     expect(mobileThemeSource.match(/#E45330/g)?.length).toBeGreaterThanOrEqual(6)
+  })
+
+  it('keeps in-app logos subordinate to page content', () => {
+    expect(shellSource).toContain('width={36}')
+    expect(shellSource).toContain('height={36}')
+    expect(shellSource).toContain('text-[22px]')
+    expect(splashSource).toContain('width={172}')
+    expect(splashSource).toContain('height={172}')
+    expect(adminLayoutSource).toContain('width={26}')
+    expect(mobileScreenSource).toContain('height: 48, width: 48')
+    expect(mobileHomeSource).toContain('width: 48, height: 48')
+    expect(mobileConfigSource).toContain('"imageWidth": 172')
   })
 
   it('uses the monogram artwork for native launcher icons', () => {

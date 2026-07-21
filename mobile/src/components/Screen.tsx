@@ -43,7 +43,7 @@ export function Screen({ children, contentStyle, showLogo = true }: ScreenProps)
                   alt="UNBLIND"
                   resizeMode="contain"
                   source={unblindLogo}
-                  style={{ borderRadius: 18, height: 72, width: 72 }}
+                  style={{ borderRadius: 12, height: 48, width: 48 }}
                 />
               </Pressable>
             </View>

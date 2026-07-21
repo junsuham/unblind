@@ -26,9 +26,9 @@ export default function AdminLayout({
             <Image
               src="/brand/unblind-monogram-relief-v4.jpg"
               alt="UNBLIND"
-              width={32}
-              height={32}
-              className="ub-brand-logo block h-8 w-8 rounded-[8px] object-cover"
+              width={26}
+              height={26}
+              className="ub-brand-logo block h-[26px] w-[26px] rounded-[7px] object-cover"
             />
 
             <span className="text-[17px] font-semibold tracking-[-0.2px] text-[var(--admin-text)]">
