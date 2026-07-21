@@ -4,6 +4,8 @@ import Image from 'next/image'
 import { useEffect, useState } from 'react'
 
 const SPLASH_SESSION_KEY = 'unblind-launch-splash-seen'
+const SPLASH_HOLD_MS = 720
+const SPLASH_EXIT_MS = 520
 
 export function AppLaunchSplash() {
   const [visible, setVisible] = useState(true)
@@ -27,10 +29,14 @@ export function AppLaunchSplash() {
     } catch {
       // Continue with the timed splash when storage is unavailable.
     }
-    const fadeTimer = window.setTimeout(() => setLeaving(true), 180)
+    const reduceMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false
+    const holdMs = reduceMotion ? 100 : SPLASH_HOLD_MS
+    const exitMs = reduceMotion ? 100 : SPLASH_EXIT_MS
+
+    const fadeTimer = window.setTimeout(() => setLeaving(true), holdMs)
     const removeTimer = window.setTimeout(() => {
       setVisible(false)
-    }, 420)
+    }, holdMs + exitMs)
 
     return () => {
       window.clearTimeout(fadeTimer)
