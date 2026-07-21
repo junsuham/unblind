@@ -19,28 +19,21 @@ const bootstrap = readFileSync(
 )
 
 describe('native bottom tab bar', () => {
-  it('removes the dock surface while keeping navigation controls', () => {
-    expect(tabLayout).toContain("position: 'absolute'")
-    expect(tabLayout).toContain("backgroundColor: 'transparent'")
-    expect(tabLayout).toContain('tabBarBackground: () => null')
-    expect(tabLayout).toContain('borderTopWidth: 0')
-    expect(tabLayout).toContain('shadowOpacity: 0')
-    expect(tabLayout).toContain('elevation: 0')
+  it('lets React Navigation own the bottom safe area', () => {
+    expect(tabLayout).not.toContain("position: 'absolute'")
     expect(tabLayout).not.toContain('bottom: 16')
     expect(tabLayout).not.toContain('paddingBottom: 9')
-    expect(tabLayout).not.toContain('backgroundColor: colors.tabSurface')
   })
 
-  it('keeps the visible icon controls compact and readable without a dock', () => {
+  it('keeps the dock compact without adding the full device inset below its labels', () => {
     expect(tabLayout).not.toContain('useSafeAreaInsets')
     expect(tabLayout).toContain('height: 60')
     expect(tabLayout).toContain('paddingBottom: 5')
     expect(tabLayout).toContain('size={18}')
     expect(tabLayout).toContain('fontSize: 10')
-    expect(tabLayout).toContain('textShadowColor')
   })
 
-  it('retains reusable neutral surfaces for non-navigation screens', () => {
+  it('uses an opaque dock surface so brand color cannot bleed through', () => {
     expect(design).toContain("tabSurface: '#FFFFFF'")
     expect(design).toContain("tabSurface: '#1D1D1F'")
   })

@@ -31,9 +31,6 @@ export function AppRouteLoading({ compact = false }: AppRouteLoadingProps) {
           </section>
         </div>
       </main>
-      <div className="ub-app-tabbar shrink-0 border-t border-[var(--ub-separator)]" aria-hidden="true">
-        <div className="ub-app-tabbar-content mx-auto max-w-[430px]" />
-      </div>
     </div>
   )
 }

@@ -34,16 +34,23 @@ describe('app shell bottom tab bar', () => {
 
     expect(frameRule).toBeDefined()
     expect(frameRule).toContain('inset: 0;')
+    expect(frameRule).toContain('z-index: 0;')
+    expect(frameRule).toContain('background: var(--ub-app-background);')
     expect(frameRule).not.toContain('standalone-bottom-compensation')
   })
 
-  it('uses a compact viewport-bound tab bar only in installed PWA mode', () => {
+  it('keeps only floating navigation icons in installed PWA mode', () => {
     expect(globalStyles).toMatch(
-      /@media \(display-mode: standalone\) \{[\s\S]*?\.ub-app-frame\s*\{[\s\S]*?height: 100dvh;/,
+      /@media \(display-mode: standalone\) \{[\s\S]*?\.ub-app-frame\s*\{[\s\S]*?height: 100dvh;[\s\S]*?grid-template-rows: minmax\(0, 1fr\);/,
     )
     expect(globalStyles).toMatch(
-      /@media \(display-mode: standalone\) \{[\s\S]*?--ub-pwa-bottom-inset: clamp\([\s\S]*?env\(safe-area-inset-bottom, 0px\)[\s\S]*?12px[\s\S]*?height: 50px;[\s\S]*?padding-bottom: var\(--ub-pwa-bottom-inset\);/,
+      /@media \(display-mode: standalone\) \{[\s\S]*?\.ub-app-tabbar\s*\{[\s\S]*?position: absolute;[\s\S]*?bottom: 0;[\s\S]*?height: 50px;[\s\S]*?background-color: transparent;/,
     )
+    expect(globalStyles).toMatch(
+      /@media \(display-mode: standalone\) \{[\s\S]*?\.ub-app-tabbar::before\s*\{[\s\S]*?content: none;/,
+    )
+    expect(globalStyles).toContain('backdrop-filter: none;')
+    expect(globalStyles).toContain('filter: drop-shadow(')
     expect(globalStyles).toContain(
       'height: calc(50px - var(--ub-pwa-bottom-inset));',
     )
@@ -52,18 +59,19 @@ describe('app shell bottom tab bar', () => {
       'transform: translateY(max(9px, var(--ub-pwa-bottom-inset)));',
     )
     expect(globalStyles).toMatch(
-      /@media \(display-mode: standalone\) \{[\s\S]*?\.ub-app-tabbar::before\s*\{[\s\S]*?inset: 2px 0 0;/,
-    )
-    expect(globalStyles).toMatch(
       /@media \(display-mode: standalone\) \{[\s\S]*?\.ub-app-tabbar-link\s*\{[\s\S]*?height: 100%;[\s\S]*?min-height: 0;/,
     )
     expect(appShell).toContain('ub-app-tabbar-content grid')
     expect(appShell).toContain('ub-app-tabbar-link relative')
     expect(appShell).toContain('ub-app-tabbar-label max-w-full')
-    expect(routeLoading).toContain('ub-app-tabbar-content mx-auto')
+    expect(appShell).not.toContain('justify-center border-t')
+    expect(routeLoading).not.toContain('ub-app-tabbar')
   })
 
-  it('never lets a hidden launch splash keep the root safe area orange', () => {
+  it('covers the complete standalone viewport above the app frame during launch', () => {
+    expect(globalStyles).toMatch(
+      /\.ub-launch-splash\s*\{[\s\S]*?z-index: 1000 !important;[\s\S]*?height: 100dvh;/,
+    )
     expect(globalStyles).not.toContain('html:has(.ub-launch-splash)')
     expect(globalStyles).not.toContain('body:has(.ub-launch-splash)')
   })
