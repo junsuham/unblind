@@ -2,8 +2,8 @@
 
 :root {
   /* Brand */
-  --ub-color-brand: #fc5230;
-  --ub-color-brand-rgb: 252, 82, 48;
+  --ub-color-brand: #e45330;
+  --ub-color-brand-rgb: 228, 83, 48;
 
   /* Surfaces */
   --ub-surface-app: var(--ub-color-brand);
@@ -120,12 +120,12 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --ub-color-brand: #ff6a2b;
-    --ub-color-brand-rgb: 255, 106, 43;
-    --ub-surface-logo: #fc5230;
+    --ub-color-brand: #e45330;
+    --ub-color-brand-rgb: 228, 83, 48;
+    --ub-surface-logo: #e45330;
     --ub-surface-app: #140f0d;
     --ub-app-background:
-      radial-gradient(circle at 50% 0%, rgba(252, 82, 48, 0.18), transparent 32rem),
+      radial-gradient(circle at 50% 0%, rgba(228, 83, 48, 0.18), transparent 32rem),
       linear-gradient(180deg, #17110f 0%, #100d0c 100%);
     --ub-surface-card: rgba(37, 37, 39, 0.96);
     --ub-surface-card-strong: rgba(29, 29, 31, 0.98);

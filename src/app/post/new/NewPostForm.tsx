@@ -94,7 +94,7 @@ function CheckRow({
       <span
         className={
           checked
-            ? 'mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#fc5230] text-white'
+            ? 'mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#e45330] text-white'
             : 'mt-0.5 h-5 w-5 shrink-0 rounded-full border border-white/28 bg-white/5'
         }
       >
@@ -388,7 +388,7 @@ export default function NewPostForm({ initialBoard }: NewPostFormProps) {
             <button
               type="submit"
               disabled={!canSubmit}
-              className="min-h-11 px-1 text-[16px] font-semibold text-[#fc5230] disabled:text-white/24"
+              className="min-h-11 px-1 text-[16px] font-semibold text-[#e45330] disabled:text-white/24"
             >
               {isSubmitting ? '등록 중' : '등록'}
             </button>
@@ -400,7 +400,7 @@ export default function NewPostForm({ initialBoard }: NewPostFormProps) {
               onClick={() => setBoardPickerOpen((open) => !open)}
               aria-expanded={boardPickerOpen}
               aria-controls="writer-board-options"
-              className="flex min-h-[54px] w-full items-center justify-between gap-3 rounded-[14px] border border-[#fc5230]/45 bg-[#fc5230]/10 px-4 text-left active:bg-[#fc5230]/16"
+              className="flex min-h-[54px] w-full items-center justify-between gap-3 rounded-[14px] border border-[#e45330]/45 bg-[#e45330]/10 px-4 text-left active:bg-[#e45330]/16"
             >
               <span className="min-w-0">
                 <span className="block text-[15px] font-bold tracking-[-0.2px] text-white">
@@ -427,7 +427,7 @@ export default function NewPostForm({ initialBoard }: NewPostFormProps) {
                       setBoardPickerOpen(false)
                     }}
                     aria-pressed={board === option.id}
-                    className={`flex min-h-[48px] w-full items-center justify-between border-b border-white/8 px-4 text-left text-[15px] font-semibold last:border-b-0 ${board === option.id ? 'bg-[#fc5230]/14 text-[#ff7559]' : 'text-white/82 active:bg-white/6'}`}
+                    className={`flex min-h-[48px] w-full items-center justify-between border-b border-white/8 px-4 text-left text-[15px] font-semibold last:border-b-0 ${board === option.id ? 'bg-[#e45330]/14 text-[#ff7559]' : 'text-white/82 active:bg-white/6'}`}
                   >
                     <span>{option.name}</span>
                     {board === option.id && <Emoji3D name="check" size={19} />}
@@ -439,7 +439,7 @@ export default function NewPostForm({ initialBoard }: NewPostFormProps) {
         </header>
 
         {draftRestored && (
-          <div className="mx-4 mt-3 flex min-h-10 items-center justify-between gap-3 rounded-[12px] bg-[#fc5230]/12 px-3 text-[11px] font-semibold text-[#ff8269]" role="status">
+          <div className="mx-4 mt-3 flex min-h-10 items-center justify-between gap-3 rounded-[12px] bg-[#e45330]/12 px-3 text-[11px] font-semibold text-[#ff8269]" role="status">
             <span>작성 중이던 글을 복원했습니다.</span>
             <button type="button" onClick={clearDraft} className="min-h-9 shrink-0 px-1 font-bold text-[#ff9a86]">초기화</button>
           </div>

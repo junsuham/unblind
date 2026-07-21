@@ -27,7 +27,7 @@ export async function registerForPushNotifications(requestPermission = false) {
       name: '언블라인드 알림',
       importance: Notifications.AndroidImportance.DEFAULT,
       vibrationPattern: [0, 250, 250, 250],
-      lightColor: '#FC5230',
+      lightColor: '#E45330',
     })
   }
 

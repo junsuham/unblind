@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import Image from 'next/image'
 import { useSearchParams } from 'next/navigation'
 import type { Provider } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabase'
@@ -88,20 +87,18 @@ export default function LoginPage() {
   const isSubmitting = pendingProvider !== null
 
   return (
-    <main className="ub-login-hero relative flex min-h-[100dvh] flex-col overflow-hidden bg-[#e5502f] px-6 pb-[calc(24px+env(safe-area-inset-bottom))] pt-[calc(22px+env(safe-area-inset-top))] text-white">
+    <main className="ub-login-hero relative flex min-h-[100dvh] flex-col overflow-hidden bg-[#e45330] px-6 pb-[calc(24px+env(safe-area-inset-bottom))] pt-[calc(22px+env(safe-area-inset-top))] text-white">
       <div aria-hidden className="pointer-events-none absolute -right-24 top-[22%] h-80 w-80 rounded-full border-[48px] border-black/5" />
       <div aria-hidden className="pointer-events-none absolute -left-24 bottom-[12%] h-72 w-72 rotate-12 rounded-[72px] border-[44px] border-black/5" />
 
       <div className="relative z-10 mx-auto flex w-full max-w-[430px] flex-1 flex-col">
         <div className="flex justify-center pt-[4vh]">
-          <Image
-            src="/brand/unblind-wordmark-relief-v4.jpg"
-            alt="UNBLIND"
-            width={320}
-            height={71}
-            preload
-            className="ub-brand-logo h-[71px] w-[320px] rounded-[18px] object-cover shadow-[0_12px_30px_rgba(90,18,0,0.18)]"
-          />
+          <div
+            aria-label="UNBLIND"
+            className="text-[30px] font-black leading-none tracking-[-0.055em] text-black/72 [font-family:Didot,'Bodoni_72','Times_New_Roman',serif] [text-shadow:0_1px_0_rgba(255,255,255,0.18),0_2px_3px_rgba(87,17,0,0.22)]"
+          >
+            UNBLIND
+          </div>
         </div>
 
         <section className="flex flex-1 flex-col items-center justify-center pb-[7vh] text-center">

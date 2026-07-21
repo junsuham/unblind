@@ -45,7 +45,7 @@ html:has(.ub-login-hero),
 body:has(.ub-login-hero),
 html.ub-login-active,
 html.ub-login-active body {
-  background: #e5502f !important;
+  background: #e45330 !important;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -497,11 +497,11 @@ body:has(.ub-app-frame) {
 }
 
 .ub-logo-surface--monogram {
-  background: #e7552f;
+  background: var(--ub-color-brand);
 }
 
 .ub-logo-surface--wordmark {
-  background: #e5502f;
+  background: var(--ub-color-brand);
 }
 
 .ub-brand-logo {

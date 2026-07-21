@@ -32,7 +32,7 @@
     "android": {
       "package": "kr.unblind.app",
       "adaptiveIcon": {
-        "backgroundColor": "#E7552F",
+        "backgroundColor": "#E45330",
         "foregroundImage": "./assets/brand/unblind-app-icon-v4.png"
       },
       "predictiveBackGestureEnabled": true
@@ -44,13 +44,13 @@
       [
         "expo-notifications",
         {
-          "color": "#FC5230"
+          "color": "#E45330"
         }
       ],
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#E15331",
+          "backgroundColor": "#E45330",
           "image": "./assets/brand/unblind-slogan-relief-v4.jpg",
           "imageWidth": 232
         }

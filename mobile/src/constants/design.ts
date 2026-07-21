@@ -1,11 +1,11 @@
 import { useColorScheme } from 'react-native'
 
 const shared = {
-  brand: '#FC5230',
+  brand: '#E45330',
   brandSoft: '#FFF1E9',
-  logoSurface: '#E7552F',
-  wordmarkSurface: '#E5502F',
-  sloganSurface: '#E15331',
+  logoSurface: '#E45330',
+  wordmarkSurface: '#E45330',
+  sloganSurface: '#E45330',
   kakao: '#FEE500',
   danger: '#FF3B30',
   success: '#2D8A5B',
@@ -13,7 +13,7 @@ const shared = {
 
 export const lightColors = {
   ...shared,
-  background: '#FC5230',
+  background: '#E45330',
   surface: 'rgba(255,255,255,0.92)',
   surfaceStrong: '#FFFFFF',
   surfaceMuted: '#F2F2F7',
@@ -29,7 +29,7 @@ export const lightColors = {
 
 export const darkColors = {
   ...shared,
-  brand: '#FF6A2B',
+  brand: '#E45330',
   background: '#140F0D',
   surface: 'rgba(37,37,39,0.97)',
   surfaceStrong: '#1D1D1F',

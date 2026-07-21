@@ -51,6 +51,18 @@ const splashSource = readFileSync(
   new URL('../src/app/components/AppLaunchSplash.tsx', import.meta.url),
   'utf8',
 )
+const webTokenSource = readFileSync(
+  new URL('../src/app/styles/unblind-tokens.css', import.meta.url),
+  'utf8',
+)
+const mobileThemeSource = readFileSync(
+  new URL('../mobile/src/constants/design.ts', import.meta.url),
+  'utf8',
+)
+const mobileLoginSource = readFileSync(
+  new URL('../mobile/src/app/login.tsx', import.meta.url),
+  'utf8',
+)
 const mobileConfig = JSON.parse(
   readFileSync(new URL('../mobile/app.json', import.meta.url), 'utf8'),
 ) as { expo: { icon: string; ios: { icon: string }; android: { adaptiveIcon: { foregroundImage: string } } } }
@@ -71,8 +83,17 @@ describe('relief brand logo set', () => {
 
   it('uses each composition in the context where it remains legible', () => {
     expect(shellSource).toContain("title ? '/brand/unblind-monogram-relief-v4.jpg' : '/brand/unblind-wordmark-relief-v4.jpg'")
-    expect(webLoginSource).toContain('/brand/unblind-wordmark-relief-v4.jpg')
     expect(splashSource).toContain('/brand/unblind-slogan-relief-v4.jpg')
+  })
+
+  it('keeps the first-entry wordmark compact and uses one brand orange', () => {
+    expect(webLoginSource).toContain('text-[30px]')
+    expect(webLoginSource).toContain('aria-label="UNBLIND"')
+    expect(mobileLoginSource).toContain('fontSize: 30')
+    expect(mobileLoginSource).toContain('accessibilityLabel="UNBLIND"')
+    expect(webTokenSource).toContain('--ub-color-brand: #e45330')
+    expect(webTokenSource).toContain('--ub-color-brand-rgb: 228, 83, 48')
+    expect(mobileThemeSource.match(/#E45330/g)?.length).toBeGreaterThanOrEqual(6)
   })
 
   it('uses the monogram artwork for native launcher icons', () => {

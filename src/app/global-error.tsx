@@ -8,7 +8,7 @@ export default function GlobalError({
 }) {
   return (
     <html lang="ko">
-      <body style={{ margin: 0, background: '#fc5230', color: '#fff', fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif' }}>
+      <body style={{ margin: 0, background: '#e45330', color: '#fff', fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif' }}>
         <main style={{ minHeight: '100dvh', display: 'grid', placeItems: 'center', padding: 24 }}>
           <section style={{ width: '100%', maxWidth: 360, textAlign: 'center' }}>
             <h1 style={{ margin: 0, fontSize: 26 }}>앱을 다시 불러올게요</h1>
@@ -18,7 +18,7 @@ export default function GlobalError({
             <button
               type="button"
               onClick={unstable_retry}
-              style={{ width: '100%', minHeight: 52, border: 0, borderRadius: 16, background: '#fff', color: '#fc5230', fontSize: 17, fontWeight: 700 }}
+              style={{ width: '100%', minHeight: 52, border: 0, borderRadius: 16, background: '#fff', color: '#e45330', fontSize: 17, fontWeight: 700 }}
             >
               다시 시도
             </button>
