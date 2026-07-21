@@ -360,7 +360,9 @@ body:has(.ub-launch-splash:not(.ub-launch-splash-leaving)) {
 
   .ub-app-tabbar-content {
     height: calc(50px - var(--ub-pwa-bottom-inset));
-    transform: translateY(max(9px, var(--ub-pwa-bottom-inset)));
+    transform: translateY(
+      max(12px, calc(var(--ub-pwa-bottom-inset) + 2px))
+    );
   }
 
   .ub-app-tabbar-link {
@@ -370,7 +372,7 @@ body:has(.ub-launch-splash:not(.ub-launch-splash-leaving)) {
   }
 
   .ub-app-tabbar-label {
-    margin-top: 2px;
+    margin-top: 0;
   }
 }
 
