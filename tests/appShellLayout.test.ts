@@ -91,8 +91,9 @@ describe('app shell bottom tab bar', () => {
     expect(launchSplash).toContain('fixed inset-0')
     expect(appShell).toContain('ub-app-frame')
     expect(globalStyles).toMatch(
-      /html:has\(\.ub-launch-splash\),[\s\S]*?body:has\(\.ub-launch-splash\)[\s\S]*?background: var\(--ub-color-brand\);/,
+      /html:has\(\.ub-launch-splash:not\(\.ub-launch-splash-leaving\)\),[\s\S]*?body:has\(\.ub-launch-splash:not\(\.ub-launch-splash-leaving\)\)[\s\S]*?background: var\(--ub-color-brand\);/,
     )
+    expect(globalStyles).not.toContain('html:has(.ub-launch-splash),')
     expect(globalStyles).toMatch(
       /html:has\(\.ub-app-frame\),[\s\S]*?body:has\(\.ub-app-frame\)[\s\S]*?background: var\(--ub-app-background\);/,
     )

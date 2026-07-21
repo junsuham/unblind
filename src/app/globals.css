@@ -284,8 +284,8 @@ body:has(.ub-app-frame) {
   background: var(--ub-app-background);
 }
 
-html:has(.ub-launch-splash),
-body:has(.ub-launch-splash) {
+html:has(.ub-launch-splash:not(.ub-launch-splash-leaving)),
+body:has(.ub-launch-splash:not(.ub-launch-splash-leaving)) {
   background: var(--ub-color-brand);
 }
 
