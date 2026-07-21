@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import Image from 'next/image'
 import { useSearchParams } from 'next/navigation'
 import type { Provider } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabase'
@@ -93,12 +94,18 @@ export default function LoginPage() {
 
       <div className="relative z-10 mx-auto flex w-full max-w-[430px] flex-1 flex-col">
         <div className="flex justify-center pt-[4vh]">
-          <div
-            aria-label="UNBLIND"
-            className="text-[30px] font-black leading-none tracking-[-0.055em] text-black/72 [font-family:Didot,'Bodoni_72','Times_New_Roman',serif] [text-shadow:0_1px_0_rgba(255,255,255,0.18),0_2px_3px_rgba(87,17,0,0.22)]"
-          >
-            UNBLIND
-          </div>
+          <Image
+            src="/brand/unblind-wordmark-relief-v4.jpg"
+            alt="UNBLIND"
+            width={150}
+            height={33}
+            preload
+            className="ub-brand-logo h-[33px] w-[150px] object-cover"
+            style={{
+              maskImage: 'linear-gradient(to bottom, transparent 0%, black 10%, black 90%, transparent 100%)',
+              WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, black 10%, black 90%, transparent 100%)',
+            }}
+          />
         </div>
 
         <section className="flex flex-1 flex-col items-center justify-center pb-[7vh] text-center">

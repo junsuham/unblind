@@ -99,13 +99,15 @@ describe('relief brand logo set', () => {
 
   it('uses each composition in the context where it remains legible', () => {
     expect(shellSource).toContain('/brand/unblind-monogram-relief-v4.jpg')
+    expect(webLoginSource).toContain('/brand/unblind-wordmark-relief-v4.jpg')
+    expect(mobileLoginSource).toContain('unblind-wordmark-relief-v4.jpg')
     expect(splashSource).toContain('/brand/unblind-slogan-relief-v4.jpg')
   })
 
   it('keeps the first-entry wordmark compact and uses one brand orange', () => {
-    expect(webLoginSource).toContain('text-[30px]')
-    expect(webLoginSource).toContain('aria-label="UNBLIND"')
-    expect(mobileLoginSource).toContain('fontSize: 30')
+    expect(webLoginSource).toContain('width={150}')
+    expect(webLoginSource).toContain('height={33}')
+    expect(mobileLoginSource).toContain('height: 33, opacity: 0.94, width: 150')
     expect(mobileLoginSource).toContain('accessibilityLabel="UNBLIND"')
     expect(webTokenSource).toContain('--ub-color-brand: #e45330')
     expect(webTokenSource).toContain('--ub-color-brand-rgb: 228, 83, 48')
