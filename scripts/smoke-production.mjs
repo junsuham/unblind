@@ -46,6 +46,12 @@ await expectResponse('/recreation', async (response) => {
   }
 })
 
+await expectResponse('/mbti', async (response) => {
+  if (![200, 307, 308].includes(response.status)) {
+    throw new Error(`Bible character MBTI returned ${response.status}`)
+  }
+})
+
 await expectResponse('/builder-preview/home', async (response) => {
   if (response.status !== 200) {
     throw new Error(`Builder preview returned ${response.status}`)
@@ -71,7 +77,7 @@ await expectResponse('/manifest.webmanifest', async (response) => {
 
 await expectResponse('/sw.js', async (response) => {
   const body = await response.text()
-  if (!response.ok || !body.includes("WORKER_VERSION = '57'")) {
+  if (!response.ok || !body.includes("WORKER_VERSION = '58'")) {
     throw new Error('Service worker version is not current')
   }
   if (!response.headers.get('cache-control')?.includes('no-store')) {
