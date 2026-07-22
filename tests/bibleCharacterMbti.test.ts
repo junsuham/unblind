@@ -1,6 +1,7 @@
-import { readFileSync } from 'node:fs'
+import { readFileSync, statSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import {
+  bibleCharacterImages,
   bibleCharacters,
   bibleMbtiQuestions,
   calculateBibleMbtiResult,
@@ -23,6 +24,10 @@ const homePage = readFileSync(
 )
 const mbtiScreen = readFileSync(
   new URL('../src/app/mbti/BibleCharacterMbti.tsx', import.meta.url),
+  'utf8',
+)
+const shareCard = readFileSync(
+  new URL('../src/lib/bibleMbtiShareCard.ts', import.meta.url),
   'utf8',
 )
 
@@ -57,6 +62,12 @@ describe('Bible character MBTI', () => {
       expect(profile.references.length).toBeGreaterThanOrEqual(2)
       expect(profile.reflection.trim().length).toBeGreaterThan(10)
     }
+
+    expect(new Set(Object.values(bibleCharacterImages)).size).toBe(16)
+    for (const imagePath of Object.values(bibleCharacterImages)) {
+      const asset = new URL(`../public${imagePath}`, import.meta.url)
+      expect(statSync(asset).size).toBeGreaterThan(10_000)
+    }
   })
 
   it('calculates each of the 16 result types from matching answers', () => {
@@ -81,5 +92,14 @@ describe('Bible character MBTI', () => {
     expect(homePage).toContain('성경 인물 MBTI')
     expect(mbtiScreen).toContain('My Bible character Type Indicator')
     expect(mbtiScreen).toContain('공식 MBTI 검사나 신앙·성격의 평가는 아닙니다')
+  })
+
+  it('renders a centered character card and shares a generated PNG file', () => {
+    expect(mbtiScreen).toContain('className={styles.resultPortrait}')
+    expect(mbtiScreen).toContain('결과 이미지 공유하기')
+    expect(mbtiScreen).toContain('navigator.canShare?.(fileShare)')
+    expect(shareCard).toContain('canvas.toBlob')
+    expect(shareCard).toContain('new File([blob]')
+    expect(shareCard).toContain("type: 'image/png'")
   })
 })

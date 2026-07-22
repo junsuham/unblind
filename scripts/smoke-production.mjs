@@ -77,7 +77,7 @@ await expectResponse('/manifest.webmanifest', async (response) => {
 
 await expectResponse('/sw.js', async (response) => {
   const body = await response.text()
-  if (!response.ok || !body.includes("WORKER_VERSION = '58'")) {
+  if (!response.ok || !body.includes("WORKER_VERSION = '59'")) {
     throw new Error('Service worker version is not current')
   }
   if (!response.headers.get('cache-control')?.includes('no-store')) {
@@ -94,6 +94,12 @@ await expectResponse('/icons/emoji-3d/prayer.png', async (response) => {
 await expectResponse('/icons/emoji-3d/siren.png', async (response) => {
   if (!response.ok || response.headers.get('content-type') !== 'image/png') {
     throw new Error('Urgent prayer icon is unavailable')
+  }
+})
+
+await expectResponse('/characters/mbti/istj-daniel.png', async (response) => {
+  if (!response.ok || response.headers.get('content-type') !== 'image/png') {
+    throw new Error('Bible character assets are unavailable')
   }
 })
 

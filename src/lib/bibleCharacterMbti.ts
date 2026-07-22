@@ -285,6 +285,25 @@ export const bibleCharacters: Record<MbtiType, BibleCharacterProfile> = {
   },
 }
 
+export const bibleCharacterImages: Record<MbtiType, string> = {
+  ISTJ: '/characters/mbti/istj-daniel.png',
+  ISFJ: '/characters/mbti/isfj-ruth.png',
+  INFJ: '/characters/mbti/infj-esther.png',
+  INTJ: '/characters/mbti/intj-nehemiah.png',
+  ISTP: '/characters/mbti/istp-bezalel.png',
+  ISFP: '/characters/mbti/isfp-david.png',
+  INFP: '/characters/mbti/infp-hannah.png',
+  INTP: '/characters/mbti/intp-apollos.png',
+  ESTP: '/characters/mbti/estp-peter.png',
+  ESFP: '/characters/mbti/esfp-mary-magdalene.png',
+  ENFP: '/characters/mbti/enfp-barnabas.png',
+  ENTP: '/characters/mbti/entp-priscilla.png',
+  ESTJ: '/characters/mbti/estj-joshua.png',
+  ESFJ: '/characters/mbti/esfj-lydia.png',
+  ENFJ: '/characters/mbti/enfj-deborah.png',
+  ENTJ: '/characters/mbti/entj-paul.png',
+}
+
 export const axisCopy: Record<MbtiAxis, {
   left: { pole: MbtiPole; label: string }
   right: { pole: MbtiPole; label: string }

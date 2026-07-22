@@ -1,15 +1,18 @@
 'use client'
 
+import Image from 'next/image'
 import { useEffect, useMemo, useState, type CSSProperties } from 'react'
 import { SystemIcon } from '@/app/components/ui/SystemIcon'
 import {
   axisCopy,
+  bibleCharacterImages,
   bibleMbtiQuestions,
   calculateBibleMbtiResult,
   type BibleMbtiAnswers,
   type BibleMbtiResult,
   type MbtiPole,
 } from '@/lib/bibleCharacterMbti'
+import { createBibleMbtiShareImage } from '@/lib/bibleMbtiShareCard'
 import styles from './mbti.module.css'
 
 type Stage = 'intro' | 'questions' | 'result'
@@ -226,23 +229,48 @@ function Result({
   onRetake: () => void
 }) {
   const [shareMessage, setShareMessage] = useState('')
+  const [shareFile, setShareFile] = useState<File | null>(null)
   const character = result.character
+  const characterImage = bibleCharacterImages[result.type]
+
+  useEffect(() => {
+    let cancelled = false
+    createBibleMbtiShareImage(result)
+      .then((file) => {
+        if (!cancelled) setShareFile(file)
+      })
+      .catch(() => {
+        if (!cancelled) setShareMessage('공유 이미지를 만들지 못했어요. 잠시 후 다시 시도해주세요.')
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [result])
 
   async function shareResult() {
     const text = `나와 닮은 성경 인물은 ${character.name} (${result.type})! ${character.tagline}`
-    const shareData = {
-      title: `성경 인물 MBTI · ${character.name}`,
-      text,
-      url: `${window.location.origin}/mbti`,
-    }
+    if (!shareFile) return
 
     try {
-      if (navigator.share) {
-        await navigator.share(shareData)
+      const fileShare = { files: [shareFile] }
+      if (navigator.share && navigator.canShare?.(fileShare)) {
+        await navigator.share({
+          ...fileShare,
+          title: `성경 인물 MBTI · ${character.name}`,
+          text,
+        })
         return
       }
-      await navigator.clipboard.writeText(`${text}\n${shareData.url}`)
-      setShareMessage('결과 링크를 복사했어요.')
+
+      const downloadUrl = URL.createObjectURL(shareFile)
+      const anchor = document.createElement('a')
+      anchor.href = downloadUrl
+      anchor.download = shareFile.name
+      document.body.append(anchor)
+      anchor.click()
+      anchor.remove()
+      window.setTimeout(() => URL.revokeObjectURL(downloadUrl), 1_000)
+      setShareMessage('결과 이미지를 저장했어요.')
     } catch (error) {
       if ((error as Error).name !== 'AbortError') setShareMessage('공유하지 못했어요. 잠시 후 다시 시도해주세요.')
     }
@@ -254,6 +282,15 @@ function Result({
         <p className={styles.englishEyebrow}>My Bible character Type Indicator</p>
         <div className={styles.resultType} aria-label={`유형 ${result.type}`}>
           {result.type.split('').map((letter) => <span key={letter}>{letter}</span>)}
+        </div>
+        <div className={styles.resultPortrait}>
+          <Image
+            fill
+            src={characterImage}
+            alt={`${character.name} 캐릭터`}
+            sizes="(max-width: 350px) 78vw, 224px"
+            loading="eager"
+          />
         </div>
         <p className={styles.resultLabel}>나와 닮은 성경 인물</p>
         <h1 id="result-character-name">{character.name}</h1>
@@ -298,8 +335,14 @@ function Result({
       </section>
 
       <div className={styles.resultActions}>
-        <button type="button" className={styles.primaryButton} onClick={shareResult}>
-          <SystemIcon name="external" size={18} />결과 공유하기
+        <button
+          type="button"
+          className={styles.primaryButton}
+          disabled={!shareFile}
+          onClick={shareResult}
+        >
+          <SystemIcon name="external" size={18} />
+          {shareFile ? '결과 이미지 공유하기' : '공유 이미지 준비 중'}
         </button>
         <button type="button" className={styles.secondaryButton} onClick={onRetake}>
           다시 검사하기

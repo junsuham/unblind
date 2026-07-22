@@ -131,6 +131,12 @@
   line-height: 1;
 }
 
+.primaryButton:disabled {
+  cursor: wait;
+  opacity: 0.58;
+  box-shadow: none;
+}
+
 .resumeButton {
   min-height: 39px;
   margin-top: 4px;
@@ -376,8 +382,38 @@
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14);
 }
 
+.resultPortrait {
+  position: relative;
+  overflow: hidden;
+  width: min(224px, 78vw);
+  aspect-ratio: 1;
+  margin: 16px auto 0;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 30px;
+  background: #171211;
+  box-shadow:
+    0 18px 36px rgba(0, 0, 0, 0.3),
+    0 0 36px rgba(228, 83, 48, 0.13);
+}
+
+.resultPortrait::after {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16);
+  content: '';
+  pointer-events: none;
+}
+
+.resultPortrait img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
 .resultLabel {
-  margin: 17px 0 0 !important;
+  margin: 16px 0 0 !important;
   color: var(--ub-text-tertiary) !important;
   font-size: 10px !important;
   font-weight: 700;
