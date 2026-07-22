@@ -21,6 +21,10 @@ const launchSplash = readFileSync(
   new URL('../src/app/components/AppLaunchSplash.tsx', import.meta.url),
   'utf8',
 )
+const manifest = readFileSync(
+  new URL('../src/app/manifest.ts', import.meta.url),
+  'utf8',
+)
 
 describe('app shell bottom tab bar', () => {
   it('counts the iOS bottom safe area exactly once', () => {
@@ -45,6 +49,22 @@ describe('app shell bottom tab bar', () => {
     expect(frameRule).toContain('z-index: 0;')
     expect(frameRule).toContain('background: var(--ub-app-background);')
     expect(frameRule).not.toContain('standalone-bottom-compensation')
+  })
+
+  it('matches the iOS system safe area to the app background in both themes', () => {
+    expect(rootLayout).toContain('statusBarStyle: "black-translucent"')
+    expect(rootLayout).toContain(
+      '{ media: "(prefers-color-scheme: light)", color: "#e45330" }',
+    )
+    expect(rootLayout).toContain(
+      '{ media: "(prefers-color-scheme: dark)", color: "#100d0c" }',
+    )
+    expect(manifest).toContain("theme_color: '#e45330'")
+    expect(globalStyles).toContain('--ub-system-background: #e45330;')
+    expect(globalStyles).toContain('--ub-system-background: #100d0c;')
+    expect(globalStyles).toMatch(
+      /html:has\(\.ub-app-frame\),[\s\S]*?body:has\(\.ub-app-frame\)[\s\S]*?background: var\(--ub-system-background\);/,
+    )
   })
 
   it('keeps only floating navigation icons in installed PWA mode', () => {
@@ -104,7 +124,7 @@ describe('app shell bottom tab bar', () => {
     )
     expect(globalStyles).not.toContain('html:has(.ub-launch-splash),')
     expect(globalStyles).toMatch(
-      /html:has\(\.ub-app-frame\),[\s\S]*?body:has\(\.ub-app-frame\)[\s\S]*?background: var\(--ub-app-background\);/,
+      /html:has\(\.ub-app-frame\),[\s\S]*?body:has\(\.ub-app-frame\)[\s\S]*?background: var\(--ub-system-background\);/,
     )
   })
 })

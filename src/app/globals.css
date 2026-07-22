@@ -10,21 +10,23 @@
 
 :root {
   color-scheme: light dark;
+  --ub-system-background: #e45330;
   --ub-tabbar-background: #f5f5f7;
 }
 
 html {
   min-height: 100%;
-  background: #f5f5f7;
+  background: var(--ub-system-background);
   -webkit-text-size-adjust: 100%;
 }
 
 @media (prefers-color-scheme: dark) {
   html {
-    background: #1c1c1e;
+    background: var(--ub-system-background);
   }
 
   :root {
+    --ub-system-background: #100d0c;
     --ub-tabbar-background: #1c1c1e;
   }
 }
@@ -32,7 +34,7 @@ html {
 body {
   min-height: 100dvh;
   margin: 0;
-  background: #f5f5f7;
+  background: var(--ub-system-background);
   color: var(--ub-text-on-brand-primary);
   font-family: var(--ub-font-system);
   font-synthesis-weight: none;
@@ -50,7 +52,7 @@ html.ub-login-active body {
 
 @media (prefers-color-scheme: dark) {
   body {
-    background: #1c1c1e;
+    background: var(--ub-system-background);
   }
 }
 
@@ -281,7 +283,7 @@ body:has(.ub-app-frame) {
   min-height: 100%;
   overflow: hidden;
   overscroll-behavior: none;
-  background: var(--ub-app-background);
+  background: var(--ub-system-background);
 }
 
 html:has(.ub-launch-splash:not(.ub-launch-splash-leaving)),

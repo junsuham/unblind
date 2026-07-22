@@ -13,6 +13,8 @@ export const metadata: Metadata = {
   manifest: "/manifest.webmanifest",
   appleWebApp: {
     capable: true,
+    // Keep the orange header edge-to-edge. The bottom system area is matched
+    // separately through themeColor and the root safe-area background.
     statusBarStyle: "black-translucent",
     title: "언블라인드",
   },
@@ -39,8 +41,8 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   viewportFit: "cover",
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f5f5f7" },
-    { media: "(prefers-color-scheme: dark)", color: "#1c1c1e" },
+    { media: "(prefers-color-scheme: light)", color: "#e45330" },
+    { media: "(prefers-color-scheme: dark)", color: "#100d0c" },
   ],
 };
 
