@@ -106,6 +106,21 @@ export default async function HomePage({ searchParams }: HomePageProps) {
         <p id="unblind-app-shortcuts" className="mb-1.5 px-1 text-[9px] font-bold tracking-[0.08em] text-white/58">언블라인드 앱</p>
         <div className="overflow-hidden rounded-[22px] bg-[var(--ub-surface-card-strong)] shadow-[var(--ub-shadow-soft)]">
           <HomeManittoFinder initialState={manitto} />
+          <Link
+            href="/recreation"
+            className="flex min-h-[68px] w-full items-center gap-3 border-t border-[var(--ub-separator)] px-4 py-3 text-left text-[var(--ub-text-primary)] active:bg-[var(--ub-surface-pressed)]"
+          >
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[13px] bg-[var(--ub-surface-brand-soft)] text-[var(--ub-color-brand)]">
+              <SystemIcon name="dice" size={21} />
+            </span>
+            <span className="min-w-0 flex-1">
+              <span className="block text-[15px] font-bold tracking-[-0.2px]">레크레이션 KIT</span>
+              <span className="mt-0.5 block truncate text-[11px] text-[var(--ub-text-secondary)]">
+                상황별 게임 추천 · 팀 편성 · 타이머 · 점수판
+              </span>
+            </span>
+            <span className="text-[22px] leading-none text-[var(--ub-text-tertiary)]" aria-hidden>›</span>
+          </Link>
           <HomePraisePlayer
             initialTracks={(praiseTracks ?? []).map((track) => ({
               id: track.youtube_id,

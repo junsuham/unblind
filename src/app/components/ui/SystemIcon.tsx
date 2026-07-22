@@ -6,6 +6,7 @@ export type SystemIconName =
   | 'calendar'
   | 'close'
   | 'disc'
+  | 'dice'
   | 'eye'
   | 'external'
   | 'flag'
@@ -25,10 +26,13 @@ export type SystemIconName =
   | 'prayer'
   | 'search'
   | 'settings'
+  | 'shuffle'
   | 'compose'
   | 'sparkles'
   | 'speaker'
   | 'sun'
+  | 'timer'
+  | 'trophy'
 
 type SystemIconProps = SVGProps<SVGSVGElement> & {
   name: SystemIconName
@@ -54,6 +58,16 @@ const paths: Record<SystemIconName, ReactNode> = {
       <circle cx="12" cy="12" r="9" />
       <circle cx="12" cy="12" r="2.4" />
       <path d="M12 3a9 9 0 0 1 9 9M3 12a9 9 0 0 1 9-9" opacity=".45" />
+    </>
+  ),
+  dice: (
+    <>
+      <rect x="3" y="3" width="18" height="18" rx="4" />
+      <circle cx="8" cy="8" r="1" fill="currentColor" stroke="none" />
+      <circle cx="16" cy="8" r="1" fill="currentColor" stroke="none" />
+      <circle cx="12" cy="12" r="1" fill="currentColor" stroke="none" />
+      <circle cx="8" cy="16" r="1" fill="currentColor" stroke="none" />
+      <circle cx="16" cy="16" r="1" fill="currentColor" stroke="none" />
     </>
   ),
   eye: (
@@ -143,6 +157,12 @@ const paths: Record<SystemIconName, ReactNode> = {
       <path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2.8 2.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6v.2h-4V21a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1L4.2 17l.1-.1a1.7 1.7 0 0 0 .3-1.9A1.7 1.7 0 0 0 3 14H2.8v-4H3a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9L4.2 7 7 4.2l.1.1A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-1.6v-.2h4V3a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1L19.8 7l-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.6 1h.2v4H21a1.7 1.7 0 0 0-1.6 1Z" />
     </>
   ),
+  shuffle: (
+    <>
+      <path d="M16 3h5v5M4 6h3.5c4.5 0 5 12 9.5 12h4" />
+      <path d="m18 15 3 3-3 3M4 18h3.5c1.5 0 2.6-1.3 3.6-3.1M13.4 8.8C14.4 7.1 15.5 6 17 6h4" />
+    </>
+  ),
   compose: (
     <>
       <rect x="4" y="4" width="16" height="16" rx="2" />
@@ -162,6 +182,18 @@ const paths: Record<SystemIconName, ReactNode> = {
     <>
       <circle cx="12" cy="12" r="4" />
       <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" />
+    </>
+  ),
+  timer: (
+    <>
+      <circle cx="12" cy="13" r="8" />
+      <path d="M9 2h6M12 5V2M18.2 6.8 20 5M12 13l3-3" />
+    </>
+  ),
+  trophy: (
+    <>
+      <path d="M8 4h8v5a4 4 0 0 1-8 0V4ZM12 13v5M8 21h8M9 18h6" />
+      <path d="M8 6H4v2a4 4 0 0 0 4 4M16 6h4v2a4 4 0 0 1-4 4" />
     </>
   ),
 }
