@@ -11,7 +11,8 @@
 :root {
   color-scheme: light dark;
   --ub-system-background: #e45330;
-  --ub-tabbar-background: #f5f5f7;
+  --ub-bottom-surface: #f5f5f7;
+  --ub-tabbar-background: var(--ub-bottom-surface);
 }
 
 html {
@@ -27,7 +28,8 @@ html {
 
   :root {
     --ub-system-background: #100d0c;
-    --ub-tabbar-background: #1c1c1e;
+    --ub-bottom-surface: #1c1c1e;
+    --ub-tabbar-background: var(--ub-bottom-surface);
   }
 }
 
@@ -283,7 +285,8 @@ body:has(.ub-app-frame) {
   min-height: 100%;
   overflow: hidden;
   overscroll-behavior: none;
-  background: var(--ub-system-background);
+  /* The iOS home-indicator strip is painted from this root surface. */
+  background: var(--ub-bottom-surface);
 }
 
 html:has(.ub-launch-splash:not(.ub-launch-splash-leaving)),
@@ -328,7 +331,8 @@ body:has(.ub-launch-splash:not(.ub-launch-splash-leaving)) {
   .ub-app-frame {
     inset: 0;
     grid-template-rows: minmax(0, 1fr);
-    background: var(--ub-app-background);
+    /* Keep the viewport behind the overlaid bar identical to its safe area. */
+    background: var(--ub-bottom-surface);
   }
 
   .ub-app-scroll {

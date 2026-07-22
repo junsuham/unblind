@@ -51,7 +51,7 @@ describe('app shell bottom tab bar', () => {
     expect(frameRule).not.toContain('standalone-bottom-compensation')
   })
 
-  it('matches the iOS system safe area to the app background in both themes', () => {
+  it('keeps the iOS bottom safe area and tab bar on one continuous surface', () => {
     expect(rootLayout).toContain('statusBarStyle: "black-translucent"')
     expect(rootLayout).toContain(
       '{ media: "(prefers-color-scheme: light)", color: "#e45330" }',
@@ -62,8 +62,16 @@ describe('app shell bottom tab bar', () => {
     expect(manifest).toContain("theme_color: '#e45330'")
     expect(globalStyles).toContain('--ub-system-background: #e45330;')
     expect(globalStyles).toContain('--ub-system-background: #100d0c;')
+    expect(globalStyles).toContain('--ub-bottom-surface: #f5f5f7;')
+    expect(globalStyles).toContain('--ub-bottom-surface: #1c1c1e;')
+    expect(globalStyles).toContain(
+      '--ub-tabbar-background: var(--ub-bottom-surface);',
+    )
     expect(globalStyles).toMatch(
-      /html:has\(\.ub-app-frame\),[\s\S]*?body:has\(\.ub-app-frame\)[\s\S]*?background: var\(--ub-system-background\);/,
+      /html:has\(\.ub-app-frame\),[\s\S]*?body:has\(\.ub-app-frame\)[\s\S]*?background: var\(--ub-bottom-surface\);/,
+    )
+    expect(globalStyles).toMatch(
+      /@media \(display-mode: standalone\) \{[\s\S]*?\.ub-app-frame\s*\{[\s\S]*?background: var\(--ub-bottom-surface\);/,
     )
   })
 
@@ -125,7 +133,7 @@ describe('app shell bottom tab bar', () => {
     )
     expect(globalStyles).not.toContain('html:has(.ub-launch-splash),')
     expect(globalStyles).toMatch(
-      /html:has\(\.ub-app-frame\),[\s\S]*?body:has\(\.ub-app-frame\)[\s\S]*?background: var\(--ub-system-background\);/,
+      /html:has\(\.ub-app-frame\),[\s\S]*?body:has\(\.ub-app-frame\)[\s\S]*?background: var\(--ub-bottom-surface\);/,
     )
   })
 })
