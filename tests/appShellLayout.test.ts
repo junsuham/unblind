@@ -67,7 +67,7 @@ describe('app shell bottom tab bar', () => {
     )
   })
 
-  it('keeps only floating navigation icons in installed PWA mode', () => {
+  it('keeps a compact glass navigation bar in installed PWA mode', () => {
     expect(globalStyles).toMatch(
       /@media \(display-mode: standalone\) \{[\s\S]*?\.ub-app-frame\s*\{[\s\S]*?inset: 0;[\s\S]*?grid-template-rows: minmax\(0, 1fr\);/,
     )
@@ -77,7 +77,7 @@ describe('app shell bottom tab bar', () => {
     expect(standaloneFrameRule).not.toContain('height: 100dvh;')
     expect(standaloneFrameRule).not.toContain('inset: 0 0 auto;')
     expect(globalStyles).toMatch(
-      /@media \(display-mode: standalone\) \{[\s\S]*?\.ub-app-tabbar\s*\{[\s\S]*?position: absolute;[\s\S]*?bottom: 0;[\s\S]*?height: 50px;[\s\S]*?background-color: transparent;/,
+      /@media \(display-mode: standalone\) \{[\s\S]*?\.ub-app-tabbar\s*\{[\s\S]*?position: absolute;[\s\S]*?bottom: 0;[\s\S]*?height: 50px;[\s\S]*?background-color: var\(--ub-tabbar-background\);/,
     )
     expect(globalStyles).toMatch(
       /@media \(display-mode: standalone\) \{[\s\S]*?\.ub-app-scroll\s*\{[\s\S]*?padding-bottom: 0 !important;[\s\S]*?scroll-padding-bottom: 50px;/,
@@ -88,8 +88,9 @@ describe('app shell bottom tab bar', () => {
     expect(globalStyles).toMatch(
       /@media \(display-mode: standalone\) \{[\s\S]*?\.ub-app-tabbar::before\s*\{[\s\S]*?content: none;/,
     )
-    expect(globalStyles).toContain('backdrop-filter: none;')
-    expect(globalStyles).toContain('filter: drop-shadow(')
+    expect(globalStyles).toContain('backdrop-filter: blur(22px) saturate(155%);')
+    expect(globalStyles).toContain('border-top: 0.5px solid var(--ub-separator);')
+    expect(globalStyles).toContain('filter: none;')
     expect(globalStyles).toContain(
       'height: calc(50px - var(--ub-pwa-bottom-inset));',
     )

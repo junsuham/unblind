@@ -199,39 +199,36 @@ function QuickPlanner({
         </label>
       </div>
 
-      <fieldset className={styles.choiceField}>
-        <legend>장소</legend>
-        <div className={styles.choiceRow}>
-          {(Object.keys(recreationPlaceLabels) as RecreationPlace[]).map((place) => (
-            <button
-              key={place}
-              type="button"
-              aria-pressed={context.place === place}
-              className={context.place === place ? styles.choiceActive : styles.choice}
-              onClick={() => onChange({ ...context, place })}
-            >
-              {recreationPlaceLabels[place]}
-            </button>
-          ))}
-        </div>
-      </fieldset>
-
-      <fieldset className={styles.choiceField}>
-        <legend>분위기</legend>
-        <div className={styles.moodScroller}>
-          {moodOptions.map((mood) => (
-            <button
-              key={mood.value}
-              type="button"
-              aria-pressed={context.mood === mood.value}
-              className={context.mood === mood.value ? styles.choiceActive : styles.choice}
-              onClick={() => onChange({ ...context, mood: mood.value })}
-            >
-              {mood.label}
-            </button>
-          ))}
-        </div>
-      </fieldset>
+      <div className={`${styles.optionGrid} ${styles.secondaryOptionGrid}`}>
+        <label className={styles.selectField}>
+          <span>장소</span>
+          <select
+            value={context.place}
+            onChange={(event) => onChange({
+              ...context,
+              place: event.target.value as RecreationPlace,
+            })}
+          >
+            {(Object.keys(recreationPlaceLabels) as RecreationPlace[]).map((place) => (
+              <option key={place} value={place}>{recreationPlaceLabels[place]}</option>
+            ))}
+          </select>
+        </label>
+        <label className={styles.selectField}>
+          <span>분위기</span>
+          <select
+            value={context.mood}
+            onChange={(event) => onChange({
+              ...context,
+              mood: event.target.value as RecreationMood | 'all',
+            })}
+          >
+            {moodOptions.map((mood) => (
+              <option key={mood.value} value={mood.value}>{mood.label}</option>
+            ))}
+          </select>
+        </label>
+      </div>
 
       <label className={styles.switchRow}>
         <span>

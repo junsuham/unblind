@@ -4,10 +4,13 @@
 .detailStack,
 .liveStack {
   display: grid;
+  min-width: 0;
+  grid-template-columns: minmax(0, 1fr);
   gap: 16px;
 }
 
 .kitRoot {
+  overflow-x: clip;
   padding-bottom: 8px;
 }
 
@@ -55,9 +58,9 @@
 .planner {
   position: relative;
   overflow: hidden;
-  padding: 20px;
+  padding: 16px;
   border: 1px solid rgba(255, 255, 255, 0.8);
-  border-radius: 27px;
+  border-radius: 24px;
   background:
     radial-gradient(circle at 96% -4%, rgba(228, 83, 48, 0.16), transparent 42%),
     var(--ub-surface-card-strong);
@@ -70,6 +73,11 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 14px;
+}
+
+.plannerHeader > div {
+  min-width: 0;
+  flex: 1;
 }
 
 .eyebrow,
@@ -86,15 +94,15 @@
 .toolsIntro h1 {
   margin: 0;
   color: var(--ub-text-primary);
-  font-size: 22px;
+  font-size: 20px;
   font-weight: 800;
-  line-height: 29px;
+  line-height: 26px;
   letter-spacing: -0.55px;
 }
 
 .plannerHeader p:not(.eyebrow) {
   max-width: 260px;
-  margin: 6px 0 0;
+  margin: 4px 0 0;
   color: var(--ub-text-secondary);
   font-size: 12px;
   line-height: 18px;
@@ -102,12 +110,12 @@
 
 .heroDice {
   display: grid;
-  width: 52px;
-  height: 52px;
+  width: 46px;
+  height: 46px;
   flex: 0 0 auto;
   place-items: center;
   border: 1px solid rgba(228, 83, 48, 0.15);
-  border-radius: 17px;
+  border-radius: 15px;
   background: linear-gradient(145deg, #fff5ef, #ffe0d2);
   color: var(--ub-color-brand);
   box-shadow:
@@ -120,11 +128,16 @@
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 9px;
-  margin-top: 18px;
+  margin-top: 13px;
+}
+
+.secondaryOptionGrid {
+  margin-top: 9px;
 }
 
 .selectField {
   display: grid;
+  min-width: 0;
   gap: 5px;
 }
 
@@ -139,17 +152,19 @@
 .selectField select,
 .teamActions select {
   width: 100%;
-  min-height: 44px;
+  min-width: 0;
+  max-width: 100%;
+  min-height: 40px;
   appearance: none;
   border: 1px solid var(--ub-separator);
   border-radius: 13px;
   background:
-    linear-gradient(45deg, transparent 50%, var(--ub-text-tertiary) 50%) calc(100% - 15px) 19px / 5px 5px no-repeat,
-    linear-gradient(135deg, var(--ub-text-tertiary) 50%, transparent 50%) calc(100% - 10px) 19px / 5px 5px no-repeat,
+    linear-gradient(45deg, transparent 50%, var(--ub-text-tertiary) 50%) calc(100% - 15px) 17px / 5px 5px no-repeat,
+    linear-gradient(135deg, var(--ub-text-tertiary) 50%, transparent 50%) calc(100% - 10px) 17px / 5px 5px no-repeat,
     var(--ub-surface-muted);
   padding: 0 30px 0 13px;
   color: var(--ub-text-primary);
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 700;
 }
 
@@ -210,13 +225,13 @@
 
 .switchRow {
   display: flex;
-  min-height: 54px;
+  min-height: 46px;
   align-items: center;
   justify-content: space-between;
   gap: 14px;
-  margin-top: 15px;
+  margin-top: 10px;
   border-top: 1px solid var(--ub-separator);
-  padding-top: 14px;
+  padding-top: 10px;
 }
 
 .switchRow span {
@@ -270,11 +285,11 @@
 .startButton {
   display: flex;
   width: 100%;
-  min-height: 50px;
+  min-height: 46px;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  margin-top: 15px;
+  margin-top: 10px;
   border: 0;
   border-radius: 16px;
   background: linear-gradient(135deg, #eb633f, #d84525);
@@ -314,8 +329,8 @@
 
 .cardList {
   display: grid;
-  gap: 8px;
-  margin-top: 10px;
+  gap: 7px;
+  margin-top: 9px;
 }
 
 .gameCard,
@@ -327,6 +342,25 @@
   background: var(--ub-surface-card-strong);
   color: var(--ub-text-primary);
   box-shadow: var(--ub-shadow-soft);
+}
+
+.recommendCard .gameCardMain {
+  min-height: 88px;
+  padding: 11px 42px 10px 11px;
+}
+
+.recommendCard .gameIcon {
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+}
+
+.recommendCard .gameSummary {
+  -webkit-line-clamp: 1;
+}
+
+.recommendCard .metrics {
+  margin-top: 5px;
 }
 
 .recommendCard {
@@ -536,14 +570,14 @@
 .toolsIntro {
   display: flex;
   align-items: center;
-  gap: 14px;
-  padding: 18px;
+  gap: 11px;
+  padding: 14px;
 }
 
 .toolsIntro > span {
   display: grid;
-  width: 48px;
-  height: 48px;
+  width: 42px;
+  height: 42px;
   flex: 0 0 auto;
   place-items: center;
   border-radius: 16px;
@@ -552,8 +586,8 @@
 }
 
 .toolsIntro h1 {
-  font-size: 19px;
-  line-height: 24px;
+  font-size: 17px;
+  line-height: 22px;
 }
 
 .toolsIntro small {
@@ -565,7 +599,7 @@
 }
 
 .toolCard {
-  padding: 17px;
+  padding: 14px;
 }
 
 .toolHeading {
@@ -593,14 +627,14 @@
 .timerWrap {
   display: grid;
   place-items: center;
-  padding: 18px 0 14px;
+  padding: 12px 0 10px;
 }
 
 .timerRing {
   position: relative;
   display: grid;
-  width: 142px;
-  height: 142px;
+  width: 122px;
+  height: 122px;
   place-items: center;
   align-content: center;
   border-radius: 50%;
@@ -613,7 +647,7 @@
 .timerRing time {
   color: var(--ub-text-primary);
   font-variant-numeric: tabular-nums;
-  font-size: 29px;
+  font-size: 26px;
   font-weight: 800;
   letter-spacing: -1px;
 }
@@ -637,8 +671,8 @@
 
 .roundButton {
   display: grid;
-  width: 44px;
-  height: 44px;
+  width: 40px;
+  height: 40px;
   flex: 0 0 auto;
   place-items: center;
   border: 0;
@@ -697,6 +731,7 @@
 
 .teamActions {
   justify-content: flex-start;
+  flex-wrap: wrap;
   margin-top: 10px;
 }
 
@@ -1098,10 +1133,6 @@
   .gameIcon {
     width: 38px;
     height: 38px;
-  }
-
-  .teamActions {
-    flex-wrap: wrap;
   }
 
   .teamGrid {
