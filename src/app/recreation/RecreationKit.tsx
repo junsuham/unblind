@@ -47,6 +47,74 @@ const moodOptions: Array<{ value: RecreationMood | 'all'; label: string }> = [
 const playerOptions = [6, 12, 20, 35, 60]
 const minuteOptions = [5, 10, 15, 20, 30]
 
+type ToolCard = {
+  prompt: string
+  answer: string
+  hint?: string
+  chips?: string[]
+}
+
+const gameToolDecks: Record<NonNullable<RecreationGame['tool']>, ToolCard[]> = {
+  'same-answer': [
+    { prompt: '여름 하면 가장 먼저 떠오르는 것', answer: '셋을 세고 동시에 외쳐주세요.' },
+    { prompt: '교회 간식 하면 떠오르는 메뉴', answer: '셋을 세고 동시에 외쳐주세요.' },
+    { prompt: '가장 먼저 떠오르는 성경 인물', answer: '셋을 세고 동시에 외쳐주세요.' },
+    { prompt: '수련회에 꼭 챙겨야 하는 것', answer: '셋을 세고 동시에 외쳐주세요.' },
+    { prompt: '비 오는 날 가장 하고 싶은 것', answer: '셋을 세고 동시에 외쳐주세요.' },
+    { prompt: '우리 팀을 색으로 표현한다면', answer: '셋을 세고 동시에 외쳐주세요.' },
+    { prompt: '감사할 때 떠오르는 한 단어', answer: '셋을 세고 동시에 외쳐주세요.' },
+    { prompt: '찬양 시간에 떠오르는 악기', answer: '셋을 세고 동시에 외쳐주세요.' },
+  ],
+  'forbidden-word': [
+    { prompt: '노아의 방주', answer: '금지어 · 홍수 / 동물', hint: '몸짓은 사용할 수 있어요.' },
+    { prompt: '다윗과 골리앗', answer: '금지어 · 물맷돌 / 거인', hint: '인물 이름의 일부도 말할 수 없어요.' },
+    { prompt: '오병이어', answer: '금지어 · 물고기 / 빵', hint: '45초 안에 설명하세요.' },
+    { prompt: '선한 사마리아인', answer: '금지어 · 강도 / 이웃', hint: '성경책을 직접 인용할 수 없어요.' },
+    { prompt: '무지개', answer: '금지어 · 비 / 색깔', hint: '영어 번역도 금지예요.' },
+    { prompt: '찬양', answer: '금지어 · 노래 / 예배', hint: '멜로디를 부를 수 없어요.' },
+    { prompt: '기도', answer: '금지어 · 하나님 / 손', hint: '제시어와 같은 어근도 금지예요.' },
+    { prompt: '수련회', answer: '금지어 · 교회 / 여름', hint: '팀이 맞히면 1점이에요.' },
+  ],
+  'bible-quiz': [
+    { prompt: 'ㄴ ㅇ', answer: '노아', hint: '큰 배를 만들었어요.' },
+    { prompt: 'ㅇ ㅂ ㄹ ㅎ', answer: '아브라함', hint: '믿음의 조상이라 불려요.' },
+    { prompt: 'ㅇ ㅅ', answer: '요셉', hint: '꿈을 해석했고 애굽의 총리가 되었어요.' },
+    { prompt: 'ㅁ ㅅ', answer: '모세', hint: '이스라엘 백성을 출애굽으로 이끌었어요.' },
+    { prompt: 'ㄷ ㅇ', answer: '다윗', hint: '목동이었고 이스라엘의 왕이 되었어요.' },
+    { prompt: 'ㅇ ㅅ ㄷ', answer: '에스더', hint: '백성을 구한 왕비예요.' },
+    { prompt: 'ㄷ ㄴ ㅇ', answer: '다니엘', hint: '사자굴에서도 믿음을 지켰어요.' },
+    { prompt: 'ㄷ ㅂ ㄹ', answer: '드보라', hint: '이스라엘의 사사이자 선지자였어요.' },
+    { prompt: 'ㅂ ㄷ ㄹ', answer: '베드로', hint: '예수님의 제자이며 어부였어요.' },
+    { prompt: 'ㅂ ㅇ', answer: '바울', hint: '여러 교회에 편지를 남겼어요.' },
+  ],
+  'verse-order': [
+    {
+      prompt: '낱말을 올바른 순서로 읽어보세요.',
+      answer: '여호와는 나의 목자시니 내게 부족함이 없으리로다',
+      hint: '시편 23:1',
+      chips: ['내게', '목자시니', '없으리로다', '여호와는', '나의', '부족함이'],
+    },
+    {
+      prompt: '낱말을 올바른 순서로 읽어보세요.',
+      answer: '항상 기뻐하라 쉬지 말고 기도하라 범사에 감사하라',
+      hint: '데살로니가전서 5:16–18',
+      chips: ['기도하라', '항상', '감사하라', '쉬지', '기뻐하라', '범사에', '말고'],
+    },
+    {
+      prompt: '낱말을 올바른 순서로 읽어보세요.',
+      answer: '너희 모든 일을 사랑으로 행하라',
+      hint: '고린도전서 16:14',
+      chips: ['사랑으로', '모든', '행하라', '너희', '일을'],
+    },
+    {
+      prompt: '낱말을 올바른 순서로 읽어보세요.',
+      answer: '소망 중에 즐거워하며 환난 중에 참으며 기도에 항상 힘쓰며',
+      hint: '로마서 12:12',
+      chips: ['항상', '환난', '소망', '기도에', '중에', '힘쓰며', '참으며', '즐거워하며', '중에'],
+    },
+  ],
+}
+
 function scrollAppToTop() {
   window.requestAnimationFrame(() => {
     document.querySelector<HTMLElement>('.ub-app-scroll')?.scrollTo({
@@ -65,7 +133,7 @@ function formatClock(totalSeconds: number) {
 
 function AppTabs({ view, onChange }: { view: MainView; onChange: (view: MainView) => void }) {
   return (
-    <nav className={styles.appTabs} aria-label="레크리에이션 KIT 메뉴">
+    <nav className={styles.appTabs} aria-label="모임 KIT 메뉴">
       <button
         type="button"
         aria-current={view === 'discover' ? 'page' : undefined}
@@ -426,6 +494,59 @@ function TeamBuilder({ compact = false }: { compact?: boolean }) {
   )
 }
 
+function GamePlayTool({ game }: { game: RecreationGame }) {
+  const [index, setIndex] = useState(0)
+  const [revealed, setRevealed] = useState(false)
+  if (!game.tool) return null
+
+  const cards = gameToolDecks[game.tool]
+  const card = cards[index % cards.length]
+
+  function nextCard() {
+    setIndex((current) => (current + 1) % cards.length)
+    setRevealed(false)
+  }
+
+  return (
+    <section className={styles.playTool} aria-labelledby="game-tool-title">
+      <header>
+        <div>
+          <p>PLAY CARD</p>
+          <h2 id="game-tool-title">바로 쓰는 게임 도구</h2>
+        </div>
+        <span>{index + 1} / {cards.length}</span>
+      </header>
+      <div className={styles.playCard}>
+        <span>{game.title}</span>
+        <strong>{card.prompt}</strong>
+        {card.chips && (
+          <div className={styles.wordChips} aria-label="섞인 말씀 낱말">
+            {card.chips.map((chip, chipIndex) => (
+              <b key={`${chip}-${chipIndex}`}>{chip}</b>
+            ))}
+          </div>
+        )}
+        {card.hint && !revealed && <small>힌트 · {card.hint}</small>}
+        {revealed && (
+          <div className={styles.revealedAnswer} aria-live="polite">
+            <small>{game.tool === 'forbidden-word' ? '제한 조건' : '정답'}</small>
+            <p>{card.answer}</p>
+            {card.hint && game.tool === 'verse-order' && <span>{card.hint}</span>}
+          </div>
+        )}
+      </div>
+      <div className={styles.playToolActions}>
+        <button type="button" className={styles.secondaryButton} onClick={() => setRevealed((current) => !current)}>
+          {revealed ? '정답 가리기' : game.tool === 'same-answer' ? '진행 안내' : '정답 보기'}
+        </button>
+        <button type="button" className={styles.primarySmallButton} onClick={nextCard}>
+          다음 카드
+        </button>
+      </div>
+    </section>
+  )
+}
+
 function GameDetail({
   game,
   favorite,
@@ -483,6 +604,7 @@ function GameDetail({
           </div>
         </section>
 
+        {game.tool && <GamePlayTool game={game} />}
         <CountdownTimer initialMinutes={game.minutes} />
         <TeamBuilder compact />
       </div>
@@ -650,7 +772,7 @@ function DiscoverView({
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             placeholder="게임 이름이나 분위기 검색"
-            aria-label="레크리에이션 게임 검색"
+            aria-label="모임 게임 검색"
           />
           {query && (
             <button type="button" aria-label="검색어 지우기" onClick={() => setQuery('')}>

@@ -44,6 +44,7 @@ export async function POST(request: Request) {
       author_user_id: user.id,
       tags,
       mentions,
+      prayer_stage: board === 'prayer' ? 'requested' : null,
     })
     .select('id')
     .single<{ id: string }>()

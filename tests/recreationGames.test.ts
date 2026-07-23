@@ -12,6 +12,9 @@ describe('recreation games', () => {
     expect(recreationGames.every((game) => game.steps.length >= 3)).toBe(true)
     expect(recreationGames.every((game) => game.safety.trim().length > 0)).toBe(true)
     expect(recreationGames.every((game) => game.facilitatorScript.trim().length > 0)).toBe(true)
+    expect(recreationGames.map((game) => game.id)).not.toContain('five-second-profile')
+    expect(recreationGames.map((game) => game.id)).not.toContain('one-line-prayer')
+    expect(recreationGames.filter((game) => game.tool)).toHaveLength(4)
   })
 
   it('prioritizes games that fit the selected group context', () => {

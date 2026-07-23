@@ -11,6 +11,7 @@ export type RecreationPlace = 'indoor' | 'outdoor' | 'small'
 export type RecreationMood = 'easy' | 'active' | 'teamwork' | 'calm' | 'bible'
 
 export type RecreationNoise = 'low' | 'medium' | 'high'
+export type RecreationTool = 'same-answer' | 'forbidden-word' | 'bible-quiz' | 'verse-order'
 
 export type RecreationGame = {
   id: string
@@ -30,6 +31,7 @@ export type RecreationGame = {
   contact: 'none' | 'light'
   noise: RecreationNoise
   newcomerFriendly: boolean
+  tool?: RecreationTool
 }
 
 export type RecreationContext = {
@@ -63,7 +65,7 @@ export const recreationPlaceLabels: Record<RecreationPlace, string> = {
   small: '좁은 공간',
 }
 
-export const recreationGames: RecreationGame[] = [
+const recreationGameLibrary: RecreationGame[] = [
   {
     id: 'three-common-things',
     title: '공통점 3개 찾기',
@@ -155,6 +157,7 @@ export const recreationGames: RecreationGame[] = [
     contact: 'none',
     noise: 'high',
     newcomerFriendly: true,
+    tool: 'same-answer',
   },
   {
     id: 'forbidden-word',
@@ -178,6 +181,7 @@ export const recreationGames: RecreationGame[] = [
     contact: 'none',
     noise: 'medium',
     newcomerFriendly: true,
+    tool: 'forbidden-word',
   },
   {
     id: 'drawing-relay',
@@ -362,6 +366,7 @@ export const recreationGames: RecreationGame[] = [
     contact: 'none',
     noise: 'medium',
     newcomerFriendly: true,
+    tool: 'bible-quiz',
   },
   {
     id: 'verse-order',
@@ -385,6 +390,7 @@ export const recreationGames: RecreationGame[] = [
     contact: 'none',
     noise: 'low',
     newcomerFriendly: true,
+    tool: 'verse-order',
   },
   {
     id: 'bible-twenty-questions',
@@ -617,6 +623,17 @@ export const recreationGames: RecreationGame[] = [
     newcomerFriendly: true,
   },
 ]
+
+const removedActivityIds = new Set([
+  'five-second-profile',
+  'gratitude-keyword',
+  'anonymous-cheer',
+  'one-line-prayer',
+])
+
+export const recreationGames = recreationGameLibrary.filter(
+  (game) => !removedActivityIds.has(game.id)
+)
 
 function playerFit(game: RecreationGame, players: number) {
   if (players < game.minPlayers) return -Math.min(40, (game.minPlayers - players) * 6)

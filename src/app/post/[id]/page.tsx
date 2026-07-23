@@ -21,6 +21,8 @@ import { Emoji3D } from '@/app/components/ui/Emoji3D'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
 import { UrgentPrayerBadge } from '@/app/components/UrgentPrayerBadge'
 import { getVisiblePostTags, isUrgentPrayerPost } from '@/lib/urgentPrayer'
+import PrayerJourney from './PrayerJourney'
+import { isPrayerStage } from '@/lib/prayerJourney'
 
 export const dynamic = 'force-dynamic'
 
@@ -56,7 +58,7 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
   const [{ data: post, error: postError }, { data: blockedRows }] = await Promise.all([
     supabase
       .from('posts')
-      .select('id, board, title, content, mentions, created_at, author_user_id, view_count, tags')
+      .select('id, board, title, content, mentions, created_at, author_user_id, view_count, tags, prayer_stage')
       .eq('id', id)
       .eq('status', 'visible')
       .single(),
@@ -225,6 +227,15 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
                 </span>
               ))}
             </div>
+          )}
+
+          {post.board === 'prayer' && (
+            <PrayerJourney
+              postId={post.id}
+              initialStage={isPrayerStage(post.prayer_stage) ? post.prayer_stage : 'requested'}
+              urgent={isUrgent}
+              canManage={post.author_user_id === user.id}
+            />
           )}
 
           <div className="mt-7">

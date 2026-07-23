@@ -1,0 +1,504 @@
+.root {
+  display: grid;
+  gap: 16px;
+  color: var(--ub-text-primary);
+}
+
+.hero {
+  padding: 2px 4px 0;
+  color: var(--ub-text-on-brand-primary);
+}
+
+.hero > p,
+.sectionTitle p {
+  margin: 0;
+  color: var(--ub-color-brand);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .12em;
+}
+
+.hero > p {
+  color: var(--ub-text-on-brand-tertiary);
+}
+
+.hero h1 {
+  margin: 4px 0 0;
+  font-size: clamp(24px, 7vw, 30px);
+  line-height: 1.2;
+  letter-spacing: -.045em;
+}
+
+.hero > span {
+  display: block;
+  margin-top: 6px;
+  color: var(--ub-text-on-brand-secondary);
+  font-size: 13px;
+}
+
+.tabs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+  padding: 4px;
+  border-radius: 15px;
+  background: var(--ub-surface-card-strong);
+  box-shadow: var(--ub-shadow-soft);
+}
+
+.tab,
+.tabActive {
+  position: relative;
+  min-height: 42px;
+  border: 0;
+  border-radius: 11px;
+  background: transparent;
+  color: var(--ub-text-secondary);
+  font-size: 12px;
+  font-weight: 750;
+}
+
+.tabActive {
+  background: var(--ub-surface-brand-soft);
+  color: var(--ub-color-brand);
+}
+
+.tab b,
+.tabActive b {
+  position: absolute;
+  top: 3px;
+  right: 5px;
+  min-width: 16px;
+  padding: 2px 4px;
+  border-radius: 999px;
+  background: var(--ub-color-brand);
+  color: white;
+  font-size: 9px;
+}
+
+.writeStack,
+.receivedStack {
+  display: grid;
+  gap: 14px;
+}
+
+.challengeCard {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 15px;
+  border-radius: 19px;
+  background: var(--ub-surface-card-strong);
+  box-shadow: var(--ub-shadow-soft);
+}
+
+.challengeCard > div {
+  min-width: 0;
+  flex: 1;
+}
+
+.challengeCard p {
+  margin: 0;
+  color: var(--ub-color-brand);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.challengeCard strong {
+  display: block;
+  margin-top: 2px;
+  font-size: 14px;
+}
+
+.challengeCard div > span {
+  display: block;
+  margin-top: 3px;
+  color: var(--ub-text-secondary);
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.switch,
+.switchOn {
+  position: relative;
+  width: 48px;
+  height: 28px;
+  flex: 0 0 48px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--ub-surface-muted);
+}
+
+.switchOn {
+  background: var(--ub-color-brand);
+}
+
+.switch span,
+.switchOn span {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: white;
+  box-shadow: 0 2px 7px rgb(0 0 0 / .2);
+  transition: transform 180ms ease;
+}
+
+.switchOn span {
+  transform: translateX(20px);
+}
+
+.diary {
+  position: relative;
+  overflow: hidden;
+  border-radius: 8px 20px 20px 8px;
+  background: #f6edda;
+  box-shadow: 0 18px 45px rgb(49 26 16 / .2);
+}
+
+.binding {
+  position: absolute;
+  z-index: 2;
+  inset: 0 auto 0 15px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  padding: 14px 0;
+}
+
+.binding span {
+  width: 29px;
+  height: 5px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #d8b47a, #755237);
+  box-shadow: 0 1px 2px rgb(0 0 0 / .25);
+}
+
+.paper {
+  min-height: 330px;
+  padding: 22px 20px 20px 56px;
+  background:
+    linear-gradient(90deg, transparent 0 42px, rgb(214 108 92 / .35) 42px 43px, transparent 43px),
+    repeating-linear-gradient(180deg, transparent 0 31px, rgb(92 129 161 / .18) 31px 32px),
+    #f8f0df;
+  color: #332923;
+}
+
+.dateLine {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 14px;
+  color: #8a634b;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.paper > label,
+.voiceField label {
+  display: block;
+  font-size: 14px;
+  font-weight: 850;
+}
+
+.paper textarea {
+  width: 100%;
+  resize: none;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: #332923;
+  font-size: 16px;
+  line-height: 32px;
+}
+
+.paper textarea::placeholder {
+  color: #998a7f;
+}
+
+.counter,
+.voiceField > span {
+  display: block;
+  color: #907c6d;
+  font-size: 10px;
+  text-align: right;
+}
+
+.voiceField {
+  margin-top: 14px;
+  padding: 13px 14px;
+  border-radius: 12px;
+  background: rgb(255 255 255 / .5);
+  box-shadow: inset 0 0 0 1px rgb(99 64 43 / .1);
+}
+
+.voiceField textarea {
+  min-height: 72px;
+  line-height: 24px;
+}
+
+.saveButton {
+  display: flex;
+  min-height: 52px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 0;
+  border-radius: 16px;
+  background: var(--ub-color-brand);
+  color: white;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.saveButton:disabled {
+  opacity: .42;
+}
+
+.success,
+.error {
+  margin: 0;
+  border-radius: 13px;
+  padding: 11px 13px;
+  background: var(--ub-surface-card-strong);
+  color: var(--ub-text-secondary);
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.error {
+  background: var(--ub-danger-soft);
+  color: var(--ub-danger-text);
+}
+
+.history,
+.calendarCard {
+  padding: 16px;
+  border-radius: 20px;
+  background: var(--ub-surface-card-strong);
+  box-shadow: var(--ub-shadow-soft);
+}
+
+.sectionTitle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.sectionTitle h2 {
+  margin: 2px 0 0;
+  font-size: 18px;
+  letter-spacing: -.03em;
+}
+
+.sectionTitle > span {
+  color: var(--ub-text-tertiary);
+  font-size: 11px;
+}
+
+.historyList {
+  margin-top: 10px;
+}
+
+.historyList article {
+  display: grid;
+  grid-template-columns: 38px minmax(0, 1fr) 18px;
+  gap: 10px;
+  align-items: center;
+  min-height: 54px;
+  border-top: 1px solid var(--ub-separator);
+}
+
+.historyList time {
+  color: var(--ub-color-brand);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.historyList p {
+  overflow: hidden;
+  margin: 0;
+  color: var(--ub-text-secondary);
+  font-size: 13px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.historyList svg {
+  color: var(--ub-color-brand);
+}
+
+.calendarCard > header {
+  display: grid;
+  grid-template-columns: 44px 1fr 44px;
+  align-items: center;
+}
+
+.calendarCard header button {
+  min-height: 44px;
+  border: 0;
+  background: transparent;
+  color: var(--ub-color-brand);
+  font-size: 29px;
+}
+
+.calendarCard h2 {
+  margin: 0;
+  text-align: center;
+  font-size: 18px;
+}
+
+.weekdays,
+.calendarGrid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+}
+
+.weekdays {
+  margin-top: 8px;
+  color: var(--ub-text-tertiary);
+  font-size: 10px;
+  font-weight: 750;
+  text-align: center;
+}
+
+.calendarGrid {
+  gap: 4px;
+  margin-top: 6px;
+}
+
+.calendarDay,
+.gratefulDay,
+.calendarGrid > span {
+  aspect-ratio: 1;
+}
+
+.calendarDay,
+.gratefulDay {
+  position: relative;
+  border: 0;
+  border-radius: 12px;
+  background: var(--ub-surface-muted);
+  color: var(--ub-text-secondary);
+  font-size: 12px;
+}
+
+.gratefulDay {
+  background: var(--ub-surface-brand-soft);
+  color: var(--ub-color-brand);
+  font-weight: 850;
+}
+
+.gratefulDay b {
+  position: absolute;
+  right: 4px;
+  bottom: 2px;
+  font-size: 8px;
+}
+
+.calendarLoading {
+  height: 285px;
+  margin-top: 12px;
+  border-radius: 14px;
+  background: var(--ub-surface-muted);
+}
+
+.calendarSummary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin: 14px 0 0;
+  color: var(--ub-text-secondary);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.calendarMemory {
+  margin-top: 14px;
+  border-top: 1px solid var(--ub-separator);
+  padding-top: 14px;
+}
+
+.calendarMemory time {
+  color: var(--ub-color-brand);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.calendarMemory p {
+  margin: 7px 0 0;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.6;
+}
+
+.calendarMemory span {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 8px;
+  color: var(--ub-text-tertiary);
+  font-size: 10px;
+}
+
+.receivedCard {
+  padding: 17px;
+  border-radius: 19px;
+  background: var(--ub-surface-card-strong);
+  box-shadow: var(--ub-shadow-soft);
+}
+
+.receivedCard > div {
+  display: flex;
+  justify-content: space-between;
+  color: var(--ub-text-tertiary);
+  font-size: 11px;
+}
+
+.receivedCard strong {
+  color: var(--ub-color-brand);
+}
+
+.receivedCard blockquote {
+  margin: 15px 0;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.65;
+}
+
+.receivedCard > p {
+  display: flex;
+  gap: 7px;
+  margin: 0;
+  border-top: 1px solid var(--ub-separator);
+  padding-top: 12px;
+  color: var(--ub-text-secondary);
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.empty {
+  display: flex;
+  min-height: 220px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 20px;
+  background: var(--ub-surface-card-strong);
+  color: var(--ub-text-secondary);
+  text-align: center;
+}
+
+.empty strong {
+  margin-top: 10px;
+  color: var(--ub-text-primary);
+}
+
+.empty span {
+  margin-top: 5px;
+  font-size: 12px;
+}

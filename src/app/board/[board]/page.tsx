@@ -15,6 +15,7 @@ import {
   getAnonymousId,
   getBoardPresentation,
 } from '@/lib/communityPresentation'
+import { isPrayerStage, prayerStageLabels } from '@/lib/prayerJourney'
 
 export const dynamic = 'force-dynamic'
 
@@ -46,6 +47,7 @@ type PostRow = {
   created_at: string
   view_count: number
   tags: string[] | null
+  prayer_stage: string | null
   comments: { count: number }[]
   reactions: { type: 'pray' | 'empathize' }[]
 }
@@ -82,6 +84,7 @@ export default async function BoardPage({ params, searchParams }: BoardPageProps
       created_at,
       view_count,
       tags,
+      prayer_stage,
       comments(count),
       reactions(type)
     `, { count: 'exact' })
@@ -169,6 +172,11 @@ export default async function BoardPage({ params, searchParams }: BoardPageProps
                   <time dateTime={post.created_at}>{formatRelativeTime(post.created_at)}</time>
                   <span>·</span>
                   <span className="truncate">{getAnonymousId(post.id, post.author_user_id)}</span>
+                  {post.board === 'prayer' && isPrayerStage(post.prayer_stage) && (
+                    <span className="ml-auto shrink-0 rounded-full bg-[var(--ub-surface-brand-soft)] px-2 py-0.5 text-[10px] font-bold text-[var(--ub-color-brand)]">
+                      {prayerStageLabels[post.prayer_stage]}
+                    </span>
+                  )}
                 </div>
                 <div className="flex min-w-0 items-center gap-2">
                   {isUrgent && <UrgentPrayerBadge compact />}

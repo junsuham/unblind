@@ -36,7 +36,12 @@ export async function POST(request: Request) {
   const type = body?.type === 'pray' || body?.type === 'empathize' ? body.type : null
   if (!/^[0-9a-f-]{36}$/i.test(postId) || !type) return Response.json({ error: '공감 정보를 확인하지 못했습니다.' }, { status: 400 })
 
-  const { data: post } = await supabaseAdmin.from('posts').select('id').eq('id', postId).eq('status', 'visible').maybeSingle()
+  const { data: post } = await supabaseAdmin
+    .from('posts')
+    .select('id, board, prayer_stage')
+    .eq('id', postId)
+    .eq('status', 'visible')
+    .maybeSingle<{ id: string; board: string; prayer_stage: string | null }>()
   if (!post) return Response.json({ error: '공감을 남길 수 없는 게시글입니다.' }, { status: 404 })
 
   const { error } = await supabaseAdmin.from('reactions').upsert(
@@ -46,6 +51,18 @@ export async function POST(request: Request) {
   if (error) {
     console.error('Reaction creation failed:', error.message)
     return Response.json({ error: '공감을 남기지 못했습니다.' }, { status: 500 })
+  }
+
+  if (type === 'pray' && post.board === 'prayer' && (!post.prayer_stage || post.prayer_stage === 'requested')) {
+    const { error: journeyError } = await supabaseAdmin
+      .from('posts')
+      .update({ prayer_stage: 'praying' })
+      .eq('id', postId)
+      .eq('prayer_stage', 'requested')
+
+    if (journeyError) {
+      console.error('Prayer journey auto-advance failed:', journeyError.message)
+    }
   }
 
   return Response.json({ ok: true })
