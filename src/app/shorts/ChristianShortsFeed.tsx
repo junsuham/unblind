@@ -258,6 +258,7 @@ export default function ChristianShortsFeed({
                   <span className={styles.duration}>{formatDuration(video.durationSeconds)}</span>
                 </div>
               )}
+              <span className={styles.swipeSurface} aria-hidden />
             </div>
 
             <div className={styles.metadata}>

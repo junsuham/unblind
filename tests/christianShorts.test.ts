@@ -217,6 +217,8 @@ describe('Christian Shorts feed', () => {
   it('keeps a 9:16 player and automatically loads the next YouTube page', () => {
     expect(shortsStyles).toContain('aspect-ratio: 9 / 16')
     expect(shortsStyles).toContain('scroll-snap-type: y mandatory')
+    expect(shortsStyles).toContain('.swipeSurface')
+    expect(shortsStyles).toContain('bottom: 56px')
     expect(shortsStyles).toContain('height: 100%')
     expect(shortsPage).toContain('contentMode="contained"')
     expect(shortsClient).toContain("addEventListener('wheel', moveOneVideo, { passive: false })")

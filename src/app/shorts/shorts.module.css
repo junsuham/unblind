@@ -121,6 +121,16 @@
     radial-gradient(circle at 50% 46%, transparent 32%, rgba(12, 7, 5, 0.16));
 }
 
+.swipeSurface {
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  right: 0;
+  bottom: 56px;
+  left: 0;
+  touch-action: pan-y;
+}
+
 .duration {
   position: absolute;
   right: 11px;
