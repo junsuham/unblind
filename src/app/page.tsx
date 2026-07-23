@@ -108,6 +108,21 @@ export default async function HomePage({ searchParams }: HomePageProps) {
       <section className="mb-4" aria-labelledby="unblind-app-shortcuts">
         <p id="unblind-app-shortcuts" className="mb-1.5 px-1 text-[12px] font-bold tracking-[0.04em] text-[var(--ub-text-on-brand-tertiary)]">언블라인드 앱</p>
         <div className="overflow-hidden rounded-[22px] bg-[var(--ub-surface-card-strong)] shadow-[var(--ub-shadow-soft)]">
+          <Link
+            href="/journey"
+            className="flex min-h-[68px] w-full items-center gap-3 px-4 py-3 text-left text-[var(--ub-text-primary)] active:bg-[var(--ub-surface-pressed)]"
+          >
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[13px] bg-[var(--ub-surface-brand-soft)] text-[var(--ub-color-brand)]">
+              <SystemIcon name="leaf" size={21} />
+            </span>
+            <span className="min-w-0 flex-1">
+              <span className="block text-[15px] font-bold tracking-[-0.2px]">나의 신앙 여정</span>
+              <span className="mt-0.5 block truncate text-[11px] text-[var(--ub-text-secondary)]">
+                체크인 · 감사 · 기도 리듬 한눈에 보기
+              </span>
+            </span>
+            <span className="text-[22px] leading-none text-[var(--ub-text-tertiary)]" aria-hidden>›</span>
+          </Link>
           <HomeManittoFinder initialState={manitto} />
           <Link
             href="/gratitude"

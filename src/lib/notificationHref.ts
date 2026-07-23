@@ -1,4 +1,13 @@
-const allowedPrefixes = ['/post/', '/board/', '/activity', '/notifications', '/manitto', '/praise']
+const allowedPrefixes = [
+  '/post/',
+  '/board/',
+  '/activity',
+  '/notifications',
+  '/manitto',
+  '/praise',
+  '/gratitude',
+  '/journey',
+]
 
 export function getSafeNotificationHref(href: unknown, postId?: string | null) {
   if (typeof href === 'string' && href.startsWith('/') && !href.startsWith('//')) {

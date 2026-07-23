@@ -102,25 +102,43 @@ export async function POST(request: Request) {
     return Response.json({ error: '챌린지 설정을 저장하지 못했습니다.' }, { status: 500 })
   }
 
-  let recipientUserId: string | null = null
-  if (challengeEnabled) {
-    const { data: participants, error: participantError } = await supabaseAdmin
-      .from('gratitude_preferences')
-      .select('user_id')
-      .eq('challenge_enabled', true)
-      .neq('user_id', user.id)
-      .returns<GratitudePreferenceRow[]>()
+  const entryDate = getKoreaDate()
+  const { data: existingEntry, error: existingEntryError } = await supabaseAdmin
+    .from('gratitude_entries')
+    .select('recipient_user_id, delivered_at')
+    .eq('user_id', user.id)
+    .eq('entry_date', entryDate)
+    .maybeSingle<{
+      recipient_user_id: string | null
+      delivered_at: string | null
+    }>()
 
-    if (participantError) {
-      console.error('Gratitude recipient selection failed:', participantError.message)
-      return Response.json({ error: '감사 친구를 찾지 못했습니다.' }, { status: 500 })
-    }
-    if (participants?.length) {
-      recipientUserId = participants[Math.floor(Math.random() * participants.length)].user_id
+  if (existingEntryError) {
+    console.error('Existing gratitude entry read failed:', existingEntryError.message)
+    return Response.json({ error: '오늘의 감사 기록을 확인하지 못했습니다.' }, { status: 500 })
+  }
+
+  let recipientUserId: string | null =
+    challengeEnabled ? existingEntry?.recipient_user_id ?? null : null
+  if (challengeEnabled) {
+    if (!recipientUserId) {
+      const { data: participants, error: participantError } = await supabaseAdmin
+        .from('gratitude_preferences')
+        .select('user_id')
+        .eq('challenge_enabled', true)
+        .neq('user_id', user.id)
+        .returns<GratitudePreferenceRow[]>()
+
+      if (participantError) {
+        console.error('Gratitude recipient selection failed:', participantError.message)
+        return Response.json({ error: '감사 친구를 찾지 못했습니다.' }, { status: 500 })
+      }
+      if (participants?.length) {
+        recipientUserId = participants[Math.floor(Math.random() * participants.length)].user_id
+      }
     }
   }
 
-  const entryDate = getKoreaDate()
   const now = new Date().toISOString()
   const { data, error } = await supabaseAdmin
     .from('gratitude_entries')
@@ -140,6 +158,27 @@ export async function POST(request: Request) {
   if (error) {
     console.error('Gratitude entry save failed:', error.message)
     return Response.json({ error: '오늘의 감사를 저장하지 못했습니다.' }, { status: 500 })
+  }
+
+  const shouldNotifyRecipient =
+    Boolean(recipientUserId) &&
+    (!existingEntry?.delivered_at ||
+      existingEntry.recipient_user_id !== recipientUserId)
+
+  if (recipientUserId && shouldNotifyRecipient) {
+    const { error: notificationError } = await supabaseAdmin
+      .from('notifications')
+      .insert({
+        user_id: recipientUserId,
+        type: 'system',
+        href: '/gratitude',
+        title: '익명의 감사가 도착했어요',
+        body: gratitudeVoice.slice(0, 80),
+      })
+
+    if (notificationError) {
+      console.error('Gratitude delivery notification failed:', notificationError.message)
+    }
   }
 
   return Response.json({

@@ -81,6 +81,21 @@ export default async function ActivityPage() {
         </div>
       </div>
       <div className="space-y-6">
+        <Link
+          href="/journey"
+          className="flex min-h-[76px] items-center gap-3 rounded-[18px] bg-[linear-gradient(135deg,var(--ub-surface-card-strong),var(--ub-surface-brand-soft))] px-4 shadow-sm active:bg-[var(--ub-surface-pressed)]"
+        >
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px] bg-[var(--ub-color-brand)] text-white">
+            <SystemIcon name="leaf" size={22} />
+          </span>
+          <span className="min-w-0 flex-1">
+            <strong className="block text-[15px] text-[var(--ub-text-primary)]">나의 신앙 여정</strong>
+            <span className="mt-0.5 block truncate text-[11px] text-[var(--ub-text-secondary)]">
+              마음, 감사, 기도의 흐름을 돌아보세요
+            </span>
+          </span>
+          <span className="text-[22px] text-[var(--ub-text-tertiary)]" aria-hidden>›</span>
+        </Link>
         <section aria-label="기도 활동" className="grid grid-cols-2 overflow-hidden rounded-[18px] bg-[var(--ub-surface-card-strong)] text-center shadow-sm">
           <div className="border-r border-[var(--ub-separator)] px-3 py-4">
             <p className="text-[22px] font-extrabold text-[var(--ub-color-brand)]">{prayerStreak}일</p>

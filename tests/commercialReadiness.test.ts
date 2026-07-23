@@ -11,6 +11,9 @@ const profileForm = source('../src/app/profile/setup/ProfileSetupForm.tsx')
 const profileApi = source('../src/app/api/profile/route.ts')
 const appShell = source('../src/app/components/ui/AppShell.tsx')
 const board = source('../src/app/board/[board]/page.tsx')
+const journey = source('../src/app/journey/page.tsx')
+const prayerJourneyApi = source('../src/app/api/prayer-journey/route.ts')
+const prayerSession = source('../src/app/pray/PrayerSession.tsx')
 const pwa = source('../src/app/components/PwaLifecycle.tsx')
 const globalStyles = source('../src/app/globals.css')
 const layout = source('../src/app/layout.tsx')
@@ -45,6 +48,18 @@ describe('commercial readiness regression guard', () => {
     expect(board).toContain("{ count: 'exact' }")
     expect(board).toContain('.range(rangeStart, rangeStart + pageSize - 1)')
     expect(board).toContain('aria-label="게시글 페이지"')
+  })
+
+  it('closes the prayer loop with filters, private insights, and participant updates', () => {
+    expect(board).toContain('aria-label="기도여정 필터"')
+    expect(board).toContain("postsQuery.eq('prayer_stage', prayerFilter)")
+    expect(board).toContain("postsQuery.contains('tags', [URGENT_PRAYER_TAG])")
+    expect(journey).toContain('최근 90일의 체크인, 감사, 기도를 한곳에서')
+    expect(journey).toContain('신앙 기록은 본인에게만 보이며')
+    expect(prayerJourneyApi).toContain('Prayer journey notification failed')
+    expect(prayerJourneyApi).toContain("stage === 'answered' || stage === 'grateful'")
+    expect(prayerSession).toContain('5분 함께 기도')
+    expect(prayerSession).toContain("type: 'pray'")
   })
 
   it('does not allow a stale development worker to cache old layouts', () => {

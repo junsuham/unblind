@@ -24,7 +24,7 @@ export async function POST(request: Request) {
 
   const { data: post, error: postError } = await supabaseAdmin
     .from('posts')
-    .select('id, board, author_user_id, prayer_stage')
+    .select('id, board, author_user_id, prayer_stage, title')
     .eq('id', postId)
     .eq('status', 'visible')
     .maybeSingle<{
@@ -32,6 +32,7 @@ export async function POST(request: Request) {
       board: string
       author_user_id: string | null
       prayer_stage: string | null
+      title: string
     }>()
 
   if (postError || !post || post.board !== 'prayer') {
@@ -56,6 +57,54 @@ export async function POST(request: Request) {
   if (error) {
     console.error('Prayer journey update failed:', error.message)
     return Response.json({ error: '기도여정을 변경하지 못했습니다.' }, { status: 500 })
+  }
+
+  if (stage === 'answered' || stage === 'grateful') {
+    const { data: reactions, error: reactionError } = await supabaseAdmin
+      .from('reactions')
+      .select('actor_key')
+      .eq('post_id', post.id)
+      .eq('type', 'pray')
+
+    if (reactionError) {
+      console.error('Prayer journey participant read failed:', reactionError.message)
+    } else {
+      const userIds = Array.from(
+        new Set(
+          (reactions ?? [])
+            .map((reaction) =>
+              String(reaction.actor_key).replace(/^user:/, '')
+            )
+            .filter(
+              (value) =>
+                /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value) &&
+                value !== user.id
+            )
+        )
+      )
+
+      if (userIds.length) {
+        const { error: notificationError } = await supabaseAdmin
+          .from('notifications')
+          .insert(
+            userIds.map((participantId) => ({
+              user_id: participantId,
+              type: 'system',
+              post_id: post.id,
+              href: `/post/${post.id}`,
+              title:
+                stage === 'answered'
+                  ? '함께 기도한 제목에 응답 소식이 있어요'
+                  : '함께 기도한 제목에 감사가 이어졌어요',
+              body: post.title,
+            }))
+          )
+
+        if (notificationError) {
+          console.error('Prayer journey notification failed:', notificationError.message)
+        }
+      }
+    }
   }
 
   return Response.json({ stage })

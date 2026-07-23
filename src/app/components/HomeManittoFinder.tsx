@@ -114,7 +114,7 @@ export function HomeManittoFinder({
         type="button"
         disabled={phase === 'inactive' || submitting}
         onClick={startFinding}
-        className="flex min-h-[68px] w-full items-center gap-3 px-4 py-3 text-left text-[var(--ub-text-primary)] active:bg-[var(--ub-surface-pressed)] disabled:opacity-60"
+        className="flex min-h-[68px] w-full items-center gap-3 border-t border-[var(--ub-separator)] px-4 py-3 text-left text-[var(--ub-text-primary)] active:bg-[var(--ub-surface-pressed)] disabled:opacity-60"
       >
         <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[13px] bg-[var(--ub-surface-brand-soft)] text-[var(--ub-color-brand)]">
           <SystemIcon name="gift" size={21} filled={phase === 'matched'} />
@@ -183,4 +183,3 @@ export function HomeManittoFinder({
     </>
   )
 }
-
