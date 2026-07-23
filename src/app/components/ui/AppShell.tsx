@@ -10,6 +10,7 @@ type AppShellProps = {
   children: ReactNode
   bottomBar?: ReactNode
   showTopLogo?: boolean
+  contentMode?: 'scroll' | 'contained'
   topTitle?: string
   topBackHref?: string
   topTrailing?: ReactNode
@@ -148,6 +149,7 @@ export function AppShell({
   children,
   bottomBar,
   showTopLogo = true,
+  contentMode = 'scroll',
   topTitle,
   topBackHref,
   topTrailing,
@@ -155,7 +157,9 @@ export function AppShell({
   return (
     <div className="ub-app-frame">
       <main
-        className={`ub-app-scroll ub-app-surface overflow-x-hidden px-4 pt-[calc(18px+env(safe-area-inset-top))] text-[var(--ub-text-on-brand-primary)] ${bottomBar ? 'pb-6' : 'pb-[calc(24px+env(safe-area-inset-bottom))]'}`}
+        className={`ub-app-scroll ub-app-surface overflow-x-hidden px-4 pt-[calc(18px+env(safe-area-inset-top))] text-[var(--ub-text-on-brand-primary)] ${
+          contentMode === 'contained' ? 'ub-app-scroll--contained' : ''
+        } ${bottomBar ? 'pb-6' : 'pb-[calc(24px+env(safe-area-inset-bottom))]'}`}
       >
         {showTopLogo && (
           <TopLogoBar
@@ -165,7 +169,11 @@ export function AppShell({
           />
         )}
 
-        <section className="mx-auto max-w-[430px]">
+        <section
+          className={`mx-auto w-full max-w-[430px] ${
+            contentMode === 'contained' ? 'ub-app-content--contained' : ''
+          }`}
+        >
           {children}
         </section>
       </main>

@@ -9,7 +9,7 @@ export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
   title: '크리스천 쇼츠 | UNBLIND',
-  description: '기독교 관련 태그를 기준으로 엄선한 YouTube Shorts 피드',
+  description: '쇼츠 중독, 피할 수 없으면 하나님으로 채우기',
 }
 
 export default async function ChristianShortsPage() {
@@ -17,23 +17,27 @@ export default async function ChristianShortsPage() {
   const feed = await getChristianShortsFeed()
 
   return (
-    <AppShell topTitle="크리스천 쇼츠" bottomBar={<BottomTabBar active="home" />}>
-      <div className={styles.intro}>
-        <div className={styles.introCopy}>
-          <p>AI 제작물을 제외하고 조회수 순으로 선별한 영상</p>
-          <p>화면에 들어오면 음소거로 자동 재생됩니다</p>
-        </div>
-        <div className={styles.policyLinks}>
+    <AppShell
+      topTitle="크리스천 쇼츠"
+      bottomBar={<BottomTabBar active="home" />}
+      contentMode="contained"
+    >
+      <div className={styles.shortsPage}>
+        <p className={styles.description}>
+          쇼츠 중독, 피할 수 없으면 하나님으로 채우기
+        </p>
+
+        <ChristianShortsFeed
+          videos={feed.videos}
+          nextPageToken={feed.nextPageToken}
+          message={feed.message}
+        />
+
+        <nav className={styles.policyLinks} aria-label="외부 서비스 정책">
           <a href="https://www.youtube.com/t/terms" target="_blank" rel="noopener noreferrer">YouTube 약관</a>
           <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">Google 정책</a>
-        </div>
+        </nav>
       </div>
-
-      <ChristianShortsFeed
-        videos={feed.videos}
-        nextPageToken={feed.nextPageToken}
-        message={feed.message}
-      />
     </AppShell>
   )
 }

@@ -19,6 +19,7 @@ html {
   min-height: 100%;
   background: var(--ub-system-background);
   -webkit-text-size-adjust: 100%;
+  touch-action: pan-x pan-y;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -43,6 +44,7 @@ body {
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  touch-action: pan-x pan-y;
 }
 
 html:has(.ub-login-hero),
@@ -288,6 +290,19 @@ a {
   overflow-y: auto;
   overscroll-behavior-y: contain;
   -webkit-overflow-scrolling: touch;
+}
+
+.ub-app-scroll--contained {
+  display: flex;
+  overflow-y: hidden;
+  flex-direction: column;
+}
+
+.ub-app-scroll.ub-app-scroll--contained > .ub-app-content--contained {
+  display: flex;
+  min-height: 0;
+  flex: 1;
+  flex-direction: column;
 }
 
 html:has(.ub-app-frame),

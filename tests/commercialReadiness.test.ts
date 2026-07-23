@@ -16,10 +16,12 @@ const globalStyles = source('../src/app/globals.css')
 const layout = source('../src/app/layout.tsx')
 
 describe('commercial readiness regression guard', () => {
-  it('does not disable browser zoom and prevents iOS focus zoom', () => {
+  it('locks app zoom globally and prevents iOS focus zoom', () => {
     expect(layout).toContain('width: "device-width"')
     expect(layout).toContain('initialScale: 1')
-    expect(layout).not.toMatch(/maximumScale|userScalable/)
+    expect(layout).toContain('maximumScale: 1')
+    expect(layout).toContain('userScalable: false')
+    expect(globalStyles).toContain('touch-action: pan-x pan-y;')
     expect(globalStyles).toContain('font-size: 16px !important;')
   })
 

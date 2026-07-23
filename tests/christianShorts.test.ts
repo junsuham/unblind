@@ -200,6 +200,9 @@ describe('Christian Shorts feed', () => {
   it('links the feature from home and keeps the player policy-safe', () => {
     expect(homePage).toContain('href="/shorts"')
     expect(homePage).toContain('크리스천 쇼츠')
+    expect(shortsPage).toContain('쇼츠 중독, 피할 수 없으면 하나님으로 채우기')
+    expect(shortsPage).not.toContain('AI 제작물을 제외하고')
+    expect(shortsPage).not.toContain('화면에 들어오면 음소거로 자동 재생됩니다')
     expect(shortsPage).toContain('https://www.youtube.com/t/terms')
     expect(shortsPage).toContain('https://policies.google.com/privacy')
     expect(shortsClient).toContain('https://www.youtube-nocookie.com/embed/')
@@ -213,6 +216,10 @@ describe('Christian Shorts feed', () => {
 
   it('keeps a 9:16 player and automatically loads the next YouTube page', () => {
     expect(shortsStyles).toContain('aspect-ratio: 9 / 16')
+    expect(shortsStyles).toContain('scroll-snap-type: y mandatory')
+    expect(shortsStyles).toContain('height: 100%')
+    expect(shortsPage).toContain('contentMode="contained"')
+    expect(shortsClient).toContain("addEventListener('wheel', moveOneVideo, { passive: false })")
     expect(shortsClient).toContain('ref={loadMoreRef}')
     expect(shortsClient).toContain('/api/shorts?')
     expect(shortsClient).toContain("rootMargin: '0px 0px 120% 0px'")

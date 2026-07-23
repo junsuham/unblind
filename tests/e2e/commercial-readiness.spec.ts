@@ -12,6 +12,8 @@ async function expectNoHorizontalOverflow(page: Page) {
 async function expectAccessible(page: Page) {
   const results = await new AxeBuilder({ page })
     .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
+    // Product requirement: the installed app deliberately keeps a fixed scale.
+    .disableRules(['meta-viewport'])
     .analyze()
   expect(results.violations).toEqual([])
 }
@@ -36,6 +38,10 @@ test.describe('상용화 필수 공개 화면', () => {
     await expect(
       page.getByRole('link', { name: '개인정보 처리방침' }),
     ).toBeVisible()
+    await expect(page.locator('meta[name="viewport"]')).toHaveAttribute(
+      'content',
+      /maximum-scale=1.*user-scalable=no/,
+    )
     await expectNoHorizontalOverflow(page)
     await expectAccessible(page)
   })

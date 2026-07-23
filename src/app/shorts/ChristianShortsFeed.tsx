@@ -50,6 +50,7 @@ export default function ChristianShortsFeed({
   const feedRef = useRef<HTMLDivElement>(null)
   const loadMoreRef = useRef<HTMLDivElement>(null)
   const loadingRef = useRef(false)
+  const wheelLockedRef = useRef(false)
   const cardRefs = useRef(new Map<string, HTMLElement>())
   const [items, setItems] = useState(videos)
   const [nextPageToken, setNextPageToken] = useState(initialNextPageToken)
@@ -100,6 +101,38 @@ export default function ChristianShortsFeed({
     document.addEventListener('visibilitychange', syncPageVisibility)
     return () => document.removeEventListener('visibilitychange', syncPageVisibility)
   }, [])
+
+  useEffect(() => {
+    const root = feedRef.current
+    if (!root || items.length < 2) return
+    const feedRoot = root
+
+    function moveOneVideo(event: WheelEvent) {
+      if (Math.abs(event.deltaY) < 12) return
+      event.preventDefault()
+      if (wheelLockedRef.current) return
+
+      const currentIndex = Math.max(
+        0,
+        items.findIndex((video) => video.id === activeId),
+      )
+      const targetIndex = Math.min(
+        items.length - 1,
+        Math.max(0, currentIndex + (event.deltaY > 0 ? 1 : -1)),
+      )
+      const target = cardRefs.current.get(items[targetIndex]?.id)
+      if (!target || targetIndex === currentIndex) return
+
+      wheelLockedRef.current = true
+      feedRoot.scrollTo({ top: target.offsetTop, behavior: 'smooth' })
+      window.setTimeout(() => {
+        wheelLockedRef.current = false
+      }, 420)
+    }
+
+    feedRoot.addEventListener('wheel', moveOneVideo, { passive: false })
+    return () => feedRoot.removeEventListener('wheel', moveOneVideo)
+  }, [activeId, items])
 
   const loadMore = useCallback(async () => {
     if (!nextPageToken || loadingRef.current) return
@@ -183,7 +216,8 @@ export default function ChristianShortsFeed({
   }
 
   return (
-    <div ref={feedRef} className={styles.feedViewport} aria-label="크리스천 쇼츠 피드">
+    <div className={styles.feedFrame}>
+      <div ref={feedRef} className={styles.feedViewport} aria-label="크리스천 쇼츠 피드">
       {items.map((video, index) => {
         const isActive = activeId === video.id
         const isPlaying = isActive && pageVisible
@@ -266,21 +300,22 @@ export default function ChristianShortsFeed({
           </article>
         )
       })}
-      <div
-        ref={loadMoreRef}
-        className={styles.feedFooter}
-        aria-live="polite"
-      >
-        {isLoadingMore && <span>다음 영상을 불러오는 중…</span>}
-        {!isLoadingMore && loadError && (
-          <button type="button" onClick={() => void loadMore()}>
-            다시 불러오기
-          </button>
-        )}
-        {!isLoadingMore && !loadError && !nextPageToken && items.length > 0 && (
-          <span>새로운 쇼츠를 모두 확인했어요</span>
-        )}
+        <div ref={loadMoreRef} className={styles.loadMoreSentinel} aria-hidden />
       </div>
+
+      {(isLoadingMore || loadError || (!nextPageToken && items.length > 0)) && (
+        <div className={styles.feedStatus} aria-live="polite">
+          {isLoadingMore && <span>다음 영상을 불러오는 중…</span>}
+          {!isLoadingMore && loadError && (
+            <button type="button" onClick={() => void loadMore()}>
+              다시 불러오기
+            </button>
+          )}
+          {!isLoadingMore && !loadError && !nextPageToken && items.length > 0 && (
+            <span>새로운 쇼츠를 모두 확인했어요</span>
+          )}
+        </div>
+      )}
     </div>
   )
 }
