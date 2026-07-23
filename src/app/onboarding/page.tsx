@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import { requireAllowedUser } from '@/lib/betaAuth'
 import AgreementForm from './AgreementForm'
 import {
@@ -7,6 +8,10 @@ import {
 } from '@/app/components/ui/AppShell'
 
 export const dynamic = 'force-dynamic'
+export const metadata: Metadata = {
+  title: '커뮤니티 약속 | 언블라인드',
+  description: '안전한 익명 나눔을 위한 언블라인드 커뮤니티 약속입니다.',
+}
 
 export default async function OnboardingPage() {
   const { user, allowedUser } = await requireAllowedUser()

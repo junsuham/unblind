@@ -5,6 +5,10 @@ import {
   getSafeMobileAuthRedirect,
   MOBILE_AUTH_REDIRECT_COOKIE,
 } from '@/lib/mobileAuthRedirect'
+import {
+  SocialAgeError,
+  verifyAndStoreSocialAge,
+} from '@/lib/socialAge'
 
 const emailOtpTypes = new Set<EmailOtpType>([
   'email',
@@ -83,7 +87,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(
       getLoginUrl(
         requestUrl,
-        '로그인 인증 정보가 올바르지 않습니다. 새 로그인 링크를 요청해주세요.'
+        '로그인 인증 정보가 올바르지 않습니다. Google 로그인을 다시 시도해주세요.'
       )
     )
   }
@@ -116,6 +120,39 @@ export async function GET(request: NextRequest) {
       )
     }
 
+    if (code) {
+      const authenticatedUser = authResult.data.user
+      const providerToken = authResult.data.session?.provider_token
+
+      if (!authenticatedUser || authenticatedUser.app_metadata?.provider !== 'google') {
+        await supabase.auth.signOut()
+        return NextResponse.redirect(
+          getLoginUrl(requestUrl, '현재는 Google 계정으로만 가입할 수 있습니다.')
+        )
+      }
+
+      if (!providerToken) {
+        await supabase.auth.signOut()
+        return NextResponse.redirect(
+          getLoginUrl(
+            requestUrl,
+            'Google 계정의 연령 확인 정보가 없습니다. 생년월일 권한에 동의한 뒤 다시 로그인해주세요.'
+          )
+        )
+      }
+
+      try {
+        await verifyAndStoreSocialAge(authenticatedUser, providerToken)
+      } catch (ageError) {
+        await supabase.auth.signOut()
+        const message =
+          ageError instanceof SocialAgeError
+            ? ageError.message
+            : 'Google 계정의 연령을 확인하지 못했습니다. 잠시 후 다시 로그인해주세요.'
+        return NextResponse.redirect(getLoginUrl(requestUrl, message))
+      }
+    }
+
     const safeNext =
       next.startsWith('/') && !next.startsWith('//')
         ? next
@@ -128,7 +165,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(
       getLoginUrl(
         requestUrl,
-        '로그인 처리 중 오류가 발생했습니다. 잠시 후 새 링크를 요청해주세요.'
+        '로그인 처리 중 오류가 발생했습니다. 잠시 후 다시 로그인해주세요.'
       )
     )
   }

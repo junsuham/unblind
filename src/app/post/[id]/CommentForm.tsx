@@ -160,7 +160,7 @@ export default function CommentForm({ postId }: CommentFormProps) {
             disabled={isSubmitting}
             className="flex min-h-11 min-w-[96px] items-center justify-center rounded-full bg-[#ff4b00] px-5 text-[15px] font-bold text-white shadow-sm active:scale-[0.99] disabled:bg-[#8E8E93]"
           >
-            {isSubmitting ? '등록 중...' : '댓글 등록'}
+            {isSubmitting ? '등록 중…' : '댓글 등록'}
           </button>
         </div>
       </form>

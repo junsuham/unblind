@@ -23,7 +23,7 @@ export default async function BuilderPreviewPage({
     <main className="min-h-dvh bg-[var(--ub-app-background)] px-4 py-8 text-[var(--ub-text-primary)]">
       <div className="mx-auto max-w-[430px]">
         <header className="mb-5 rounded-[22px] bg-[var(--ub-surface-card-strong)] px-5 py-4 shadow-[var(--ub-shadow-soft)]">
-          <p className="text-[9px] font-bold tracking-[0.08em] text-[var(--ub-text-tertiary)]">
+          <p className="text-[11px] font-bold tracking-[0.08em] text-[var(--ub-text-tertiary)]">
             BUILDER.IO PREVIEW
           </p>
           <h1 className="mt-1 text-[20px] font-extrabold">홈 편집 영역</h1>

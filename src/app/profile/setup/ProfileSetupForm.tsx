@@ -3,8 +3,6 @@
 import { FormEvent, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import {
-  getReferenceAge,
-  isEligibleReferenceAge,
   occupationLabels,
   type Occupation,
 } from '@/lib/profile'
@@ -20,18 +18,19 @@ type ChurchResult = {
 
 type ProfileSetupFormProps = {
   nickname: string
+  referenceAge: number
 }
 
 const onboardingGuides = [
   {
     id: 'privacy',
     title: '개인정보와 익명성',
-    description: '생년월일·이메일·출석교회·현재 상태는 가입 확인과 안전한 운영에만 사용되며 다른 사용자에게 공개되지 않습니다.',
+    description: '연령 확인 결과·이메일·출석교회·현재 상태는 가입 확인과 안전한 운영에만 사용되며 다른 사용자에게 공개되지 않습니다.',
   },
   {
     id: 'community',
     title: '서로를 살리는 나눔',
-    description: '실명이나 개인을 특정할 정보, 공격·정죄·혐오 표현을 올리지 않고 고민과 기도제목을 중심으로 나눕니다.',
+    description: '실명이나 개인을 특정할 정보, 공격·정죄·혐오 표현을 올리지 않고 고민과 기도 제목을 중심으로 나눕니다.',
   },
   {
     id: 'sharing',
@@ -42,9 +41,9 @@ const onboardingGuides = [
 
 export default function ProfileSetupForm({
   nickname,
+  referenceAge,
 }: ProfileSetupFormProps) {
   const router = useRouter()
-  const [birthDate, setBirthDate] = useState('')
   const [churchQuery, setChurchQuery] = useState('')
   const [churchResults, setChurchResults] = useState<ChurchResult[]>([])
   const [selectedChurch, setSelectedChurch] = useState<ChurchResult | null>(null)
@@ -90,13 +89,6 @@ export default function ProfileSetupForm({
   }
 
   async function submitProfile() {
-    const referenceAge = getReferenceAge(birthDate)
-
-    if (!isEligibleReferenceAge(referenceAge)) {
-      setErrorMessage('유효한 생년월일을 입력해주세요. 2026년도 기준 20세 이상 59세 이하만 가입할 수 있습니다.')
-      return
-    }
-
     if (!allGuidesConfirmed) {
       setErrorMessage('앱 이용 안내와 개인정보 처리 내용을 모두 확인해주세요.')
       return
@@ -119,7 +111,6 @@ export default function ProfileSetupForm({
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        birthDate,
         churchPlaceId: selectedChurch.id,
         churchName: selectedChurch.name,
         churchAddress: selectedChurch.roadAddress || selectedChurch.address,
@@ -200,22 +191,12 @@ export default function ProfileSetupForm({
           기본 정보
         </p>
 
-        <label className="mt-4 block">
-          <span className="ios-title">생년월일</span>
-          <input
-            type="date"
-            value={birthDate}
-            min="1967-01-01"
-            max="2006-12-31"
-            onChange={(event) => {
-              setBirthDate(event.target.value)
-              setErrorMessage('')
-            }}
-            className="mt-3 min-h-[52px] w-full rounded-[16px] border border-[var(--ub-control-border)] bg-[var(--ub-surface-input)] px-4 ios-body text-[var(--ub-text-primary)] outline-none focus:border-[var(--ub-color-brand)]"
-          />
-        </label>
+        <div className="mt-4 rounded-[16px] border border-[var(--ub-control-border)] bg-[var(--ub-surface-input)] px-4 py-3">
+          <span className="ios-caption text-[var(--ub-text-tertiary)]">Google 계정 연령 확인 완료</span>
+          <p className="mt-1 ios-title">2026년도 기준 {referenceAge}세</p>
+        </div>
         <p className="mt-2 ios-secondary">
-          2026년도 기준 20세 이상 59세 이하만 가입할 수 있습니다. 생년월일은 다른 사용자에게 공개되지 않습니다.
+          직접 입력한 생년월일은 받지 않습니다. 확인된 연령 정보는 가입 심사에만 사용되며 다른 사용자에게 공개되지 않습니다.
         </p>
 
         <h2 className="mt-6 ios-title">출석 교회를 검색해주세요</h2>
@@ -313,7 +294,7 @@ export default function ProfileSetupForm({
           onClick={submitProfile}
           className="mt-6 min-h-[52px] w-full rounded-[16px] bg-[var(--ub-color-brand)] px-4 ios-title text-white active:scale-[0.99] disabled:opacity-50"
         >
-          {isSubmitting ? '저장 중...' : '정보 저장하고 승인 요청'}
+          {isSubmitting ? '저장 중…' : '정보 저장하고 승인 요청'}
         </button>
       </section>
     </div>

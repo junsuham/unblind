@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import type { Metadata } from 'next'
 import { requireBetaUser } from '@/lib/betaAuth'
 import { AppShell, BottomTabBar } from '@/app/components/ui/AppShell'
 import { SystemIcon } from '@/app/components/ui/SystemIcon'
@@ -8,6 +9,10 @@ import { UrgentPrayerBadge } from '@/app/components/UrgentPrayerBadge'
 import { isUrgentPrayerPost } from '@/lib/urgentPrayer'
 
 export const dynamic = 'force-dynamic'
+export const metadata: Metadata = {
+  title: '검색 | 언블라인드',
+  description: '언블라인드의 기도와 고민 게시글을 검색합니다.',
+}
 
 type SearchPageProps = { searchParams: Promise<{ q?: string }> }
 type SearchPost = { id: string; board: string; title: string; content: string; created_at: string; tags: string[] | null }
@@ -38,7 +43,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
           <SystemIcon name="search" size={19} className="shrink-0 text-[var(--ub-text-tertiary)]" />
           <input autoFocus name="q" defaultValue={query} aria-label="게시글 검색" placeholder="게시글 검색" className="ub-search-input min-w-0 flex-1 bg-transparent text-[15px] text-[var(--ub-text-primary)] outline-none placeholder:text-[var(--ub-text-tertiary)]" />
         </label>
-        <button className="min-h-12 rounded-[16px] bg-white/16 px-4 text-[13px] font-bold text-white">검색</button>
+        <button className="min-h-12 rounded-[16px] bg-[var(--ub-color-brand)] px-4 text-[15px] font-bold text-white shadow-sm">검색</button>
       </form>
 
       <section className="overflow-hidden rounded-[20px] bg-[var(--ub-surface-card-strong)] shadow-sm">

@@ -93,7 +93,7 @@ export default function PraiseRecommendations({
                   <SystemIcon name={situationIcons[item.key]} size={17} filled={isSelected} />
                 </span>
                 <span className="mt-2 block text-[13px] font-bold tracking-[-0.2px]">{item.label}</span>
-                <span className="mt-0.5 line-clamp-1 block text-[10px] text-[var(--ub-text-secondary)]">{item.description}</span>
+                <span className="mt-0.5 line-clamp-1 block text-[11px] text-[var(--ub-text-secondary)]">{item.description}</span>
               </button>
             )
           })}
@@ -102,7 +102,7 @@ export default function PraiseRecommendations({
           <button
             type="button"
             onClick={() => selectSituation('all')}
-            className="mt-2 flex min-h-10 w-full items-center justify-center gap-2 rounded-[14px] bg-[var(--ub-surface-card)] text-[12px] font-semibold text-[var(--ub-text-on-brand-primary)] active:bg-[var(--ub-surface-pressed)]"
+            className="mt-2 flex min-h-11 w-full items-center justify-center gap-2 rounded-[14px] bg-[var(--ub-surface-card)] text-[12px] font-semibold text-[var(--ub-text-on-brand-primary)] active:bg-[var(--ub-surface-pressed)]"
           >
             <SystemIcon name="disc" size={16} />
             오・찬・추 전체 보기
@@ -132,7 +132,7 @@ export default function PraiseRecommendations({
             <span className="block truncate text-[15px] font-semibold">{selectedSong.title}</span>
             <span className="block truncate text-[12px] text-[var(--ub-text-tertiary)]">{selectedSong.artist}</span>
           </span>
-          <span className="ml-auto shrink-0 rounded-full bg-[var(--ub-surface-brand-soft)] px-2.5 py-1 text-[10px] font-bold text-[var(--ub-color-brand)]">
+          <span className="ml-auto shrink-0 rounded-full bg-[var(--ub-surface-brand-soft)] px-2.5 py-1 text-[11px] font-bold text-[var(--ub-color-brand)]">
             {situation.label}
           </span>
         </div>
@@ -141,7 +141,7 @@ export default function PraiseRecommendations({
       <section className="mt-5 overflow-hidden rounded-[22px] bg-[var(--ub-surface-card-strong)] text-[var(--ub-text-primary)] shadow-[var(--ub-shadow-soft)]">
         <div className="border-b border-[var(--ub-separator)] px-4 py-3">
           <p className="text-[13px] font-bold">{situation.label}</p>
-          <p className="mt-0.5 text-[10px] text-[var(--ub-text-tertiary)]">추천 {filteredSongs.length}곡</p>
+          <p className="mt-0.5 text-[11px] text-[var(--ub-text-tertiary)]">추천 {filteredSongs.length}곡</p>
         </div>
         {filteredSongs.map((song, index) => {
           const isSelected = selectedSong.id === song.id

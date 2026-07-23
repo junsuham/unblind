@@ -6,10 +6,12 @@ import { SystemIcon } from '@/app/components/ui/SystemIcon'
 export default function BookmarkButton({
   postId,
   initialSaved,
+  onBrand = false,
 }: {
   postId: string
   userId: string
   initialSaved: boolean
+  onBrand?: boolean
 }) {
   const [saved, setSaved] = useState(initialSaved)
   const [loading, setLoading] = useState(false)
@@ -45,7 +47,7 @@ export default function BookmarkButton({
       disabled={loading}
       aria-label={saved ? '저장 취소' : '게시글 저장'}
       title={saved ? '저장 취소' : '게시글 저장'}
-      className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[var(--ub-surface-muted)] text-[var(--ub-text-secondary)] disabled:opacity-50"
+      className={`inline-flex h-11 w-11 items-center justify-center rounded-full disabled:opacity-50 ${onBrand ? 'bg-white/16 text-white' : 'bg-[var(--ub-surface-muted)] text-[var(--ub-text-secondary)]'}`}
     >
       <SystemIcon name="bookmark" size={18} className={saved ? 'fill-current text-[var(--ub-color-brand)]' : ''} />
     </button>

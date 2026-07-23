@@ -25,7 +25,7 @@ function BuilderNoticeCard({
 }: BuilderNoticeCardProps) {
   return (
     <article className="rounded-[22px] bg-[var(--ub-surface-card-strong)] px-5 py-4 text-[var(--ub-text-primary)] shadow-[var(--ub-shadow-soft)]">
-      <p className="text-[9px] font-bold tracking-[0.08em] text-[var(--ub-text-tertiary)]">
+      <p className="text-[12px] font-bold tracking-[0.04em] text-[var(--ub-text-tertiary)]">
         {eyebrow}
       </p>
       <h2 className="mt-1.5 text-[18px] font-extrabold leading-[24px] tracking-[-0.02em]">
@@ -37,7 +37,7 @@ function BuilderNoticeCard({
       {linkLabel && (
         <Link
           href={linkHref}
-          className="mt-3 inline-flex min-h-9 items-center rounded-full bg-[var(--ub-color-brand)] px-4 text-[12px] font-bold text-white"
+          className="mt-3 inline-flex min-h-11 items-center rounded-full bg-[var(--ub-color-brand)] px-4 text-[13px] font-bold text-white"
         >
           {linkLabel}
         </Link>
@@ -52,7 +52,7 @@ type BuilderSectionLabelProps = {
 
 function BuilderSectionLabel({ label = '새로운 소식' }: BuilderSectionLabelProps) {
   return (
-    <p className="px-1 text-[9px] font-bold tracking-[0.08em] text-white/58">
+    <p className="px-1 text-[12px] font-bold tracking-[0.04em] text-[var(--ub-text-on-brand-tertiary)]">
       {label}
     </p>
   )

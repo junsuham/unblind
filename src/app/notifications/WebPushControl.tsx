@@ -84,7 +84,7 @@ export default function WebPushControl() {
         <p className="text-[14px] font-bold">이 기기 푸시 알림</p>
         <p className="mt-0.5 text-[11px] text-[var(--ub-text-secondary)]" role="status">{message || (enabled ? '새 댓글과 소식을 바로 받습니다.' : '홈 화면에 설치한 앱에서 사용할 수 있습니다.')}</p>
       </div>
-      <button type="button" onClick={toggle} disabled={pending} className={`min-h-9 shrink-0 rounded-full px-3 text-[12px] font-bold ${enabled ? 'bg-[var(--ub-surface-muted)] text-[var(--ub-text-secondary)]' : 'bg-[var(--ub-color-brand)] text-white'} disabled:opacity-55`}>
+      <button type="button" onClick={toggle} disabled={pending} className={`min-h-11 shrink-0 rounded-full px-3 text-[12px] font-bold ${enabled ? 'bg-[var(--ub-surface-muted)] text-[var(--ub-text-secondary)]' : 'bg-[var(--ub-color-brand)] text-white'} disabled:opacity-55`}>
         {pending ? '처리 중…' : enabled ? '끄기' : '켜기'}
       </button>
     </div>

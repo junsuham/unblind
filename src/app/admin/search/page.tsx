@@ -65,7 +65,7 @@ type UserSearchResult = {
 }
 
 const boardLabels: Record<string, string> = {
-  prayer: '기도요청',
+  prayer: '기도 요청',
   faith: '신앙',
   daily: '일상',
   church: '교회생활',
@@ -308,7 +308,7 @@ export default async function AdminSearchPage({
           />
           <button
             type="submit"
-            className="min-h-10 rounded-full bg-[var(--admin-accent-soft)] px-3 text-[14px] font-semibold text-[var(--admin-accent)] active:opacity-70"
+            className="min-h-11 rounded-full bg-[var(--admin-accent-soft)] px-3 text-[14px] font-semibold text-[var(--admin-accent)] active:opacity-70"
           >
             검색
           </button>

@@ -71,7 +71,7 @@ function formatClock(totalSeconds: number) {
 
 function AppTabs({ view, onChange }: { view: MainView; onChange: (view: MainView) => void }) {
   return (
-    <nav className={styles.appTabs} aria-label="레크레이션 KIT 메뉴">
+    <nav className={styles.appTabs} aria-label="레크리에이션 KIT 메뉴">
       <button
         type="button"
         aria-current={view === 'discover' ? 'page' : undefined}
@@ -657,7 +657,7 @@ function DiscoverView({
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             placeholder="게임 이름이나 분위기 검색"
-            aria-label="레크레이션 게임 검색"
+            aria-label="레크리에이션 게임 검색"
           />
           {query && (
             <button type="button" aria-label="검색어 지우기" onClick={() => setQuery('')}>

@@ -15,9 +15,9 @@ import {
 type BoardId = 'prayer' | 'faith' | 'daily'
 
 const boardOptions: { id: BoardId; name: string }[] = [
-  { id: 'prayer', name: '기도요청' },
-  { id: 'faith', name: '신앙고민' },
-  { id: 'daily', name: '일상고민' },
+  { id: 'prayer', name: '기도 요청' },
+  { id: 'faith', name: '신앙 고민' },
+  { id: 'daily', name: '일상 고민' },
 ]
 
 const DRAFT_STORAGE_KEY = 'unblind-post-draft-v1'
@@ -439,9 +439,9 @@ export default function NewPostForm({ initialBoard }: NewPostFormProps) {
         </header>
 
         {draftRestored && (
-          <div className="mx-4 mt-3 flex min-h-10 items-center justify-between gap-3 rounded-[12px] bg-[#e45330]/12 px-3 text-[11px] font-semibold text-[#ff8269]" role="status">
+          <div className="mx-4 mt-3 flex min-h-11 items-center justify-between gap-3 rounded-[12px] bg-[#e45330]/12 px-3 text-[12px] font-semibold text-[#ff8e77]" role="status">
             <span>작성 중이던 글을 복원했습니다.</span>
-            <button type="button" onClick={clearDraft} className="min-h-9 shrink-0 px-1 font-bold text-[#ff9a86]">초기화</button>
+            <button type="button" onClick={clearDraft} className="min-h-11 shrink-0 px-2 font-bold text-[#ff9a86]">초기화</button>
           </div>
         )}
 
@@ -456,13 +456,13 @@ export default function NewPostForm({ initialBoard }: NewPostFormProps) {
               <Emoji3D name="siren" size={38} />
               <span className="min-w-0 flex-1">
                 <strong className="block text-[14px] text-white">긴급 중보기도 요청</strong>
-                <span className="mt-0.5 block text-[11px] leading-[16px] text-white/50">빠른 기도가 꼭 필요한 제목에만 표시해주세요.</span>
+                <span className="mt-0.5 block text-[12px] leading-[17px] text-white/68">빠른 기도가 꼭 필요한 제목에만 표시해주세요.</span>
               </span>
               <span className={`relative h-7 w-12 shrink-0 rounded-full transition-colors ${urgentPrayer ? 'bg-[#ff3b30]' : 'bg-white/16'}`} aria-hidden>
                 <span className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow-sm transition-transform ${urgentPrayer ? 'translate-x-6' : 'translate-x-1'}`} />
               </span>
             </button>
-            <p className="mt-2 px-1 text-[10px] leading-[15px] text-white/34">생명 위험이나 즉시 구조가 필요한 상황에서는 앱보다 112·119와 가까운 보호자에게 먼저 연락해주세요.</p>
+            <p className="mt-2 px-1 text-[12px] leading-[18px] text-white/68">생명 위험이나 즉시 구조가 필요한 상황에서는 앱보다 112·119와 가까운 보호자에게 먼저 연락해주세요.</p>
           </section>
         )}
 
@@ -488,7 +488,7 @@ export default function NewPostForm({ initialBoard }: NewPostFormProps) {
             aria-label="내용"
             className="min-h-[390px] w-full resize-none bg-transparent px-4 py-5 text-[17px] leading-[25px] text-white outline-none placeholder:text-white/16"
           />
-          <span className="absolute bottom-3 right-4 text-[10px] tabular-nums text-white/24">
+          <span className="absolute bottom-3 right-4 text-[12px] tabular-nums text-white/55">
             {content.length}/2000
           </span>
         </section>
@@ -505,7 +505,7 @@ export default function NewPostForm({ initialBoard }: NewPostFormProps) {
                     type="button"
                     onClick={() => void removeImage(image)}
                     aria-label="첨부 이미지 삭제"
-                    className="absolute right-1.5 top-1.5 flex h-7 w-7 items-center justify-center rounded-full bg-black/65 text-[16px] text-white"
+                    className="absolute right-1 top-1 flex h-11 w-11 items-center justify-center rounded-full bg-black/65 text-[20px] text-white"
                   >
                     ×
                   </button>
@@ -536,7 +536,7 @@ export default function NewPostForm({ initialBoard }: NewPostFormProps) {
           </div>
         </section>
 
-        <p className="px-4 py-4 text-[11px] leading-[17px] text-white/34">
+        <p className="px-4 py-4 text-[12px] leading-[18px] text-white/62">
           사용자에게는 랜덤 익명 ID만 표시되며 신고 처리에 필요한 기록은 운영 정책에 따라 보호됩니다.
         </p>
 
@@ -595,7 +595,7 @@ export default function NewPostForm({ initialBoard }: NewPostFormProps) {
                 <circle cx="16" cy="16" r="3" />
               </svg>
             </button>
-            <span className="ml-auto pr-1 text-[10px] text-white/34">
+            <span className="ml-auto pr-1 text-[11px] text-white/60">
               {isUploading ? '이미지 올리는 중…' : `${uploadedImages.length}/3 · 위치 · 찬양`}
             </span>
           </div>

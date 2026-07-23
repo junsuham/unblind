@@ -123,7 +123,7 @@ export default function AdminUserActionButtons({
           className={`${baseButtonClass} ${successButtonClass}`}
         >
           {submittingAction === 'add'
-            ? '승인 중...'
+            ? '승인 중…'
             : profileComplete
               ? '가입 승인'
               : '정보 입력 대기'}
@@ -135,7 +135,7 @@ export default function AdminUserActionButtons({
           disabled={submittingAction !== null}
           className={`${baseButtonClass} ${dangerButtonClass}`}
         >
-          {submittingAction === 'block' ? '처리 중...' : '가입 차단'}
+          {submittingAction === 'block' ? '처리 중…' : '가입 차단'}
         </button>
       </div>
     )
@@ -150,7 +150,7 @@ export default function AdminUserActionButtons({
           disabled={submittingAction !== null}
           className={`${baseButtonClass} ${dangerButtonClass}`}
         >
-          {submittingAction === 'block' ? '처리 중...' : '차단'}
+          {submittingAction === 'block' ? '처리 중…' : '차단'}
         </button>
       ) : (
         <button
@@ -159,7 +159,7 @@ export default function AdminUserActionButtons({
           disabled={submittingAction !== null}
           className={`${baseButtonClass} ${successButtonClass}`}
         >
-          {submittingAction === 'unblock' ? '처리 중...' : '차단 해제'}
+          {submittingAction === 'unblock' ? '처리 중…' : '차단 해제'}
         </button>
       )}
 
@@ -169,7 +169,7 @@ export default function AdminUserActionButtons({
         disabled={submittingAction !== null}
         className={`${baseButtonClass} ${accentButtonClass}`}
       >
-        {submittingAction === 'reset_agreement' ? '처리 중...' : '동의 초기화'}
+        {submittingAction === 'reset_agreement' ? '처리 중…' : '동의 초기화'}
       </button>
 
       <button
@@ -178,7 +178,7 @@ export default function AdminUserActionButtons({
         disabled={submittingAction !== null}
         className={`${baseButtonClass} ${accentButtonClass}`}
       >
-        {submittingAction === 'update_memo' ? '처리 중...' : '메모 수정'}
+        {submittingAction === 'update_memo' ? '처리 중…' : '메모 수정'}
       </button>
 
       <button
@@ -187,7 +187,7 @@ export default function AdminUserActionButtons({
         disabled={submittingAction !== null}
         className={`${baseButtonClass} border-[var(--admin-danger)]/35 bg-[var(--admin-card-secondary)] text-[var(--admin-danger)]`}
       >
-        {submittingAction === 'remove' ? '처리 중...' : '승인목록 제거'}
+        {submittingAction === 'remove' ? '처리 중…' : '승인 목록 제거'}
       </button>
     </div>
   )

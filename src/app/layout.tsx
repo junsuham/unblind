@@ -9,7 +9,7 @@ import "./globals.css";
 export const metadata: Metadata = {
   applicationName: "언블라인드",
   title: "언블라인드",
-  description: "청년의 때 고민과 기도제목을 나누는 익명 공간",
+  description: "청년의 때 고민과 기도 제목을 나누는 익명 공간",
   manifest: "/manifest.webmanifest",
   appleWebApp: {
     capable: true,
@@ -39,6 +39,8 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
   viewportFit: "cover",
   themeColor: [
     { media: "(prefers-color-scheme: light)", color: "#e45330" },

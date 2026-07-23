@@ -10,8 +10,8 @@
 
 :root {
   color-scheme: light dark;
-  --ub-system-background: #e45330;
-  --ub-bottom-surface: #f5f5f7;
+  --ub-system-background: #f1ece9;
+  --ub-bottom-surface: #f4f0ed;
   --ub-tabbar-background: var(--ub-bottom-surface);
 }
 
@@ -74,6 +74,15 @@ select {
   font-size: var(--ub-font-body);
 }
 
+/* iOS zooms the whole viewport when a focused form control renders below 16px. */
+@media (max-width: 767px) and (pointer: coarse) {
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+}
+
 button,
 a {
   -webkit-tap-highlight-color: transparent;
@@ -85,14 +94,16 @@ a {
 }
 
 .ub-search-control,
-.ub-search-control:focus-within,
 .ub-search-input,
 .ub-search-input:focus,
-.ub-search-input:focus-visible,
-.ub-search-trigger:focus,
-.ub-search-trigger:focus-visible {
+.ub-search-input:focus-visible {
   outline: none !important;
   box-shadow: none !important;
+}
+
+.ub-search-control:focus-within {
+  outline: 3px solid var(--ub-focus-ring);
+  outline-offset: 2px;
 }
 
 .ub-search-control {
@@ -324,7 +335,7 @@ body:has(.ub-launch-splash:not(.ub-launch-splash-leaving)) {
 }
 
 .ub-app-tabbar-label {
-  margin-top: 4px;
+  margin-top: 3px;
 }
 
 @media (display-mode: standalone) {
@@ -434,9 +445,9 @@ body:has(.ub-launch-splash:not(.ub-launch-splash-leaving)) {
 .ub-loading-shimmer {
   background-image: linear-gradient(
     100deg,
-    rgba(255, 255, 255, 0.08) 20%,
-    rgba(255, 255, 255, 0.18) 38%,
-    rgba(255, 255, 255, 0.08) 56%
+    var(--ub-shimmer-low) 20%,
+    var(--ub-shimmer-high) 38%,
+    var(--ub-shimmer-low) 56%
   );
   background-size: 220% 100%;
   animation: ub-loading-shimmer 1.15s ease-in-out infinite;
@@ -544,6 +555,13 @@ body:has(.ub-launch-splash:not(.ub-launch-splash-leaving)) {
 .ub-app-surface {
   background: var(--ub-app-background);
   min-height: 0;
+}
+
+@media (max-width: 340px) {
+  .ub-logo-title {
+    font-size: 19px;
+    letter-spacing: -0.45px;
+  }
 }
 
 .ub-logo-surface {

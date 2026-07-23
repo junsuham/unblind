@@ -47,7 +47,7 @@ export default function AdminNavigation() {
               }`}
             >
               <AdminIcon name={item.icon} className="h-[22px] w-[22px]" />
-              <span className="text-[10px] font-semibold leading-[12px]">
+              <span className="text-[11px] font-semibold leading-[13px]">
                 {item.label}
               </span>
             </Link>

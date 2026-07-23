@@ -26,7 +26,7 @@ export default function LogoutButton({ compact = false, iconOnly = false }: Logo
       title={iconOnly ? '로그아웃' : undefined}
       className={
         iconOnly
-          ? 'flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-white/72 transition-colors active:bg-white/10 active:text-white'
+          ? 'flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-[var(--ub-color-brand)] transition-colors active:bg-[var(--ub-surface-pressed)]'
           : compact
           ? 'min-h-11 rounded-full bg-[var(--ub-surface-glass)] px-4 text-[15px] font-semibold text-[var(--ub-color-brand)] shadow-sm backdrop-blur-xl active:bg-[var(--ub-surface-pressed)]'
           : 'flex min-h-[52px] w-full items-center justify-center rounded-[16px] bg-[#ff4b00] px-4 text-[17px] font-semibold text-white active:scale-[0.99]'

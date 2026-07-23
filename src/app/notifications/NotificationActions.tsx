@@ -33,12 +33,12 @@ export default function NotificationActions({ hasUnread }: { hasUnread: boolean 
 
   return (
     <div className="flex items-center gap-2">
-      {errorMessage && <span className="text-[11px] font-semibold text-white/75" role="alert">{errorMessage}</span>}
+      {errorMessage && <span className="text-[12px] font-semibold text-[var(--ub-danger-text)]" role="alert">{errorMessage}</span>}
       <button
         type="button"
         onClick={markAllRead}
         disabled={pending}
-        className="min-h-10 rounded-full bg-[var(--ub-surface-card)] px-4 text-[13px] font-semibold text-[var(--ub-color-brand)] disabled:opacity-55"
+        className="min-h-11 rounded-full bg-[var(--ub-surface-card)] px-4 text-[13px] font-semibold text-[var(--ub-color-brand)] disabled:opacity-55"
       >
         {pending ? '처리 중…' : '모두 읽음'}
       </button>

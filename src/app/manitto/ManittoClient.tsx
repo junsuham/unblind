@@ -271,8 +271,8 @@ export default function ManittoClient({
                     setServerMessage('')
                   }}
                   className={isSelected
-                    ? 'flex min-h-9 items-center justify-center gap-1.5 rounded-[11px] bg-[var(--ub-surface-card-strong)] text-[12px] font-bold text-[var(--ub-color-brand)] shadow-sm'
-                    : 'flex min-h-9 items-center justify-center gap-1.5 rounded-[11px] text-[12px] font-semibold text-[var(--ub-text-secondary)]'}
+                    ? 'flex min-h-11 items-center justify-center gap-1.5 rounded-[11px] bg-[var(--ub-surface-card-strong)] text-[12px] font-bold text-[var(--ub-color-brand)] shadow-sm'
+                    : 'flex min-h-11 items-center justify-center gap-1.5 rounded-[11px] text-[12px] font-semibold text-[var(--ub-text-secondary)]'}
                 >
                   <SystemIcon name={option.icon} size={15} filled={isSelected} />
                   {option.label}
@@ -315,7 +315,7 @@ export default function ManittoClient({
                   : '마니또에게 따뜻한 응원을 남겨주세요.'}
               className="min-h-[88px] w-full resize-none rounded-[16px] bg-[var(--ub-surface-muted)] px-4 py-3 text-[14px] outline-none"
             />
-            <div className="mt-1 text-right text-[10px] tabular-nums text-[var(--ub-text-tertiary)]">{message.length}/200</div>
+            <div className="mt-1 text-right text-[11px] tabular-nums text-[var(--ub-text-tertiary)]">{message.length}/200</div>
             <button
               type="submit"
               disabled={submitting || (cardType !== 'scripture' && message.trim().length < 2)}
@@ -379,7 +379,7 @@ export default function ManittoClient({
             disabled={publishingTestimony || testimony.trim().length < 10}
             className="mt-2 min-h-11 w-full rounded-[14px] bg-[var(--ub-color-brand)] text-[14px] font-semibold text-white disabled:opacity-50"
           >
-            신앙고민 게시판에 익명으로 나누기
+            신앙 고민 게시판에 익명으로 나누기
           </button>
         </form>
         {testimonyMessage && <p className="mt-2 text-center text-[12px] text-[#FF3B30]">{testimonyMessage}</p>}

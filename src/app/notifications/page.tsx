@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import { requireBetaUser } from '@/lib/betaAuth'
 import { getSafeNotificationHref } from '@/lib/notificationHref'
 import { AppShell, BottomTabBar } from '@/app/components/ui/AppShell'
@@ -6,6 +7,10 @@ import NotificationLink from './NotificationLink'
 import WebPushControl from './WebPushControl'
 
 export const dynamic = 'force-dynamic'
+export const metadata: Metadata = {
+  title: '알림 | 언블라인드',
+  description: '내 글과 댓글에 도착한 새로운 소식을 확인합니다.',
+}
 
 type Notification = {
   id: string

@@ -1,9 +1,13 @@
+import type { Metadata } from 'next'
 import { requireBetaUser } from '@/lib/betaAuth'
 import PraiseRecommendations from './PraiseRecommendations'
-import { AppShell, BottomTabBar, PageHeader } from '@/app/components/ui/AppShell'
-import { Emoji3D } from '@/app/components/ui/Emoji3D'
+import { AppShell, BottomTabBar } from '@/app/components/ui/AppShell'
 
 export const dynamic = 'force-dynamic'
+export const metadata: Metadata = {
+  title: '오・찬・추 | 언블라인드',
+  description: '상황에 맞는 찬양을 찾고 언블 TOP 100을 재생합니다.',
+}
 
 export default async function PraisePage({
   searchParams,
@@ -24,11 +28,7 @@ export default async function PraisePage({
     .limit(100)
 
   return (
-    <AppShell bottomBar={<BottomTabBar active="praise" />}>
-      <PageHeader
-        title={<span className="inline-flex items-center gap-2"><Emoji3D name="musicDisc" size={32} />오・찬・추</span>}
-      />
-
+    <AppShell topTitle="오・찬・추" bottomBar={<BottomTabBar active="home" />}>
       <PraiseRecommendations
         initialSongs={(tracks ?? []).map((track) => ({ id: track.youtube_id, title: track.title, artist: track.artist }))}
         initialTrackId={playableTrackId}

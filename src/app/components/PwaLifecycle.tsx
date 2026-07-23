@@ -97,6 +97,22 @@ export function PwaLifecycle() {
   useEffect(() => {
     if (!('serviceWorker' in navigator)) return
 
+    if (process.env.NODE_ENV !== 'production') {
+      void navigator.serviceWorker.getRegistrations().then((registrations) =>
+        Promise.all(registrations.map((registration) => registration.unregister()))
+      )
+      if ('caches' in window) {
+        void window.caches.keys().then((keys) =>
+          Promise.all(
+            keys
+              .filter((key) => key.startsWith('unblind-static-'))
+              .map((key) => window.caches.delete(key))
+          )
+        )
+      }
+      return
+    }
+
     const revealUpdateIfNeeded = async (
       registration: ServiceWorkerRegistration,
       worker: ServiceWorker,
@@ -113,6 +129,16 @@ export function PwaLifecycle() {
       if (registration.waiting !== worker || worker.state !== 'installed') return
       if (activeVersion && waitingVersion && activeVersion === waitingVersion) {
         setWaitingWorker(null)
+        return
+      }
+
+      const safeToReload = pathnameRef.current === '/' || pathnameRef.current === '/login'
+      if (safeToReload) {
+        reloadOnControllerChange.current = true
+        worker.postMessage({ type: 'SKIP_WAITING' })
+        updateReloadTimer.current = window.setTimeout(() => {
+          window.location.reload()
+        }, 1800)
         return
       }
 
@@ -312,21 +338,21 @@ export function PwaLifecycle() {
 
   if (waitingWorker) {
     return (
-      <aside className="pointer-events-auto fixed inset-x-3 bottom-[calc(12px+env(safe-area-inset-bottom))] z-[1000] mx-auto max-w-[430px] rounded-[22px] border border-[var(--ub-glass-border)] bg-[var(--ub-surface-card-strong)] p-4 text-[var(--ub-text-primary)] shadow-[var(--ub-shadow-glass)]" role="status" aria-live="polite">
-        <p className="ios-title">새 버전이 준비되었습니다</p>
-        <p className="mt-1 ios-secondary">
-          {updateState === 'failed' ? '업데이트 전환이 지연되었습니다. 다시 불러와 적용해주세요.' : '앱을 닫지 않고 바로 업데이트할 수 있습니다.'}
-        </p>
-        <div className="mt-3 flex gap-2">
+      <aside className="pointer-events-auto fixed inset-x-3 bottom-[calc(62px+env(safe-area-inset-bottom))] z-[1000] mx-auto flex max-w-[430px] items-center gap-3 rounded-[18px] border border-[var(--ub-glass-border)] bg-[var(--ub-surface-card-strong)] p-3 text-[var(--ub-text-primary)] shadow-[var(--ub-shadow-glass)]" role="status" aria-live="polite">
+        <div className="min-w-0 flex-1">
+          <p className="text-[14px] font-semibold">새 버전이 준비되었습니다</p>
+          {updateState === 'failed' && <p className="mt-0.5 text-[12px] text-[var(--ub-danger-text)]">전환이 지연되어 다시 불러와야 합니다.</p>}
+        </div>
+        <div className="flex shrink-0 items-center gap-1">
           <button
             type="button"
             onClick={() => void applyUpdate()}
             disabled={updateState === 'applying'}
-            className="pointer-events-auto min-h-11 flex-1 touch-manipulation rounded-[14px] bg-[var(--ub-color-brand)] px-4 text-[15px] font-semibold text-white disabled:opacity-70"
+            className="pointer-events-auto min-h-11 touch-manipulation rounded-[13px] bg-[var(--ub-color-brand)] px-3 text-[13px] font-semibold text-white disabled:opacity-70"
           >
             {updateState === 'applying' ? '업데이트 적용 중…' : updateState === 'failed' ? '다시 불러오기' : '업데이트'}
           </button>
-          <button type="button" onClick={() => setWaitingWorker(null)} disabled={updateState === 'applying'} className="pointer-events-auto min-h-11 touch-manipulation rounded-[14px] px-4 text-[15px] font-semibold text-[var(--ub-text-secondary)] disabled:opacity-50">나중에</button>
+          <button type="button" onClick={() => setWaitingWorker(null)} disabled={updateState === 'applying'} aria-label="업데이트 알림 닫기" className="pointer-events-auto flex h-11 w-11 touch-manipulation items-center justify-center rounded-full text-[22px] text-[var(--ub-text-secondary)] disabled:opacity-50">×</button>
         </div>
       </aside>
     )

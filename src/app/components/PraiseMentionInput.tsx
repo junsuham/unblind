@@ -216,7 +216,7 @@ const PraiseMentionInput = forwardRef<PraiseMentionInputHandle, Props>(function 
               <p className="px-3 py-2 text-[11px] font-semibold text-[var(--ub-text-tertiary)]">
                 {activeMention?.kind === 'praise' ? '찬양 이름을 2자 이상 입력하세요' : '지역·장소 이름을 2자 이상 입력하세요'}
               </p>
-              {currentSearch?.searching && <p className="px-3 py-3 text-[13px] text-[var(--ub-text-secondary)]">검색 중...</p>}
+              {currentSearch?.searching && <p className="px-3 py-3 text-[13px] text-[var(--ub-text-secondary)]">검색 중…</p>}
               {!currentSearch?.searching && currentSearch?.message && <p className="px-3 py-3 text-[13px] text-[var(--ub-text-secondary)]">{currentSearch.message}</p>}
               {(currentSearch?.videos ?? []).map((video) => (
                 <button key={video.youtubeId} type="button" onMouseDown={(event) => event.preventDefault()} onClick={() => selectPraise(video)} className="flex min-h-[54px] w-full items-center gap-3 rounded-[14px] px-3 py-2 text-left hover:bg-[var(--ub-surface-muted)]">

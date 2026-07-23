@@ -27,5 +27,5 @@ export default function BlockUserButton({ blockedUserId, leavePage = false }: { 
     }
   }
 
-  return <button type="button" disabled={loading} onClick={block} className="min-h-9 rounded-full bg-[var(--ub-danger-soft)] px-3 text-[12px] font-semibold text-[var(--ub-danger-text)] disabled:opacity-50">{loading ? '차단 중...' : '사용자 차단'}</button>
+  return <button type="button" disabled={loading} onClick={block} className="min-h-11 rounded-full bg-[var(--ub-danger-soft)] px-3 text-[12px] font-semibold text-[var(--ub-danger-text)] disabled:opacity-50">{loading ? '차단 중…' : '사용자 차단'}</button>
 }

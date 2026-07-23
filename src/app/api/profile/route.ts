@@ -2,10 +2,10 @@ import { NextResponse } from 'next/server'
 import { searchChurches } from '@/lib/churchSearch'
 import {
   generateBiblicalNickname,
-  getReferenceAge,
   isEligibleReferenceAge,
   isOccupation,
 } from '@/lib/profile'
+import { getVerifiedSocialAge } from '@/lib/socialAge'
 import { getRequestUser } from '@/lib/requestUser'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
 import { guardMutation } from '@/lib/mutationGuard'
@@ -28,8 +28,6 @@ export async function POST(request: Request) {
 
   const body = await request.json().catch(() => null)
   const occupation = body?.occupation
-  const birthDate =
-    typeof body?.birthDate === 'string' ? body.birthDate.trim() : ''
   const agreementAccepted = body?.agreementAccepted === true
   const churchPlaceId =
     typeof body?.churchPlaceId === 'string' ? body.churchPlaceId : ''
@@ -38,7 +36,9 @@ export async function POST(request: Request) {
   const churchAddress =
     typeof body?.churchAddress === 'string' ? body.churchAddress.trim() : ''
 
-  const referenceAge = getReferenceAge(birthDate)
+  const verifiedAge = getVerifiedSocialAge(user)
+  const birthDate = verifiedAge?.birthDate ?? ''
+  const referenceAge = verifiedAge?.referenceAge ?? null
 
   if (!agreementAccepted) {
     return NextResponse.json(
@@ -54,7 +54,7 @@ export async function POST(request: Request) {
     return NextResponse.json(
       {
         code: 'AGE_RESTRICTED',
-        error: '유효한 생년월일을 입력해주세요. 2026년도 기준 20세 이상 59세 이하만 가입할 수 있습니다.',
+        error: 'Google 계정의 연령 확인이 필요합니다. 다시 로그인해주세요.',
       },
       { status: 400 }
     )

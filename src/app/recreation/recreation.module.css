@@ -33,7 +33,7 @@
 .appTab,
 .appTabActive {
   display: flex;
-  min-height: 42px;
+  min-height: 44px;
   align-items: center;
   justify-content: center;
   gap: 7px;
@@ -85,7 +85,7 @@
 .toolsIntro p {
   margin: 0 0 5px;
   color: var(--ub-color-brand);
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 800;
   letter-spacing: 0.13em;
 }
@@ -145,7 +145,7 @@
 .choiceField legend,
 .teamActions label span {
   color: var(--ub-text-tertiary);
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 700;
 }
 
@@ -246,7 +246,7 @@
 
 .switchRow small {
   color: var(--ub-text-tertiary);
-  font-size: 9px;
+  font-size: 11px;
 }
 
 .switchRow input {
@@ -323,7 +323,7 @@
 .sectionHeader > span {
   flex: 0 0 auto;
   color: var(--ub-text-on-brand-tertiary);
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 600;
 }
 
@@ -412,7 +412,7 @@
   align-items: center;
   gap: 5px;
   color: var(--ub-text-tertiary);
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 700;
 }
 
@@ -421,7 +421,7 @@
   background: var(--ub-color-brand);
   padding: 2px 6px;
   color: #fff;
-  font-size: 8px;
+  font-size: 11px;
 }
 
 .gameTitle {
@@ -440,7 +440,7 @@
   overflow: hidden;
   margin-top: 3px;
   color: var(--ub-text-secondary);
-  font-size: 10px;
+  font-size: 11px;
   line-height: 15px;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
@@ -459,7 +459,7 @@
   align-items: center;
   gap: 4px;
   color: var(--ub-text-tertiary);
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 650;
   white-space: nowrap;
 }
@@ -594,7 +594,7 @@
   display: block;
   margin-top: 4px;
   color: var(--ub-text-secondary);
-  font-size: 10px;
+  font-size: 11px;
   line-height: 15px;
 }
 
@@ -620,7 +620,7 @@
 .toolHeading p {
   margin: 2px 0 0;
   color: var(--ub-text-tertiary);
-  font-size: 10px;
+  font-size: 11px;
   line-height: 14px;
 }
 
@@ -655,7 +655,7 @@
 .timerRing span {
   margin-top: 2px;
   color: var(--ub-text-tertiary);
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
 }
@@ -751,7 +751,7 @@
 .formError {
   margin: 9px 2px 0;
   color: var(--ub-danger-text);
-  font-size: 10px;
+  font-size: 11px;
 }
 
 .randomResult {
@@ -802,7 +802,7 @@
   overflow-wrap: anywhere;
   margin: 8px 0 0;
   color: var(--ub-text-secondary);
-  font-size: 10px;
+  font-size: 11px;
   line-height: 16px;
 }
 
@@ -834,7 +834,7 @@
 
 .backButton {
   justify-self: start;
-  min-height: 42px;
+  min-height: 44px;
   border: 0;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.14);
@@ -871,7 +871,7 @@
 .detailHero > p {
   margin: 15px 0 0;
   color: var(--ub-color-brand);
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 800;
 }
 
@@ -913,7 +913,7 @@
   background: var(--ub-surface-muted);
   padding: 0 11px;
   color: var(--ub-text-tertiary);
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 700;
 }
 
@@ -954,7 +954,7 @@
   background: var(--ub-surface-muted);
   padding: 6px 10px;
   color: var(--ub-text-secondary);
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 650;
 }
 
@@ -965,7 +965,7 @@
 
 .scriptCard > span {
   color: var(--ub-color-brand);
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 800;
   letter-spacing: 0.04em;
 }
@@ -1002,7 +1002,7 @@
   border-radius: 9px;
   background: var(--ub-surface-brand-soft);
   color: var(--ub-color-brand);
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 800;
 }
 
@@ -1061,7 +1061,7 @@
   display: block;
   margin-top: 10px;
   color: rgba(255, 255, 255, 0.62);
-  font-size: 8px;
+  font-size: 11px;
   font-weight: 800;
   letter-spacing: 0.16em;
 }
@@ -1096,7 +1096,7 @@
 
 .liveStep > span {
   color: var(--ub-color-brand);
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 800;
   letter-spacing: 0.1em;
 }

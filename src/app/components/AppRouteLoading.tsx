@@ -6,7 +6,7 @@ export function AppRouteLoading({ compact = false }: AppRouteLoadingProps) {
   return (
     <div className="ub-app-frame">
       <main
-        className="ub-app-scroll ub-app-surface overflow-x-hidden px-4 pb-6 pt-[calc(env(safe-area-inset-top)+12px)] text-white"
+        className="ub-app-scroll ub-app-surface overflow-x-hidden px-4 pb-6 pt-[calc(env(safe-area-inset-top)+12px)] text-[var(--ub-text-on-brand-primary)]"
         aria-label="화면 불러오는 중"
         aria-busy="true"
       >

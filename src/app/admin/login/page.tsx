@@ -83,7 +83,7 @@ export default function AdminLoginPage() {
             disabled={isSubmitting}
             className="mt-5 flex min-h-[52px] w-full items-center justify-center rounded-[16px] bg-[var(--admin-accent)] px-5 text-[17px] font-semibold text-white active:opacity-70 disabled:opacity-40"
           >
-            {isSubmitting ? '로그인 중...' : '관리자 로그인'}
+            {isSubmitting ? '로그인 중…' : '관리자 로그인'}
           </button>
         </form>
 

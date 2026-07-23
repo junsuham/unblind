@@ -43,15 +43,15 @@ export function HomeBibleVerse() {
 
   return (
     <section data-home-section="verse" className="mb-4" aria-label="오늘의 말씀">
-      <p className="mb-1.5 px-1 text-[9px] font-bold tracking-[0.08em] text-white/58">오늘의 말씀</p>
-      <div className="min-h-[68px] rounded-[16px] bg-white/12 px-4 py-3 text-white shadow-sm backdrop-blur-xl">
+      <p className="mb-1.5 px-1 text-[12px] font-bold tracking-[0.04em] text-[var(--ub-text-on-brand-tertiary)]">오늘의 말씀</p>
+      <div className="min-h-[76px] rounded-[18px] border border-[var(--ub-glass-border)] bg-[var(--ub-surface-card-strong)] px-4 py-3.5 text-[var(--ub-text-primary)] shadow-[var(--ub-shadow-soft)] backdrop-blur-xl">
         {verse ? (
           <>
-            <p className="line-clamp-2 text-[13px] font-semibold leading-[19px]">“{verse.text}”</p>
-            <p className="mt-1 text-right text-[11px] text-white/68">{verse.reference}</p>
+            <p className="line-clamp-3 text-[15px] font-semibold leading-[22px]">“{verse.text}”</p>
+            <p className="mt-1.5 text-right text-[12px] font-medium text-[var(--ub-text-secondary)]">{verse.reference}</p>
           </>
         ) : (
-          <div className="h-[42px] animate-pulse rounded-[10px] bg-white/8" aria-hidden />
+          <div className="h-[44px] animate-pulse rounded-[10px] bg-[var(--ub-surface-muted)]" aria-hidden />
         )}
       </div>
     </section>

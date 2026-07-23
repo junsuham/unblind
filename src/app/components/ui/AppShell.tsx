@@ -11,9 +11,19 @@ type AppShellProps = {
   bottomBar?: ReactNode
   showTopLogo?: boolean
   topTitle?: string
+  topBackHref?: string
+  topTrailing?: ReactNode
 }
 
-function TopLogoBar({ title }: { title?: string }) {
+function TopLogoBar({
+  title,
+  backHref,
+  trailing,
+}: {
+  title?: string
+  backHref?: string
+  trailing?: ReactNode
+}) {
   const [searchOpen, setSearchOpen] = useState(false)
   const searchInputRef = useRef<HTMLInputElement>(null)
 
@@ -31,12 +41,21 @@ function TopLogoBar({ title }: { title?: string }) {
     <div className={`ub-logo-surface ${title ? 'ub-logo-surface--monogram' : 'ub-logo-surface--wordmark'} -mx-4 -mt-[calc(18px+env(safe-area-inset-top))] mb-4 border-b border-white/18 px-4 pt-[env(safe-area-inset-top)]`}>
       <div className="mx-auto flex min-h-[56px] max-w-[430px] items-center gap-1">
         <div className="flex min-w-0 shrink-0 items-center gap-2">
-          <Link
-            href="/"
-            aria-label="언블라인드 홈으로 이동"
-            className={`flex h-11 shrink-0 items-center justify-start active:scale-[0.96] ${title ? 'w-9' : 'w-[108px]'}`}
-          >
-            {title ? (
+          {backHref ? (
+            <Link
+              href={backHref}
+              aria-label="이전 화면으로 이동"
+              className="flex h-11 w-9 shrink-0 items-center justify-start text-[32px] font-light leading-none text-white active:scale-[0.96]"
+            >
+              <span aria-hidden>‹</span>
+            </Link>
+          ) : (
+            <Link
+              href="/"
+              aria-label="언블라인드 홈으로 이동"
+              className={`flex h-11 shrink-0 items-center justify-start active:scale-[0.96] ${title ? 'w-9' : 'w-[108px]'}`}
+            >
+              {title ? (
               <Image
                 src="/brand/unblind-monogram-relief-v5.png"
                 alt="UNBLIND"
@@ -45,7 +64,7 @@ function TopLogoBar({ title }: { title?: string }) {
                 preload
                 className="ub-brand-logo block h-9 w-9 object-contain"
               />
-            ) : (
+              ) : (
               <Image
                 src="/brand/unblind-wordmark-relief-v5.png"
                 alt="UNBLIND"
@@ -54,21 +73,24 @@ function TopLogoBar({ title }: { title?: string }) {
                 preload
                 className="ub-brand-logo block h-[23px] w-[104px] object-contain"
               />
-            )}
-          </Link>
+              )}
+            </Link>
+          )}
           {title && (
-            <span
-              className={`overflow-hidden whitespace-nowrap text-[22px] font-extrabold tracking-[-0.6px] text-white transition-[max-width,opacity] duration-200 ease-out ${
+            <h1
+              className={`ub-logo-title overflow-hidden whitespace-nowrap text-[22px] font-extrabold tracking-[-0.6px] text-white transition-[max-width,opacity] duration-200 ease-out ${
                 searchOpen ? 'max-w-0 opacity-0' : 'max-w-[180px] opacity-100'
               }`}
             >
               {title}
-            </span>
+            </h1>
           )}
         </div>
 
         <div className="ml-auto flex min-w-0 flex-1 items-center justify-end">
-          {searchOpen ? (
+          {trailing ? (
+            trailing
+          ) : searchOpen ? (
             <form
               action="/search"
               method="get"
@@ -127,13 +149,21 @@ export function AppShell({
   bottomBar,
   showTopLogo = true,
   topTitle,
+  topBackHref,
+  topTrailing,
 }: AppShellProps) {
   return (
     <div className="ub-app-frame">
       <main
         className={`ub-app-scroll ub-app-surface overflow-x-hidden px-4 pt-[calc(18px+env(safe-area-inset-top))] text-[var(--ub-text-on-brand-primary)] ${bottomBar ? 'pb-6' : 'pb-[calc(24px+env(safe-area-inset-bottom))]'}`}
       >
-        {showTopLogo && <TopLogoBar title={topTitle} />}
+        {showTopLogo && (
+          <TopLogoBar
+            title={topTitle}
+            backHref={topBackHref}
+            trailing={topTrailing}
+          />
+        )}
 
         <section className="mx-auto max-w-[430px]">
           {children}
@@ -549,18 +579,18 @@ export function BottomTabBar({ active }: BottomTabBarProps) {
               key={tab.key}
               href={tab.href}
               prefetch
+              aria-current={isActive ? 'page' : undefined}
               className="ub-app-tabbar-link relative flex min-w-0 flex-col items-center justify-center rounded-[14px] active:bg-black/5"
             >
-              {isWrite && (
-                <span className="pointer-events-none absolute -top-[38px] right-0 w-[184px] rounded-[13px] bg-white px-2.5 py-2 text-center text-[10px] font-bold leading-[13px] text-[#e45330] shadow-lg after:absolute after:right-5 after:top-full after:border-x-[6px] after:border-t-[7px] after:border-x-transparent after:border-t-white">
-                  익명으로 기도・고민 나눠주세요
-                </span>
-              )}
               {hasNewActivity && (
                 <span className="absolute left-[calc(50%+8px)] top-2 h-2 w-2 rounded-full bg-[#ff3b30] ring-2 ring-[var(--ub-surface-glass)]" aria-label="새 글 또는 댓글 있음" />
               )}
               <span
-                className={isWrite ? 'text-[var(--ub-color-brand)]' : 'text-white'}
+                className={
+                  isWrite || isActive
+                    ? 'text-[var(--ub-color-brand)]'
+                    : 'text-[var(--ub-text-secondary)]'
+                }
               >
                 {tab.icon && (
                   <SystemIcon
@@ -574,10 +604,10 @@ export function BottomTabBar({ active }: BottomTabBarProps) {
               <span
                 className={
                   isWrite
-                    ? 'ub-app-tabbar-label max-w-full truncate text-[10px] font-semibold leading-3 text-[var(--ub-color-brand)]'
+                    ? 'ub-app-tabbar-label max-w-full truncate text-[11px] font-semibold leading-[13px] text-[var(--ub-color-brand)]'
                     : isActive
-                      ? 'ub-app-tabbar-label max-w-full truncate text-[10px] font-bold leading-3 text-white'
-                      : 'ub-app-tabbar-label max-w-full truncate text-[10px] leading-3 text-white/70'
+                      ? 'ub-app-tabbar-label max-w-full truncate text-[11px] font-bold leading-[13px] text-[var(--ub-color-brand)]'
+                      : 'ub-app-tabbar-label max-w-full truncate text-[11px] leading-[13px] text-[var(--ub-text-secondary)]'
                 }
               >
                 {tab.label}

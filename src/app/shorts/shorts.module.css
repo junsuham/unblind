@@ -22,7 +22,7 @@
   overflow: hidden;
   margin-top: 2px;
   color: var(--ub-text-on-brand-tertiary);
-  font-size: 9px;
+  font-size: 11px;
   line-height: 14px;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -32,14 +32,14 @@
   display: flex;
   flex: 0 0 auto;
   gap: 7px;
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 650;
 }
 
 .policyLinks a {
   color: var(--ub-text-on-brand-tertiary);
   text-decoration: underline;
-  text-decoration-color: rgba(255, 255, 255, 0.25);
+  text-decoration-color: rgba(var(--ub-color-brand-rgb), 0.35);
   text-underline-offset: 2px;
 }
 
@@ -146,7 +146,7 @@
   background: rgba(0, 0, 0, 0.72);
   padding: 4px 7px;
   color: #fff;
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 750;
   line-height: 1;
   font-variant-numeric: tabular-nums;
@@ -163,7 +163,7 @@
   align-items: center;
   gap: 6px;
   color: var(--ub-text-tertiary);
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 620;
 }
 
@@ -172,7 +172,7 @@
   background: #ff0033;
   padding: 3px 7px;
   color: #fff;
-  font-size: 8px;
+  font-size: 11px;
   font-weight: 850;
   letter-spacing: -0.1px;
 }
@@ -213,7 +213,7 @@
   background: var(--ub-surface-brand-soft);
   padding: 4px 7px;
   color: var(--ub-color-brand);
-  font-size: 8px;
+  font-size: 11px;
   font-weight: 750;
 }
 
@@ -233,12 +233,12 @@
   min-width: 0;
   align-items: center;
   gap: 5px;
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 700;
 }
 
 .actionRow a {
-  min-height: 26px;
+  min-height: 44px;
   color: var(--ub-color-brand);
 }
 
@@ -331,6 +331,22 @@
   .tagRow,
   .actionRow {
     margin-top: 7px;
+  }
+}
+
+@media (max-width: 360px) {
+  .intro {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .introCopy p:last-child {
+    white-space: normal;
+  }
+
+  .feedViewport {
+    height: calc(100dvh - 174px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
   }
 }
 

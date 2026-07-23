@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Image from 'next/image'
+import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import type { Provider } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabase'
@@ -67,13 +68,13 @@ export default function LoginPage() {
         provider,
         options: {
           redirectTo: `${siteUrl}/auth/callback?next=${encodeURIComponent(safeNext)}`,
-          scopes: 'openid email profile',
+          scopes: 'openid email profile https://www.googleapis.com/auth/user.birthday.read',
         },
       })
 
       if (error) {
         setErrorMessage(
-          `${providerNames[provider]} 로그인을 시작하지 못했습니다. Supabase에서 해당 로그인 제공자가 활성화되어 있는지 확인해주세요.`
+          `${providerNames[provider]} 로그인을 시작하지 못했습니다. 잠시 후 다시 시도해주세요.`
         )
         setPendingProvider(null)
       }
@@ -111,8 +112,8 @@ export default function LoginPage() {
           <h1 className="mt-3 break-keep text-[36px] font-extrabold leading-[45px] tracking-[-0.045em] text-white sm:text-[40px] sm:leading-[50px]">
             기독교 익명 중보 커뮤니티
           </h1>
-          <p className="mt-6 max-w-[340px] break-keep text-[13px] font-medium leading-[20px] text-white/76">
-            내가 너희를 사랑한 것 같이 너희도 서로 사랑하라 -요15:2-
+          <p className="mt-6 max-w-[340px] break-keep text-[14px] font-medium leading-[21px] text-white/82">
+            “내가 너희를 사랑한 것 같이 너희도 서로 사랑하라” · 요한복음 15:12
           </p>
         </section>
 
@@ -125,9 +126,13 @@ export default function LoginPage() {
           >
             <GoogleIcon />
             {pendingProvider === 'google'
-              ? '구글 연결 중...'
-              : '구글로 회원가입'}
+              ? 'Google 연결 중…'
+              : 'Google로 계속하기'}
           </button>
+          <p className="mt-3 break-keep px-2 text-center text-[12px] leading-[18px] text-white/72">
+            계속하면 <Link href="/policies/terms" className="underline underline-offset-2">이용약관</Link>과{' '}
+            <Link href="/policies/privacy" className="underline underline-offset-2">개인정보 처리방침</Link>에 동의하게 됩니다.
+          </p>
         </div>
 
         {errorMessage && (

@@ -19,6 +19,7 @@ type ReportButtonProps = {
   targetType: TargetType
   targetId: string
   label?: string
+  onBrand?: boolean
 }
 
 const reasons: { value: ReportReason; label: string }[] = [
@@ -36,6 +37,7 @@ export default function ReportButton({
   targetType,
   targetId,
   label = '신고',
+  onBrand = false,
 }: ReportButtonProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [reason, setReason] = useState<ReportReason>('personal_info')
@@ -82,7 +84,7 @@ export default function ReportButton({
         onClick={() => setIsOpen(true)}
         aria-label={label}
         title={label}
-        className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[var(--ub-surface-muted)] text-[var(--ub-text-tertiary)] active:bg-[var(--ub-surface-pressed)]"
+        className={`inline-flex h-11 w-11 items-center justify-center rounded-full ${onBrand ? 'bg-white/16 text-white active:bg-white/24' : 'bg-[var(--ub-surface-muted)] text-[var(--ub-text-tertiary)] active:bg-[var(--ub-surface-pressed)]'}`}
       >
         <SystemIcon name="flag" size={18} />
       </button>
@@ -108,7 +110,7 @@ export default function ReportButton({
               <button
                 type="button"
                 onClick={closeModal}
-                className="flex min-h-9 items-center rounded-full bg-[var(--ub-surface-card-strong)] px-3 text-[15px] font-medium text-[var(--ub-color-brand)]"
+                className="flex min-h-11 items-center rounded-full bg-[var(--ub-surface-card-strong)] px-3 text-[15px] font-medium text-[var(--ub-color-brand)]"
               >
                 닫기
               </button>
@@ -190,7 +192,7 @@ export default function ReportButton({
                 disabled={isSubmitting}
                 className="flex min-h-[52px] w-full items-center justify-center rounded-[16px] bg-[#FF3B30] px-5 text-[17px] font-semibold text-white active:scale-[0.99] disabled:bg-[#8E8E93]"
               >
-                {isSubmitting ? '접수 중...' : '신고 접수하기'}
+                {isSubmitting ? '접수 중…' : '신고 접수하기'}
               </button>
             </form>
           </div>

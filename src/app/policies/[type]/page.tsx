@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { AppShell, PageHeader, GlassCard } from '@/app/components/ui/AppShell'
 
@@ -50,6 +51,15 @@ const policies: Record<string, Policy> = {
   },
 }
 
+export async function generateMetadata({ params }: { params: Promise<{ type: string }> }): Promise<Metadata> {
+  const { type } = await params
+  const policy = policies[type]
+  return {
+    title: `${policy?.title ?? '정책'} | 언블라인드`,
+    description: policy ? `${policy.title}과 시행일을 확인합니다.` : '언블라인드 운영 정책입니다.',
+  }
+}
+
 export default async function PolicyPage({ params }: { params: Promise<{ type: string }> }) {
   const { type } = await params
   const policy = policies[type]
@@ -58,7 +68,7 @@ export default async function PolicyPage({ params }: { params: Promise<{ type: s
   return (
     <AppShell>
       <PageHeader title={policy.title} titleSize="compact" backHref="/support" backLabel="고객지원" />
-      <p className="mb-4 px-1 text-[12px] font-semibold text-white/65">시행일 {policy.effectiveDate}</p>
+      <p className="mb-4 px-1 text-[12px] font-semibold text-[var(--ub-text-on-brand-tertiary)]">시행일 {policy.effectiveDate}</p>
       <div className="space-y-3">
         {policy.sections.map((section) => (
           <GlassCard key={section.title}>

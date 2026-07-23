@@ -40,7 +40,7 @@ export default function AdminLayout({
             href="/admin/exit"
             aria-label="앱 홈 화면으로 이동"
             title="앱 홈 화면"
-            className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--admin-accent-soft)] text-[var(--admin-accent)] active:opacity-70"
+            className="flex h-11 w-11 items-center justify-center rounded-full bg-[var(--admin-accent-soft)] text-[var(--admin-accent)] active:opacity-70"
           >
             <AdminIcon name="home" className="h-5 w-5" />
           </a>

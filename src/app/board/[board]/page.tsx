@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import type { Metadata } from 'next'
 import { requireBetaUser } from '@/lib/betaAuth'
 import {
   AppShell,
@@ -18,11 +19,11 @@ import {
 export const dynamic = 'force-dynamic'
 
 const boardNames: Record<string, string> = {
-  prayer: '기도요청',
-  faith: '신앙고민',
-  daily: '일상고민',
-  church: '교회생활',
-  work: '일상고민',
+  prayer: '기도 요청',
+  faith: '신앙 고민',
+  daily: '일상 고민',
+  church: '교회 생활',
+  work: '일상 고민',
   relationship: '연애/결혼',
 }
 
@@ -32,6 +33,7 @@ type BoardPageProps = {
   }>
   searchParams: Promise<{
     sort?: string
+    page?: string
   }>
 }
 
@@ -48,12 +50,25 @@ type PostRow = {
   reactions: { type: 'pray' | 'empathize' }[]
 }
 
+export async function generateMetadata({ params }: Pick<BoardPageProps, 'params'>): Promise<Metadata> {
+  const { board } = await params
+  const boardName = boardNames[board] ?? '게시판'
+  return {
+    title: `${boardName} | 언블라인드`,
+    description: `${boardName} 이야기를 익명으로 안전하게 나누는 공간입니다.`,
+  }
+}
+
 export default async function BoardPage({ params, searchParams }: BoardPageProps) {
   const { supabase, user } = await requireBetaUser()
 
   const { board } = await params
   const filters = await searchParams
   const sort = filters.sort === 'popular' ? 'popular' : 'latest'
+  const requestedPage = Number(filters.page ?? '1')
+  const page = Number.isInteger(requestedPage) && requestedPage > 0 ? requestedPage : 1
+  const pageSize = 20
+  const rangeStart = (page - 1) * pageSize
   const boardName = boardNames[board] ?? '게시판'
 
   let postsQuery = supabase
@@ -69,7 +84,7 @@ export default async function BoardPage({ params, searchParams }: BoardPageProps
       tags,
       comments(count),
       reactions(type)
-    `)
+    `, { count: 'exact' })
     .eq('board', board)
     .eq('status', 'visible')
 
@@ -77,12 +92,13 @@ export default async function BoardPage({ params, searchParams }: BoardPageProps
     ? postsQuery.order('view_count', { ascending: false }).order('created_at', { ascending: false })
     : postsQuery.order('created_at', { ascending: false })
 
-  const [{ data: posts, error }, { data: blockedRows }] = await Promise.all([
-    postsQuery.limit(50).returns<PostRow[]>(),
+  const [{ data: posts, error, count }, { data: blockedRows }] = await Promise.all([
+    postsQuery.range(rangeStart, rangeStart + pageSize - 1).returns<PostRow[]>(),
     supabase.from('user_blocks').select('blocked_user_id').eq('blocker_user_id', user.id),
   ])
   const blockedIds = new Set((blockedRows ?? []).map((item) => item.blocked_user_id))
-  const visiblePosts = (posts ?? []).filter((post) => !post.author_user_id || !blockedIds.has(post.author_user_id)).slice(0, 50)
+  const visiblePosts = (posts ?? []).filter((post) => !post.author_user_id || !blockedIds.has(post.author_user_id))
+  const hasNextPage = rangeStart + pageSize < (count ?? 0)
 
   const activeTab =
     board === 'prayer' ||
@@ -93,13 +109,22 @@ export default async function BoardPage({ params, searchParams }: BoardPageProps
 
   return (
     <AppShell topTitle={boardName} bottomBar={<BottomTabBar active={activeTab} />}>
-      <form method="get" className="mb-4 flex justify-end">
-        <select name="sort" defaultValue={sort} className="min-h-12 rounded-[16px] border-0 bg-[var(--ub-surface-card-strong)] px-3 text-[13px] text-[var(--ub-text-primary)] shadow-sm">
-          <option value="latest">최신순</option>
-          <option value="popular">인기순</option>
-        </select>
-        <button type="submit" className="sr-only">정렬 적용</button>
-      </form>
+      <nav aria-label="게시글 정렬" className="mb-4 ml-auto grid w-fit grid-cols-2 rounded-[14px] bg-[var(--ub-surface-card-strong)] p-1 shadow-sm">
+        <Link
+          href={`/board/${board}?sort=latest`}
+          aria-current={sort === 'latest' ? 'page' : undefined}
+          className={`flex min-h-11 items-center rounded-[11px] px-4 text-[13px] font-semibold ${sort === 'latest' ? 'bg-[var(--ub-color-brand)] text-white shadow-sm' : 'text-[var(--ub-text-secondary)]'}`}
+        >
+          최신순
+        </Link>
+        <Link
+          href={`/board/${board}?sort=popular`}
+          aria-current={sort === 'popular' ? 'page' : undefined}
+          className={`flex min-h-11 items-center rounded-[11px] px-4 text-[13px] font-semibold ${sort === 'popular' ? 'bg-[var(--ub-color-brand)] text-white shadow-sm' : 'text-[var(--ub-text-secondary)]'}`}
+        >
+          인기순
+        </Link>
+      </nav>
 
       {error && (
         <div className="mb-5">
@@ -194,7 +219,7 @@ export default async function BoardPage({ params, searchParams }: BoardPageProps
               </p>
 
               <p className="mt-2 text-[15px] leading-[21px] text-[var(--ub-text-secondary)]">
-                첫 번째 고민이나 기도제목을 조용히 나눠보세요.
+                첫 번째 고민이나 기도 제목을 조용히 나눠보세요.
               </p>
 
             </div>
@@ -205,6 +230,18 @@ export default async function BoardPage({ params, searchParams }: BoardPageProps
           작성자 정보는 다른 사용자에게 공개되지 않습니다.
         </p>
       </section>
+
+      {(page > 1 || hasNextPage) && (
+        <nav aria-label="게시글 페이지" className="mt-4 grid grid-cols-[1fr_auto_1fr] items-center gap-2">
+          {page > 1 ? (
+            <Link href={`/board/${board}?sort=${sort}&page=${page - 1}`} className="flex min-h-11 items-center justify-center rounded-[14px] bg-[var(--ub-surface-card-strong)] px-3 text-[13px] font-semibold text-[var(--ub-text-primary)] shadow-sm">이전</Link>
+          ) : <span />}
+          <span className="px-2 text-[12px] font-semibold text-[var(--ub-text-on-brand-tertiary)]">{page}페이지</span>
+          {hasNextPage ? (
+            <Link href={`/board/${board}?sort=${sort}&page=${page + 1}`} className="flex min-h-11 items-center justify-center rounded-[14px] bg-[var(--ub-surface-card-strong)] px-3 text-[13px] font-semibold text-[var(--ub-text-primary)] shadow-sm">다음</Link>
+          ) : <span />}
+        </nav>
+      )}
     </AppShell>
   )
 }

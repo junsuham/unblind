@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic'
 type ContentAction = { id: string; action_type: string; target_type: string; target_id: string; memo: string | null; admin_email: string | null; created_at: string }
 type UserAction = { id: string; action_type: string; email: string; memo: string | null; admin_email: string | null; created_at: string }
 
-const actionLabels: Record<string, string> = { hide: '콘텐츠 숨김', delete: '콘텐츠 삭제', restore: '콘텐츠 복구', dismiss: '신고 문제 없음', add: '사용자 승인', block: '사용자 차단', unblock: '차단 해제', reset_agreement: '동의 초기화', remove: '승인목록 제거', update_memo: '메모 수정' }
+const actionLabels: Record<string, string> = { hide: '콘텐츠 숨김', delete: '콘텐츠 삭제', restore: '콘텐츠 복구', dismiss: '신고 문제 없음', add: '사용자 승인', block: '사용자 차단', unblock: '차단 해제', reset_agreement: '동의 초기화', remove: '승인 목록 제거', update_memo: '메모 수정' }
 
 export default async function AdminActionsPage() {
   await requireAdmin()

@@ -60,9 +60,9 @@ describe('app shell bottom tab bar', () => {
       '{ media: "(prefers-color-scheme: dark)", color: "#100d0c" }',
     )
     expect(manifest).toContain("theme_color: '#e45330'")
-    expect(globalStyles).toContain('--ub-system-background: #e45330;')
+    expect(globalStyles).toContain('--ub-system-background: #f1ece9;')
     expect(globalStyles).toContain('--ub-system-background: #100d0c;')
-    expect(globalStyles).toContain('--ub-bottom-surface: #f5f5f7;')
+    expect(globalStyles).toContain('--ub-bottom-surface: #f4f0ed;')
     expect(globalStyles).toContain('--ub-bottom-surface: #1c1c1e;')
     expect(globalStyles).toContain(
       '--ub-tabbar-background: var(--ub-bottom-surface);',

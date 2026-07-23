@@ -100,7 +100,7 @@ export default function ReactionButtons({
           }
           aria-label={`좋아요 ${counts.empathize}`}
           title="좋아요"
-          className="inline-flex min-h-[40px] items-center gap-1.5 rounded-full px-1.5 text-[13px] font-medium text-[var(--ub-text-secondary)] active:bg-[var(--ub-surface-pressed)] disabled:opacity-60"
+          className="inline-flex min-h-11 items-center gap-1.5 rounded-full px-2 text-[13px] font-medium text-[var(--ub-text-secondary)] active:bg-[var(--ub-surface-pressed)] disabled:opacity-60"
         >
           <SystemIcon
             name="heart"
@@ -116,7 +116,7 @@ export default function ReactionButtons({
           disabled={isLoadingMyReactions || submittingType !== null || clicked.pray}
           aria-label={`기도 ${counts.pray}`}
           title="기도"
-          className="inline-flex min-h-[40px] items-center gap-1.5 rounded-full px-1.5 text-[13px] font-medium text-[var(--ub-text-secondary)] active:bg-[var(--ub-surface-pressed)] disabled:opacity-60"
+          className="inline-flex min-h-11 items-center gap-1.5 rounded-full px-2 text-[13px] font-medium text-[var(--ub-text-secondary)] active:bg-[var(--ub-surface-pressed)] disabled:opacity-60"
         >
           <Emoji3D
             name="prayer"
@@ -130,7 +130,7 @@ export default function ReactionButtons({
           href="#comments"
           aria-label={`댓글 ${commentCount}`}
           title="댓글"
-          className="inline-flex min-h-[40px] items-center gap-1.5 rounded-full px-1.5 text-[13px] font-medium text-[var(--ub-text-secondary)] active:bg-[var(--ub-surface-pressed)]"
+          className="inline-flex min-h-11 items-center gap-1.5 rounded-full px-2 text-[13px] font-medium text-[var(--ub-text-secondary)] active:bg-[var(--ub-surface-pressed)]"
         >
           <SystemIcon name="message" size={20} />
           <span>{commentCount}</span>

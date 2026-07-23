@@ -11,10 +11,11 @@ const appShell = readFileSync(
 )
 
 describe('inline search appearance', () => {
-  it('removes the focus rectangle from the search control only', () => {
+  it('keeps a visible keyboard focus ring around the search control and trigger', () => {
     expect(globalStyles).toContain('.ub-search-control:focus-within')
     expect(globalStyles).toContain('.ub-search-input:focus-visible')
-    expect(globalStyles).toContain('.ub-search-trigger:focus-visible')
+    expect(globalStyles).not.toContain('.ub-search-trigger:focus-visible {\n  outline: none')
+    expect(globalStyles).toContain('outline: 3px solid var(--ub-focus-ring);')
     expect(globalStyles).toContain('outline: none !important;')
   })
 

@@ -5,7 +5,7 @@ export default function manifest(): MetadataRoute.Manifest {
     id: '/',
     name: '언블라인드',
     short_name: '언블라인드',
-    description: '청년의 때 고민과 기도제목을 나누는 익명 공간',
+    description: '청년의 때 고민과 기도 제목을 나누는 익명 공간',
     start_url: '/',
     scope: '/',
     display: 'standalone',

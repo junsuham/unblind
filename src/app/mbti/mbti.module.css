@@ -30,7 +30,7 @@
 .englishEyebrow {
   margin: 0;
   color: var(--ub-color-brand);
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 800;
   letter-spacing: 0.09em;
 }
@@ -68,7 +68,7 @@
 
 .typeConstellation > span {
   position: absolute;
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 850;
 }
 
@@ -100,7 +100,7 @@
   background: var(--ub-surface-muted);
   padding: 0 9px;
   color: var(--ub-text-secondary);
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 700;
 }
 
@@ -182,14 +182,14 @@
 .reflectionCard p {
   margin: 4px 0 0;
   color: var(--ub-text-on-brand-secondary);
-  font-size: 10px;
+  font-size: 11px;
   line-height: 16px;
 }
 
 .disclaimer {
   margin: 0 6px;
   color: var(--ub-text-on-brand-tertiary);
-  font-size: 9px;
+  font-size: 11px;
   line-height: 15px;
   text-align: center;
 }
@@ -238,7 +238,7 @@
 .questionHeader > div small {
   margin-left: 3px;
   color: var(--ub-text-on-brand-tertiary);
-  font-size: 10px;
+  font-size: 11px;
 }
 
 .progressTrack {
@@ -265,7 +265,7 @@
 .questionCard > p {
   margin: 0;
   color: var(--ub-color-brand);
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 800;
   letter-spacing: 0.06em;
 }
@@ -345,7 +345,7 @@
   align-self: end;
   margin: 15px 20px 0;
   color: var(--ub-text-on-brand-tertiary);
-  font-size: 9px;
+  font-size: 11px;
   line-height: 15px;
   text-align: center;
 }
@@ -415,7 +415,7 @@
 .resultLabel {
   margin: 16px 0 0 !important;
   color: var(--ub-text-tertiary) !important;
-  font-size: 10px !important;
+  font-size: 11px !important;
   font-weight: 700;
 }
 
@@ -453,7 +453,7 @@
   background: var(--ub-surface-muted);
   padding: 0 11px;
   color: var(--ub-text-secondary);
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 750;
 }
 
@@ -504,7 +504,7 @@
 
 .axisRow > div:first-child span {
   color: var(--ub-text-tertiary);
-  font-size: 9px;
+  font-size: 11px;
 }
 
 .axisRow > div:first-child b {
@@ -553,7 +553,7 @@
   background: var(--ub-surface-brand-soft);
   padding: 6px 9px;
   color: var(--ub-color-brand);
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 750;
 }
 
@@ -605,7 +605,7 @@
 .resultActions > p {
   margin: 0;
   color: var(--ub-text-on-brand-secondary);
-  font-size: 10px;
+  font-size: 11px;
   text-align: center;
 }
 

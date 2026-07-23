@@ -54,7 +54,11 @@ async function getGoogleAge(providerToken: string): Promise<VerifiedAge> {
     ) ??
     birthdays.find((item: { date?: { year?: number } }) => Number(item?.date?.year) > 0)
   const date = birthday?.date
-  const birthDate = normalizeDate(Number(date?.year))
+  const birthDate = normalizeDate(
+    Number(date?.year),
+    Number(date?.month) || 1,
+    Number(date?.day) || 1
+  )
   const referenceAge = birthDate ? getReferenceAge(birthDate) : null
 
   if (!birthDate || referenceAge === null) {

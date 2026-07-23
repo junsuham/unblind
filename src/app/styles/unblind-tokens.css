@@ -6,8 +6,10 @@
   --ub-color-brand-rgb: 228, 83, 48;
 
   /* Surfaces */
-  --ub-surface-app: var(--ub-color-brand);
-  --ub-app-background: var(--ub-color-brand);
+  --ub-surface-app: #f4f0ed;
+  --ub-app-background:
+    radial-gradient(circle at 50% 0%, rgba(228, 83, 48, 0.09), transparent 28rem),
+    linear-gradient(180deg, #f8f5f3 0%, #f1ece9 100%);
   --ub-surface-logo: var(--ub-color-brand);
   --ub-surface-card: rgba(255, 255, 255, 0.9);
   --ub-surface-card-strong: rgba(255, 255, 255, 0.96);
@@ -18,10 +20,10 @@
   --ub-surface-pressed: #e5e5ea;
   --ub-surface-brand-soft: #fff1e9;
 
-  /* Text on orange */
-  --ub-text-on-brand-primary: #ffffff;
-  --ub-text-on-brand-secondary: rgba(255, 255, 255, 0.86);
-  --ub-text-on-brand-tertiary: rgba(255, 255, 255, 0.72);
+  /* Text on the main app surface. The token name is kept for compatibility. */
+  --ub-text-on-brand-primary: #211713;
+  --ub-text-on-brand-secondary: rgba(33, 23, 19, 0.74);
+  --ub-text-on-brand-tertiary: rgba(33, 23, 19, 0.58);
 
   /* Text on cards */
   --ub-text-primary: #000000;
@@ -113,9 +115,11 @@
   --ub-control-large: 56px;
   --ub-separator-hairline: 0.5px;
   --ub-blur-glass: 24px;
-  --ub-focus-ring: rgba(255, 255, 255, 0.92);
+  --ub-focus-ring: rgba(183, 55, 31, 0.9);
   --ub-pressed-overlay: rgba(0, 0, 0, 0.08);
   --ub-disabled-opacity: 0.38;
+  --ub-shimmer-low: rgba(33, 23, 19, 0.06);
+  --ub-shimmer-high: rgba(228, 83, 48, 0.15);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -155,6 +159,8 @@
     --ub-shadow-soft: 0 8px 24px rgba(0, 0, 0, 0.24);
     --ub-focus-ring: rgba(255, 138, 86, 0.92);
     --ub-pressed-overlay: rgba(255, 255, 255, 0.1);
+    --ub-shimmer-low: rgba(255, 255, 255, 0.08);
+    --ub-shimmer-high: rgba(255, 255, 255, 0.18);
   }
 }
 

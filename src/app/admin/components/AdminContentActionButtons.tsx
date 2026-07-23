@@ -70,7 +70,7 @@ export default function AdminContentActionButtons({
         disabled={submittingAction !== null || targetStatus === 'hidden'}
         className="rounded-2xl border border-stone-300 bg-white px-3 py-3 text-sm font-semibold text-stone-700 disabled:opacity-50"
       >
-        {submittingAction === 'hide' ? '처리 중...' : '숨김'}
+        {submittingAction === 'hide' ? '처리 중…' : '숨김'}
       </button>
 
       <button
@@ -79,7 +79,7 @@ export default function AdminContentActionButtons({
         disabled={submittingAction !== null || targetStatus === 'deleted'}
         className="rounded-2xl border border-red-200 bg-red-50 px-3 py-3 text-sm font-semibold text-red-700 disabled:opacity-50"
       >
-        {submittingAction === 'delete' ? '처리 중...' : '삭제'}
+        {submittingAction === 'delete' ? '처리 중…' : '삭제'}
       </button>
 
       <button
@@ -88,7 +88,7 @@ export default function AdminContentActionButtons({
         disabled={submittingAction !== null || targetStatus === 'visible'}
         className="rounded-2xl border border-green-200 bg-green-50 px-3 py-3 text-sm font-semibold text-green-700 disabled:opacity-50"
       >
-        {submittingAction === 'restore' ? '처리 중...' : '복구'}
+        {submittingAction === 'restore' ? '처리 중…' : '복구'}
       </button>
     </div>
   )

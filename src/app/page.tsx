@@ -98,12 +98,13 @@ export default async function HomePage({ searchParams }: HomePageProps) {
 
   return (
     <AppShell bottomBar={<BottomTabBar active="home" />}>
+      <h1 className="sr-only">언블라인드 홈</h1>
       <HomeBibleVerse />
 
       <BuilderHomeSection searchParams={params} />
 
       <section className="mb-4" aria-labelledby="unblind-app-shortcuts">
-        <p id="unblind-app-shortcuts" className="mb-1.5 px-1 text-[9px] font-bold tracking-[0.08em] text-white/58">언블라인드 앱</p>
+        <p id="unblind-app-shortcuts" className="mb-1.5 px-1 text-[12px] font-bold tracking-[0.04em] text-[var(--ub-text-on-brand-tertiary)]">언블라인드 앱</p>
         <div className="overflow-hidden rounded-[22px] bg-[var(--ub-surface-card-strong)] shadow-[var(--ub-shadow-soft)]">
           <HomeManittoFinder initialState={manitto} />
           <Link
@@ -114,7 +115,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
               <SystemIcon name="dice" size={21} />
             </span>
             <span className="min-w-0 flex-1">
-              <span className="block text-[15px] font-bold tracking-[-0.2px]">레크레이션 KIT</span>
+              <span className="block text-[15px] font-bold tracking-[-0.2px]">레크리에이션 KIT</span>
               <span className="mt-0.5 block truncate text-[11px] text-[var(--ub-text-secondary)]">
                 상황별 게임 추천 · 팀 편성 · 타이머 · 점수판
               </span>
@@ -173,8 +174,8 @@ export default async function HomePage({ searchParams }: HomePageProps) {
             href="/?sort=latest"
             aria-current={sort === 'latest' ? 'page' : undefined}
             className={sort === 'latest'
-              ? 'flex min-h-[30px] min-w-[58px] items-center justify-center whitespace-nowrap rounded-[10px] bg-[var(--ub-color-brand)] px-3 text-[11px] font-bold leading-none text-white shadow-sm'
-              : 'flex min-h-[30px] min-w-[58px] items-center justify-center whitespace-nowrap rounded-[10px] bg-[var(--ub-surface-muted)] px-3 text-[11px] font-semibold leading-none text-[var(--ub-text-secondary)]'}
+              ? 'flex min-h-11 min-w-[64px] items-center justify-center whitespace-nowrap rounded-[11px] bg-[var(--ub-color-brand)] px-3 text-[13px] font-bold leading-none text-white shadow-sm'
+              : 'flex min-h-11 min-w-[64px] items-center justify-center whitespace-nowrap rounded-[11px] bg-[var(--ub-surface-muted)] px-3 text-[13px] font-semibold leading-none text-[var(--ub-text-secondary)]'}
           >
             최신순
           </Link>
@@ -182,8 +183,8 @@ export default async function HomePage({ searchParams }: HomePageProps) {
             href="/?sort=popular"
             aria-current={sort === 'popular' ? 'page' : undefined}
             className={sort === 'popular'
-              ? 'flex min-h-[30px] min-w-[58px] items-center justify-center whitespace-nowrap rounded-[10px] bg-[var(--ub-color-brand)] px-3 text-[11px] font-bold leading-none text-white shadow-sm'
-              : 'flex min-h-[30px] min-w-[58px] items-center justify-center whitespace-nowrap rounded-[10px] bg-[var(--ub-surface-muted)] px-3 text-[11px] font-semibold leading-none text-[var(--ub-text-secondary)]'}
+              ? 'flex min-h-11 min-w-[64px] items-center justify-center whitespace-nowrap rounded-[11px] bg-[var(--ub-color-brand)] px-3 text-[13px] font-bold leading-none text-white shadow-sm'
+              : 'flex min-h-11 min-w-[64px] items-center justify-center whitespace-nowrap rounded-[11px] bg-[var(--ub-surface-muted)] px-3 text-[13px] font-semibold leading-none text-[var(--ub-text-secondary)]'}
           >
             인기순
           </Link>

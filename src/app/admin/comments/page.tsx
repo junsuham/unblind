@@ -37,7 +37,7 @@ type PostRow = {
 }
 
 const boardNames: Record<string, string> = {
-  prayer: '기도요청',
+  prayer: '기도 요청',
   faith: '신앙',
   daily: '일상',
   church: '교회생활',

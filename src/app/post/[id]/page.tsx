@@ -1,5 +1,5 @@
-import Link from 'next/link'
 import Image from 'next/image'
+import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { requireBetaUser } from '@/lib/betaAuth'
 import {
@@ -23,6 +23,11 @@ import { UrgentPrayerBadge } from '@/app/components/UrgentPrayerBadge'
 import { getVisiblePostTags, isUrgentPrayerPost } from '@/lib/urgentPrayer'
 
 export const dynamic = 'force-dynamic'
+
+export const metadata: Metadata = {
+  title: '게시글 | 언블라인드',
+  description: '언블라인드의 익명 기도와 고민 이야기입니다.',
+}
 
 type PostDetailPageProps = {
   params: Promise<{
@@ -143,30 +148,26 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
   return (
     <AppShell
       topTitle={board.name}
-      bottomBar={<BottomTabBar active={activeTab} />}
-    >
-      <PostViewTracker postId={post.id} />
-
-      <header className="mb-4 flex min-h-11 items-center justify-between gap-3 border-b border-white/20 pb-3">
-        <Link
-          href="/"
-          className="inline-flex min-h-11 items-center text-[16px] font-black tracking-[-0.02em] text-white"
-        >
-          {'< UNBLIND'}
-        </Link>
-        <div className="flex items-center gap-1 rounded-full bg-white/12 px-1.5 py-1 text-white backdrop-blur-xl">
+      topBackHref={`/board/${post.board}`}
+      topTrailing={(
+        <div className="flex items-center gap-1">
           <BookmarkButton
             postId={post.id}
             userId={user.id}
             initialSaved={Boolean(savedPost)}
+            onBrand
           />
           <ReportButton
             targetType="post"
             targetId={post.id}
-            label="신고"
+            label="게시글 신고"
+            onBrand
           />
         </div>
-      </header>
+      )}
+      bottomBar={<BottomTabBar active={activeTab} />}
+    >
+      <PostViewTracker postId={post.id} />
 
       <article className="overflow-hidden rounded-[22px] bg-[var(--ub-surface-card-strong)] shadow-[var(--ub-shadow-soft)]">
         <header className="px-5 pb-5 pt-5">
@@ -250,7 +251,7 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
       {reactionsError && (
         <div className="mt-5">
           <NoticeCard title="반응을 불러오지 못했습니다" tone="danger">
-            {reactionsError.message}
+            잠시 후 다시 시도해주세요.
           </NoticeCard>
         </div>
       )}
@@ -266,7 +267,7 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
         {commentsError && (
           <div className="p-4">
             <NoticeCard title="댓글을 불러오지 못했습니다" tone="danger">
-              {commentsError.message}
+              연결을 확인한 뒤 다시 시도해주세요.
             </NoticeCard>
           </div>
         )}

@@ -34,7 +34,7 @@ export default function PostNotFoundPage() {
         </PrimaryLink>
 
         <SecondaryLink href="/board/prayer">
-          기도요청 게시판으로
+          기도 요청 게시판으로
         </SecondaryLink>
       </div>
     </AppShell>

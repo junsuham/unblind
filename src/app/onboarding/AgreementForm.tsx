@@ -359,7 +359,7 @@ export default function AgreementForm({
             disabled={isSubmitting || !allChecked}
             className="flex min-h-[52px] w-full items-center justify-center rounded-[16px] bg-[#ff4b00] px-5 text-[17px] font-semibold text-white shadow-sm active:scale-[0.99] disabled:bg-[#8E8E93]"
           >
-            {isSubmitting ? '입장 준비 중...' : '약속에 동의하고 입장하기'}
+            {isSubmitting ? '입장 준비 중…' : '약속에 동의하고 입장하기'}
           </button>
         </div>
       )}

@@ -170,7 +170,7 @@ export function GlobalPraisePlayer() {
               type="button"
               onClick={() => setExpanded(false)}
               aria-label="플레이어 축소"
-              className="flex h-7 w-7 items-center justify-center rounded-full bg-white/10 text-[16px] text-white/70 active:bg-white/20"
+              className="flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-[16px] text-white/70 active:bg-white/20"
             >
               −
             </button>
@@ -178,13 +178,13 @@ export function GlobalPraisePlayer() {
               type="button"
               onClick={closePlayer}
               aria-label="플레이어 닫기"
-              className="flex h-7 w-7 items-center justify-center rounded-full bg-white/10 text-white/70 active:bg-white/20"
+              className="flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white/70 active:bg-white/20"
             >
               <SystemIcon name="close" size={15} />
             </button>
           </div>
 
-          <div className="mt-3 grid grid-cols-[36px_1fr_40px] items-center gap-2 text-[10px] font-medium tabular-nums text-white/55">
+          <div className="mt-3 grid grid-cols-[36px_1fr_40px] items-center gap-2 text-[11px] font-medium tabular-nums text-white/65">
             <span>{formatPlaybackTime(currentTime)}</span>
             <input
               type="range"
@@ -209,7 +209,7 @@ export function GlobalPraisePlayer() {
               onClick={closePlayer}
               aria-label="오・찬・추 페이지로 이동"
               title="오・찬・추 페이지"
-              className="flex h-8 w-8 items-center justify-center rounded-full text-white/70 active:bg-white/10 active:text-white"
+              className="flex h-11 w-11 items-center justify-center rounded-full text-white/70 active:bg-white/10 active:text-white"
             >
               <SystemIcon name="disc" size={21} />
             </Link>
@@ -217,7 +217,7 @@ export function GlobalPraisePlayer() {
               type="button"
               onClick={() => selectRelativeTrack(-1)}
               aria-label="이전 찬양"
-              className="mx-auto flex h-9 w-14 items-center justify-center rounded-full active:bg-white/10"
+              className="mx-auto flex h-11 w-14 items-center justify-center rounded-full active:bg-white/10"
             >
               <SystemIcon name="previous" size={27} filled />
             </button>
@@ -233,7 +233,7 @@ export function GlobalPraisePlayer() {
               type="button"
               onClick={() => selectRelativeTrack(1)}
               aria-label="다음 찬양"
-              className="mx-auto flex h-9 w-14 items-center justify-center rounded-full active:bg-white/10"
+              className="mx-auto flex h-11 w-14 items-center justify-center rounded-full active:bg-white/10"
             >
               <SystemIcon name="next" size={27} filled />
             </button>
@@ -259,14 +259,14 @@ export function GlobalPraisePlayer() {
             </span>
             <span className="min-w-0 flex-1">
               <span className="block truncate text-[12px] font-semibold">{selectedTrack.title}</span>
-              <span className="block truncate text-[10px] text-white/55">{selectedTrack.artist}</span>
+              <span className="block truncate text-[11px] text-white/65">{selectedTrack.artist}</span>
             </span>
           </button>
           <button
             type="button"
             onClick={togglePlayback}
             aria-label={playing ? '일시정지' : '재생'}
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white text-black"
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white text-black"
           >
             <SystemIcon name={playing ? 'pause' : 'play'} size={20} filled={!playing} />
           </button>
@@ -275,7 +275,7 @@ export function GlobalPraisePlayer() {
             onClick={closePlayer}
             aria-label="오・찬・추 페이지로 이동"
             title="오・찬・추 페이지"
-            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-white/55 active:bg-white/10"
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-white/65 active:bg-white/10"
           >
             <SystemIcon name="disc" size={17} />
           </Link>
@@ -283,7 +283,7 @@ export function GlobalPraisePlayer() {
             type="button"
             onClick={closePlayer}
             aria-label="플레이어 닫기"
-            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-white/55 active:bg-white/10"
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-white/65 active:bg-white/10"
           >
             <SystemIcon name="close" size={15} />
           </button>

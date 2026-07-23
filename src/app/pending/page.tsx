@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 import { createServerSupabase } from '@/lib/supabaseServer'
 import LogoutButton from '@/app/components/LogoutButton'
@@ -10,6 +11,10 @@ import {
 } from '@/app/components/ui/AppShell'
 
 export const dynamic = 'force-dynamic'
+export const metadata: Metadata = {
+  title: '가입 상태 | 언블라인드',
+  description: '언블라인드 가입 승인 상태를 확인합니다.',
+}
 
 export default async function PendingPage() {
   const supabase = await createServerSupabase()

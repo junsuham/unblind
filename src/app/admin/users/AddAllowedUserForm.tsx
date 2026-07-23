@@ -104,7 +104,7 @@ export default function AddAllowedUserForm() {
         disabled={isSubmitting}
         className="mt-5 flex min-h-[52px] w-full items-center justify-center rounded-[16px] bg-[#ff4b00] px-5 ios-title text-white shadow-sm active:scale-[0.99] disabled:bg-[#8E8E93]"
       >
-        {isSubmitting ? '추가 중...' : '사전 승인 추가'}
+        {isSubmitting ? '추가 중…' : '사전 승인 추가'}
       </button>
     </form>
   )
