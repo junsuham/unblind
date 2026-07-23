@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import {
   filterChristianShortVideos,
+  isSafeYouTubePageToken,
   parseYouTubeDuration,
   type YouTubeVideoResource,
 } from '../src/lib/christianShorts'
@@ -18,6 +19,16 @@ const shortsPage = readFileSync(
 
 const shortsClient = readFileSync(
   new URL('../src/app/shorts/ChristianShortsFeed.tsx', import.meta.url),
+  'utf8'
+)
+
+const shortsStyles = readFileSync(
+  new URL('../src/app/shorts/shorts.module.css', import.meta.url),
+  'utf8'
+)
+
+const shortsApi = readFileSync(
+  new URL('../src/app/api/shorts/route.ts', import.meta.url),
   'utf8'
 )
 
@@ -52,6 +63,14 @@ describe('Christian Shorts feed', () => {
     expect(parseYouTubeDuration('PT3M')).toBe(180)
     expect(parseYouTubeDuration('PT3M1S')).toBe(181)
     expect(parseYouTubeDuration('not-a-duration')).toBe(0)
+  })
+
+  it('accepts only bounded YouTube pagination tokens', () => {
+    expect(isSafeYouTubePageToken('CAUQAA')).toBe(true)
+    expect(isSafeYouTubePageToken('token_with-hyphen_123')).toBe(true)
+    expect(isSafeYouTubePageToken('')).toBe(false)
+    expect(isSafeYouTubePageToken('../unsafe?token=1')).toBe(false)
+    expect(isSafeYouTubePageToken('a'.repeat(257))).toBe(false)
   })
 
   it('keeps only public, embeddable, non-child-directed tagged Shorts', () => {
@@ -118,8 +137,19 @@ describe('Christian Shorts feed', () => {
     expect(shortsPage).toContain('https://www.youtube.com/t/terms')
     expect(shortsPage).toContain('https://policies.google.com/privacy')
     expect(shortsClient).toContain('https://www.youtube-nocookie.com/embed/')
+    expect(shortsClient).toContain('autoplay=1&mute=1&playsinline=1')
     expect(shortsClient).toContain('referrerPolicy="strict-origin-when-cross-origin"')
-    expect(shortsClient).toContain("if (document.hidden) setPlayingId(null)")
+    expect(shortsClient).toContain('setPageVisible(!document.hidden)')
+    expect(shortsClient).not.toContain('thumbnailButton')
     expect(shortsClient).not.toContain('download')
+  })
+
+  it('keeps a 9:16 player and automatically loads the next YouTube page', () => {
+    expect(shortsStyles).toContain('aspect-ratio: 9 / 16')
+    expect(shortsClient).toContain('ref={loadMoreRef}')
+    expect(shortsClient).toContain('/api/shorts?')
+    expect(shortsClient).toContain("rootMargin: '0px 0px 120% 0px'")
+    expect(shortsApi).toContain("searchParams.get('pageToken')")
+    expect(shortsApi).toContain('getChristianShortsFeed(pageToken)')
   })
 })

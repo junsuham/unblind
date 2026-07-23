@@ -1,14 +1,21 @@
 'use client'
 
 import Image from 'next/image'
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { SystemIcon } from '@/app/components/ui/SystemIcon'
 import type { ChristianShortVideo } from '@/lib/christianShorts'
 import styles from './shorts.module.css'
 
 type ChristianShortsFeedProps = {
   videos: ChristianShortVideo[]
+  nextPageToken?: string
   message?: string
+}
+
+type ShortsPageResponse = {
+  videos?: ChristianShortVideo[]
+  nextPageToken?: string | null
+  error?: string
 }
 
 function formatDuration(totalSeconds: number) {
@@ -30,16 +37,23 @@ function formatPublishedAt(value: string) {
 
 export default function ChristianShortsFeed({
   videos,
+  nextPageToken: initialNextPageToken,
   message,
 }: ChristianShortsFeedProps) {
   const feedRef = useRef<HTMLDivElement>(null)
+  const loadMoreRef = useRef<HTMLDivElement>(null)
+  const loadingRef = useRef(false)
   const cardRefs = useRef(new Map<string, HTMLElement>())
-  const [activeId, setActiveId] = useState(videos[0]?.id ?? null)
-  const [playingId, setPlayingId] = useState<string | null>(null)
+  const [items, setItems] = useState(videos)
+  const [nextPageToken, setNextPageToken] = useState(initialNextPageToken)
+  const [activeId, setActiveId] = useState<string | null>(videos[0]?.id ?? null)
+  const [pageVisible, setPageVisible] = useState(true)
+  const [isLoadingMore, setIsLoadingMore] = useState(false)
+  const [loadError, setLoadError] = useState('')
 
   useEffect(() => {
     const root = feedRef.current
-    if (!root || videos.length === 0) return
+    if (!root || items.length === 0) return
 
     const ratios = new Map<string, number>()
     const observer = new IntersectionObserver(
@@ -50,38 +64,98 @@ export default function ChristianShortsFeed({
         }
 
         const mostVisible = [...ratios.entries()]
-          .filter(([, ratio]) => ratio >= 0.55)
+          .filter(([, ratio]) => ratio >= 0.42)
           .sort((left, right) => right[1] - left[1])[0]
 
         if (!mostVisible) {
-          setPlayingId(null)
+          setActiveId(null)
           return
         }
 
-        const nextId = mostVisible[0]
-        setActiveId(nextId)
-        setPlayingId((current) => current === nextId ? current : null)
+        setActiveId(mostVisible[0])
       },
       {
         root,
-        threshold: [0, 0.35, 0.55, 0.7, 1],
+        threshold: [0, 0.25, 0.42, 0.6, 0.8, 1],
       }
     )
 
     for (const node of cardRefs.current.values()) observer.observe(node)
     return () => observer.disconnect()
-  }, [videos])
+  }, [items])
 
   useEffect(() => {
-    function stopHiddenPlayback() {
-      if (document.hidden) setPlayingId(null)
+    function syncPageVisibility() {
+      setPageVisible(!document.hidden)
     }
 
-    document.addEventListener('visibilitychange', stopHiddenPlayback)
-    return () => document.removeEventListener('visibilitychange', stopHiddenPlayback)
+    syncPageVisibility()
+    document.addEventListener('visibilitychange', syncPageVisibility)
+    return () => document.removeEventListener('visibilitychange', syncPageVisibility)
   }, [])
 
-  if (videos.length === 0) {
+  const loadMore = useCallback(async () => {
+    if (!nextPageToken || loadingRef.current) return
+
+    loadingRef.current = true
+    setIsLoadingMore(true)
+    setLoadError('')
+
+    try {
+      const searchParams = new URLSearchParams({ pageToken: nextPageToken })
+      const response = await fetch(`/api/shorts?${searchParams}`, {
+        headers: { Accept: 'application/json' },
+      })
+      const payload = (await response.json()) as ShortsPageResponse
+      if (!response.ok) {
+        throw new Error(payload.error ?? '다음 영상을 불러오지 못했습니다.')
+      }
+
+      setItems((current) => {
+        const knownIds = new Set(current.map((video) => video.id))
+        const additions = (payload.videos ?? []).filter((video) => {
+          if (knownIds.has(video.id)) return false
+          knownIds.add(video.id)
+          return true
+        })
+        return [...current, ...additions]
+      })
+      setNextPageToken(payload.nextPageToken ?? undefined)
+    } catch (error) {
+      setLoadError(
+        error instanceof Error
+          ? error.message
+          : '다음 영상을 불러오지 못했습니다.',
+      )
+    } finally {
+      loadingRef.current = false
+      setIsLoadingMore(false)
+    }
+  }, [nextPageToken])
+
+  useEffect(() => {
+    const root = feedRef.current
+    const sentinel = loadMoreRef.current
+    if (!root || !sentinel || !nextPageToken || isLoadingMore || loadError) return
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) {
+          void loadMore()
+        }
+      },
+      {
+        root,
+        rootMargin: '0px 0px 120% 0px',
+        threshold: 0,
+      },
+    )
+
+    observer.observe(sentinel)
+    return () => observer.disconnect()
+  }, [isLoadingMore, loadError, loadMore, nextPageToken])
+
+  if (items.length === 0 && !nextPageToken) {
     return (
       <section className={styles.emptyState} aria-live="polite">
         <span className={styles.emptyIcon}>
@@ -103,9 +177,9 @@ export default function ChristianShortsFeed({
 
   return (
     <div ref={feedRef} className={styles.feedViewport} aria-label="크리스천 쇼츠 피드">
-      {videos.map((video, index) => {
+      {items.map((video, index) => {
         const isActive = activeId === video.id
-        const isPlaying = playingId === video.id && isActive
+        const isPlaying = isActive && pageVisible
 
         return (
           <article
@@ -122,7 +196,7 @@ export default function ChristianShortsFeed({
               {isPlaying ? (
                 <iframe
                   key={video.id}
-                  src={`https://www.youtube-nocookie.com/embed/${video.id}?autoplay=1&playsinline=1&rel=0&controls=1`}
+                  src={`https://www.youtube-nocookie.com/embed/${video.id}?autoplay=1&mute=1&playsinline=1&rel=0&controls=1`}
                   title={`${video.title} YouTube 재생`}
                   className={styles.player}
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
@@ -130,12 +204,7 @@ export default function ChristianShortsFeed({
                   allowFullScreen
                 />
               ) : (
-                <button
-                  type="button"
-                  className={styles.thumbnailButton}
-                  onClick={() => setPlayingId(video.id)}
-                  aria-label={`${video.title} 재생`}
-                >
+                <div className={styles.thumbnailPreview} aria-hidden>
                   <Image
                     src={video.thumbnailUrl}
                     alt=""
@@ -145,18 +214,15 @@ export default function ChristianShortsFeed({
                     className={styles.thumbnail}
                   />
                   <span className={styles.thumbnailShade} aria-hidden />
-                  <span className={styles.playButton} aria-hidden>
-                    <SystemIcon name="play" size={25} filled />
-                  </span>
                   <span className={styles.duration}>{formatDuration(video.durationSeconds)}</span>
-                </button>
+                </div>
               )}
             </div>
 
             <div className={styles.metadata}>
               <div className={styles.sourceRow}>
                 <span className={styles.youtubeBadge}>YouTube</span>
-                <span>{index + 1} / {videos.length}</span>
+                <span>{index + 1} / {items.length}</span>
                 {formatPublishedAt(video.publishedAt) && (
                   <>
                     <span aria-hidden>·</span>
@@ -191,6 +257,21 @@ export default function ChristianShortsFeed({
           </article>
         )
       })}
+      <div
+        ref={loadMoreRef}
+        className={styles.feedFooter}
+        aria-live="polite"
+      >
+        {isLoadingMore && <span>다음 영상을 불러오는 중…</span>}
+        {!isLoadingMore && loadError && (
+          <button type="button" onClick={() => void loadMore()}>
+            다시 불러오기
+          </button>
+        )}
+        {!isLoadingMore && !loadError && !nextPageToken && items.length > 0 && (
+          <span>새로운 쇼츠를 모두 확인했어요</span>
+        )}
+      </div>
     </div>
   )
 }

@@ -20,8 +20,8 @@ export default async function ChristianShortsPage() {
     <AppShell topTitle="크리스천 쇼츠" bottomBar={<BottomTabBar active="home" />}>
       <div className={styles.intro}>
         <div className={styles.introCopy}>
-          <p>기독교 관련 태그를 통과한 3분 이하 영상</p>
-          <p>영상과 채널 정보는 YouTube가 제공합니다</p>
+          <p>기독교 관련 태그를 통과한 세로형 영상</p>
+          <p>화면에 들어오면 음소거로 자동 재생됩니다</p>
         </div>
         <div className={styles.policyLinks}>
           <a href="https://www.youtube.com/t/terms" target="_blank" rel="noopener noreferrer">YouTube 약관</a>
@@ -29,7 +29,11 @@ export default async function ChristianShortsPage() {
         </div>
       </div>
 
-      <ChristianShortsFeed videos={feed.videos} message={feed.message} />
+      <ChristianShortsFeed
+        videos={feed.videos}
+        nextPageToken={feed.nextPageToken}
+        message={feed.message}
+      />
     </AppShell>
   )
 }

@@ -60,10 +60,9 @@
 }
 
 .shortCard {
-  display: grid;
-  height: 100%;
-  min-height: 460px;
-  grid-template-rows: minmax(278px, 1fr) auto;
+  display: flex;
+  min-height: 0;
+  flex-direction: column;
   overflow: hidden;
   border: 1px solid var(--ub-glass-border);
   border-radius: 24px;
@@ -80,13 +79,15 @@
 
 .playerStage {
   position: relative;
-  min-height: 278px;
+  width: 100%;
+  min-height: 0;
+  aspect-ratio: 9 / 16;
   overflow: hidden;
   background: #090807;
 }
 
 .player,
-.thumbnailButton {
+.thumbnailPreview {
   width: 100%;
   height: 100%;
   border: 0;
@@ -97,10 +98,9 @@
   background: #000;
 }
 
-.thumbnailButton {
+.thumbnailPreview {
   position: relative;
   display: block;
-  cursor: pointer;
   background: #090807;
 }
 
@@ -114,28 +114,6 @@
   background:
     linear-gradient(to top, rgba(12, 7, 5, 0.42), transparent 42%),
     radial-gradient(circle at 50% 46%, transparent 32%, rgba(12, 7, 5, 0.16));
-}
-
-.playButton {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  display: grid;
-  width: 58px;
-  height: 58px;
-  place-items: center;
-  border: 1px solid rgba(255, 255, 255, 0.48);
-  border-radius: 50%;
-  background: rgba(228, 83, 48, 0.9);
-  color: #fff;
-  box-shadow: 0 14px 34px rgba(27, 8, 2, 0.35);
-  transform: translate(-50%, -50%);
-  -webkit-backdrop-filter: blur(12px);
-  backdrop-filter: blur(12px);
-}
-
-.playButton svg {
-  margin-left: 2px;
 }
 
 .duration {
@@ -303,18 +281,28 @@
   font-weight: 750;
 }
 
+.feedFooter {
+  display: grid;
+  min-height: 92px;
+  place-items: center;
+  color: var(--ub-text-tertiary);
+  font-size: 12px;
+  font-weight: 700;
+  scroll-snap-align: end;
+}
+
+.feedFooter button {
+  min-height: 44px;
+  border-radius: 14px;
+  background: var(--ub-surface-brand-soft);
+  padding: 0 16px;
+  color: var(--ub-color-brand);
+  font: inherit;
+}
+
 @media (max-height: 700px) {
   .feedViewport {
     min-height: 420px;
-  }
-
-  .shortCard {
-    min-height: 420px;
-    grid-template-rows: minmax(230px, 1fr) auto;
-  }
-
-  .playerStage {
-    min-height: 230px;
   }
 
   .metadata {

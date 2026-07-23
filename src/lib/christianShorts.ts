@@ -82,6 +82,7 @@ export type YouTubeVideoResource = {
 
 type YouTubeSearchResponse = {
   items?: Array<{ id?: { videoId?: string } }>
+  nextPageToken?: string
   error?: { message?: string }
 }
 
@@ -104,6 +105,7 @@ export type ChristianShortVideo = {
 export type ChristianShortsFeed = {
   status: 'ready' | 'not-configured' | 'unavailable'
   videos: ChristianShortVideo[]
+  nextPageToken?: string
   message?: string
 }
 
@@ -131,6 +133,10 @@ function decodeYouTubeText(value: string) {
 
 function isSafeYoutubeId(value: string) {
   return /^[A-Za-z0-9_-]{6,20}$/.test(value)
+}
+
+export function isSafeYouTubePageToken(value: string) {
+  return /^[A-Za-z0-9_-]{1,256}$/.test(value)
 }
 
 export function parseYouTubeDuration(value: string | undefined) {
@@ -236,7 +242,9 @@ export function filterChristianShortVideos(
   })
 }
 
-export async function getChristianShortsFeed(): Promise<ChristianShortsFeed> {
+export async function getChristianShortsFeed(
+  pageToken?: string
+): Promise<ChristianShortsFeed> {
   const apiKey = process.env.YOUTUBE_API_KEY?.trim()
   if (!apiKey) {
     return {
@@ -259,6 +267,9 @@ export async function getChristianShortsFeed(): Promise<ChristianShortsFeed> {
   searchUrl.searchParams.set('videoDuration', 'short')
   searchUrl.searchParams.set('videoEmbeddable', 'true')
   searchUrl.searchParams.set('videoSyndicated', 'true')
+  if (pageToken && isSafeYouTubePageToken(pageToken)) {
+    searchUrl.searchParams.set('pageToken', pageToken)
+  }
 
   try {
     const searchResponse = await fetch(searchUrl, {
@@ -279,7 +290,14 @@ export async function getChristianShortsFeed(): Promise<ChristianShortsFeed> {
     )).slice(0, 50)
 
     if (videoIds.length === 0) {
-      return { status: 'ready', videos: [] }
+      return {
+        status: 'ready',
+        videos: [],
+        nextPageToken: searchPayload.nextPageToken
+          && isSafeYouTubePageToken(searchPayload.nextPageToken)
+          ? searchPayload.nextPageToken
+          : undefined,
+      }
     }
 
     const detailsUrl = new URL('https://www.googleapis.com/youtube/v3/videos')
@@ -301,7 +319,11 @@ export async function getChristianShortsFeed(): Promise<ChristianShortsFeed> {
 
     return {
       status: 'ready',
-      videos: filterChristianShortVideos(detailsPayload.items ?? [], videoIds).slice(0, 24),
+      videos: filterChristianShortVideos(detailsPayload.items ?? [], videoIds),
+      nextPageToken: searchPayload.nextPageToken
+        && isSafeYouTubePageToken(searchPayload.nextPageToken)
+        ? searchPayload.nextPageToken
+        : undefined,
     }
   } catch (error) {
     console.error(
