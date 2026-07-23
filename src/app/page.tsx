@@ -136,6 +136,21 @@ export default async function HomePage({ searchParams }: HomePageProps) {
             </span>
             <span className="text-[22px] leading-none text-[var(--ub-text-tertiary)]" aria-hidden>›</span>
           </Link>
+          <Link
+            href="/shorts"
+            className="flex min-h-[68px] w-full items-center gap-3 border-t border-[var(--ub-separator)] px-4 py-3 text-left text-[var(--ub-text-primary)] active:bg-[var(--ub-surface-pressed)]"
+          >
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[13px] bg-[var(--ub-surface-brand-soft)] text-[var(--ub-color-brand)]">
+              <SystemIcon name="play" size={21} filled />
+            </span>
+            <span className="min-w-0 flex-1">
+              <span className="block text-[15px] font-bold tracking-[-0.2px]">크리스천 쇼츠</span>
+              <span className="mt-0.5 block truncate text-[11px] text-[var(--ub-text-secondary)]">
+                기독교 태그로 엄선한 3분 이하 영상
+              </span>
+            </span>
+            <span className="text-[22px] leading-none text-[var(--ub-text-tertiary)]" aria-hidden>›</span>
+          </Link>
           <HomePraisePlayer
             initialTracks={(praiseTracks ?? []).map((track) => ({
               id: track.youtube_id,
