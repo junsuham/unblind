@@ -5,6 +5,14 @@ import { getWeeklyPraiseTop50 } from '@/lib/weeklyPraise'
 export const dynamic = 'force-dynamic'
 export const maxDuration = 60
 
+function getFailureMessage(error: unknown) {
+  if (error instanceof Error) return error.message
+  if (error && typeof error === 'object' && 'message' in error) {
+    return String(error.message)
+  }
+  return String(error)
+}
+
 export async function GET(request: NextRequest) {
   const cronSecret = process.env.CRON_SECRET?.trim()
   if (!cronSecret || request.headers.get('authorization') !== `Bearer ${cronSecret}`) {
@@ -34,10 +42,7 @@ export async function GET(request: NextRequest) {
       updatedAt: new Date().toISOString(),
     })
   } catch (error) {
-    console.error(
-      'Weekly praise refresh failed:',
-      error instanceof Error ? error.message : 'Unknown refresh error',
-    )
+    console.error('Weekly praise refresh failed:', getFailureMessage(error))
     return Response.json(
       { error: '이번 주 TOP50 갱신에 실패해 기존 목록을 유지합니다.' },
       { status: 502 },
