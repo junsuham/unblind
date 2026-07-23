@@ -20,7 +20,7 @@ export default async function ChristianShortsPage() {
     <AppShell topTitle="크리스천 쇼츠" bottomBar={<BottomTabBar active="home" />}>
       <div className={styles.intro}>
         <div className={styles.introCopy}>
-          <p>기독교 관련 태그를 통과한 세로형 영상</p>
+          <p>AI 제작물을 제외하고 조회수 순으로 선별한 영상</p>
           <p>화면에 들어오면 음소거로 자동 재생됩니다</p>
         </div>
         <div className={styles.policyLinks}>

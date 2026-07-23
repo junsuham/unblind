@@ -2,8 +2,10 @@ import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import {
   filterChristianShortVideos,
+  isLikelyAiGeneratedVideo,
   isSafeYouTubePageToken,
   parseYouTubeDuration,
+  parseYouTubeViewCount,
   type YouTubeVideoResource,
 } from '../src/lib/christianShorts'
 
@@ -32,6 +34,11 @@ const shortsApi = readFileSync(
   'utf8'
 )
 
+const shortsLibrary = readFileSync(
+  new URL('../src/lib/christianShorts.ts', import.meta.url),
+  'utf8'
+)
+
 function video(overrides: Partial<YouTubeVideoResource> = {}): YouTubeVideoResource {
   return {
     id: 'abcDEF_1234',
@@ -53,6 +60,7 @@ function video(overrides: Partial<YouTubeVideoResource> = {}): YouTubeVideoResou
       embeddable: true,
       madeForKids: false,
     },
+    statistics: { viewCount: '125000' },
     ...overrides,
   }
 }
@@ -63,6 +71,13 @@ describe('Christian Shorts feed', () => {
     expect(parseYouTubeDuration('PT3M')).toBe(180)
     expect(parseYouTubeDuration('PT3M1S')).toBe(181)
     expect(parseYouTubeDuration('not-a-duration')).toBe(0)
+  })
+
+  it('parses bounded public view counts', () => {
+    expect(parseYouTubeViewCount('125000')).toBe(125000)
+    expect(parseYouTubeViewCount('')).toBe(0)
+    expect(parseYouTubeViewCount('-1')).toBe(0)
+    expect(parseYouTubeViewCount('not-a-number')).toBe(0)
   })
 
   it('accepts only bounded YouTube pagination tokens', () => {
@@ -81,8 +96,55 @@ describe('Christian Shorts feed', () => {
       id: 'abcDEF_1234',
       channelTitle: '믿음의 하루',
       durationSeconds: 72,
+      viewCount: 125000,
     })
     expect(accepted[0].matchedTags).toContain('#기독교')
+  })
+
+  it('rejects disclosed or explicitly described AI-generated videos without blocking AI topics', () => {
+    const disclosedSynthetic = video({
+      id: 'synthetic01',
+      status: {
+        privacyStatus: 'public',
+        embeddable: true,
+        containsSyntheticMedia: true,
+      },
+    })
+    const explicitAiCreation = video({
+      id: 'aiCreated01',
+      snippet: {
+        ...video().snippet,
+        title: 'AI로 만든 성경 이야기 #shorts #성경',
+      },
+    })
+    const aiTopic = video({
+      id: 'aiTopic001',
+      snippet: {
+        ...video().snippet,
+        title: 'AI 시대의 신앙은 어떻게 지켜야 할까 #shorts #기독교',
+      },
+    })
+    const aiMusicTool = video({
+      id: 'sunoVideo1',
+      snippet: {
+        ...video().snippet,
+        description: '#크리스천 #Suno',
+      },
+    })
+
+    expect(isLikelyAiGeneratedVideo(disclosedSynthetic)).toBe(true)
+    expect(isLikelyAiGeneratedVideo(explicitAiCreation)).toBe(true)
+    expect(isLikelyAiGeneratedVideo(aiTopic)).toBe(false)
+    expect(isLikelyAiGeneratedVideo(aiMusicTool)).toBe(true)
+    expect(
+      filterChristianShortVideos([
+        disclosedSynthetic,
+        explicitAiCreation,
+        aiTopic,
+        aiMusicTool,
+      ])
+        .map((item) => item.id)
+    ).toEqual(['aiTopic001'])
   })
 
   it('rejects long, unrelated, blocked, non-embeddable and made-for-kids videos', () => {
@@ -121,14 +183,18 @@ describe('Christian Shorts feed', () => {
     ])).toEqual([])
   })
 
-  it('preserves YouTube search order instead of deriving a custom ranking', () => {
-    const first = video({ id: 'firstVid01' })
-    const second = video({ id: 'secondVid1' })
+  it('prioritizes higher view counts and uses YouTube search order for ties', () => {
+    const first = video({ id: 'firstVid01', statistics: { viewCount: '1000' } })
+    const second = video({ id: 'secondVid1', statistics: { viewCount: '5000' } })
+    const tied = video({ id: 'tiedVideo1', statistics: { viewCount: '5000' } })
 
     expect(
-      filterChristianShortVideos([first, second], ['secondVid1', 'firstVid01'])
+      filterChristianShortVideos(
+        [first, second, tied],
+        ['tiedVideo1', 'secondVid1', 'firstVid01']
+      )
         .map((item) => item.id)
-    ).toEqual(['secondVid1', 'firstVid01'])
+    ).toEqual(['tiedVideo1', 'secondVid1', 'firstVid01'])
   })
 
   it('links the feature from home and keeps the player policy-safe', () => {
@@ -140,6 +206,7 @@ describe('Christian Shorts feed', () => {
     expect(shortsClient).toContain('autoplay=1&mute=1&playsinline=1')
     expect(shortsClient).toContain('referrerPolicy="strict-origin-when-cross-origin"')
     expect(shortsClient).toContain('setPageVisible(!document.hidden)')
+    expect(shortsClient).toContain('조회 {formatViewCount(video.viewCount)}')
     expect(shortsClient).not.toContain('thumbnailButton')
     expect(shortsClient).not.toContain('download')
   })
@@ -151,5 +218,7 @@ describe('Christian Shorts feed', () => {
     expect(shortsClient).toContain("rootMargin: '0px 0px 120% 0px'")
     expect(shortsApi).toContain("searchParams.get('pageToken')")
     expect(shortsApi).toContain('getChristianShortsFeed(pageToken)')
+    expect(shortsLibrary).toContain("searchUrl.searchParams.set('order', 'viewCount')")
+    expect(shortsLibrary).toContain("'snippet,contentDetails,status,statistics'")
   })
 })

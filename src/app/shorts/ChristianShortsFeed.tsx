@@ -35,6 +35,13 @@ function formatPublishedAt(value: string) {
   }).format(date)
 }
 
+function formatViewCount(value: number) {
+  return new Intl.NumberFormat('ko-KR', {
+    notation: 'compact',
+    maximumFractionDigits: 1,
+  }).format(value)
+}
+
 export default function ChristianShortsFeed({
   videos,
   nextPageToken: initialNextPageToken,
@@ -222,6 +229,8 @@ export default function ChristianShortsFeed({
             <div className={styles.metadata}>
               <div className={styles.sourceRow}>
                 <span className={styles.youtubeBadge}>YouTube</span>
+                <span>조회 {formatViewCount(video.viewCount)}</span>
+                <span aria-hidden>·</span>
                 <span>{index + 1} / {items.length}</span>
                 {formatPublishedAt(video.publishedAt) && (
                   <>
