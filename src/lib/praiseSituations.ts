@@ -16,8 +16,8 @@ export type PraiseSituation = {
 export const praiseSituations: PraiseSituation[] = [
   {
     key: 'all',
-    label: '오・찬・추 전체',
-    description: '지금 사랑받는 찬양을 모두 살펴보세요.',
+    label: '이번 주 TOP50',
+    description: '공식 찬양 채널의 이번 주 인기곡을 살펴보세요.',
     trackIds: [],
     keywords: [],
   },
@@ -116,4 +116,3 @@ export function getSituationSongs<T extends { id: string; title: string }>(
   const fallbackStart = fallbackIndex * 6
   return songs.slice(fallbackStart, fallbackStart + 8)
 }
-

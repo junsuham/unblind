@@ -6,7 +6,7 @@ import { AppShell, BottomTabBar } from '@/app/components/ui/AppShell'
 export const dynamic = 'force-dynamic'
 export const metadata: Metadata = {
   title: '오・찬・추 | 언블라인드',
-  description: '상황에 맞는 찬양을 찾고 언블 TOP 100을 재생합니다.',
+  description: '상황에 맞는 찬양을 찾고 매주 갱신되는 TOP50을 재생합니다.',
 }
 
 export default async function PraisePage({
@@ -25,7 +25,7 @@ export default async function PraisePage({
     .select('youtube_id, title, artist')
     .eq('is_active', true)
     .order('rank', { ascending: true })
-    .limit(100)
+    .limit(50)
 
   return (
     <AppShell topTitle="오・찬・추" bottomBar={<BottomTabBar active="home" />}>

@@ -20,7 +20,7 @@ export type Song = {
   artist: string
 }
 
-export const songs: Song[] = officialPraiseTracks
+export const songs: Song[] = officialPraiseTracks.slice(0, 50)
 
 const situationIcons: Record<PraiseSituationKey, SystemIconName> = {
   all: 'disc',
@@ -70,6 +70,34 @@ export default function PraiseRecommendations({
 
   return (
     <div>
+      <section
+        id="unblind-player"
+        className="sticky top-3 z-20 mb-5 overflow-hidden rounded-[22px] border border-[var(--ub-glass-border)] bg-[var(--ub-surface-card-strong)] text-[var(--ub-text-primary)] shadow-[var(--ub-shadow-card)]"
+      >
+        <div className="aspect-video w-full bg-black">
+          <iframe
+            key={selectedSong.id}
+            src={`https://www.youtube-nocookie.com/embed/${selectedSong.id}?autoplay=1&playsinline=1&rel=0`}
+            title={`${selectedSong.title} 재생`}
+            className="h-full w-full border-0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allowFullScreen
+          />
+        </div>
+        <div className="flex items-center gap-3 px-4 py-3">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--ub-color-brand)] text-white">
+            <SystemIcon name="music" size={18} />
+          </span>
+          <span className="min-w-0">
+            <span className="block truncate text-[15px] font-semibold">{selectedSong.title}</span>
+            <span className="block truncate text-[12px] text-[var(--ub-text-tertiary)]">{selectedSong.artist}</span>
+          </span>
+          <span className="ml-auto shrink-0 rounded-full bg-[var(--ub-surface-brand-soft)] px-2.5 py-1 text-[11px] font-bold text-[var(--ub-color-brand)]">
+            {situation.label}
+          </span>
+        </div>
+      </section>
+
       <section aria-labelledby="praise-situation-title" className="mb-5">
         <div className="mb-2 px-1">
           <h2 id="praise-situation-title" className="text-[14px] font-bold text-[var(--ub-text-on-brand-primary)]">지금 마음에 필요한 찬양</h2>
@@ -105,37 +133,9 @@ export default function PraiseRecommendations({
             className="mt-2 flex min-h-11 w-full items-center justify-center gap-2 rounded-[14px] bg-[var(--ub-surface-card)] text-[12px] font-semibold text-[var(--ub-text-on-brand-primary)] active:bg-[var(--ub-surface-pressed)]"
           >
             <SystemIcon name="disc" size={16} />
-            오・찬・추 전체 보기
+            이번 주 TOP50 보기
           </button>
         )}
-      </section>
-
-      <section
-        id="unblind-player"
-        className="sticky top-3 z-20 overflow-hidden rounded-[22px] border border-[var(--ub-glass-border)] bg-[var(--ub-surface-card-strong)] text-[var(--ub-text-primary)] shadow-[var(--ub-shadow-card)]"
-      >
-        <div className="aspect-video w-full bg-black">
-          <iframe
-            key={selectedSong.id}
-            src={`https://www.youtube-nocookie.com/embed/${selectedSong.id}?autoplay=1&playsinline=1&rel=0`}
-            title={`${selectedSong.title} 재생`}
-            className="h-full w-full border-0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            allowFullScreen
-          />
-        </div>
-        <div className="flex items-center gap-3 px-4 py-3">
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--ub-color-brand)] text-white">
-            <SystemIcon name="music" size={18} />
-          </span>
-          <span className="min-w-0">
-            <span className="block truncate text-[15px] font-semibold">{selectedSong.title}</span>
-            <span className="block truncate text-[12px] text-[var(--ub-text-tertiary)]">{selectedSong.artist}</span>
-          </span>
-          <span className="ml-auto shrink-0 rounded-full bg-[var(--ub-surface-brand-soft)] px-2.5 py-1 text-[11px] font-bold text-[var(--ub-color-brand)]">
-            {situation.label}
-          </span>
-        </div>
       </section>
 
       <section className="mt-5 overflow-hidden rounded-[22px] bg-[var(--ub-surface-card-strong)] text-[var(--ub-text-primary)] shadow-[var(--ub-shadow-soft)]">

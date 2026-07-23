@@ -680,6 +680,13 @@ export function splitParticipantsIntoTeams(
   return teams
 }
 
+export function parseRecreationParticipantNames(value: string) {
+  return value
+    .split(/[\s,]+/u)
+    .map((name) => name.trim())
+    .filter(Boolean)
+}
+
 export function formatRecreationPlayers(game: RecreationGame) {
   return game.maxPlayers === null
     ? `${game.minPlayers}명 이상`

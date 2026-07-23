@@ -6,7 +6,7 @@ import BibleCharacterMbti from './BibleCharacterMbti'
 export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
-  title: '성경 인물 MBTI | UNBLIND',
+  title: '성경 MBTI | UNBLIND',
   description: '나의 성향과 닮은 성경 속 믿음의 인물을 발견하는 묵상형 테스트',
 }
 
@@ -14,7 +14,7 @@ export default async function BibleCharacterMbtiPage() {
   await requireBetaUser()
 
   return (
-    <AppShell topTitle="성경 인물 MBTI" bottomBar={<BottomTabBar active="home" />}>
+    <AppShell topTitle="성경 MBTI" bottomBar={<BottomTabBar active="home" />}>
       <BibleCharacterMbti />
     </AppShell>
   )

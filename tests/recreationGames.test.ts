@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   recommendRecreationGames,
   recreationGames,
+  parseRecreationParticipantNames,
   splitParticipantsIntoTeams,
 } from '../src/lib/recreationGames'
 
@@ -41,5 +42,11 @@ describe('recreation games', () => {
     expect(teams).toHaveLength(2)
     expect(new Set(allMembers).size).toBe(5)
     expect(Math.abs(teams[0].members.length - teams[1].members.length)).toBeLessThanOrEqual(1)
+  })
+
+  it('accepts spaces, commas, and line breaks when parsing participant names', () => {
+    expect(parseRecreationParticipantNames('은우 하람,주원\n다온')).toEqual([
+      '은우', '하람', '주원', '다온',
+    ])
   })
 })

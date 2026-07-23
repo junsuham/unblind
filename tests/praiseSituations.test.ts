@@ -13,10 +13,8 @@ describe('situational praise recommendations', () => {
     }
   })
 
-  it('keeps the complete ranking available', () => {
-    expect(getSituationSongs(officialPraiseTracks, 'all')).toHaveLength(
-      officialPraiseTracks.length,
-    )
+  it('labels the complete ranking as this week TOP50', () => {
+    expect(praiseSituations[0].label).toBe('이번 주 TOP50')
+    expect(getSituationSongs(officialPraiseTracks.slice(0, 50), 'all')).toHaveLength(50)
   })
 })
-

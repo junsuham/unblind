@@ -10,6 +10,7 @@ import {
 import { SystemIcon, type SystemIconName } from '@/app/components/ui/SystemIcon'
 import {
   formatRecreationPlayers,
+  parseRecreationParticipantNames,
   recommendRecreationGames,
   recreationCategoryLabels,
   recreationGames,
@@ -53,13 +54,6 @@ function scrollAppToTop() {
       behavior: 'smooth',
     })
   })
-}
-
-function parseParticipantNames(value: string) {
-  return value
-    .split(/[\n,]/)
-    .map((name) => name.trim())
-    .filter(Boolean)
 }
 
 function formatClock(totalSeconds: number) {
@@ -332,7 +326,7 @@ function TeamBuilder({ compact = false }: { compact?: boolean }) {
   const [scores, setScores] = useState<Record<string, number>>({})
   const [pickedName, setPickedName] = useState('')
   const [error, setError] = useState('')
-  const names = useMemo(() => parseParticipantNames(input), [input])
+  const names = useMemo(() => parseRecreationParticipantNames(input), [input])
 
   function createTeams() {
     if (names.length < 2) {
@@ -362,7 +356,7 @@ function TeamBuilder({ compact = false }: { compact?: boolean }) {
         <span className={styles.toolIcon}><SystemIcon name="shuffle" size={21} /></span>
         <div>
           <h2 id={compact ? 'session-team-title' : 'team-builder-title'}>팀 자동 편성</h2>
-          <p>이름을 줄바꿈이나 쉼표로 구분해주세요.</p>
+          <p>이름은 띄어쓰기, 줄바꿈 또는 쉼표로 구분해주세요.</p>
         </div>
       </div>
 
@@ -371,12 +365,11 @@ function TeamBuilder({ compact = false }: { compact?: boolean }) {
         onChange={(event) => setInput(event.target.value)}
         rows={compact ? 3 : 4}
         className={styles.nameInput}
-        placeholder={'예: 은우\n하람\n주원\n다온'}
+        placeholder="예: 은우 하람 주원 다온"
         aria-label="참가자 이름"
       />
       <div className={styles.teamActions}>
-        <label>
-          <span>팀 수</span>
+        <label aria-label="나눌 팀 개수">
           <select value={teamCount} onChange={(event) => setTeamCount(Number(event.target.value))}>
             {[2, 3, 4, 5, 6].map((count) => <option key={count} value={count}>{count}팀</option>)}
           </select>

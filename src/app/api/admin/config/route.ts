@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
   }
 
   if (action === 'seed-tracks') {
-    const tracks = Array.isArray(body.tracks) ? body.tracks.slice(0, 100) : []
+    const tracks = Array.isArray(body.tracks) ? body.tracks.slice(0, 50) : []
     if (!tracks.length) return Response.json({ error: '저장할 곡이 없습니다.' }, { status: 400 })
     const rows = tracks.map((track: { id: string; title: string; artist: string }) => ({
       youtube_id: String(track.id ?? '').trim(),
@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
 
   if (action === 'upsert-track') {
     const row = { rank: Number(body.rank), youtube_id: String(body.youtubeId ?? '').trim(), title: String(body.title ?? '').trim(), artist: String(body.artist ?? '').trim(), is_active: body.isActive !== false, updated_at: new Date().toISOString() }
-    if (!row.youtube_id || !row.title || !row.artist || row.rank < 1 || row.rank > 100) return Response.json({ error: '곡 정보를 확인해주세요.' }, { status: 400 })
+    if (!row.youtube_id || !row.title || !row.artist || row.rank < 1 || row.rank > 50) return Response.json({ error: '곡 정보를 확인해주세요.' }, { status: 400 })
     const query = body.id
       ? supabaseAdmin.from('top100_tracks').update(row).eq('id', body.id)
       : supabaseAdmin.from('top100_tracks').insert(row)

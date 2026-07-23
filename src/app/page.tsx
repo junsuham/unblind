@@ -130,7 +130,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
               <SystemIcon name="sparkles" size={21} />
             </span>
             <span className="min-w-0 flex-1">
-              <span className="block text-[15px] font-bold tracking-[-0.2px]">성경 인물 MBTI</span>
+              <span className="block text-[15px] font-bold tracking-[-0.2px]">성경 MBTI</span>
               <span className="mt-0.5 block truncate text-[11px] text-[var(--ub-text-secondary)]">
                 나와 닮은 성경 속 믿음의 인물 찾기
               </span>

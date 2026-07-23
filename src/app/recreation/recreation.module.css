@@ -736,16 +736,21 @@
 }
 
 .teamActions label {
-  display: grid;
-  width: 74px;
-  flex: 0 0 auto;
-  gap: 3px;
+  display: block;
+  width: 96px;
+  flex: 0 0 96px;
 }
 
 .teamActions select {
+  width: 100%;
   min-height: 40px;
   padding-left: 10px;
   font-size: 11px;
+}
+
+.teamActions > .secondaryButton {
+  width: 96px;
+  flex: 0 0 96px;
 }
 
 .formError {

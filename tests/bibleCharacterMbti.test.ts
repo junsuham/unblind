@@ -89,12 +89,14 @@ describe('Bible character MBTI', () => {
 
   it('links the experience from home and states its reflective scope', () => {
     expect(homePage).toContain('href="/mbti"')
-    expect(homePage).toContain('성경 인물 MBTI')
+    expect(homePage).toContain('성경 MBTI')
+    expect(mbtiScreen).toContain('나와 닮은 성경 인물은?')
     expect(mbtiScreen).toContain('My Bible character Type Indicator')
     expect(mbtiScreen).toContain('공식 MBTI 검사나 신앙·성격의 평가는 아닙니다')
   })
 
   it('renders a centered character card and shares a generated PNG file', () => {
+    expect(Object.values(bibleCharacterImages).every((path) => path.includes('/mbti-2d/'))).toBe(true)
     expect(mbtiScreen).toContain('className={styles.resultPortrait}')
     expect(mbtiScreen).toContain('결과 이미지 공유하기')
     expect(mbtiScreen).toContain('navigator.canShare?.(fileShare)')

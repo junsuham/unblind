@@ -36,13 +36,15 @@
 }
 
 .introHero h1 {
-  max-width: 250px;
+  max-width: calc(100% - 94px);
   margin: 9px 0 0;
   color: var(--ub-text-primary);
   font-size: 27px;
   font-weight: 850;
   line-height: 35px;
   letter-spacing: -0.9px;
+  word-break: keep-all;
+  text-wrap: balance;
 }
 
 .introCopy {
@@ -615,9 +617,9 @@
   }
 
   .introHero h1 {
-    max-width: 210px;
-    font-size: 24px;
-    line-height: 31px;
+    max-width: calc(100% - 80px);
+    font-size: 22px;
+    line-height: 29px;
   }
 
   .typeConstellation {

@@ -77,7 +77,7 @@ function Intro({
           <strong><SystemIcon name="sparkles" size={28} /></strong>
         </div>
         <p className={styles.englishEyebrow}>My Bible character Type Indicator</p>
-        <h1 id="bible-mbti-title">나는 어떤 성경 인물과 닮았을까?</h1>
+        <h1 id="bible-mbti-title">나와 닮은 성경 인물은?</h1>
         <p className={styles.introCopy}>
           관계, 말씀을 바라보는 방식, 결정과 생활 리듬을 따라
           성경 속 믿음의 인물과 닮은 모습을 발견해보세요.
@@ -256,7 +256,7 @@ function Result({
       if (navigator.share && navigator.canShare?.(fileShare)) {
         await navigator.share({
           ...fileShare,
-          title: `성경 인물 MBTI · ${character.name}`,
+          title: `성경 MBTI · ${character.name}`,
           text,
         })
         return
