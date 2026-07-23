@@ -96,7 +96,7 @@ describe('Bible character MBTI', () => {
   })
 
   it('renders a centered character card and shares a generated PNG file', () => {
-    expect(Object.values(bibleCharacterImages).every((path) => path.includes('/mbti-2d/'))).toBe(true)
+    expect(Object.values(bibleCharacterImages).every((path) => path.includes('/mbti-cartoon-v1/'))).toBe(true)
     expect(mbtiScreen).toContain('className={styles.resultPortrait}')
     expect(mbtiScreen).toContain('결과 이미지 공유하기')
     expect(mbtiScreen).toContain('navigator.canShare?.(fileShare)')

@@ -286,22 +286,22 @@ export const bibleCharacters: Record<MbtiType, BibleCharacterProfile> = {
 }
 
 export const bibleCharacterImages: Record<MbtiType, string> = {
-  ISTJ: '/characters/mbti-2d/istj-daniel.jpg',
-  ISFJ: '/characters/mbti-2d/isfj-ruth.jpg',
-  INFJ: '/characters/mbti-2d/infj-esther.jpg',
-  INTJ: '/characters/mbti-2d/intj-nehemiah.jpg',
-  ISTP: '/characters/mbti-2d/istp-bezalel.jpg',
-  ISFP: '/characters/mbti-2d/isfp-david.jpg',
-  INFP: '/characters/mbti-2d/infp-hannah.jpg',
-  INTP: '/characters/mbti-2d/intp-apollos.jpg',
-  ESTP: '/characters/mbti-2d/estp-peter.jpg',
-  ESFP: '/characters/mbti-2d/esfp-mary-magdalene.jpg',
-  ENFP: '/characters/mbti-2d/enfp-barnabas.jpg',
-  ENTP: '/characters/mbti-2d/entp-priscilla.jpg',
-  ESTJ: '/characters/mbti-2d/estj-joshua.jpg',
-  ESFJ: '/characters/mbti-2d/esfj-lydia.jpg',
-  ENFJ: '/characters/mbti-2d/enfj-deborah.jpg',
-  ENTJ: '/characters/mbti-2d/entj-paul.jpg',
+  ISTJ: '/characters/mbti-cartoon-v1/istj-daniel.jpg',
+  ISFJ: '/characters/mbti-cartoon-v1/isfj-ruth.jpg',
+  INFJ: '/characters/mbti-cartoon-v1/infj-esther.jpg',
+  INTJ: '/characters/mbti-cartoon-v1/intj-nehemiah.jpg',
+  ISTP: '/characters/mbti-cartoon-v1/istp-bezalel.jpg',
+  ISFP: '/characters/mbti-cartoon-v1/isfp-david.jpg',
+  INFP: '/characters/mbti-cartoon-v1/infp-hannah.jpg',
+  INTP: '/characters/mbti-cartoon-v1/intp-apollos.jpg',
+  ESTP: '/characters/mbti-cartoon-v1/estp-peter.jpg',
+  ESFP: '/characters/mbti-cartoon-v1/esfp-mary-magdalene.jpg',
+  ENFP: '/characters/mbti-cartoon-v1/enfp-barnabas.jpg',
+  ENTP: '/characters/mbti-cartoon-v1/entp-priscilla.jpg',
+  ESTJ: '/characters/mbti-cartoon-v1/estj-joshua.jpg',
+  ESFJ: '/characters/mbti-cartoon-v1/esfj-lydia.jpg',
+  ENFJ: '/characters/mbti-cartoon-v1/enfj-deborah.jpg',
+  ENTJ: '/characters/mbti-cartoon-v1/entj-paul.jpg',
 }
 
 export const axisCopy: Record<MbtiAxis, {
