@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { AppShell, GlassCard, PageHeader } from '@/app/components/ui/AppShell'
+import SupportRequestForm from './SupportRequestForm'
 
 export const metadata: Metadata = {
   title: '고객지원 | 언블라인드',
@@ -43,8 +44,17 @@ export default function SupportPage() {
             <Link href="/policies/privacy">개인정보처리방침</Link>
             <Link href="/policies/terms">이용약관</Link>
             <Link href="/policies/community">커뮤니티 운영정책</Link>
-            {supportEmail ? <a href={`mailto:${supportEmail}`}>이메일 문의</a> : null}
+            {supportEmail ? <a href={`mailto:${supportEmail}`}>이메일로 문의</a> : null}
           </div>
+        </GlassCard>
+
+        <GlassCard>
+          <h2 className="text-[17px] font-bold">운영팀에 문의</h2>
+          <p className="mb-4 mt-2 text-[14px] leading-[22px] text-[var(--ub-text-secondary)]">
+            계정, 개인정보, 신고 처리, 기술 문제를 앱 안에서 안전하게 접수할 수
+            있습니다.
+          </p>
+          <SupportRequestForm />
         </GlassCard>
       </div>
     </AppShell>

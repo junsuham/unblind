@@ -12,6 +12,7 @@ export type AdminIconName =
   | 'check'
   | 'clock'
   | 'activity'
+  | 'support'
 
 type AdminIconProps = {
   name: AdminIconName
@@ -139,6 +140,15 @@ export function AdminIcon({ name, className = 'h-6 w-6' }: AdminIconProps) {
       <svg {...commonProps}>
         <circle cx="12" cy="12" r="9" />
         <path d="M12 7v5l3.4 2" />
+      </svg>
+    )
+  }
+
+  if (name === 'support') {
+    return (
+      <svg {...commonProps}>
+        <rect x="3" y="5" width="18" height="14" rx="3" />
+        <path d="m4.5 7 7.5 6 7.5-6" />
       </svg>
     )
   }

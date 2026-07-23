@@ -13,7 +13,7 @@ const items: Array<{
   { href: '/admin', label: '홈', icon: 'home', exact: true },
   { href: '/admin/users', label: '사용자', icon: 'users' },
   { href: '/admin/reports', label: '신고', icon: 'alert' },
-  { href: '/admin/search', label: '검색', icon: 'search' },
+  { href: '/admin/support', label: '문의', icon: 'support' },
   { href: '/admin/analytics', label: '통계', icon: 'chart' },
 ]
 

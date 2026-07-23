@@ -12,7 +12,7 @@ concurrency:
 jobs:
   verify:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     env:
       NEXT_PUBLIC_SITE_URL: https://example.com
       NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
@@ -29,12 +29,16 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
           cache: npm
           cache-dependency-path: |
             package-lock.json
             mobile/package-lock.json
       - run: npm ci
       - run: npm ci --prefix mobile
+      - run: npx playwright install --with-deps chromium webkit
       - run: npm run check
+      - run: npm run test:e2e
       - run: npm run check:mobile
+      - run: npm audit --omit=dev
+      - run: npm audit --omit=dev --prefix mobile

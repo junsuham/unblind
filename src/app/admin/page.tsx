@@ -32,6 +32,7 @@ export default async function AdminDashboardPage() {
   const [
     pendingReportsResult,
     staleReportsResult,
+    openSupportResult,
     visiblePostsResult,
     hiddenPostsResult,
     visibleCommentsResult,
@@ -56,6 +57,10 @@ export default async function AdminDashboardPage() {
       .select('*', { count: 'exact', head: true })
       .eq('status', 'pending')
       .lt('created_at', oneDayAgo),
+    supabaseAdmin
+      .from('support_requests')
+      .select('*', { count: 'exact', head: true })
+      .eq('status', 'open'),
     supabaseAdmin
       .from('posts')
       .select('*', { count: 'exact', head: true })
@@ -119,6 +124,7 @@ export default async function AdminDashboardPage() {
 
   const pendingReportCount = pendingReportsResult.count ?? 0
   const staleReportCount = staleReportsResult.count ?? 0
+  const openSupportCount = openSupportResult.count ?? 0
   const hiddenPostCount = hiddenPostsResult.count ?? 0
   const hiddenCommentCount = hiddenCommentsResult.count ?? 0
   const hiddenContentCount = hiddenPostCount + hiddenCommentCount
@@ -136,6 +142,17 @@ export default async function AdminDashboardPage() {
       icon: 'alert',
       count: pendingReportCount,
       tone: 'danger',
+    })
+  }
+
+  if (openSupportCount > 0) {
+    queue.push({
+      href: '/admin/support',
+      title: '고객 문의',
+      subtitle: '계정, 개인정보, 안전 문의를 확인하고 답변하세요.',
+      icon: 'support',
+      count: openSupportCount,
+      tone: 'warning',
     })
   }
 
@@ -255,6 +272,19 @@ export default async function AdminDashboardPage() {
       </AdminListGroup>
 
       <AdminListGroup title="운영 상태">
+        <AdminListRow
+          href="/admin/support"
+          title="문의 접수함"
+          subtitle={`미처리 ${openSupportCount}건`}
+          leading={<AdminIcon name="support" className="h-6 w-6" />}
+          trailing={
+            openSupportCount > 0 ? (
+              <strong className="text-[17px] text-[var(--admin-warning)]">
+                {openSupportCount}
+              </strong>
+            ) : undefined
+          }
+        />
         <AdminListRow
           href="/admin/account"
           title="계정·알림·차단 관리"

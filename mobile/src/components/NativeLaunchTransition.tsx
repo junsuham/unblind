@@ -73,7 +73,7 @@ export function NativeLaunchTransition() {
 
 const styles = StyleSheet.create({
   overlay: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     alignItems: 'center',
     backgroundColor: colors.brand,
     elevation: 9999,

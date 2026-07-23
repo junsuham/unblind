@@ -35,7 +35,7 @@ describe('launch splash transitions', () => {
     expect(mobileLayout).not.toContain('SplashScreen.setOptions')
     expect(mobileLayout).toContain('backgroundColor: colors.brand')
     expect(mobileLayout).toContain('<NativeLaunchTransition />')
-    expect(nativeTransition).toContain('...StyleSheet.absoluteFillObject')
+    expect(nativeTransition).toContain('...StyleSheet.absoluteFill')
     expect(nativeTransition).toContain('backgroundColor: colors.brand')
     expect(nativeTransition).toContain('zIndex: 9999')
     expect(nativeTransition).toContain('profileComplete !== null && accountReady')

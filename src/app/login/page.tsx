@@ -106,13 +106,13 @@ export default function LoginPage() {
         </div>
 
         <section className="flex flex-1 flex-col items-center justify-center pb-[7vh] text-center">
-          <p className="text-[18px] font-semibold leading-[26px] tracking-[-0.02em] text-white/88">
+          <p className="text-[18px] font-semibold leading-[26px] tracking-[-0.02em] text-[#2a0d07]">
             세상을 바꾸는 사랑의 목소리
           </p>
           <h1 className="mt-3 break-keep text-[36px] font-extrabold leading-[45px] tracking-[-0.045em] text-white sm:text-[40px] sm:leading-[50px]">
             기독교 익명 중보 커뮤니티
           </h1>
-          <p className="mt-6 max-w-[340px] break-keep text-[14px] font-medium leading-[21px] text-white/82">
+          <p className="mt-6 max-w-[340px] break-keep text-[14px] font-semibold leading-[21px] text-[#2a0d07]">
             “내가 너희를 사랑한 것 같이 너희도 서로 사랑하라” · 요한복음 15:12
           </p>
         </section>
@@ -129,7 +129,7 @@ export default function LoginPage() {
               ? 'Google 연결 중…'
               : 'Google로 계속하기'}
           </button>
-          <p className="mt-3 break-keep px-2 text-center text-[12px] leading-[18px] text-white/72">
+          <p className="mt-3 break-keep px-2 text-center text-[12px] font-medium leading-[18px] text-[#2a0d07]">
             계속하면 <Link href="/policies/terms" className="underline underline-offset-2">이용약관</Link>과{' '}
             <Link href="/policies/privacy" className="underline underline-offset-2">개인정보 처리방침</Link>에 동의하게 됩니다.
           </p>
