@@ -9,7 +9,7 @@ import { getVerifiedSocialAge } from '@/lib/socialAge'
 import { getRequestUser } from '@/lib/requestUser'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
 import { guardMutation } from '@/lib/mutationGuard'
-import { AGREEMENT_VERSION } from '@/lib/agreement'
+import { CHURCH_INFO_CONSENT_VERSION } from '@/lib/agreement'
 
 export async function POST(request: Request) {
   const user = await getRequestUser(request)
@@ -28,23 +28,25 @@ export async function POST(request: Request) {
 
   const body = await request.json().catch(() => null)
   const occupation = body?.occupation
-  const agreementAccepted = body?.agreementAccepted === true
+  const churchInfoConsentAccepted = body?.churchInfoConsentAccepted === true
   const churchPlaceId =
     typeof body?.churchPlaceId === 'string' ? body.churchPlaceId : ''
   const churchName =
     typeof body?.churchName === 'string' ? body.churchName.trim() : ''
   const churchAddress =
     typeof body?.churchAddress === 'string' ? body.churchAddress.trim() : ''
+  const churchDepartment =
+    typeof body?.churchDepartment === 'string' ? body.churchDepartment.trim() : ''
 
   const verifiedAge = getVerifiedSocialAge(user)
   const birthDate = verifiedAge?.birthDate ?? ''
   const referenceAge = verifiedAge?.referenceAge ?? null
 
-  if (!agreementAccepted) {
+  if (!churchInfoConsentAccepted) {
     return NextResponse.json(
       {
-        code: 'AGREEMENT_REQUIRED',
-        error: '앱 이용 안내와 개인정보 처리 내용을 모두 확인해주세요.',
+        code: 'CHURCH_INFO_CONSENT_REQUIRED',
+        error: '종교·교회 정보 수집 및 이용에 동의해주세요.',
       },
       { status: 400 }
     )
@@ -70,6 +72,13 @@ export async function POST(request: Request) {
   if (!churchPlaceId || !churchName || !churchAddress) {
     return NextResponse.json(
       { error: '검색 결과에서 출석 교회를 선택해주세요.' },
+      { status: 400 }
+    )
+  }
+
+  if (churchDepartment.length > 80) {
+    return NextResponse.json(
+      { error: '하위 부서는 80자 이하로 입력해주세요.' },
       { status: 400 }
     )
   }
@@ -109,9 +118,10 @@ export async function POST(request: Request) {
       church_name: verifiedChurch.name,
       church_address: verifiedChurch.roadAddress || verifiedChurch.address,
       church_place_url: verifiedChurch.placeUrl,
+      church_department: churchDepartment || null,
       occupation,
-      agreed_at: now,
-      agreed_version: AGREEMENT_VERSION,
+      church_info_consent_at: now,
+      church_info_consent_version: CHURCH_INFO_CONSENT_VERSION,
       completed_at: now,
       updated_at: now,
     },
@@ -125,20 +135,6 @@ export async function POST(request: Request) {
       { error: '프로필을 저장하지 못했습니다. 잠시 후 다시 시도해주세요.' },
       { status: 500 }
     )
-  }
-
-  const { error: agreementSyncError } = await supabaseAdmin
-    .from('allowed_users')
-    .update({
-      agreed_at: now,
-      agreed_version: AGREEMENT_VERSION,
-      updated_at: now,
-    })
-    .ilike('email', user.email)
-    .eq('status', 'active')
-
-  if (agreementSyncError) {
-    console.warn('Profile agreement sync failed:', agreementSyncError.message)
   }
 
   return NextResponse.json({ ok: true })

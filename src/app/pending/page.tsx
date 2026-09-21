@@ -29,11 +29,15 @@ export default async function PendingPage() {
 
   const { data: profile } = await supabase
     .from('user_profiles')
-    .select('completed_at, nickname')
+    .select('completed_at, nickname, church_info_consent_at')
     .eq('user_id', user.id)
-    .maybeSingle<{ completed_at: string; nickname: string }>()
+    .maybeSingle<{
+      completed_at: string | null
+      nickname: string
+      church_info_consent_at: string | null
+    }>()
 
-  if (!profile?.completed_at) {
+  if (!profile?.completed_at || !profile.church_info_consent_at) {
     redirect('/profile/setup')
   }
 
@@ -55,7 +59,7 @@ export default async function PendingPage() {
         description={
           isBlocked
             ? '현재 이 계정의 이용이 제한되어 있습니다. 청년회 운영자에게 문의해주세요.'
-            : 'Google 가입이 접수되었습니다. 운영자가 관리자 페이지에서 승인하면 입장할 수 있습니다.'
+            : '연령과 교회 정보가 접수되었습니다. 운영자가 확인하고 승인하면 입장할 수 있습니다.'
         }
       />
 

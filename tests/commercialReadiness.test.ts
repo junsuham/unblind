@@ -38,6 +38,16 @@ describe('commercial readiness regression guard', () => {
     expect(profileApi).not.toContain("body?.birthDate")
   })
 
+  it('separates church affiliation consent and stores an optional department', () => {
+    expect(profileForm).toContain("['연령 확인', '정보 수집 동의', '교회 선택', '가입 요청']")
+    expect(profileForm).toContain('churchInfoConsentAccepted: true')
+    expect(profileForm).toContain('churchDepartment: churchDepartment.trim()')
+    expect(profileForm).toContain('종교·교회 정보 수집 및 이용에 동의합니다.')
+    expect(profileApi).toContain('CHURCH_INFO_CONSENT_REQUIRED')
+    expect(profileApi).toContain('church_info_consent_at: now')
+    expect(profileApi).toContain('church_department: churchDepartment || null')
+  })
+
   it('keeps navigation semantic and removes the persistent write coachmark', () => {
     expect(appShell).toContain("aria-current={isActive ? 'page' : undefined}")
     expect(appShell).not.toContain('익명으로 기도·고민 나눠주세요')

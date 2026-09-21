@@ -37,6 +37,8 @@ type ProfileRow = {
   reference_age: number
   church_name: string
   church_address: string
+  church_department: string | null
+  church_info_consent_at: string | null
   occupation: Occupation
   completed_at: string
   agreed_at: string | null
@@ -58,6 +60,8 @@ type ManagedUserRow = {
   referenceAge: number | null
   churchName: string | null
   churchAddress: string | null
+  churchDepartment: string | null
+  churchInfoConsentAt: string | null
   occupation: Occupation | null
 }
 
@@ -165,6 +169,20 @@ function UserRows({
 
               <p className="mt-1">
                 <span className="font-semibold text-[var(--ub-text-primary)]">
+                  하위 부서:
+                </span>{' '}
+                {user.churchDepartment || '-'}
+              </p>
+
+              <p className="mt-1">
+                <span className="font-semibold text-[var(--ub-text-primary)]">
+                  교회 정보 동의:
+                </span>{' '}
+                {formatDate(user.churchInfoConsentAt)}
+              </p>
+
+              <p className="mt-1">
+                <span className="font-semibold text-[var(--ub-text-primary)]">
                   현재 상태:
                 </span>{' '}
                 {user.occupation ? occupationLabels[user.occupation] : '-'}
@@ -244,7 +262,7 @@ export default async function AdminUsersPage() {
     supabaseAdmin
       .from('user_profiles')
       .select(
-        'user_id, email, nickname, birth_date, reference_age, church_name, church_address, occupation, completed_at, agreed_at, agreed_version'
+        'user_id, email, nickname, birth_date, reference_age, church_name, church_address, church_department, church_info_consent_at, occupation, completed_at, agreed_at, agreed_version'
       )
       .returns<ProfileRow[]>(),
   ])
@@ -296,6 +314,8 @@ export default async function AdminUsersPage() {
       referenceAge: profile?.reference_age ?? null,
       churchName: profile?.church_name ?? null,
       churchAddress: profile?.church_address ?? null,
+      churchDepartment: profile?.church_department ?? null,
+      churchInfoConsentAt: profile?.church_info_consent_at ?? null,
       occupation: profile?.occupation ?? null,
     }
   })

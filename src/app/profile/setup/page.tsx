@@ -27,11 +27,14 @@ export default async function ProfileSetupPage() {
 
   const { data: profile } = await supabase
     .from('user_profiles')
-    .select('completed_at')
+    .select('completed_at, church_info_consent_at')
     .eq('user_id', user.id)
-    .maybeSingle<{ completed_at: string | null }>()
+    .maybeSingle<{
+      completed_at: string | null
+      church_info_consent_at: string | null
+    }>()
 
-  if (profile?.completed_at) {
+  if (profile?.completed_at && profile.church_info_consent_at) {
     redirect('/')
   }
 
@@ -44,8 +47,8 @@ export default async function ProfileSetupPage() {
     <AppShell>
       <PageHeader
         eyebrow="첫 시작"
-        title="안내를 확인하고 가입 정보를 입력해주세요"
-        description="입력한 정보는 가입 확인과 안전한 운영에만 사용되며 다른 사용자에게 공개되지 않습니다."
+        title="가입 정보를 단계별로 확인해주세요"
+        description="연령 확인과 별도 동의 후 출석 교회를 선택하면 운영자가 가입 요청을 확인합니다."
       />
 
       <ProfileSetupForm

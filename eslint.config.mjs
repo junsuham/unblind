@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     ".vercel/**",
     "mobile/.expo/**",
     "mobile/dist-*/**",
+    "christ-dashboard/**",
+    ".pnpm-store/**",
     "out/**",
     "build/**",
     "next-env.d.ts",

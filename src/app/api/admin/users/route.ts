@@ -96,27 +96,30 @@ export async function POST(request: NextRequest) {
       reference_age: number
       agreed_at: string | null
       agreed_version: string | null
+      church_info_consent_at: string | null
     } | null = null
 
     if (hasSignedUp) {
       const { data: profile } = await supabaseAdmin
         .from('user_profiles')
-        .select('completed_at, reference_age, agreed_at, agreed_version')
+        .select('completed_at, reference_age, agreed_at, agreed_version, church_info_consent_at')
         .ilike('email', email)
         .maybeSingle<{
           completed_at: string
           reference_age: number
           agreed_at: string | null
           agreed_version: string | null
+          church_info_consent_at: string | null
         }>()
 
       if (
         !profile?.completed_at ||
+        !profile.church_info_consent_at ||
         profile.reference_age < 20 ||
         profile.reference_age > 59
       ) {
         return NextResponse.json(
-          { error: '연령 확인과 가입 정보 입력이 완료된 사용자만 승인할 수 있습니다.' },
+          { error: '연령 확인, 교회 정보 동의와 가입 정보 입력이 완료된 사용자만 승인할 수 있습니다.' },
           { status: 400 }
         )
       }
