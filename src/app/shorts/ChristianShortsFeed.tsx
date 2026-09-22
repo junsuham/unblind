@@ -262,40 +262,22 @@ export default function ChristianShortsFeed({
             </div>
 
             <div className={styles.metadata}>
-              <div className={styles.sourceRow}>
-                <span className={styles.youtubeBadge}>YouTube</span>
-                <span>조회 {formatViewCount(video.viewCount)}</span>
-                <span aria-hidden>·</span>
-                <span>{index + 1} / {items.length}</span>
-                {formatPublishedAt(video.publishedAt) && (
-                  <>
-                    <span aria-hidden>·</span>
-                    <time dateTime={video.publishedAt}>{formatPublishedAt(video.publishedAt)}</time>
-                  </>
-                )}
-              </div>
-
               <h2>{video.title}</h2>
-              <p className={styles.channel}>{video.channelTitle}</p>
-
-              <div className={styles.tagRow} aria-label="영상 필터 태그">
-                {video.matchedTags.map((tag) => <span key={tag}>{tag}</span>)}
-                <span>#Shorts</span>
-              </div>
-
-              <div className={styles.actionRow}>
+              <div className={styles.metadataFooter}>
+                <p className={styles.channel}>{video.channelTitle}</p>
+                <span className={styles.viewCount}>조회 {formatViewCount(video.viewCount)}</span>
+                {formatPublishedAt(video.publishedAt) && (
+                  <time dateTime={video.publishedAt}>{formatPublishedAt(video.publishedAt)}</time>
+                )}
                 <a
                   href={`https://www.youtube.com/watch?v=${encodeURIComponent(video.id)}`}
                   target="_blank"
                   rel="noopener noreferrer"
+                  aria-label={`${video.title} YouTube에서 보기`}
                 >
-                  YouTube에서 보기
+                  <span>YouTube</span>
                   <SystemIcon name="external" size={15} />
                 </a>
-                <span className={styles.swipeHint}>
-                  <SystemIcon name="next" size={15} />
-                  위로 밀어 다음 영상
-                </span>
               </div>
             </div>
           </article>
