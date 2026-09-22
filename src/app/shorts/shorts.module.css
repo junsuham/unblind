@@ -149,7 +149,7 @@
   position: absolute;
   z-index: 2;
   right: 0;
-  bottom: 54px;
+  bottom: 0;
   left: 0;
   min-width: 0;
   padding: 42px 13px 9px;
@@ -309,7 +309,7 @@
 
 @media (max-height: 700px) {
   .metadata {
-    bottom: 50px;
+    bottom: 0;
     padding-top: 34px;
     padding-bottom: 7px;
   }
