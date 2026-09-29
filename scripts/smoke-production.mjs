@@ -85,12 +85,18 @@ await expectResponse('/manifest.webmanifest', async (response) => {
   if (!manifest.icons.some((icon) => icon.src === '/icons/icon-512-v6.png')) {
     throw new Error('PWA glass icon is not current')
   }
+  if (manifest.share_target?.action !== '/post/new') {
+    throw new Error('PWA share target is unavailable')
+  }
 })
 
 await expectResponse('/sw.js', async (response) => {
   const body = await response.text()
-  if (!response.ok || !body.includes("WORKER_VERSION = '62'")) {
+  if (!response.ok || !body.includes("WORKER_VERSION = '63'")) {
     throw new Error('Service worker version is not current')
+  }
+  if (!body.includes("OUTBOX_DB = 'unblind-offline-outbox-v1'")) {
+    throw new Error('Offline mutation outbox is unavailable')
   }
   if (!response.headers.get('cache-control')?.includes('no-store')) {
     throw new Error('Service worker must not be cached')
