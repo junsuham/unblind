@@ -20,12 +20,25 @@ export async function POST(request: Request) {
   const postId = typeof body?.postId === 'string' ? body.postId.trim() : ''
   const content = typeof body?.content === 'string' ? body.content.trim() : ''
   const mentions = parseContentMentions(body?.mentions, user.id)
+  const clientRequestKey = typeof body?.clientRequestKey === 'string' && /^[0-9a-f-]{36}$/i.test(body.clientRequestKey)
+    ? body.clientRequestKey
+    : null
 
   if (!/^[0-9a-f-]{36}$/i.test(postId)) return Response.json({ error: '게시글을 확인하지 못했습니다.' }, { status: 400 })
   if (content.length < 2 || content.length > 1000) return Response.json({ error: '댓글은 2자 이상 1000자 이하로 작성해주세요.' }, { status: 400 })
   if (!mentions || mentions.some((mention) => mention.type === 'image')) return Response.json({ error: '댓글 첨부 정보를 확인하지 못했습니다.' }, { status: 400 })
   if (analyzeTextForSafety(content).blockingIssues.length > 0) {
     return Response.json({ error: '개인 정보나 외부 연락 수단으로 보이는 표현을 제거해주세요.' }, { status: 400 })
+  }
+
+  if (clientRequestKey) {
+    const { data: existing } = await supabaseAdmin
+      .from('comments')
+      .select('id')
+      .eq('author_user_id', user.id)
+      .eq('client_request_key', clientRequestKey)
+      .maybeSingle<{ id: string }>()
+    if (existing) return Response.json({ ok: true, duplicate: true })
   }
 
   const { data: post } = await supabaseAdmin
@@ -44,11 +57,15 @@ export async function POST(request: Request) {
       status: 'visible',
       author_user_id: user.id,
       mentions,
+      client_request_key: clientRequestKey,
     })
     .select('id')
     .single<{ id: string }>()
 
   if (error) {
+    if (error.code === '23505' && clientRequestKey) {
+      return Response.json({ ok: true, duplicate: true })
+    }
     console.error('Comment creation failed:', error.message)
     const policyMessage = error.code === 'P0001' ? error.message : '댓글을 등록하지 못했습니다.'
     return Response.json({ error: policyMessage }, { status: error.code === 'P0001' ? 429 : 500 })

@@ -14,6 +14,9 @@ type BoardId = (typeof validBoards)[number]
 type NewPostPageProps = {
   searchParams: Promise<{
     board?: string
+    sharedTitle?: string
+    sharedText?: string
+    sharedUrl?: string
   }>
 }
 
@@ -27,5 +30,20 @@ export default async function NewPostPage({ searchParams }: NewPostPageProps) {
     ? (requestedBoard as BoardId)
     : null
 
-  return <NewPostForm initialBoard={initialBoard} />
+  const sharedTitle = typeof params.sharedTitle === 'string'
+    ? params.sharedTitle.trim().slice(0, 80)
+    : ''
+  const sharedContent = [params.sharedText, params.sharedUrl]
+    .filter((value): value is string => typeof value === 'string' && Boolean(value.trim()))
+    .map((value) => value.trim())
+    .join('\n')
+    .slice(0, 2000)
+
+  return (
+    <NewPostForm
+      initialBoard={initialBoard}
+      initialTitle={sharedTitle}
+      initialContent={sharedContent}
+    />
+  )
 }

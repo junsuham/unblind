@@ -67,13 +67,22 @@ export default function CommentForm({ postId }: CommentFormProps) {
     setIsSubmitting(true)
 
     try {
+      const clientRequestKey = crypto.randomUUID()
       const response = await fetch('/api/comments', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ postId, content: trimmedContent, mentions }),
+        body: JSON.stringify({ postId, content: trimmedContent, mentions, clientRequestKey }),
       })
       const result = await response.json().catch(() => null)
       if (!response.ok) throw new Error(result?.error ?? '댓글을 등록하지 못했습니다.')
+      if (response.status === 202) {
+        setContent('')
+        setMentions([])
+        setCheckedRiskReview(false)
+        setErrorMessage('오프라인 보관함에 저장했습니다. 인터넷이 연결되면 자동으로 등록됩니다.')
+        setIsSubmitting(false)
+        return
+      }
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : '댓글을 등록하지 못했습니다.')
       setIsSubmitting(false)

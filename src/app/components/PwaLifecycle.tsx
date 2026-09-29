@@ -172,11 +172,24 @@ export function PwaLifecycle() {
       if (document.visibilityState === 'visible') requestUpdateCheck()
     }
     const handlePageShow = () => requestUpdateCheck()
-    const handleOnline = () => requestUpdateCheck()
+    const requestOutboxFlush = () => {
+      const worker = navigator.serviceWorker.controller ?? registrationRef.current?.active
+      worker?.postMessage({ type: 'FLUSH_OUTBOX' })
+    }
+    const handleOnline = () => {
+      requestUpdateCheck()
+      requestOutboxFlush()
+    }
+    const handleWorkerMessage = (event: MessageEvent<{ type?: string; count?: number }>) => {
+      if (event.data?.type === 'OUTBOX_SYNCED' && document.visibilityState === 'visible') {
+        window.dispatchEvent(new CustomEvent('unblind:outbox-synced', { detail: event.data.count ?? 0 }))
+      }
+    }
 
     document.addEventListener('visibilitychange', handleVisibilityChange)
     window.addEventListener('pageshow', handlePageShow)
     window.addEventListener('online', handleOnline)
+    navigator.serviceWorker.addEventListener('message', handleWorkerMessage)
 
     void navigator.serviceWorker.register('/sw.js', { scope: '/', updateViaCache: 'none' }).then((registration) => {
       registrationRef.current = registration
@@ -199,6 +212,7 @@ export function PwaLifecycle() {
       })
 
       void registration.update()
+      if (navigator.onLine) requestOutboxFlush()
     }).catch(() => {
       // Installation remains optional when a browser blocks service workers.
     })
@@ -208,6 +222,7 @@ export function PwaLifecycle() {
       document.removeEventListener('visibilitychange', handleVisibilityChange)
       window.removeEventListener('pageshow', handlePageShow)
       window.removeEventListener('online', handleOnline)
+      navigator.serviceWorker.removeEventListener('message', handleWorkerMessage)
       if (updateReloadTimer.current !== null) window.clearTimeout(updateReloadTimer.current)
     }
   }, [])

@@ -17,6 +17,9 @@ const prayerSession = source('../src/app/pray/PrayerSession.tsx')
 const pwa = source('../src/app/components/PwaLifecycle.tsx')
 const globalStyles = source('../src/app/globals.css')
 const layout = source('../src/app/layout.tsx')
+const serviceWorker = source('../public/sw.js')
+const deviceSettings = source('../src/app/settings/account/DeviceIntegrationSettings.tsx')
+const manifest = source('../src/app/manifest.ts')
 
 describe('commercial readiness regression guard', () => {
   it('locks app zoom globally and prevents iOS focus zoom', () => {
@@ -77,5 +80,16 @@ describe('commercial readiness regression guard', () => {
     expect(pwa).toContain('getRegistrations()')
     expect(pwa).toContain("key.startsWith('unblind-static-')")
     expect(pwa).toContain("pathnameRef.current === '/' || pathnameRef.current === '/login'")
+  })
+
+  it('provides progressive native integrations with safe fallbacks', () => {
+    expect(serviceWorker).toContain("OUTBOX_SYNC_TAG = 'unblind-outbox-sync'")
+    expect(serviceWorker).toContain("url.pathname === '/api/posts' || url.pathname === '/api/comments'")
+    expect(serviceWorker).toContain("event.data?.type === 'FLUSH_OUTBOX'")
+    expect(deviceSettings).toContain('supabase.auth.registerPasskey()')
+    expect(deviceSettings).toContain('navigator.geolocation.getCurrentPosition')
+    expect(deviceSettings).toContain('연락처 정보는 언블라인드 서버에 저장되지 않습니다.')
+    expect(deviceSettings).toContain('showSaveFilePicker')
+    expect(manifest).toContain("share_target")
   })
 })

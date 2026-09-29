@@ -1,5 +1,8 @@
-const WORKER_VERSION = '62'
+const WORKER_VERSION = '63'
 const CACHE_NAME = `unblind-static-v${WORKER_VERSION}`
+const OUTBOX_DB = 'unblind-offline-outbox-v1'
+const OUTBOX_STORE = 'mutations'
+const OUTBOX_SYNC_TAG = 'unblind-outbox-sync'
 const PRECACHE_URLS = [
   '/offline.html',
   '/brand/unblind-monogram-relief-v5.png',
@@ -52,7 +55,103 @@ self.addEventListener('message', (event) => {
 
   if (event.data?.type === 'SKIP_WAITING') {
     event.waitUntil(self.skipWaiting())
+    return
   }
+
+  if (event.data?.type === 'FLUSH_OUTBOX') {
+    event.waitUntil(flushOutbox())
+  }
+})
+
+function openOutbox() {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open(OUTBOX_DB, 1)
+    request.onupgradeneeded = () => {
+      const database = request.result
+      if (!database.objectStoreNames.contains(OUTBOX_STORE)) {
+        database.createObjectStore(OUTBOX_STORE, { keyPath: 'id' })
+      }
+    }
+    request.onsuccess = () => resolve(request.result)
+    request.onerror = () => reject(request.error)
+  })
+}
+
+async function accessOutbox(mode, value) {
+  const database = await openOutbox()
+  return new Promise((resolve, reject) => {
+    const transaction = database.transaction(OUTBOX_STORE, mode === 'read' ? 'readonly' : 'readwrite')
+    const store = transaction.objectStore(OUTBOX_STORE)
+    const request = mode === 'put'
+      ? store.put(value)
+      : mode === 'delete'
+        ? store.delete(value)
+        : store.getAll()
+    request.onsuccess = () => resolve(request.result)
+    request.onerror = () => reject(request.error)
+    transaction.oncomplete = () => database.close()
+  })
+}
+
+async function notifyWindows(message) {
+  const windows = await self.clients.matchAll({ type: 'window', includeUncontrolled: true })
+  windows.forEach((client) => client.postMessage(message))
+}
+
+async function queueMutation(request) {
+  const body = await request.clone().text()
+  let parsedBody = {}
+  try { parsedBody = JSON.parse(body) } catch { /* JSON endpoints validate again during replay. */ }
+  const requestKey = typeof parsedBody.clientRequestKey === 'string'
+    ? parsedBody.clientRequestKey
+    : crypto.randomUUID()
+
+  await accessOutbox('put', {
+    id: requestKey,
+    url: request.url,
+    method: request.method,
+    body,
+    createdAt: Date.now(),
+  })
+
+  try {
+    if ('sync' in self.registration) await self.registration.sync.register(OUTBOX_SYNC_TAG)
+  } catch {
+    // iOS currently relies on the online/app-resume fallback below.
+  }
+  await notifyWindows({ type: 'OUTBOX_QUEUED' })
+}
+
+async function flushOutbox() {
+  const entries = await accessOutbox('read')
+  let completed = 0
+
+  for (const entry of entries) {
+    try {
+      const response = await fetch(entry.url, {
+        method: entry.method,
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: entry.body,
+      })
+
+      if (response.ok || (response.status >= 400 && response.status < 500)) {
+        await accessOutbox('delete', entry.id)
+        if (response.ok) completed += 1
+        else await notifyWindows({ type: 'OUTBOX_FAILED' })
+      } else {
+        throw new Error(`Retryable HTTP ${response.status}`)
+      }
+    } catch {
+      throw new Error('Outbox synchronization is still waiting for a connection.')
+    }
+  }
+
+  if (completed > 0) await notifyWindows({ type: 'OUTBOX_SYNCED', count: completed })
+}
+
+self.addEventListener('sync', (event) => {
+  if (event.tag === OUTBOX_SYNC_TAG) event.waitUntil(flushOutbox())
 })
 
 self.addEventListener('push', (event) => {
@@ -97,10 +196,26 @@ self.addEventListener('notificationclick', (event) => {
 
 self.addEventListener('fetch', (event) => {
   const request = event.request
-  if (request.method !== 'GET') return
-
   const url = new URL(request.url)
   if (url.origin !== self.location.origin) return
+
+  const queueableMutation = request.method === 'POST'
+    && (url.pathname === '/api/posts' || url.pathname === '/api/comments')
+
+  if (queueableMutation) {
+    event.respondWith(
+      fetch(request.clone()).catch(async () => {
+        await queueMutation(request)
+        return new Response(JSON.stringify({ ok: true, queued: true, offline: true }), {
+          status: 202,
+          headers: { 'Content-Type': 'application/json; charset=utf-8' },
+        })
+      })
+    )
+    return
+  }
+
+  if (request.method !== 'GET') return
 
   if (request.mode === 'navigate') {
     event.respondWith(fetch(request).catch(() => caches.match('/offline.html')))

@@ -45,14 +45,41 @@ export default function LoginPage() {
       : '/'
   const [pendingProvider, setPendingProvider] =
     useState<SocialProvider | null>(null)
+  const [passkeyPending, setPasskeyPending] = useState(false)
+  const [passkeySupported, setPasskeySupported] = useState(false)
   const [errorMessage, setErrorMessage] = useState(
     searchParams.get('error') ?? ''
   )
 
   useEffect(() => {
     document.documentElement.classList.add('ub-login-active')
-    return () => document.documentElement.classList.remove('ub-login-active')
+    const timer = window.setTimeout(() => {
+      setPasskeySupported(Boolean(window.PublicKeyCredential && window.isSecureContext))
+    }, 0)
+    return () => {
+      window.clearTimeout(timer)
+      document.documentElement.classList.remove('ub-login-active')
+    }
   }, [])
+
+  async function handlePasskeyLogin() {
+    setPasskeyPending(true)
+    setErrorMessage('')
+    try {
+      const { data, error } = await supabase.auth.signInWithPasskey()
+      if (error || !data.session) {
+        setErrorMessage(error?.code === 'passkey_disabled'
+          ? '패스키 로그인이 아직 활성화되지 않았습니다. Google로 로그인해주세요.'
+          : '등록된 Face ID·지문 패스키를 확인하지 못했습니다.')
+        return
+      }
+      window.location.assign(safeNext)
+    } catch {
+      setErrorMessage('패스키 로그인을 완료하지 못했습니다.')
+    } finally {
+      setPasskeyPending(false)
+    }
+  }
 
   async function handleSocialLogin(provider: SocialProvider) {
     setPendingProvider(provider)
@@ -86,7 +113,7 @@ export default function LoginPage() {
     }
   }
 
-  const isSubmitting = pendingProvider !== null
+  const isSubmitting = pendingProvider !== null || passkeyPending
 
   return (
     <main className="ub-login-hero relative flex min-h-[100dvh] flex-col overflow-hidden bg-[#e45330] px-6 pb-[calc(24px+env(safe-area-inset-bottom))] pt-[calc(22px+env(safe-area-inset-top))] text-white">
@@ -129,6 +156,16 @@ export default function LoginPage() {
               ? 'Google 연결 중…'
               : 'Google로 계속하기'}
           </button>
+          {passkeySupported && (
+            <button
+              type="button"
+              disabled={isSubmitting}
+              onClick={() => void handlePasskeyLogin()}
+              className="mt-2 flex min-h-[54px] w-full items-center justify-center gap-2 rounded-[17px] border border-[#2a0d07]/18 bg-[#2a0d07]/10 px-5 text-[16px] font-bold text-[#2a0d07] active:scale-[0.99] disabled:opacity-55"
+            >
+              {passkeyPending ? 'Face ID·지문 확인 중…' : 'Face ID·지문으로 로그인'}
+            </button>
+          )}
           <p className="mt-3 break-keep px-2 text-center text-[12px] font-medium leading-[18px] text-[#2a0d07]">
             계속하면 <Link href="/policies/terms" className="underline underline-offset-2">이용약관</Link>과{' '}
             <Link href="/policies/privacy" className="underline underline-offset-2">개인정보 처리방침</Link>에 동의하게 됩니다.

@@ -24,6 +24,9 @@ export async function POST(request: Request) {
   const mentions = parseContentMentions(body?.mentions, user.id)
   const urgentPrayer = body?.urgentPrayer === true && board === 'prayer'
   const tags = parsePostTags(body?.tags)
+  const clientRequestKey = typeof body?.clientRequestKey === 'string' && /^[0-9a-f-]{36}$/i.test(body.clientRequestKey)
+    ? body.clientRequestKey
+    : null
   if (urgentPrayer) tags.push(URGENT_PRAYER_TAG)
 
   if (!board) return Response.json({ error: '게시판을 선택해주세요.' }, { status: 400 })
@@ -32,6 +35,16 @@ export async function POST(request: Request) {
   if (!mentions) return Response.json({ error: '첨부 정보를 확인하지 못했습니다.' }, { status: 400 })
   if (analyzeTextForSafety(`${title}\n${content}`).blockingIssues.length > 0) {
     return Response.json({ error: '개인 정보나 외부 연락 수단으로 보이는 표현을 제거해주세요.' }, { status: 400 })
+  }
+
+  if (clientRequestKey) {
+    const { data: existing } = await supabaseAdmin
+      .from('posts')
+      .select('id')
+      .eq('author_user_id', user.id)
+      .eq('client_request_key', clientRequestKey)
+      .maybeSingle<{ id: string }>()
+    if (existing) return Response.json({ ok: true, id: existing.id, duplicate: true })
   }
 
   const { data, error } = await supabaseAdmin
@@ -45,11 +58,21 @@ export async function POST(request: Request) {
       tags,
       mentions,
       prayer_stage: board === 'prayer' ? 'requested' : null,
+      client_request_key: clientRequestKey,
     })
     .select('id')
     .single<{ id: string }>()
 
   if (error) {
+    if (error.code === '23505' && clientRequestKey) {
+      const { data: existing } = await supabaseAdmin
+        .from('posts')
+        .select('id')
+        .eq('author_user_id', user.id)
+        .eq('client_request_key', clientRequestKey)
+        .maybeSingle<{ id: string }>()
+      if (existing) return Response.json({ ok: true, id: existing.id, duplicate: true })
+    }
     console.error('Post creation failed:', error.message)
     const policyMessage = error.code === 'P0001' ? error.message : '게시글을 등록하지 못했습니다.'
     return Response.json({ error: policyMessage }, { status: error.code === 'P0001' ? 429 : 500 })

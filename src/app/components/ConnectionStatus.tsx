@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 
-type ConnectionState = 'online' | 'offline' | 'restored'
+type ConnectionState = 'online' | 'offline' | 'restored' | 'synced'
 
 export function ConnectionStatus() {
   const [state, setState] = useState<ConnectionState>('online')
@@ -18,14 +18,22 @@ export function ConnectionStatus() {
       if (restoredTimer.current !== null) window.clearTimeout(restoredTimer.current)
       restoredTimer.current = window.setTimeout(() => setState('online'), 2200)
     }
+    const setSynced = (event: Event) => {
+      const count = (event as CustomEvent<number>).detail
+      setState('synced')
+      if (restoredTimer.current !== null) window.clearTimeout(restoredTimer.current)
+      restoredTimer.current = window.setTimeout(() => setState('online'), Math.max(2200, count * 350))
+    }
 
     if (!navigator.onLine) setOffline()
     window.addEventListener('offline', setOffline)
     window.addEventListener('online', setOnline)
+    window.addEventListener('unblind:outbox-synced', setSynced)
 
     return () => {
       window.removeEventListener('offline', setOffline)
       window.removeEventListener('online', setOnline)
+      window.removeEventListener('unblind:outbox-synced', setSynced)
       if (restoredTimer.current !== null) window.clearTimeout(restoredTimer.current)
     }
   }, [])
@@ -38,7 +46,11 @@ export function ConnectionStatus() {
       role="status"
       aria-live="polite"
     >
-      {state === 'offline' ? '인터넷 연결이 끊겼습니다. 작성 내용은 이 기기에 보관됩니다.' : '인터넷 연결이 복구되었습니다.'}
+      {state === 'offline'
+        ? '인터넷 연결이 끊겼습니다. 작성 내용은 이 기기에 보관됩니다.'
+        : state === 'synced'
+          ? '보관한 글과 댓글을 자동으로 전송했습니다.'
+          : '인터넷 연결이 복구되었습니다.'}
     </div>
   )
 }

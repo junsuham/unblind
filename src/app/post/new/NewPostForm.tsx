@@ -36,6 +36,8 @@ function isBoardId(value: unknown): value is BoardId {
 
 type NewPostFormProps = {
   initialBoard: BoardId | null
+  initialTitle?: string
+  initialContent?: string
 }
 
 type UploadedImage = {
@@ -124,12 +126,16 @@ function CheckRow({
   )
 }
 
-export default function NewPostForm({ initialBoard }: NewPostFormProps) {
+export default function NewPostForm({
+  initialBoard,
+  initialTitle = '',
+  initialContent = '',
+}: NewPostFormProps) {
   const router = useRouter()
   const [board, setBoard] = useState<BoardId | ''>(initialBoard ?? '')
   const [boardPickerOpen, setBoardPickerOpen] = useState(false)
-  const [title, setTitle] = useState('')
-  const [content, setContent] = useState('')
+  const [title, setTitle] = useState(initialTitle)
+  const [content, setContent] = useState(initialContent)
   const [urgentPrayer, setUrgentPrayer] = useState(false)
   const [mentions, setMentions] = useState<ContentMention[]>([])
   const [uploadedImages, setUploadedImages] = useState<UploadedImage[]>([])
@@ -154,8 +160,8 @@ export default function NewPostForm({ initialBoard }: NewPostFormProps) {
           const hasContent = Boolean(draft.title?.trim() || draft.content?.trim())
           if (isRecent && hasContent) {
             if (!initialBoard && isBoardId(draft.board)) setBoard(draft.board)
-            if (typeof draft.title === 'string') setTitle(draft.title.slice(0, 80))
-            if (typeof draft.content === 'string') setContent(draft.content.slice(0, 2000))
+            if (!initialTitle && typeof draft.title === 'string') setTitle(draft.title.slice(0, 80))
+            if (!initialContent && typeof draft.content === 'string') setContent(draft.content.slice(0, 2000))
             if ((initialBoard ?? draft.board) === 'prayer' && draft.urgentPrayer === true) setUrgentPrayer(true)
             setDraftRestored(true)
           }
@@ -168,7 +174,7 @@ export default function NewPostForm({ initialBoard }: NewPostFormProps) {
     }, 0)
 
     return () => window.clearTimeout(timer)
-  }, [initialBoard])
+  }, [initialBoard, initialContent, initialTitle])
 
   useEffect(() => {
     if (!draftReadyRef.current) return
@@ -341,13 +347,24 @@ export default function NewPostForm({ initialBoard }: NewPostFormProps) {
     setIsSubmitting(true)
     let data: { id?: string; error?: string } | null = null
     try {
+      const clientRequestKey = crypto.randomUUID()
       const response = await fetch('/api/posts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ board, title: trimmedTitle, content: trimmedContent, tags, mentions, urgentPrayer: board === 'prayer' && urgentPrayer }),
+        body: JSON.stringify({ board, title: trimmedTitle, content: trimmedContent, tags, mentions, urgentPrayer: board === 'prayer' && urgentPrayer, clientRequestKey }),
       })
       data = await response.json().catch(() => null)
       if (!response.ok) throw new Error(data?.error ?? '게시글을 등록하지 못했습니다.')
+      if (response.status === 202) {
+        window.localStorage.removeItem(DRAFT_STORAGE_KEY)
+        setTitle('')
+        setContent('')
+        setMentions([])
+        setUrgentPrayer(false)
+        setErrorMessage('오프라인 보관함에 저장했습니다. 인터넷이 연결되면 자동으로 등록됩니다.')
+        setIsSubmitting(false)
+        return
+      }
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : '게시글을 등록하지 못했습니다. 연결을 확인한 뒤 다시 시도해주세요.')
       setIsSubmitting(false)

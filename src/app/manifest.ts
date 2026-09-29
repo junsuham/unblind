@@ -14,6 +14,15 @@ export default function manifest(): MetadataRoute.Manifest {
     theme_color: '#e45330',
     lang: 'ko-KR',
     categories: ['social', 'lifestyle'],
+    share_target: {
+      action: '/post/new',
+      method: 'GET',
+      params: {
+        title: 'sharedTitle',
+        text: 'sharedText',
+        url: 'sharedUrl',
+      },
+    },
     icons: [
       {
         src: '/icons/icon-192-v6.png',
