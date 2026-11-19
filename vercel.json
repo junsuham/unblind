@@ -5,6 +5,10 @@
     {
       "path": "/api/cron/weekly-praise",
       "schedule": "10 0 * * 1"
+    },
+    {
+      "path": "/api/cron/keepalive",
+      "schedule": "15 0 * * *"
     }
   ]
 }

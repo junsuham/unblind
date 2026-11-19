@@ -20,6 +20,7 @@ const layout = source('../src/app/layout.tsx')
 const serviceWorker = source('../public/sw.js')
 const deviceSettings = source('../src/app/settings/account/DeviceIntegrationSettings.tsx')
 const manifest = source('../src/app/manifest.ts')
+const vercelConfig = source('../vercel.json')
 
 describe('commercial readiness regression guard', () => {
   it('locks app zoom globally and prevents iOS focus zoom', () => {
@@ -91,5 +92,11 @@ describe('commercial readiness regression guard', () => {
     expect(deviceSettings).toContain('연락처 정보는 언블라인드 서버에 저장되지 않습니다.')
     expect(deviceSettings).toContain('showSaveFilePicker')
     expect(manifest).toContain("share_target")
+  })
+
+  it('keeps the Supabase project active with a daily protected check', () => {
+    expect(vercelConfig).toContain('"/api/cron/keepalive"')
+    expect(source('../src/app/api/cron/keepalive/route.ts')).toContain('Database unavailable')
+    expect(source('../src/app/api/cron/keepalive/route.ts')).toContain('Bearer ${cronSecret}')
   })
 })
