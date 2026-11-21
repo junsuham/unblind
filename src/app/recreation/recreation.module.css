@@ -14,6 +14,71 @@
   padding-bottom: 8px;
 }
 
+.sharedGameGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.sharedGameCard {
+  display: flex;
+  min-width: 0;
+  min-height: 184px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 15px;
+  border: 1px solid rgba(228, 83, 48, 0.19);
+  border-radius: 20px;
+  background: var(--ub-surface-card-strong);
+  color: var(--ub-text-primary);
+  text-decoration: none;
+  box-shadow: 0 12px 30px rgba(49, 14, 5, 0.12);
+}
+
+.sharedGameCard:focus-visible {
+  outline: 2px solid var(--ub-color-brand);
+  outline-offset: 3px;
+}
+
+.sharedGameCard strong {
+  font-size: 15px;
+  line-height: 20px;
+  letter-spacing: -0.3px;
+}
+
+.sharedGameCard > span:not(.sharedGameIcon) {
+  color: var(--ub-text-secondary);
+  font-size: 12px;
+  line-height: 18px;
+  overflow-wrap: anywhere;
+}
+
+.sharedGameCard small {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  margin-top: auto;
+  color: var(--ub-color-brand);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.sharedGameIcon {
+  display: grid;
+  width: 39px;
+  height: 39px;
+  place-items: center;
+  border-radius: 12px;
+  background: var(--ub-surface-brand-soft);
+  color: var(--ub-color-brand);
+}
+
+@media (max-width: 350px) {
+  .sharedGameGrid { grid-template-columns: minmax(0, 1fr); }
+  .sharedGameCard { min-height: 140px; }
+}
+
 .appTabs {
   position: sticky;
   z-index: 12;

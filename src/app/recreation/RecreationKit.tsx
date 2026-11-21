@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import {
   useEffect,
   useMemo,
@@ -722,6 +723,30 @@ function DiscoverView({
 
   return (
     <div className={styles.discoverStack}>
+      <section className={styles.sectionBlock} aria-labelledby="shareable-games-title">
+        <div className={styles.sectionHeader}>
+          <div>
+            <p>PLAY TOGETHER</p>
+            <h2 id="shareable-games-title">링크로 함께하는 게임</h2>
+          </div>
+          <span>2가지</span>
+        </div>
+        <div className={styles.sharedGameGrid}>
+          <Link className={styles.sharedGameCard} href="/recreation/arrival">
+            <span className={styles.sharedGameIcon}><SystemIcon name="timer" size={22} /></span>
+            <strong>일찍 와주길 바래</strong>
+            <span>약속 시간을 정하고 도착한 친구들을 실시간 시계에 붙여요.</span>
+            <small>방 만들기 <SystemIcon name="next" size={13} /></small>
+          </Link>
+          <Link className={styles.sharedGameCard} href="/recreation/mission">
+            <span className={styles.sharedGameIcon}><SystemIcon name="shuffle" size={22} /></span>
+            <strong>랜덤 미션 뽑기</strong>
+            <span>팀 또는 개인으로 입장해 행동 미션과 음식 사진 카드를 뽑아요.</span>
+            <small>방 만들기 <SystemIcon name="next" size={13} /></small>
+          </Link>
+        </div>
+      </section>
+
       <QuickPlanner
         context={context}
         onChange={setContext}

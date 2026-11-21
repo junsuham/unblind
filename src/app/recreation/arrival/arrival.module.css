@@ -1,0 +1,483 @@
+.createStack,
+.roomStack {
+  display: grid;
+  gap: 14px;
+  padding-bottom: 28px;
+  color: var(--ub-text-primary);
+}
+
+.eyebrow {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--ub-color-brand);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .08em;
+}
+
+.introCard,
+.formCard,
+.recentCard,
+.roomHeader,
+.clockCard,
+.hostCard,
+.joinCard,
+.joinedCard,
+.summaryCard {
+  min-width: 0;
+  border: 1px solid var(--ub-separator);
+  border-radius: 22px;
+  background: var(--ub-surface-card-strong);
+  box-shadow: 0 8px 26px rgba(27, 15, 8, .07);
+}
+
+.introCard {
+  padding: 22px 20px;
+  background: linear-gradient(150deg, var(--ub-surface-brand-soft), var(--ub-surface-card-strong) 80%);
+}
+
+.introCard h2,
+.roomHeader h2 {
+  margin: 0;
+  font-size: clamp(21px, 6vw, 28px);
+  font-weight: 800;
+  letter-spacing: -.05em;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.introCard p,
+.roomHeader p,
+.hostHint,
+.joinedCard p,
+.privacyNote {
+  margin: 9px 0 0;
+  color: var(--ub-text-secondary);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.formCard,
+.joinCard,
+.hostCard,
+.recentCard,
+.joinedCard,
+.summaryCard {
+  padding: 18px;
+}
+
+.formCard h3,
+.joinCard h3,
+.hostCard h3,
+.recentCard h3,
+.joinedCard h3,
+.summaryCard h3 {
+  margin: 0 0 16px;
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: -.03em;
+}
+
+.field {
+  display: grid;
+  gap: 7px;
+  margin-bottom: 16px;
+  color: var(--ub-text-secondary);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.field input {
+  width: 100%;
+  min-height: 48px;
+  padding: 10px 13px;
+  border: 1px solid var(--ub-control-border);
+  border-radius: 14px;
+  outline: 0;
+  background: var(--ub-surface-input);
+  color: var(--ub-text-primary);
+}
+
+.field input:focus-visible {
+  outline: 2px solid var(--ub-color-brand);
+  outline-offset: 2px;
+}
+
+.primaryButton,
+.shareButton,
+.checkButton,
+.arrivedButton {
+  border: 0;
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.primaryButton {
+  width: 100%;
+  min-height: 50px;
+  border-radius: 15px;
+  background: var(--ub-color-brand);
+  color: white;
+  font-size: 15px;
+}
+
+.primaryButton:disabled,
+.checkButton:disabled,
+.arrivedButton:disabled {
+  cursor: wait;
+  opacity: .5;
+}
+
+.error,
+.notice {
+  margin: 12px 0 0;
+  color: var(--ub-danger-text);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.recentCard h3 {
+  margin-bottom: 6px;
+}
+
+.recentLink {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 62px;
+  gap: 10px;
+  border-top: 1px solid var(--ub-separator);
+  color: var(--ub-text-primary);
+  text-decoration: none;
+}
+
+.recentLink span:first-child {
+  min-width: 0;
+}
+
+.recentLink strong,
+.recentLink small {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.recentLink strong {
+  font-size: 14px;
+}
+
+.recentLink small {
+  margin-top: 3px;
+  color: var(--ub-text-secondary);
+  font-size: 11px;
+}
+
+.recentLink > span:last-child {
+  color: var(--ub-text-secondary);
+  font-size: 24px;
+}
+
+.roomHeader {
+  padding: 18px 20px;
+}
+
+.clockCard {
+  padding: 16px 14px 18px;
+}
+
+.clockCardTop,
+.hostHeading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.clockCardTop strong {
+  color: var(--ub-text-primary);
+  font-size: 20px;
+  font-variant-numeric: tabular-nums;
+}
+
+.liveBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 99px;
+  padding: 5px 9px;
+  background: var(--ub-surface-brand-soft);
+  color: var(--ub-color-brand);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.liveBadge i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 0 3px rgba(228, 83, 48, .15);
+}
+
+.clockWrap {
+  display: grid;
+  justify-items: center;
+  gap: 14px;
+  padding-top: 18px;
+}
+
+.clock {
+  position: relative;
+  width: min(100%, 350px);
+  aspect-ratio: 1;
+  border: 9px solid var(--ub-surface-card-strong);
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 45%, var(--ub-surface-card-strong), var(--ub-surface-brand-soft));
+  box-shadow: inset 0 0 0 2px var(--ub-control-border), inset 0 5px 25px rgba(89, 34, 18, .08), 0 10px 26px rgba(32, 18, 13, .14);
+  isolation: isolate;
+}
+
+.clockNumber,
+.appointmentMarker,
+.nameTag {
+  position: absolute;
+  transform: translate(-50%, -50%);
+}
+
+.clockNumber {
+  color: var(--ub-text-secondary);
+  font-size: 14px;
+  font-weight: 750;
+  font-variant-numeric: tabular-nums;
+}
+
+.appointmentMarker {
+  width: 11px;
+  height: 11px;
+  border: 2px solid var(--ub-surface-card-strong);
+  border-radius: 50%;
+  background: var(--ub-color-brand);
+  box-shadow: 0 0 0 2px var(--ub-color-brand);
+}
+
+.nameTag {
+  max-width: 77px;
+  overflow: hidden;
+  padding: 4px 6px;
+  border: 1px solid rgba(228, 83, 48, .3);
+  border-radius: 8px;
+  background: var(--ub-surface-card-strong);
+  color: var(--ub-color-brand);
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1.1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  box-shadow: 0 3px 7px rgba(50, 21, 10, .12);
+}
+
+.hourHand,
+.minuteHand {
+  position: absolute;
+  bottom: 50%;
+  left: calc(50% - 3px);
+  width: 6px;
+  border-radius: 9px;
+  transform-origin: bottom center;
+  transition: transform .9s linear;
+}
+
+.hourHand {
+  z-index: 25;
+  height: 25%;
+  background: var(--ub-text-primary);
+}
+
+.minuteHand {
+  z-index: 26;
+  left: calc(50% - 2px);
+  width: 4px;
+  height: 34%;
+  background: var(--ub-color-brand);
+}
+
+.clockCenter {
+  position: absolute;
+  z-index: 27;
+  top: 50%;
+  left: 50%;
+  width: 14px;
+  height: 14px;
+  border: 3px solid var(--ub-surface-card-strong);
+  border-radius: 50%;
+  background: var(--ub-color-brand);
+  transform: translate(-50%, -50%);
+}
+
+.clockLegend {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 7px 14px;
+  color: var(--ub-text-secondary);
+  font-size: 11px;
+}
+
+.clockLegend span:first-child {
+  color: var(--ub-color-brand);
+  font-weight: 800;
+}
+
+.legendDot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  margin-right: 3px;
+  border-radius: 50%;
+  background: var(--ub-color-brand);
+}
+
+.hostHeading h3 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.shareButton {
+  min-height: 40px;
+  flex: 0 0 auto;
+  padding: 0 12px;
+  border-radius: 12px;
+  background: var(--ub-surface-brand-soft);
+  color: var(--ub-color-brand);
+  font-size: 12px;
+}
+
+.hostHint {
+  margin-bottom: 14px;
+}
+
+.emptyState {
+  margin: 0;
+  padding: 18px 10px;
+  border-radius: 14px;
+  background: var(--ub-surface-muted);
+  color: var(--ub-text-secondary);
+  font-size: 13px;
+  text-align: center;
+}
+
+.peopleList {
+  display: grid;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.peopleList li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 60px;
+  border-top: 1px solid var(--ub-separator);
+}
+
+.personCopy {
+  min-width: 0;
+}
+
+.personCopy strong,
+.personCopy small {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.personCopy strong {
+  font-size: 14px;
+}
+
+.personCopy small {
+  margin-top: 2px;
+  color: var(--ub-text-secondary);
+  font-size: 11px;
+}
+
+.checkButton,
+.arrivedButton {
+  min-height: 38px;
+  flex: 0 0 auto;
+  padding: 0 12px;
+  border-radius: 11px;
+  font-size: 12px;
+}
+
+.checkButton {
+  background: var(--ub-color-brand);
+  color: white;
+}
+
+.arrivedButton {
+  background: var(--ub-surface-muted);
+  color: var(--ub-text-secondary);
+}
+
+.joinedCard h3,
+.joinCard h3,
+.summaryCard h3 {
+  margin-bottom: 5px;
+}
+
+.summaryCard p {
+  margin: 0 0 12px;
+  color: var(--ub-text-secondary);
+  font-size: 12px;
+}
+
+.summaryNames {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.summaryArrived,
+.summaryWaiting {
+  border-radius: 99px;
+  padding: 7px 9px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.summaryArrived {
+  background: var(--ub-surface-brand-soft);
+  color: var(--ub-color-brand);
+}
+
+.summaryWaiting {
+  background: var(--ub-surface-muted);
+  color: var(--ub-text-secondary);
+}
+
+.privacyNote {
+  margin: 0;
+  padding: 0 4px;
+  font-size: 11px;
+}
+
+.loading {
+  display: grid;
+  min-height: 240px;
+  place-content: center;
+  gap: 12px;
+  padding: 24px;
+  color: var(--ub-text-secondary);
+  font-size: 14px;
+  text-align: center;
+}
+
+.loading a {
+  color: var(--ub-color-brand);
+}
