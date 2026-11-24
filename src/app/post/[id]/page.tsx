@@ -37,8 +37,11 @@ type PostDetailPageProps = {
   }>
 }
 
-type ReactionRow = {
-  type: 'pray' | 'empathize'
+type PostEngagementRow = {
+  post_id: string
+  comment_count: number
+  pray_count: number
+  empathize_count: number
 }
 
 type CommentRow = {
@@ -77,7 +80,7 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
 
   const [
     { data: rawComments, error: commentsError },
-    { data: reactions, error: reactionsError },
+    { data: engagementRows, error: reactionsError },
     { data: savedPost },
   ] = await Promise.all([
     supabase
@@ -88,11 +91,9 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
       .order('created_at', { ascending: true })
       .limit(200)
       .returns<CommentRow[]>(),
-    supabase
-      .from('reactions')
-      .select('type')
-      .eq('post_id', post.id)
-      .returns<ReactionRow[]>(),
+    supabase.rpc('get_visible_post_engagement', {
+      p_post_ids: [post.id],
+    }).returns<PostEngagementRow[]>(),
     supabase
       .from('saved_posts')
       .select('post_id')
@@ -136,10 +137,11 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
     }))
     .filter((image): image is { url: string; alt: string } => Boolean(image.url))
 
-  const prayCount =
-    reactions?.filter((reaction) => reaction.type === 'pray').length ?? 0
-  const empathizeCount =
-    reactions?.filter((reaction) => reaction.type === 'empathize').length ?? 0
+  const postEngagement = Array.isArray(engagementRows)
+    ? (engagementRows as PostEngagementRow[])[0]
+    : undefined
+  const prayCount = postEngagement?.pray_count ?? 0
+  const empathizeCount = postEngagement?.empathize_count ?? 0
 
   const board = getBoardPresentation(post.board)
   const postAnonymousId = getAnonymousId(post.id, post.author_user_id)
@@ -243,7 +245,7 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
               postId={post.id}
               initialPrayCount={prayCount}
               initialEmpathizeCount={empathizeCount}
-              commentCount={comments.length}
+              commentCount={postEngagement?.comment_count ?? comments.length}
             />
           </div>
 
@@ -270,7 +272,7 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
       <section className="mt-6 overflow-hidden rounded-[22px] bg-[var(--ub-surface-card-strong)] shadow-[var(--ub-shadow-soft)]">
         <header className="flex min-h-14 items-center justify-between border-b border-[var(--ub-separator)] px-4">
           <h2 className="text-[16px] font-bold text-[var(--ub-text-primary)]">
-            댓글 {comments.length}
+            댓글 {postEngagement?.comment_count ?? comments.length}
           </h2>
           <span className="text-[13px] text-[var(--ub-text-tertiary)]">시간순</span>
         </header>

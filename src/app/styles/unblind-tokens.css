@@ -11,12 +11,12 @@
     radial-gradient(circle at 50% 0%, rgba(228, 83, 48, 0.09), transparent 28rem),
     linear-gradient(180deg, #f8f5f3 0%, #f1ece9 100%);
   --ub-surface-logo: var(--ub-color-brand);
-  --ub-surface-card: rgba(255, 255, 255, 0.9);
-  --ub-surface-card-strong: rgba(255, 255, 255, 0.96);
-  --ub-surface-glass: rgba(255, 255, 255, 0.82);
+  --ub-surface-card: rgba(255, 255, 255, 0.74);
+  --ub-surface-card-strong: rgba(255, 255, 255, 0.88);
+  --ub-surface-glass: rgba(255, 255, 255, 0.7);
   --ub-surface-soft: rgba(255, 255, 255, 0.16);
-  --ub-surface-input: rgba(255, 255, 255, 0.92);
-  --ub-surface-muted: #f2f2f7;
+  --ub-surface-input: rgba(255, 255, 255, 0.86);
+  --ub-surface-muted: rgba(232, 226, 222, 0.72);
   --ub-surface-pressed: #e5e5ea;
   --ub-surface-brand-soft: #fff1e9;
 
@@ -27,12 +27,14 @@
 
   /* Text on cards */
   --ub-text-primary: #000000;
-  --ub-text-secondary: rgba(60, 60, 67, 0.6);
-  --ub-text-tertiary: rgba(60, 60, 67, 0.45);
+  --ub-text-secondary: rgba(43, 35, 32, 0.76);
+  --ub-text-tertiary: rgba(43, 35, 32, 0.62);
 
   /* Lines */
-  --ub-separator: rgba(209, 209, 214, 0.72);
-  --ub-glass-border: rgba(255, 255, 255, 0.72);
+  --ub-separator: rgba(74, 54, 44, 0.14);
+  --ub-glass-border: rgba(255, 255, 255, 0.82);
+  --ub-glass-highlight: rgba(255, 255, 255, 0.64);
+  --ub-glass-shade: rgba(133, 82, 63, 0.08);
   --ub-control-border: #d1d1d6;
 
   /* States */
@@ -105,9 +107,9 @@
   --ub-line-tab: 13px;
 
   /* Shadows */
-  --ub-shadow-card: 0 12px 32px rgba(0, 0, 0, 0.08);
-  --ub-shadow-glass: 0 18px 48px rgba(0, 0, 0, 0.16);
-  --ub-shadow-soft: 0 4px 16px rgba(0, 0, 0, 0.08);
+  --ub-shadow-card: 0 16px 42px rgba(72, 38, 26, 0.1);
+  --ub-shadow-glass: 0 22px 52px rgba(72, 38, 26, 0.14);
+  --ub-shadow-soft: 0 8px 25px rgba(72, 38, 26, 0.08);
 
   /* UIKit component metrics */
   --ub-control-min: 44px;
@@ -131,22 +133,24 @@
     --ub-app-background:
       radial-gradient(circle at 50% 0%, rgba(228, 83, 48, 0.18), transparent 32rem),
       linear-gradient(180deg, #17110f 0%, #100d0c 100%);
-    --ub-surface-card: rgba(37, 37, 39, 0.96);
-    --ub-surface-card-strong: rgba(29, 29, 31, 0.98);
-    --ub-surface-glass: rgba(31, 31, 33, 0.9);
+    --ub-surface-card: rgba(42, 37, 36, 0.76);
+    --ub-surface-card-strong: rgba(37, 33, 32, 0.88);
+    --ub-surface-glass: rgba(37, 33, 32, 0.76);
     --ub-surface-soft: rgba(255, 255, 255, 0.08);
-    --ub-surface-input: rgba(44, 44, 46, 0.96);
-    --ub-surface-muted: #2c2c2e;
+    --ub-surface-input: rgba(52, 47, 45, 0.88);
+    --ub-surface-muted: rgba(83, 72, 67, 0.56);
     --ub-surface-pressed: #3a3a3c;
     --ub-surface-brand-soft: #2a1a14;
     --ub-text-on-brand-primary: #fff8f4;
     --ub-text-on-brand-secondary: rgba(255, 248, 244, 0.8);
     --ub-text-on-brand-tertiary: rgba(255, 248, 244, 0.62);
     --ub-text-primary: #f7f7f8;
-    --ub-text-secondary: rgba(235, 235, 245, 0.72);
-    --ub-text-tertiary: rgba(235, 235, 245, 0.52);
-    --ub-separator: rgba(99, 99, 102, 0.72);
-    --ub-glass-border: rgba(255, 138, 86, 0.2);
+    --ub-text-secondary: rgba(249, 242, 239, 0.8);
+    --ub-text-tertiary: rgba(249, 242, 239, 0.66);
+    --ub-separator: rgba(255, 229, 214, 0.14);
+    --ub-glass-border: rgba(255, 233, 221, 0.2);
+    --ub-glass-highlight: rgba(255, 234, 222, 0.12);
+    --ub-glass-shade: rgba(0, 0, 0, 0.14);
     --ub-control-border: #55555a;
     --ub-danger-soft: rgba(255, 69, 58, 0.16);
     --ub-danger-border: rgba(255, 105, 97, 0.34);

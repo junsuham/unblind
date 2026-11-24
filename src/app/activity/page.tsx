@@ -4,6 +4,7 @@ import { requireBetaUser } from '@/lib/betaAuth'
 import { AppShell, BottomTabBar } from '@/app/components/ui/AppShell'
 import { SystemIcon } from '@/app/components/ui/SystemIcon'
 import { isAdminUser } from '@/lib/adminRole'
+import { getChurchDashboardAccess } from '@/lib/churchDashboardAccess'
 import LogoutButton from '@/app/components/LogoutButton'
 import { generateBiblicalNickname } from '@/lib/profile'
 
@@ -43,13 +44,14 @@ function getPrayerStreak(values: string[]) {
 
 export default async function ActivityPage() {
   const { supabase, user } = await requireBetaUser()
-  const [{ data: posts }, { data: comments }, { data: prayers }, { data: saves }, { data: profile }, admin] = await Promise.all([
+  const [{ data: posts }, { data: comments }, { data: prayers }, { data: saves }, { data: profile }, admin, dashboardAccess] = await Promise.all([
     supabase.from('posts').select('id, title, created_at').eq('author_user_id', user.id).order('created_at', { ascending: false }).limit(20),
     supabase.from('comments').select('id, post_id, content, created_at').eq('author_user_id', user.id).order('created_at', { ascending: false }).limit(20),
     supabase.from('reactions').select('post_id, created_at, posts(title)').eq('actor_key', `user:${user.id}`).eq('type', 'pray').order('created_at', { ascending: false }).limit(60),
     supabase.from('saved_posts').select('post_id, created_at, posts(title)').eq('user_id', user.id).order('created_at', { ascending: false }).limit(20),
     supabase.from('user_profiles').select('nickname').eq('user_id', user.id).maybeSingle<{ nickname: string }>(),
     isAdminUser(user),
+    getChurchDashboardAccess(user),
   ])
 
   const sections = [
@@ -113,9 +115,15 @@ export default async function ActivityPage() {
           <Link href="/notifications" className="flex min-h-[64px] flex-col items-center justify-center gap-1 rounded-[16px] bg-[var(--ub-surface-card-strong)] text-[12px] font-semibold text-[var(--ub-text-primary)] shadow-sm active:bg-[var(--ub-surface-pressed)]">
             <SystemIcon name="bell" size={20} className="text-[var(--ub-color-brand)]" />알림
           </Link>
-          <Link href="/support" className="flex min-h-[64px] flex-col items-center justify-center gap-1 rounded-[16px] bg-[var(--ub-surface-card-strong)] text-[12px] font-semibold text-[var(--ub-text-primary)] shadow-sm active:bg-[var(--ub-surface-pressed)]">
-            <SystemIcon name="message" size={20} className="text-[var(--ub-color-brand)]" />도움말
-          </Link>
+          {dashboardAccess ? (
+            <Link href="/church-dashboard" className="flex min-h-[64px] flex-col items-center justify-center gap-1 rounded-[16px] bg-[var(--ub-surface-card-strong)] text-[12px] font-semibold text-[var(--ub-text-primary)] shadow-sm active:bg-[var(--ub-surface-pressed)]">
+              <SystemIcon name="calendar" size={20} className="text-[var(--ub-color-brand)]" />대시보드
+            </Link>
+          ) : (
+            <span aria-label="대시보드 이용 권한 없음" className="flex min-h-[64px] flex-col items-center justify-center gap-1 rounded-[16px] bg-[var(--ub-surface-card-strong)] text-[12px] font-semibold text-[var(--ub-text-tertiary)] shadow-sm">
+              <SystemIcon name="calendar" size={20} />대시보드
+            </span>
+          )}
         </nav>
         {sections.map((section) => (
           <section key={section.title}>

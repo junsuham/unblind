@@ -10,6 +10,7 @@ async function expectNoHorizontalOverflow(page: Page) {
 }
 
 async function expectAccessible(page: Page) {
+  await expect(page.locator('.ub-launch-splash')).toHaveCount(0)
   const results = await new AxeBuilder({ page })
     .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
     // Product requirement: the installed app deliberately keeps a fixed scale.

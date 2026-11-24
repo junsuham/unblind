@@ -53,6 +53,7 @@
 .hostControls{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr);gap:8px;align-items:end;margin-top:14px}
 .hostControls select{margin:0}.hostControls .primaryButton{height:45px;min-height:45px;font-size:12px}
 .textShare{padding:12px 0 0;border:0;background:transparent;color:var(--ub-color-brand);font-size:12px;font-weight:800}
+.hostHint{margin:9px 0 0;color:var(--ub-text-tertiary);font-size:11px;line-height:1.5}
 .missionSection{margin:22px 0}.sectionTop{margin:0 2px 10px}.sectionTop span{color:var(--ub-text-tertiary);font-size:11px;font-weight:800}
 .drawnCard{overflow:hidden;border:1px solid var(--ub-separator);border-radius:22px;background:var(--ub-surface-card-strong);box-shadow:0 10px 30px rgba(0,0,0,.08)}
 .drawnCardTop{height:36px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;background:var(--ub-surface-brand-soft);color:var(--ub-color-brand);font-size:11px;font-weight:900;letter-spacing:.08em}
@@ -68,6 +69,22 @@
 .photoCredit{display:block;width:fit-content;margin-top:12px;color:var(--ub-text-tertiary);font-size:10px;text-decoration:underline}
 .waitingCard{min-height:210px;border:1px dashed var(--ub-separator);border-radius:21px;background:var(--ub-surface-card-strong);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px}
 .waitingCard span{font-size:27px;color:var(--ub-color-brand);margin-bottom:8px}.waitingCard strong{font-size:16px}.waitingCard p{color:var(--ub-text-tertiary);font-size:12px;line-height:1.5;margin:8px 0 0}
+.missionCompletion{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:10px;padding:12px 14px;border:1px solid var(--ub-separator);border-radius:15px;background:var(--ub-surface-card-strong)}
+.missionCompletion>span{font-size:12px;font-weight:800;color:var(--ub-color-brand)}
+.missionScoreControls{display:flex;align-items:end;gap:6px;flex-wrap:wrap}
+.missionScoreControls label{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--ub-text-secondary);font-weight:700}
+.missionScoreControls input{width:57px;min-height:33px;padding:4px 6px;border:1px solid var(--ub-separator);border-radius:9px;background:var(--ub-surface-input);color:var(--ub-text-primary);font-size:12px;font-weight:750;text-align:center}
+.missionScoreControls button{min-height:33px;padding:5px 9px;border:0;border-radius:9px;background:var(--ub-surface-brand-soft);color:var(--ub-color-brand);font-size:11px;font-weight:800}
+.missionScoreControls button:disabled{opacity:.5}
+.boardCard{margin:20px 0;padding:17px 16px 13px;border:1px solid var(--ub-separator);border-radius:21px;background:var(--ub-surface-card-strong);box-shadow:0 6px 24px rgba(0,0,0,.05)}
+.boardCard .sectionTop{margin-bottom:12px}
+.boardList{display:grid;gap:7px}
+.boardRow{display:grid;grid-template-columns:28px minmax(0,1fr) auto;align-items:center;gap:9px;min-height:54px;padding:7px 10px;border-radius:13px;background:var(--ub-surface-muted)}
+.boardRank{display:grid;place-items:center;width:26px;height:26px;border-radius:9px;background:var(--ub-surface-brand-soft);color:var(--ub-color-brand);font-size:12px}
+.boardTeam,.boardPoints{display:flex;flex-direction:column;gap:2px;font-size:13px;font-weight:800}
+.boardTeam small,.boardPoints small{color:var(--ub-text-tertiary);font-size:10px;font-weight:600}
+.boardPoints{text-align:right}.boardPoints strong{font-size:16px;color:var(--ub-color-brand)}
+.boardNote{margin:12px 2px 0;color:var(--ub-text-tertiary);font-size:11px;line-height:1.5;word-break:keep-all}
 .roster{margin-top:20px}.roster .sectionTop{margin:0 0 12px}.rosterList{display:flex;flex-direction:column;gap:1px}.rosterList div{display:flex;justify-content:space-between;align-items:center;min-height:38px;border-top:1px solid var(--ub-separator);font-size:13px;font-weight:650}.rosterList small{color:var(--ub-text-tertiary);font-size:11px}.rosterEmpty{color:var(--ub-text-tertiary);font-size:12px;margin:8px 0 0}
 .joinedNote,.roomFootnote{color:var(--ub-text-tertiary);font-size:11px;line-height:1.6;text-align:center;padding:6px 6px 0}.roomFootnote{padding-top:15px}
 @media(max-width:365px){.hostControls{grid-template-columns:1fr}.photoFrame{height:200px}.categoryGrid{gap:6px}.category,.categoryActive{min-height:133px}}

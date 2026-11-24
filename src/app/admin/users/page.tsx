@@ -1,9 +1,12 @@
 import { requireAdmin } from '@/lib/adminAuth'
+import { isAdminUser } from '@/lib/adminRole'
 import { listAllAuthUsers } from '@/lib/adminUsers'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
+import { createServerSupabase } from '@/lib/supabaseServer'
 import { occupationLabels, type Occupation } from '@/lib/profile'
 import AddAllowedUserForm from './AddAllowedUserForm'
 import AdminUserActionButtons from './AdminUserActionButtons'
+import DashboardAccessControl from './DashboardAccessControl'
 import {
   AdminHeader,
   AdminListGroup,
@@ -36,6 +39,7 @@ type ProfileRow = {
   birth_date: string
   reference_age: number
   church_name: string
+  church_place_id: string | null
   church_address: string
   church_department: string | null
   church_info_consent_at: string | null
@@ -46,6 +50,7 @@ type ProfileRow = {
 }
 
 type ManagedUserRow = {
+  userId: string | null
   email: string
   status: AccessStatus
   provider: string
@@ -59,10 +64,12 @@ type ManagedUserRow = {
   birthDate: string | null
   referenceAge: number | null
   churchName: string | null
+  churchPlaceId: string | null
   churchAddress: string | null
   churchDepartment: string | null
   churchInfoConsentAt: string | null
   occupation: Occupation | null
+  dashboardGrantedDepartment: string | null | undefined
 }
 
 function formatDate(value: string | null) {
@@ -95,10 +102,12 @@ function UserRows({
   users,
   emptyTitle,
   emptyDescription,
+  canManageDashboardAccess,
 }: {
   users: ManagedUserRow[]
   emptyTitle: string
   emptyDescription: string
+  canManageDashboardAccess: boolean
 }) {
   return (
     <>
@@ -230,6 +239,25 @@ function UserRows({
               memo={user.memo}
               profileComplete={user.profileComplete}
             />
+            {user.userId && user.churchName && (user.status === 'active' || user.dashboardGrantedDepartment !== undefined) && (
+              !user.churchPlaceId ? (
+                <p className="mt-4 rounded-[14px] bg-[var(--ub-surface-muted)] px-3 py-3 text-[12px] text-[var(--ub-text-secondary)]">
+                  교회 장소 확인 ID가 없어 대시보드 권한을 부여할 수 없습니다.
+                </p>
+              ) : canManageDashboardAccess ? (
+                <DashboardAccessControl
+                  key={`${user.userId}-${user.dashboardGrantedDepartment === undefined ? 'none' : (user.dashboardGrantedDepartment ?? 'church')}`}
+                  userId={user.userId}
+                  churchName={user.churchName}
+                  department={user.churchDepartment}
+                  grantedDepartment={user.dashboardGrantedDepartment}
+                />
+              ) : (
+                <p className="mt-4 rounded-[14px] bg-[var(--ub-surface-muted)] px-3 py-3 text-[12px] text-[var(--ub-text-secondary)]">
+                  대시보드 권한을 변경하려면 Google 관리자 계정으로 로그인해 주세요.
+                </p>
+              )
+            )}
           </AdminListRow>
         )
       })}
@@ -250,7 +278,11 @@ function UserRows({
 export default async function AdminUsersPage() {
   await requireAdmin()
 
-  const [allowedResult, authResult, profileResult] = await Promise.all([
+  const authSupabase = await createServerSupabase()
+  const { data: { user: currentUser } } = await authSupabase.auth.getUser()
+  const canManageDashboardAccess = await isAdminUser(currentUser)
+
+  const [allowedResult, authResult, profileResult, dashboardAccessResult] = await Promise.all([
     supabaseAdmin
       .from('allowed_users')
       .select(
@@ -262,9 +294,14 @@ export default async function AdminUsersPage() {
     supabaseAdmin
       .from('user_profiles')
       .select(
-        'user_id, email, nickname, birth_date, reference_age, church_name, church_address, church_department, church_info_consent_at, occupation, completed_at, agreed_at, agreed_version'
+        'user_id, email, nickname, birth_date, reference_age, church_name, church_place_id, church_address, church_department, church_info_consent_at, occupation, completed_at, agreed_at, agreed_version'
       )
       .returns<ProfileRow[]>(),
+    supabaseAdmin
+      .from('church_dashboard_access')
+      .select('user_id, department, is_active')
+      .eq('is_active', true)
+      .returns<{ user_id: string; department: string | null; is_active: boolean }[]>(),
   ])
 
   const allowedUsers = allowedResult.data ?? []
@@ -282,6 +319,9 @@ export default async function AdminUsersPage() {
       profile,
     ])
   )
+  const dashboardAccessByUserId = new Map(
+    (dashboardAccessResult.data ?? []).map((role) => [role.user_id, role.department])
+  )
   const emails = new Set([
     ...allowedByEmail.keys(),
     ...authByEmail.keys(),
@@ -292,8 +332,10 @@ export default async function AdminUsersPage() {
     const allowedUser = allowedByEmail.get(email)
     const authUser = authByEmail.get(email)
     const profile = profilesByEmail.get(email)
+    const userId = authUser?.id ?? profile?.user_id ?? null
 
     return {
+      userId,
       email,
       status: allowedUser?.status ?? 'pending',
       provider: authUser
@@ -313,10 +355,12 @@ export default async function AdminUsersPage() {
       birthDate: profile?.birth_date ?? null,
       referenceAge: profile?.reference_age ?? null,
       churchName: profile?.church_name ?? null,
+      churchPlaceId: profile?.church_place_id ?? null,
       churchAddress: profile?.church_address ?? null,
       churchDepartment: profile?.church_department ?? null,
       churchInfoConsentAt: profile?.church_info_consent_at ?? null,
       occupation: profile?.occupation ?? null,
+      dashboardGrantedDepartment: userId ? dashboardAccessByUserId.get(userId) : undefined,
     }
   })
 
@@ -345,7 +389,7 @@ export default async function AdminUsersPage() {
   const blockedCount = users.filter((user) => user.status === 'blocked').length
   const agreedCount = users.filter((user) => !!user.agreedAt).length
   const loadError =
-    allowedResult.error ?? authResult.error ?? profileResult.error
+    allowedResult.error ?? authResult.error ?? profileResult.error ?? dashboardAccessResult.error
 
   return (
     <AdminPageShell>
@@ -384,6 +428,7 @@ export default async function AdminUsersPage() {
             users={pendingUsers}
             emptyTitle="승인을 기다리는 가입자가 없습니다"
             emptyDescription="새 Google 가입자가 생기면 이곳에 표시됩니다."
+            canManageDashboardAccess={canManageDashboardAccess}
           />
         </AdminListGroup>
       </div>
@@ -400,6 +445,7 @@ export default async function AdminUsersPage() {
           users={managedUsers}
           emptyTitle="아직 관리 중인 사용자가 없습니다"
           emptyDescription="가입자를 승인하면 이 목록으로 이동합니다."
+          canManageDashboardAccess={canManageDashboardAccess}
         />
       </AdminListGroup>
     </AdminPageShell>

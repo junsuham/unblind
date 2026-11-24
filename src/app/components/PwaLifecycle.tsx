@@ -149,8 +149,9 @@ export function PwaLifecycle() {
     const handleControllerChange = () => {
       setWaitingWorker(null)
       setUpdateState('ready')
-      const safeToReload = pathnameRef.current === '/' || pathnameRef.current === '/login'
-      if (!reloadOnControllerChange.current && !safeToReload) return
+      // The first service-worker install also emits controllerchange. Reloading
+      // then interrupts login and any in-progress accessibility checks.
+      if (!reloadOnControllerChange.current) return
       reloadOnControllerChange.current = false
       if (updateReloadTimer.current !== null) {
         window.clearTimeout(updateReloadTimer.current)

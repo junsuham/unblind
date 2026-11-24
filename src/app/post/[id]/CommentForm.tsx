@@ -3,6 +3,7 @@
 import { FormEvent, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { analyzeTextForSafety } from '@/lib/moderation'
+import { offlineMutationHeaders } from '@/lib/offlineOutboxClient'
 import SafetyIssueList from '@/app/components/SafetyIssueList'
 import PraiseMentionInput from '@/app/components/PraiseMentionInput'
 import type { ContentMention } from '@/lib/praiseMention'
@@ -70,7 +71,7 @@ export default function CommentForm({ postId }: CommentFormProps) {
       const clientRequestKey = crypto.randomUUID()
       const response = await fetch('/api/comments', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: await offlineMutationHeaders(),
         body: JSON.stringify({ postId, content: trimmedContent, mentions, clientRequestKey }),
       })
       const result = await response.json().catch(() => null)

@@ -16,6 +16,7 @@ import {
   getBoardPresentation,
 } from '@/lib/communityPresentation'
 import { isPrayerStage, prayerStageLabels } from '@/lib/prayerJourney'
+import { indexPostEngagement, type PostEngagement } from '@/lib/postEngagement'
 
 export const dynamic = 'force-dynamic'
 
@@ -74,8 +75,6 @@ type PostRow = {
   view_count: number
   tags: string[] | null
   prayer_stage: string | null
-  comments: { count: number }[]
-  reactions: { type: 'pray' | 'empathize' }[]
 }
 
 export async function generateMetadata({ params }: Pick<BoardPageProps, 'params'>): Promise<Metadata> {
@@ -112,9 +111,7 @@ export default async function BoardPage({ params, searchParams }: BoardPageProps
       created_at,
       view_count,
       tags,
-      prayer_stage,
-      comments(count),
-      reactions(type)
+      prayer_stage
     `, { count: 'exact' })
     .eq('board', board)
     .eq('status', 'visible')
@@ -135,6 +132,14 @@ export default async function BoardPage({ params, searchParams }: BoardPageProps
   ])
   const blockedIds = new Set((blockedRows ?? []).map((item) => item.blocked_user_id))
   const visiblePosts = (posts ?? []).filter((post) => !post.author_user_id || !blockedIds.has(post.author_user_id))
+  const { data: engagementRows, error: engagementError } = visiblePosts.length
+    ? await supabase.rpc('get_visible_post_engagement', {
+        p_post_ids: visiblePosts.map((post) => post.id),
+      }).returns<PostEngagement[]>()
+    : { data: [] as PostEngagement[], error: null }
+  const engagementByPost = indexPostEngagement(
+    Array.isArray(engagementRows) ? engagementRows as PostEngagement[] : null
+  )
   const hasNextPage = rangeStart + pageSize < (count ?? 0)
 
   const activeTab =
@@ -213,6 +218,14 @@ export default async function BoardPage({ params, searchParams }: BoardPageProps
         </div>
       )}
 
+      {engagementError && (
+        <div className="mb-5">
+          <NoticeCard title="반응 수를 불러오지 못했습니다" tone="danger">
+            잠시 후 다시 확인해주세요.
+          </NoticeCard>
+        </div>
+      )}
+
       <section>
         <p className="mb-2 px-1 text-[12px] font-semibold text-[var(--ub-text-tertiary)]">
           {board === 'prayer'
@@ -223,14 +236,10 @@ export default async function BoardPage({ params, searchParams }: BoardPageProps
         <div className="overflow-hidden rounded-[20px] bg-[var(--ub-surface-card-strong)] shadow-[var(--ub-shadow-soft)]">
           {visiblePosts.map((post) => {
             const postBoard = getBoardPresentation(post.board)
-            const commentCount = post.comments?.[0]?.count ?? 0
-            const likeCount =
-              post.reactions?.filter(
-                (reaction) => reaction.type === 'empathize'
-              ).length ?? 0
-            const prayCount =
-              post.reactions?.filter((reaction) => reaction.type === 'pray')
-                .length ?? 0
+            const engagement = engagementByPost.get(post.id)
+            const commentCount = engagement?.comment_count ?? 0
+            const likeCount = engagement?.empathize_count ?? 0
+            const prayCount = engagement?.pray_count ?? 0
             const preview =
               post.content.length > 100
                 ? `${post.content.slice(0, 100)}…`

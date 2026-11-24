@@ -161,7 +161,8 @@ export default function LoginPage() {
               type="button"
               disabled={isSubmitting}
               onClick={() => void handlePasskeyLogin()}
-              className="mt-2 flex min-h-[54px] w-full items-center justify-center gap-2 rounded-[17px] border border-[#2a0d07]/18 bg-[#2a0d07]/10 px-5 text-[16px] font-bold text-[#2a0d07] active:scale-[0.99] disabled:opacity-55"
+              className="mt-2 flex min-h-[54px] w-full items-center justify-center gap-2 rounded-[17px] border border-[#2a0d07]/18 bg-[#2a0d07]/10 px-5 text-[16px] font-bold active:scale-[0.99] disabled:opacity-55"
+              style={{ color: '#080100' }}
             >
               {passkeyPending ? 'Face ID·지문 확인 중…' : 'Face ID·지문으로 로그인'}
             </button>

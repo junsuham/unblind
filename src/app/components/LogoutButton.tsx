@@ -1,7 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { supabase } from '@/lib/supabase'
+import { signOutAndClearOfflineOutbox } from '@/lib/offlineOutboxClient'
 import { SystemIcon } from '@/app/components/ui/SystemIcon'
 
 type LogoutButtonProps = {
@@ -13,7 +13,7 @@ export default function LogoutButton({ compact = false, iconOnly = false }: Logo
   const router = useRouter()
 
   async function handleLogout() {
-    await supabase.auth.signOut()
+    await signOutAndClearOfflineOutbox()
     router.push('/login')
     router.refresh()
   }

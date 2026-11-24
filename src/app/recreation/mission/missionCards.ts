@@ -9,6 +9,12 @@ export type MissionCard = {
   instruction: string
   image?: string
   source?: string
+  photoCredit?: {
+    author: string
+    license: 'CC0 1.0'
+    licenseUrl: string
+    modification: string
+  }
 }
 
 export const missionCategories: Record<MissionCategory, { label: string; icon: SystemIconName; description: string }> = {
@@ -26,13 +32,19 @@ function commonsSource(file: string) {
   return `https://commons.wikimedia.org/wiki/File:${encodeURIComponent(file)}`
 }
 
-function photoCard(id: string, title: string, file: string): MissionCard {
+function photoCard(id: string, title: string, file: string, author: string): MissionCard {
   return {
     id,
     title,
     instruction: '사진 속 메뉴의 이름을 맞히고, 그 메뉴를 한 단어로 소개해 보세요.',
     image: commonsImage(file),
     source: commonsSource(file),
+    photoCredit: {
+      author,
+      license: 'CC0 1.0',
+      licenseUrl: 'https://creativecommons.org/publicdomain/zero/1.0/',
+      modification: '앱 표시용 크기 조정',
+    },
   }
 }
 
@@ -58,18 +70,18 @@ export const missionDecks: Record<MissionCategory, MissionCard[]> = {
     { id: 'daily-8', title: '이름 기억하기', instruction: '앞사람 이름을 부르고 본인 이름을 덧붙여 보세요. 한 바퀴 돌아요.' },
   ],
   food: [
-    photoCard('food-1', '피자', 'PizzaMargherita.jpg'),
-    photoCard('food-2', '비빔밥', 'Bibimbap with kkakdugi.jpg'),
-    photoCard('food-3', '김치볶음밥', 'Kimchi fried rice.jpg'),
-    photoCard('food-4', '초밥', 'Sushi (146427173).jpeg'),
-    photoCard('food-5', '치킨', 'Fried chicken thigh.jpg'),
+    photoCard('food-1', '피자', 'PizzaMargherita.jpg', 'SIG SG 510'),
+    photoCard('food-2', '비빔밥', 'Bibimbap with kkakdugi.jpg', 'changupn'),
+    photoCard('food-3', '김치볶음밥', 'Kimchi fried rice.jpg', 'Sharon Ang'),
+    photoCard('food-4', '초밥', 'Sushi (146427173).jpeg', 'San Dta'),
+    photoCard('food-5', '치킨', 'Fried chicken thigh.jpg', 'ProjectManhattan'),
   ],
   dessert: [
-    photoCard('dessert-1', '컵케이크', 'Cupcakes 1.jpg'),
-    photoCard('dessert-2', '젤라토', 'Gelato ice cream.jpg'),
-    photoCard('dessert-3', '치즈케이크', 'Cheesecake001.jpg'),
-    photoCard('dessert-4', '도넛', 'Boston Cream Donut.jpg'),
-    photoCard('dessert-5', '마카롱', 'French macaroons.jpg'),
+    photoCard('dessert-1', '컵케이크', 'Cupcakes 1.jpg', 'Fateemah usman'),
+    photoCard('dessert-2', '젤라토', 'Gelato ice cream.jpg', 'rawpixel'),
+    photoCard('dessert-3', '치즈케이크', 'Cheesecake001.jpg', 'Hortensja Bukietowa'),
+    photoCard('dessert-4', '도넛', 'Boston Cream Donut.jpg', 'Kurt Kaiser'),
+    photoCard('dessert-5', '마카롱', 'French macaroons.jpg', 'Shisma'),
   ],
 }
 

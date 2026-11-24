@@ -1,0 +1,89 @@
+import { readFileSync } from 'node:fs'
+import { describe, expect, it } from 'vitest'
+import { matchesChurchDashboardScope } from '../src/lib/churchDashboardScope'
+import { projectChurchDashboardSnapshot, type ChurchDashboardSnapshotRow } from '../src/lib/churchDashboardProjection'
+
+const migration = readFileSync(
+  new URL('../supabase/migrations/20261124020000_church_dashboard_access.sql', import.meta.url),
+  'utf8',
+)
+
+describe('church dashboard access boundaries', () => {
+  const snapshotRow: ChurchDashboardSnapshotRow = {
+    church_place_id: 'place-one',
+    church_name: '연세중앙교회',
+    department: '청년부',
+    generated_at: '2026-11-24T00:00:00.000Z',
+    member_count: 12,
+    attendance_count: 7,
+    prayer_contributor_count: 6,
+    prayer_minutes: 32,
+    care_pending_count: 1,
+    upcoming_event_count: 3,
+    attendance_weeks: [
+      { date: '2026-11-01', label: '11월 1주', attendance: 3, privateName: 'should never leave the server' },
+      { date: '2026-11-08', label: '11월 2주', attendance: 6 },
+    ],
+  }
+
+  it('accepts the same verified place and assigned department despite spacing differences', () => {
+    expect(matchesChurchDashboardScope(
+      { churchPlaceId: 'place-one', churchName: '연세중앙교회', department: ' 청년 1부 ' },
+      { churchPlaceId: 'place-one', department: '청년  1부' },
+    )).toBe(true)
+  })
+
+  it('rejects another place even if the churches have identical names', () => {
+    expect(matchesChurchDashboardScope(
+      { churchPlaceId: 'place-one', churchName: '연세중앙교회', department: null },
+      { churchPlaceId: 'place-two', department: null },
+    )).toBe(false)
+    expect(matchesChurchDashboardScope(
+      { churchPlaceId: 'place-one', churchName: '연세중앙교회', department: '1부' },
+      { churchPlaceId: 'place-one', department: '2부' },
+    )).toBe(false)
+  })
+
+  it('allows a church-wide grant only within that church', () => {
+    expect(matchesChurchDashboardScope(
+      { churchPlaceId: 'place-one', churchName: '연세중앙교회', department: null },
+      { churchPlaceId: 'place-one', department: '2부' },
+    )).toBe(true)
+  })
+
+  it('denies legacy profiles without a place identifier', () => {
+    expect(matchesChurchDashboardScope(
+      { churchPlaceId: 'place-one', churchName: '연세중앙교회', department: null },
+      { churchPlaceId: null, department: null },
+    )).toBe(false)
+  })
+
+  it('masks whole small groups and individual small counts', () => {
+    const small = projectChurchDashboardSnapshot({ ...snapshotRow, member_count: 4 })
+    expect(small.memberCount).toBeNull()
+    expect(small.attendanceCount).toBeNull()
+    expect(small.prayerMinutes).toBeNull()
+    expect(small.attendanceWeeks).toEqual([])
+
+    const large = projectChurchDashboardSnapshot(snapshotRow)
+    expect(large.memberCount).toBe(12)
+    expect(large.carePendingCount).toBeNull()
+    expect(large.upcomingEventCount).toBeNull()
+    expect(large.attendanceWeeks[0].attendance).toBeNull()
+    expect(large.attendanceWeeks[1].attendance).toBe(6)
+    expect(JSON.stringify(large)).not.toContain('privateName')
+    expect(projectChurchDashboardSnapshot({ ...snapshotRow, prayer_contributor_count: 1 }).prayerMinutes).toBeNull()
+  })
+
+  it('keeps role and aggregate data off direct browser database access', () => {
+    expect(migration).toContain('create table if not exists public.church_dashboard_access')
+    expect(migration).toContain('create table if not exists public.church_dashboard_snapshots')
+    expect(migration).toContain('revoke all on public.church_dashboard_access from anon, authenticated')
+    expect(migration).toContain('revoke all on public.church_dashboard_snapshots from anon, authenticated')
+    expect(migration).toContain('primary key (church_place_id, department)')
+    expect(migration).toContain('set_church_dashboard_access')
+    expect(migration).toContain('grant execute on function public.set_church_dashboard_access')
+    expect(migration).toContain('insert into public.admin_user_actions')
+    expect(migration).toContain('revoke all on function public.set_church_dashboard_access')
+  })
+})

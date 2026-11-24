@@ -1,15 +1,16 @@
 import type { Metadata } from 'next'
-import { createServerSupabase } from '@/lib/supabaseServer'
+import { getCommunityRequestUser } from '@/lib/communityRequestUser'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
 import MissionRoom from './MissionRoom'
 
 export const dynamic = 'force-dynamic'
-export const metadata: Metadata = { title: '랜덤 미션 모임 | UNBLIND', robots: { index: false, follow: false } }
+export const metadata: Metadata = { title: '미션보드 · 랜덤 미션 | UNBLIND', robots: { index: false, follow: false } }
 
 export default async function MissionRoomPage({ params }: PageProps<'/recreation/mission/[id]'>) {
   const { id } = await params
-  const supabase = await createServerSupabase()
-  const { data: { user } } = await supabase.auth.getUser()
+  // The shared helper reads the current server cookie when no bearer token is set.
+  // Keep the organizer UI aligned with the API's approval check.
+  const user = await getCommunityRequestUser(new Request('http://localhost/recreation/mission'))
   let isHost = false
   if (user) {
     const { data } = await supabaseAdmin

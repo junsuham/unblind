@@ -2,12 +2,16 @@ import { analyzeTextForSafety } from '@/lib/moderation'
 import { getCommunityRequestUser } from '@/lib/communityRequestUser'
 import { parseBoard, parseContentMentions } from '@/lib/contentInput'
 import { guardMutation } from '@/lib/mutationGuard'
+import { hasOfflineMutationAuthorMismatch } from '@/lib/offlineMutationAuthor'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
 import { parsePostTags, URGENT_PRAYER_TAG } from '@/lib/urgentPrayer'
 
 export async function POST(request: Request) {
   const user = await getCommunityRequestUser(request)
   if (!user) return Response.json({ error: '게시글을 작성할 권한이 없습니다.' }, { status: 403 })
+  if (hasOfflineMutationAuthorMismatch(request, user.id)) {
+    return Response.json({ error: '작성 계정을 확인하지 못했습니다. 앱을 새로고침한 뒤 다시 시도해주세요.' }, { status: 403 })
+  }
 
   const blocked = await guardMutation(request, {
     bucket: 'post-create',

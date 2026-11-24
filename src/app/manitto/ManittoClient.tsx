@@ -2,6 +2,7 @@
 
 import { FormEvent, useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { offlineMutationHeaders } from '@/lib/offlineOutboxClient'
 import { SystemIcon } from '@/app/components/ui/SystemIcon'
 import { Emoji3D } from '@/app/components/ui/Emoji3D'
 import {
@@ -118,22 +119,27 @@ export default function ManittoClient({
     event?.preventDefault()
     setSubmitting(true)
     setServerMessage('')
-    const response = await fetch('/api/manitto', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action, message, cardType, verseId }),
-    })
-    const result = await response.json()
-    setSubmitting(false)
-    if (!response.ok) {
-      setServerMessage(result.error ?? '요청을 처리하지 못했습니다.')
-      return
+    try {
+      const response = await fetch('/api/manitto', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action, message, cardType, verseId }),
+      })
+      const result = await response.json().catch(() => null)
+      if (!response.ok) {
+        setServerMessage(result?.error ?? '요청을 처리하지 못했습니다.')
+        return
+      }
+      if (action === 'message') {
+        setMessage('')
+        setServerMessage(`${cardTitles[cardType]}를 보냈습니다.`)
+      }
+      router.refresh()
+    } catch {
+      setServerMessage('네트워크 연결을 확인한 뒤 다시 시도해주세요.')
+    } finally {
+      setSubmitting(false)
     }
-    if (action === 'message') {
-      setMessage('')
-      setServerMessage(`${cardTitles[cardType]}를 보냈습니다.`)
-    }
-    router.refresh()
   }
 
   async function publishTestimony(event: FormEvent<HTMLFormElement>) {
@@ -145,17 +151,25 @@ export default function ManittoClient({
     setTestimonyMessage('')
 
     try {
+      const clientRequestKey = crypto.randomUUID()
       const response = await fetch('/api/posts', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: await offlineMutationHeaders(),
         body: JSON.stringify({
           board: 'faith',
           title: '이번 주 마니또 간증',
           content,
           mentions: [],
+          clientRequestKey,
         }),
       })
       const result = await response.json() as { error?: string; id?: string }
+
+      if (response.status === 202) {
+        setTestimony('')
+        setTestimonyMessage('오프라인 보관함에 저장했습니다. 인터넷이 연결되면 자동으로 등록됩니다.')
+        return
+      }
 
       if (!response.ok || !result.id) {
         setTestimonyMessage(result.error ?? '간증을 등록하지 못했습니다.')
@@ -171,16 +185,37 @@ export default function ManittoClient({
   }
 
   if (!isActive) {
-    return <section className="rounded-[22px] bg-[var(--ub-surface-card-strong)] p-6 text-center text-[var(--ub-text-primary)]"><h2 className="text-[18px] font-semibold">지금은 마니또 운영 기간이 아닙니다</h2><p className="mt-2 text-[14px] text-[var(--ub-text-secondary)]">운영자가 다음 기간을 열면 참여할 수 있어요.</p></section>
+    return <section className="ub-liquid-card p-6 text-center text-[var(--ub-text-primary)]"><h2 className="text-[18px] font-semibold">지금은 마니또 운영 기간이 아닙니다</h2><p className="mt-2 text-[14px] text-[var(--ub-text-secondary)]">운영자가 다음 기간을 열면 참여할 수 있어요.</p></section>
   }
 
   if (!joined) {
-    return <section className="rounded-[22px] bg-[var(--ub-surface-card-strong)] p-6 text-center text-[var(--ub-text-primary)] shadow-[var(--ub-shadow-soft)]"><span className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[var(--ub-surface-brand-soft)] text-[var(--ub-color-brand)]"><SystemIcon name="gift" size={26} /></span><h2 className="mt-4 text-[18px] font-semibold">마니또에 참여할까요?</h2><p className="mt-2 text-[14px] leading-[21px] text-[var(--ub-text-secondary)]">참여하면 매주 한 명을 배정받아 익명으로 기도하고 응원할 수 있습니다.</p><button type="button" disabled={submitting} onClick={() => runAction('join')} className="mt-5 min-h-12 w-full rounded-[16px] bg-[var(--ub-color-brand)] font-semibold text-white disabled:opacity-50">참여하기</button>{serverMessage && <p className="mt-3 text-[13px] text-[#FF3B30]">{serverMessage}</p>}</section>
+    return (
+      <section className="ub-liquid-card p-5 text-[var(--ub-text-primary)]">
+        <span className="flex h-12 w-12 items-center justify-center rounded-[16px] bg-[var(--ub-surface-brand-soft)] text-[var(--ub-color-brand)]"><SystemIcon name="gift" size={25} /></span>
+        <h2 className="mt-3 text-[19px] font-bold">마니또 메이커</h2>
+        <p className="mt-1 text-[13px] leading-[20px] text-[var(--ub-text-secondary)]">함께 참여한 사람 중 한 명을 배정받아 한 주 동안 익명으로 응원해요.</p>
+        <ol className="mt-4 grid grid-cols-3 gap-2" aria-label="마니또 참여 단계">
+          {[
+            ['01', '참여 신청'],
+            ['02', '자동 배정'],
+            ['03', '마음 카드'],
+          ].map(([number, label]) => (
+            <li key={number} className="rounded-[14px] border border-[var(--ub-glass-border)] bg-[var(--ub-surface-muted)] px-2 py-3 text-center">
+              <span className="block text-[11px] font-extrabold text-[var(--ub-color-brand)]">{number}</span>
+              <span className="mt-1 block text-[11px] font-semibold">{label}</span>
+            </li>
+          ))}
+        </ol>
+        <p className="mt-3 text-[11px] leading-[17px] text-[var(--ub-text-tertiary)]">상대에게 실명·이메일·교회 정보는 공개되지 않아요.</p>
+        <button type="button" disabled={submitting} onClick={() => runAction('join')} className="mt-4 min-h-12 w-full rounded-[16px] bg-[var(--ub-color-brand)] font-semibold text-white disabled:opacity-50">{submitting ? '참여 중…' : '이번 주 참여하기'}</button>
+        {serverMessage && <p className="mt-3 text-center text-[13px] text-[var(--ub-danger-text)]" role="alert">{serverMessage}</p>}
+      </section>
+    )
   }
 
   if (!recipientNickname) {
     return (
-      <section className="rounded-[22px] bg-[var(--ub-surface-card-strong)] p-6 text-center text-[var(--ub-text-primary)] shadow-[var(--ub-shadow-soft)]">
+      <section className="ub-liquid-card p-6 text-center text-[var(--ub-text-primary)]">
         <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[var(--ub-surface-brand-soft)] text-[var(--ub-color-brand)]">
           <SystemIcon name="people" size={26} />
         </span>
@@ -195,7 +230,7 @@ export default function ManittoClient({
 
   return (
     <div className="space-y-5">
-      <section className="overflow-hidden rounded-[24px] bg-[var(--ub-surface-card-strong)] text-[var(--ub-text-primary)] shadow-[var(--ub-shadow-card)]">
+      <section className="ub-liquid-card overflow-hidden text-[var(--ub-text-primary)]">
         <div className="bg-[var(--ub-surface-brand-soft)] px-5 py-4 text-center">
           <p className="text-[12px] font-semibold tracking-[0.08em] text-[var(--ub-color-brand)]">
             {startsOn} — {endsOn}
@@ -224,7 +259,7 @@ export default function ManittoClient({
           </span>
         </div>
 
-        <div className="overflow-hidden rounded-[20px] bg-[var(--ub-surface-card-strong)] text-[var(--ub-text-primary)] shadow-[var(--ub-shadow-soft)]">
+        <div className="ub-liquid-card overflow-hidden text-[var(--ub-text-primary)]">
           {missions.map((mission, index) => {
             const isCompleted = isReady && completedSet.has(index)
 
@@ -253,7 +288,7 @@ export default function ManittoClient({
         </div>
       </section>
 
-      <section className="overflow-hidden rounded-[22px] bg-[var(--ub-surface-card-strong)] text-[var(--ub-text-primary)] shadow-[var(--ub-shadow-soft)]">
+      <section className="ub-liquid-card overflow-hidden text-[var(--ub-text-primary)]">
         <div className="border-b border-[var(--ub-separator)] px-4 pb-3 pt-4">
           <h3 className="text-[15px] font-semibold">마니또에게 마음 보내기</h3>
           <p className="mt-1 text-[11px] text-[var(--ub-text-secondary)]">응원·감사·말씀 카드는 모두 익명으로 전달됩니다.</p>

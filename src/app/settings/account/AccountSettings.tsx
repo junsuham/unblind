@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
-import { supabase } from '@/lib/supabase'
+import { signOutAndClearOfflineOutbox } from '@/lib/offlineOutboxClient'
 import DeviceIntegrationSettings from './DeviceIntegrationSettings'
 
 type Preferences = { push_enabled: boolean; comments_enabled: boolean; reactions_enabled: boolean; manitto_enabled: boolean; system_enabled: boolean; quiet_start: string | null; quiet_end: string | null }
@@ -43,7 +43,7 @@ export default function AccountSettings() {
     const response = await fetch('/api/account', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ confirmation }) })
     const result = await response.json().catch(() => null)
     if (!response.ok) { setMessage(result?.error ?? '계정을 삭제하지 못했습니다.'); setDeleting(false); return }
-    await supabase.auth.signOut()
+    await signOutAndClearOfflineOutbox()
     router.replace('/login')
   }
 

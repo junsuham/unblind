@@ -1,11 +1,11 @@
 import { randomInt } from 'node:crypto'
 import { getCommunityRequestUser } from '@/lib/communityRequestUser'
-import { getRequestUser } from '@/lib/requestUser'
 import { guardMutation } from '@/lib/mutationGuard'
 import { getRequestIdentity } from '@/lib/rateLimitKey'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
 import { issueMissionGuestToken, verifyMissionGuestToken } from '@/lib/recreationMissionToken'
 import { missionDecks, type MissionCategory, type MissionMode } from '@/app/recreation/mission/missionCards'
+import { buildMissionStandings, isMissionPoints, type MissionBoardResult } from '@/app/recreation/mission/missionBoard'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -43,11 +43,27 @@ export async function GET(request: Request, context: RouteContext<'/api/recreati
   const room = await loadRoom(id)
   if (!room) return Response.json({ error: '종료되었거나 존재하지 않는 모임입니다.' }, { status: 404 })
 
-  const { count, error: countError } = await supabaseAdmin
-    .from('recreation_mission_participants')
-    .select('id', { head: true, count: 'exact' })
-    .eq('room_id', id)
+  const [participantResponse, boardResponse] = await Promise.all([
+    supabaseAdmin
+      .from('recreation_mission_participants')
+      .select('id', { head: true, count: 'exact' })
+      .eq('room_id', id),
+    room.mode === 'team'
+      ? supabaseAdmin
+        .from('recreation_mission_board_results')
+        .select('round_no, team_number, card_id, points, completed_at')
+        .eq('room_id', id)
+        .order('round_no', { ascending: true })
+        .limit(200)
+      : Promise.resolve({ data: [], error: null }),
+  ])
+  const { count, error: countError } = participantResponse
   if (countError) return Response.json({ error: '참여 인원을 확인하지 못했습니다.' }, { status: 500 })
+  const boardUnavailable = boardResponse.error?.code === '42P01' || boardResponse.error?.code === 'PGRST205'
+  if (boardResponse.error && !boardUnavailable) {
+    console.error('Mission board read failed:', boardResponse.error.message)
+    return Response.json({ error: '미션보드를 불러오지 못했습니다.' }, { status: 503 })
+  }
 
   const publicState = {
     room: {
@@ -59,6 +75,10 @@ export async function GET(request: Request, context: RouteContext<'/api/recreati
       expiresAt: room.expires_at,
     },
     participantCount: count ?? 0,
+    board: room.mode === 'team' ? {
+      available: !boardUnavailable,
+      standings: buildMissionStandings(room.team_count, room.assignments ?? {}, (boardResponse.data ?? []) as MissionBoardResult[]),
+    } : null,
   }
   const responseHeaders = { 'Cache-Control': 'no-store' }
 
@@ -91,7 +111,7 @@ export async function GET(request: Request, context: RouteContext<'/api/recreati
   if (new URL(request.url).searchParams.get('host') !== '1') {
     return Response.json(publicState, { headers: responseHeaders })
   }
-  const user = await getRequestUser(request)
+  const user = await getCommunityRequestUser(request)
   if (user?.id !== room.host_user_id) {
     return Response.json({ error: '진행자 권한이 필요합니다.' }, { status: 403, headers: responseHeaders })
   }
@@ -168,6 +188,7 @@ export async function POST(request: Request, context: RouteContext<'/api/recreat
       bucket: 'recreation-mission-draw', identity: user.id, limit: 20, windowSeconds: 60,
     })
     if (blocked) return blocked
+    if (room.round_no >= 200) return Response.json({ error: '이 모임에서 뽑을 수 있는 미션 수를 모두 사용했습니다. 새 모임을 만들어주세요.' }, { status: 409 })
     const targetKey = typeof body.targetKey === 'string' ? body.targetKey : ''
     if (room.mode === 'team') {
       const targetTeam = Number(targetKey.replace(/^team:/, ''))
@@ -210,6 +231,76 @@ export async function POST(request: Request, context: RouteContext<'/api/recreat
     if (error) return Response.json({ error: '미션을 뽑지 못했습니다.' }, { status: 500 })
     if (!data) return Response.json({ error: '다른 미션이 이미 뽑혔습니다. 화면을 새로고침해주세요.' }, { status: 409 })
     return Response.json({ card, targetKey, roundNo: data.round_no })
+  }
+
+  if (body?.action === 'complete' || body?.action === 'score' || body?.action === 'reopen') {
+    const user = await getCommunityRequestUser(request)
+    if (!user || user.id !== room.host_user_id) {
+      return Response.json({ error: '진행자만 미션 완료와 점수를 변경할 수 있습니다.' }, { status: 403 })
+    }
+    if (room.mode !== 'team') return Response.json({ error: '미션보드는 팀전에서 사용할 수 있습니다.' }, { status: 400 })
+    const blocked = await guardMutation(request, {
+      bucket: 'recreation-mission-board', identity: user.id, limit: 30, windowSeconds: 60,
+    })
+    if (blocked) return blocked
+
+    const teamNumber = Number(body.teamNumber)
+    const roundNo = Number(body.roundNo)
+    if (!Number.isInteger(teamNumber) || teamNumber < 1 || teamNumber > room.team_count) {
+      return Response.json({ error: '팀을 다시 선택해주세요.' }, { status: 400 })
+    }
+    const assignment = room.assignments?.[`team:${teamNumber}`]
+    if (!assignment || !Number.isInteger(roundNo) || roundNo !== assignment.roundNo) {
+      return Response.json({ error: '미션이 변경되었습니다. 화면을 새로고침해주세요.' }, { status: 409 })
+    }
+
+    if (body.action === 'complete') {
+      if (!isMissionPoints(body.points)) return Response.json({ error: '점수는 0~100점의 정수로 입력해주세요.' }, { status: 400 })
+      const { error } = await supabaseAdmin.from('recreation_mission_board_results').insert({
+        room_id: id,
+        round_no: roundNo,
+        team_number: teamNumber,
+        card_id: assignment.cardId,
+        points: body.points,
+        completed_by: user.id,
+      })
+      if (error?.code === '23505') return Response.json({ error: '이미 완료 처리된 미션입니다. 화면을 새로고침해주세요.' }, { status: 409 })
+      if (error) {
+        console.error('Mission completion failed:', error.message)
+        return Response.json({ error: '완료 처리를 저장하지 못했습니다.' }, { status: 503 })
+      }
+      return Response.json({ ok: true })
+    }
+
+    if (!isMissionPoints(body.expectedPoints)) {
+      return Response.json({ error: '현재 점수를 다시 확인해주세요.' }, { status: 400 })
+    }
+    if (body.action === 'score') {
+      if (!isMissionPoints(body.points)) return Response.json({ error: '점수는 0~100점의 정수로 입력해주세요.' }, { status: 400 })
+      const { data, error } = await supabaseAdmin.from('recreation_mission_board_results')
+        .update({ points: body.points })
+        .eq('room_id', id)
+        .eq('round_no', roundNo)
+        .eq('team_number', teamNumber)
+        .eq('card_id', assignment.cardId)
+        .eq('points', body.expectedPoints)
+        .select('round_no').maybeSingle()
+      if (error) return Response.json({ error: '점수를 저장하지 못했습니다.' }, { status: 503 })
+      if (!data) return Response.json({ error: '점수가 이미 변경되었습니다. 화면을 새로고침해주세요.' }, { status: 409 })
+      return Response.json({ ok: true })
+    }
+
+    const { data, error } = await supabaseAdmin.from('recreation_mission_board_results')
+      .delete()
+      .eq('room_id', id)
+      .eq('round_no', roundNo)
+      .eq('team_number', teamNumber)
+      .eq('card_id', assignment.cardId)
+      .eq('points', body.expectedPoints)
+      .select('round_no').maybeSingle()
+    if (error) return Response.json({ error: '완료 취소를 저장하지 못했습니다.' }, { status: 503 })
+    if (!data) return Response.json({ error: '완료 상태가 이미 변경되었습니다. 화면을 새로고침해주세요.' }, { status: 409 })
+    return Response.json({ ok: true })
   }
 
   return Response.json({ error: '지원하지 않는 요청입니다.' }, { status: 400 })

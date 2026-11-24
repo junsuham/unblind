@@ -9,6 +9,7 @@ import {
   type FaithWeather,
 } from '@/lib/dailyFaith'
 import { SystemIcon } from './ui/SystemIcon'
+import { FaithAvatar } from './FaithAvatar'
 
 type CheckinResult = {
   mood: FaithMood
@@ -58,7 +59,7 @@ const moodGuides: Record<FaithMood, {
   },
 }
 
-export function DailyFaithCheckIn() {
+export function DailyFaithCheckIn({ storageScope }: { storageScope: string }) {
   const [checkin, setCheckin] = useState<CheckinResult | null>(null)
   const [mood, setMood] = useState<FaithMood | null>(null)
   const [weather, setWeather] = useState<FaithWeather | null>(null)
@@ -73,6 +74,9 @@ export function DailyFaithCheckIn() {
       .then((response) => response.ok ? response.json() : null)
       .then((result) => {
         if (alive && result?.checkin) setCheckin(result.checkin)
+      })
+      .catch(() => {
+        if (alive) setError('체크인 상태를 확인하지 못했어요. 연결 상태를 확인해주세요.')
       })
       .finally(() => {
         if (alive) setLoading(false)
@@ -123,29 +127,29 @@ export function DailyFaithCheckIn() {
           {checkin && <span className="text-[11px] font-semibold text-[var(--ub-text-on-brand-tertiary)]">오늘 완료</span>}
         </div>
 
-        <div className="rounded-[20px] border border-[var(--ub-glass-border)] bg-[var(--ub-surface-card-strong)] p-4 text-[var(--ub-text-primary)] shadow-[var(--ub-shadow-soft)]">
+        <div className="ub-liquid-card p-4 text-[var(--ub-text-primary)]">
           {loading ? (
             <div className="h-[104px] animate-pulse rounded-[14px] bg-[var(--ub-surface-muted)]" aria-hidden />
-          ) : checkin ? (
+          ) : (
+            <FaithAvatar mood={checkin?.mood ?? mood} weather={checkin?.faith_weather ?? weather} storageScope={storageScope} />
+          )}
+          {!loading && (checkin ? (
             <button
               type="button"
               onClick={() => setGuideOpen(true)}
-              className="flex min-h-[58px] w-full items-center gap-3 text-left"
+              className="mt-3 flex min-h-[50px] w-full items-center gap-3 rounded-[13px] bg-[var(--ub-surface-muted)] px-3 text-left"
             >
-              <span className="flex h-12 w-12 items-center justify-center rounded-[15px] bg-[var(--ub-surface-brand-soft)] text-[26px]" aria-hidden>
-                {selectedMood?.emoji}
-              </span>
               <span className="min-w-0 flex-1">
-                <strong className="block text-[15px]">마음은 {selectedMood?.label}</strong>
-                <span className="mt-0.5 block text-[12px] text-[var(--ub-text-secondary)]">
-                  신앙 날씨 {selectedWeather?.emoji} {selectedWeather?.label} · 맞춤 안내 다시 보기
+                <strong className="block text-[14px]">마음은 {selectedMood?.label}</strong>
+                <span className="mt-0.5 block text-[11px] text-[var(--ub-text-secondary)]">
+                  신앙 날씨 {selectedWeather?.label} · 맞춤 안내 보기
                 </span>
               </span>
               <span className="text-[22px] text-[var(--ub-text-tertiary)]" aria-hidden>›</span>
             </button>
           ) : (
             <>
-              <p className="text-[14px] font-extrabold">오늘 마음은 어떤가요?</p>
+              <p className="mt-4 text-[14px] font-extrabold">오늘 마음은 어떤가요?</p>
               <div className="mt-2.5 grid grid-cols-5 gap-1.5" aria-label="오늘의 마음">
                 {faithMoodOptions.map((option) => (
                   <button
@@ -195,7 +199,7 @@ export function DailyFaithCheckIn() {
               </button>
               {error && <p className="mt-2 text-[12px] text-[var(--ub-danger-text)]" role="alert">{error}</p>}
             </>
-          )}
+          ))}
         </div>
       </section>
 

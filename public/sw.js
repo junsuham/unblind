@@ -1,8 +1,10 @@
-const WORKER_VERSION = '63'
+const WORKER_VERSION = '64'
 const CACHE_NAME = `unblind-static-v${WORKER_VERSION}`
 const OUTBOX_DB = 'unblind-offline-outbox-v1'
 const OUTBOX_STORE = 'mutations'
 const OUTBOX_SYNC_TAG = 'unblind-outbox-sync'
+const OFFLINE_MUTATION_AUTHOR_HEADER = 'x-unblind-author-id'
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 const PRECACHE_URLS = [
   '/offline.html',
   '/brand/unblind-monogram-relief-v5.png',
@@ -82,14 +84,16 @@ async function accessOutbox(mode, value) {
   return new Promise((resolve, reject) => {
     const transaction = database.transaction(OUTBOX_STORE, mode === 'read' ? 'readonly' : 'readwrite')
     const store = transaction.objectStore(OUTBOX_STORE)
+    let result
     const request = mode === 'put'
       ? store.put(value)
       : mode === 'delete'
         ? store.delete(value)
         : store.getAll()
-    request.onsuccess = () => resolve(request.result)
-    request.onerror = () => reject(request.error)
-    transaction.oncomplete = () => database.close()
+    request.onsuccess = () => { result = request.result }
+    transaction.oncomplete = () => { database.close(); resolve(result) }
+    transaction.onerror = () => { database.close(); reject(transaction.error) }
+    transaction.onabort = () => { database.close(); reject(transaction.error) }
   })
 }
 
@@ -99,6 +103,10 @@ async function notifyWindows(message) {
 }
 
 async function queueMutation(request) {
+  const authorId = request.headers.get(OFFLINE_MUTATION_AUTHOR_HEADER)
+  if (!authorId || !UUID_PATTERN.test(authorId)) {
+    throw new Error('An authenticated author is required for offline storage.')
+  }
   const body = await request.clone().text()
   let parsedBody = {}
   try { parsedBody = JSON.parse(body) } catch { /* JSON endpoints validate again during replay. */ }
@@ -110,6 +118,7 @@ async function queueMutation(request) {
     id: requestKey,
     url: request.url,
     method: request.method,
+    authorId,
     body,
     createdAt: Date.now(),
   })
@@ -127,11 +136,28 @@ async function flushOutbox() {
   let completed = 0
 
   for (const entry of entries) {
+    let destination
+    try { destination = new URL(entry.url) } catch { /* Discard malformed legacy entries. */ }
+    if (
+      !UUID_PATTERN.test(entry.authorId ?? '') ||
+      !destination ||
+      destination.origin !== self.location.origin ||
+      entry.method !== 'POST' ||
+      !['/api/posts', '/api/comments'].includes(destination.pathname)
+    ) {
+      await accessOutbox('delete', entry.id)
+      await notifyWindows({ type: 'OUTBOX_FAILED' })
+      continue
+    }
+
     try {
       const response = await fetch(entry.url, {
         method: entry.method,
         credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          [OFFLINE_MUTATION_AUTHOR_HEADER]: entry.authorId,
+        },
         body: entry.body,
       })
 
@@ -205,7 +231,14 @@ self.addEventListener('fetch', (event) => {
   if (queueableMutation) {
     event.respondWith(
       fetch(request.clone()).catch(async () => {
-        await queueMutation(request)
+        try {
+          await queueMutation(request)
+        } catch {
+          return new Response(JSON.stringify({ error: '오프라인 저장을 준비하지 못했습니다. 로그인 상태를 확인한 뒤 다시 시도해주세요.' }), {
+            status: 503,
+            headers: { 'Content-Type': 'application/json; charset=utf-8' },
+          })
+        }
         return new Response(JSON.stringify({ ok: true, queued: true, offline: true }), {
           status: 202,
           headers: { 'Content-Type': 'application/json; charset=utf-8' },

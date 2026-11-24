@@ -3,6 +3,7 @@
 import { ChangeEvent, FormEvent, ReactNode, useEffect, useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
+import { offlineMutationHeaders } from '@/lib/offlineOutboxClient'
 import { analyzeTextForSafety } from '@/lib/moderation'
 import SafetyIssueList from '@/app/components/SafetyIssueList'
 import PraiseMentionInput, { type PraiseMentionInputHandle } from '@/app/components/PraiseMentionInput'
@@ -350,7 +351,7 @@ export default function NewPostForm({
       const clientRequestKey = crypto.randomUUID()
       const response = await fetch('/api/posts', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: await offlineMutationHeaders(),
         body: JSON.stringify({ board, title: trimmedTitle, content: trimmedContent, tags, mentions, urgentPrayer: board === 'prayer' && urgentPrayer, clientRequestKey }),
       })
       data = await response.json().catch(() => null)

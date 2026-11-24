@@ -77,7 +77,7 @@ export default function MissionCreate() {
         <button type="button" className={styles.primaryButton} onClick={() => void createRoom()} disabled={pending}>
           {pending ? '모임 만드는 중…' : '모임 만들고 링크 공유하기'}
         </button>
-        <p>링크는 7일 동안 사용할 수 있어요. 진행자만 미션을 뽑을 수 있습니다.</p>
+        <p>링크는 7일 동안 사용할 수 있어요. 진행자만 미션을 뽑고 팀전 점수를 기록합니다.</p>
       </div>
     </div>
   )

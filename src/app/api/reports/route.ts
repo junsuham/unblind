@@ -3,6 +3,7 @@ import { guardMutation } from '@/lib/mutationGuard'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
 
 const reasons = new Set(['personal_info', 'attack', 'sexual', 'cult', 'money', 'self_harm', 'spam', 'other'])
+const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
 
 export async function POST(request: Request) {
   const user = await getCommunityRequestUser(request)
@@ -22,9 +23,19 @@ export async function POST(request: Request) {
   const reason = typeof body?.reason === 'string' && reasons.has(body.reason) ? body.reason : null
   const detail = typeof body?.detail === 'string' ? body.detail.trim().slice(0, 500) : ''
 
-  if (!targetType || !/^[0-9a-f-]{36}$/i.test(targetId) || !reason) {
+  if (!targetType || !uuidPattern.test(targetId) || !reason) {
     return Response.json({ error: '신고 정보를 확인하지 못했습니다.' }, { status: 400 })
   }
+
+  const { data: target, error: targetError } = await supabaseAdmin
+    .from(targetType === 'post' ? 'posts' : 'comments')
+    .select('id')
+    .eq('id', targetId)
+    .eq('status', 'visible')
+    .maybeSingle()
+
+  if (targetError) return Response.json({ error: '신고 대상을 확인하지 못했습니다.' }, { status: 503 })
+  if (!target) return Response.json({ error: '신고할 수 없는 글입니다.' }, { status: 404 })
 
   const { error } = await supabaseAdmin.from('reports').insert({
     target_type: targetType,

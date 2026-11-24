@@ -388,7 +388,7 @@ function CountdownTimer({ initialMinutes = 5 }: { initialMinutes?: number }) {
 
 type Team = { name: string; members: string[] }
 
-function TeamBuilder({ compact = false }: { compact?: boolean }) {
+function TeamBuilder() {
   const [input, setInput] = useState('')
   const [teamCount, setTeamCount] = useState(2)
   const [teams, setTeams] = useState<Team[]>([])
@@ -420,19 +420,19 @@ function TeamBuilder({ compact = false }: { compact?: boolean }) {
   }
 
   return (
-    <section className={styles.toolCard} aria-labelledby={compact ? 'session-team-title' : 'team-builder-title'}>
+    <section className={styles.toolCard} aria-labelledby="team-builder-title">
       <div className={styles.toolHeading}>
         <span className={styles.toolIcon}><SystemIcon name="shuffle" size={21} /></span>
         <div>
-          <h2 id={compact ? 'session-team-title' : 'team-builder-title'}>팀 자동 편성</h2>
-          <p>이름은 띄어쓰기, 줄바꿈 또는 쉼표로 구분해주세요.</p>
+          <h2 id="team-builder-title">팀 자동 편성 · 수동 점수</h2>
+          <p>이름은 띄어쓰기, 줄바꿈 또는 쉼표로 구분해요. 여기의 점수는 이 화면에서만 사용합니다.</p>
         </div>
       </div>
 
       <textarea
         value={input}
         onChange={(event) => setInput(event.target.value)}
-        rows={compact ? 3 : 4}
+        rows={4}
         className={styles.nameInput}
         placeholder="예: 은우 하람 주원 다온"
         aria-label="참가자 이름"
@@ -553,11 +553,13 @@ function GameDetail({
   favorite,
   onFavorite,
   onBack,
+  onOpenTools,
 }: {
   game: RecreationGame
   favorite: boolean
   onFavorite: () => void
   onBack: () => void
+  onOpenTools: () => void
 }) {
   const [live, setLive] = useState(false)
   const [step, setStep] = useState(0)
@@ -607,7 +609,7 @@ function GameDetail({
 
         {game.tool && <GamePlayTool game={game} />}
         <CountdownTimer initialMinutes={game.minutes} />
-        <TeamBuilder compact />
+        <button type="button" className={styles.secondaryButton} onClick={onOpenTools}>팀 편성 · 수동 점수는 진행 도구에서</button>
       </div>
     )
   }
@@ -740,8 +742,8 @@ function DiscoverView({
           </Link>
           <Link className={styles.sharedGameCard} href="/recreation/mission">
             <span className={styles.sharedGameIcon}><SystemIcon name="shuffle" size={22} /></span>
-            <strong>랜덤 미션 뽑기</strong>
-            <span>팀 또는 개인으로 입장해 행동 미션과 음식 사진 카드를 뽑아요.</span>
+            <strong>미션보드 · 랜덤 미션</strong>
+            <span>카드를 뽑고 팀전에서는 완료와 점수를 링크로 함께 확인해요.</span>
             <small>방 만들기 <SystemIcon name="next" size={13} /></small>
           </Link>
         </div>
@@ -890,6 +892,11 @@ export default function RecreationKit() {
         onFavorite={() => toggleFavorite(selectedGame.id)}
         onBack={() => {
           setSelectedGame(null)
+          scrollAppToTop()
+        }}
+        onOpenTools={() => {
+          setSelectedGame(null)
+          setView('tools')
           scrollAppToTop()
         }}
       />

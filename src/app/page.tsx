@@ -16,6 +16,7 @@ import { BuilderHomeSection } from '@/app/components/builder/BuilderHomeSection'
 import { getWeeklyManitto } from '@/lib/manitto'
 import { UrgentPrayerBadge } from '@/app/components/UrgentPrayerBadge'
 import { isUrgentPrayerPost } from '@/lib/urgentPrayer'
+import { indexPostEngagement, type PostEngagement } from '@/lib/postEngagement'
 
 export const dynamic = 'force-dynamic'
 
@@ -32,8 +33,6 @@ type FeedPost = {
   created_at: string
   view_count: number
   tags: string[] | null
-  comments: { count: number }[]
-  reactions: { type: 'pray' | 'empathize' }[]
 }
 
 type HomePraiseRow = {
@@ -57,9 +56,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
       content,
       created_at,
       view_count,
-      tags,
-      comments(count),
-      reactions(type)
+      tags
     `)
     .eq('status', 'visible')
 
@@ -96,18 +93,26 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   const visiblePosts = (posts ?? []).filter(
     (post) => !post.author_user_id || !blockedIds.has(post.author_user_id)
   )
+  const { data: engagementRows, error: engagementError } = visiblePosts.length
+    ? await supabase.rpc('get_visible_post_engagement', {
+        p_post_ids: visiblePosts.map((post) => post.id),
+      }).returns<PostEngagement[]>()
+    : { data: [] as PostEngagement[], error: null }
+  const engagementByPost = indexPostEngagement(
+    Array.isArray(engagementRows) ? engagementRows as PostEngagement[] : null
+  )
 
   return (
     <AppShell bottomBar={<BottomTabBar active="home" />}>
       <h1 className="sr-only">언블라인드 홈</h1>
-      <DailyFaithCheckIn />
+      <DailyFaithCheckIn storageScope={user.id} />
       <HomeBibleVerse />
 
       <BuilderHomeSection searchParams={params} />
 
       <section className="mb-4" aria-labelledby="unblind-app-shortcuts">
         <p id="unblind-app-shortcuts" className="mb-1.5 px-1 text-[12px] font-bold tracking-[0.04em] text-[var(--ub-text-on-brand-tertiary)]">언블라인드 앱</p>
-        <div className="overflow-hidden rounded-[22px] bg-[var(--ub-surface-card-strong)] shadow-[var(--ub-shadow-soft)]">
+        <div className="ub-liquid-card overflow-hidden">
           <Link
             href="/journey"
             className="flex min-h-[68px] w-full items-center gap-3 px-4 py-3 text-left text-[var(--ub-text-primary)] active:bg-[var(--ub-surface-pressed)]"
@@ -196,7 +201,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
 
       <section
         aria-label={sort === 'popular' ? '인기 게시글' : '최신 게시글'}
-        className="overflow-hidden rounded-[22px] bg-[var(--ub-surface-card-strong)] shadow-[var(--ub-shadow-soft)]"
+        className="ub-liquid-card overflow-hidden"
       >
         <nav
           aria-label="게시글 정렬"
@@ -230,12 +235,19 @@ export default async function HomePage({ searchParams }: HomePageProps) {
           </div>
         )}
 
+        {engagementError && (
+          <div className="p-4">
+            <NoticeCard title="반응 수를 불러오지 못했습니다" tone="danger">
+              잠시 후 다시 확인해주세요.
+            </NoticeCard>
+          </div>
+        )}
+
         {visiblePosts.map((post) => {
           const board = getBoardPresentation(post.board)
-          const commentCount = post.comments?.[0]?.count ?? 0
-          const empathizeCount = post.reactions?.filter(
-            (reaction) => reaction.type === 'empathize'
-          ).length ?? 0
+          const engagement = engagementByPost.get(post.id)
+          const commentCount = engagement?.comment_count ?? 0
+          const empathizeCount = engagement?.empathize_count ?? 0
           const preview = post.content.length > 130
             ? `${post.content.slice(0, 130)}…`
             : post.content

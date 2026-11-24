@@ -2,6 +2,7 @@ import 'server-only'
 
 import type { User } from '@supabase/supabase-js'
 import { isAdminEmail } from '@/lib/adminIdentity'
+import { bootstrapAdminRoleDecision, storedAdminRoleDecision } from '@/lib/adminRolePolicy'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
 
 type AdminRoleRow = {
@@ -18,7 +19,9 @@ export async function isAdminUser(user: User | null | undefined) {
     .eq('user_id', user.id)
     .maybeSingle<AdminRoleRow>()
 
-  if (!roleByUserError && roleByUser?.is_active) return true
+  const userDecision = storedAdminRoleDecision(roleByUser, Boolean(roleByUserError))
+  // A revoked role must not be reactivated by the rollout email bootstrap.
+  if (userDecision !== null) return userDecision
 
   const { data: roleByEmail, error: roleByEmailError } = await supabaseAdmin
     .from('admin_roles')
@@ -26,11 +29,13 @@ export async function isAdminUser(user: User | null | undefined) {
     .ilike('email', user.email)
     .maybeSingle<AdminRoleRow>()
 
-  if (!roleByEmailError && roleByEmail?.is_active) return true
+  const emailDecision = storedAdminRoleDecision(roleByEmail, Boolean(roleByEmailError))
+  if (emailDecision !== null) return emailDecision
 
   // ADMIN_EMAILS is a rollout bootstrap only. The first successful request
   // materializes the role in the server-authoritative table.
-  if (!isAdminEmail(user.email)) return false
+  const bootstrapEmail = isAdminEmail(user.email)
+  if (!bootstrapEmail) return false
 
   const { error: bootstrapError } = await supabaseAdmin.from('admin_roles').upsert({
     user_id: user.id,
@@ -44,5 +49,5 @@ export async function isAdminUser(user: User | null | undefined) {
     console.warn('admin_role_bootstrap_failed', bootstrapError.message)
   }
 
-  return true
+  return bootstrapAdminRoleDecision(bootstrapEmail, Boolean(bootstrapError))
 }

@@ -44,7 +44,7 @@ export function HomeBibleVerse() {
   return (
     <section data-home-section="verse" className="mb-4" aria-label="오늘의 말씀">
       <p className="mb-1.5 px-1 text-[12px] font-bold tracking-[0.04em] text-[var(--ub-text-on-brand-tertiary)]">오늘의 말씀</p>
-      <div className="min-h-[76px] rounded-[18px] border border-[var(--ub-glass-border)] bg-[var(--ub-surface-card-strong)] px-4 py-3.5 text-[var(--ub-text-primary)] shadow-[var(--ub-shadow-soft)] backdrop-blur-xl">
+      <div className="ub-liquid-card min-h-[76px] px-4 py-3.5 text-[var(--ub-text-primary)]">
         {verse ? (
           <>
             <p className="line-clamp-3 text-[15px] font-semibold leading-[22px]">“{verse.text}”</p>

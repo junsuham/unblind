@@ -19,10 +19,10 @@ type HomeManittoFinderProps = {
 function getPhaseCopy(state: HomeManittoState) {
   const phase = getHomeManittoPhase(state)
 
-  if (phase === 'inactive') return '다음 운영을 기다려주세요'
-  if (phase === 'waiting') return `찾는 중 · 현재 ${state.participantCount}명`
-  if (phase === 'matched') return '마니또를 찾았어요'
-  return '한 주의 마니또를 찾아보세요'
+  if (phase === 'inactive') return '다음 주간 모임을 기다려주세요'
+  if (phase === 'waiting') return `참여 완료 · ${state.participantCount}명과 함께 기다리는 중`
+  if (phase === 'matched') return '이번 주 마니또가 배정됐어요'
+  return '참여하고 익명 응원 카드를 만들어보세요'
 }
 
 export function HomeManittoFinder({
@@ -94,7 +94,7 @@ export function HomeManittoFinder({
       }
 
       if (!response.ok || !result.manitto) {
-        setError(result.error ?? '마니또 찾기를 시작하지 못했습니다.')
+        setError(result.error ?? '마니또 참여를 시작하지 못했습니다.')
         return
       }
 
@@ -121,7 +121,7 @@ export function HomeManittoFinder({
         </span>
         <span className="min-w-0 flex-1">
           <span className="block text-[15px] font-bold tracking-[-0.2px]">
-            마니또 찾기
+            마니또 메이커
           </span>
           <span className="mt-0.5 block truncate text-[11px] text-[var(--ub-text-secondary)]">
             {error || getPhaseCopy(state)}
@@ -129,7 +129,7 @@ export function HomeManittoFinder({
         </span>
         {submitting || phase === 'waiting' ? (
           <span
-            aria-label={submitting ? '마니또 찾기 시작 중' : '마니또 찾는 중'}
+            aria-label={submitting ? '마니또 참여 시작 중' : '마니또 배정 대기 중'}
             className="h-4 w-4 shrink-0 animate-spin rounded-full border-2 border-[var(--ub-separator)] border-t-[var(--ub-color-brand)]"
           />
         ) : (
@@ -149,7 +149,7 @@ export function HomeManittoFinder({
             role="alertdialog"
             aria-modal="true"
             aria-labelledby="manitto-match-title"
-            className="ub-manitto-dialog w-full max-w-[340px] rounded-[28px] bg-[var(--ub-surface-card-strong)] p-5 text-center text-[var(--ub-text-primary)] shadow-[0_24px_80px_rgba(0,0,0,0.34)]"
+            className="ub-manitto-dialog ub-liquid-card w-full max-w-[340px] p-5 text-center text-[var(--ub-text-primary)] shadow-[0_24px_80px_rgba(0,0,0,0.34)]"
             onClick={(event) => event.stopPropagation()}
           >
             <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[var(--ub-surface-brand-soft)] text-[var(--ub-color-brand)]">

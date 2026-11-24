@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { SystemIcon } from '@/app/components/ui/SystemIcon'
 import { missionCategories, type MissionCard, type MissionCategory, type MissionMode } from '../missionCards'
+import { isMissionPoints, type MissionStanding } from '../missionBoard'
 import styles from '../mission.module.css'
 
 type Assignment = { card: MissionCard | null; roundNo: number; drawnAt: string }
@@ -19,6 +20,7 @@ type RoomState = {
     expiresAt: string
   }
   participantCount: number
+  board?: { available: boolean; standings: MissionStanding[] } | null
   participant?: { name: string; team_number: number | null }
   assignment?: Assignment | null
   participants?: Array<{ id: string; name: string; team_number: number | null; joined_at: string }>
@@ -55,9 +57,42 @@ function MissionCardView({ card, roundNo }: { card: MissionCard; roundNo: number
             <p>{card.instruction}</p>
           </>
         )}
-        {card.source && <a className={styles.photoCredit} href={card.source} target="_blank" rel="noopener noreferrer">사진 출처 · Wikimedia Commons ↗</a>}
+        {card.source && card.photoCredit && (
+          <p className={styles.photoCredit}>
+            사진: {card.photoCredit.author} ·{' '}
+            <a href={card.photoCredit.licenseUrl} target="_blank" rel="noopener noreferrer">{card.photoCredit.license}</a>
+            {' '}· {card.photoCredit.modification} ·{' '}
+            <a href={card.source} target="_blank" rel="noopener noreferrer">원본 파일 ↗</a>
+          </p>
+        )}
       </div>
     </article>
+  )
+}
+
+function MissionScoreActions({
+  standing,
+  pending,
+  onSubmit,
+}: {
+  standing: MissionStanding
+  pending: boolean
+  onSubmit: (action: 'complete' | 'score' | 'reopen', draft: string) => void
+}) {
+  const [draft, setDraft] = useState(String(standing.currentPoints ?? 10))
+
+  return (
+    <div className={styles.missionScoreControls}>
+      <label>점수
+        <input type="number" min="0" max="100" step="1" inputMode="numeric" value={draft} onChange={(event) => setDraft(event.target.value)} aria-label="이번 미션 점수" />
+      </label>
+      {standing.currentCompleted ? (
+        <>
+          <button type="button" disabled={pending} onClick={() => onSubmit('score', draft)}>점수 수정</button>
+          <button type="button" disabled={pending} onClick={() => onSubmit('reopen', draft)}>완료 취소</button>
+        </>
+      ) : <button type="button" disabled={pending} onClick={() => onSubmit('complete', draft)}>완료 처리</button>}
+    </div>
   )
 }
 
@@ -139,6 +174,10 @@ export default function MissionRoom({ roomId, isHost }: { roomId: string; isHost
   const activeTarget = targetOptions.some((target) => target.value === selectedTarget) ? selectedTarget : targetOptions[0]?.value
   const assignment = isHost && activeTarget ? state?.room.assignments?.[activeTarget] : state?.assignment
   const missionCategory = state ? missionCategories[state.room.category] : null
+  const selectedTeamNumber = isHost
+    ? (activeTarget?.startsWith('team:') ? Number(activeTarget.slice(5)) : null)
+    : (myParticipant?.team_number ?? null)
+  const selectedStanding = state?.board?.standings.find((standing) => standing.teamNumber === selectedTeamNumber)
 
   async function joinRoom() {
     if (!state) return
@@ -187,6 +226,39 @@ export default function MissionRoom({ roomId, isHost }: { roomId: string; isHost
     }
   }
 
+  async function updateBoard(action: 'complete' | 'score' | 'reopen', scoreDraft: string) {
+    if (!selectedStanding?.currentRoundNo || !selectedTeamNumber) return
+    const points = Number(scoreDraft)
+    if (action !== 'reopen' && (!scoreDraft.trim() || !isMissionPoints(points))) {
+      setError('점수는 0~100점의 정수로 입력해주세요.')
+      return
+    }
+    setPending(true)
+    setError('')
+    setMessage('')
+    try {
+      const response = await fetch(`/api/recreation/mission/${roomId}`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'same-origin',
+        body: JSON.stringify({
+          action,
+          teamNumber: selectedTeamNumber,
+          roundNo: selectedStanding.currentRoundNo,
+          points,
+          expectedPoints: selectedStanding.currentPoints,
+        }),
+      })
+      const result = await response.json()
+      if (!response.ok) throw new Error(result.error || '미션보드를 저장하지 못했습니다.')
+      await refresh()
+      setMessage(action === 'complete' ? '미션 완료와 점수를 공유했어요.' : action === 'score' ? '점수를 수정했어요.' : '완료를 취소했어요.')
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : '미션보드를 저장하지 못했습니다.')
+      await refresh()
+    } finally {
+      setPending(false)
+    }
+  }
+
   async function shareRoom() {
     const url = window.location.href
     if (navigator.share) {
@@ -216,8 +288,8 @@ export default function MissionRoom({ roomId, isHost }: { roomId: string; isHost
           <>
             <div className={styles.roomIntro}>
               <span className={styles.kicker}><SystemIcon name={missionCategory.icon} size={15} /> {missionCategory.label} 미션 · {state.room.mode === 'team' ? '팀전' : '개인전'}</span>
-              <h1>랜덤 미션 뽑기</h1>
-              <p>진행자가 카드를 뽑으면 내 팀 또는 내 화면에 미션이 나타나요.</p>
+              <h1>{state.room.mode === 'team' ? '함께하는 미션보드' : '랜덤 미션 뽑기'}</h1>
+              <p>{state.room.mode === 'team' ? '미션 카드를 뽑고 완료하면 팀 점수가 모두에게 공유돼요.' : '진행자가 카드를 뽑으면 내 화면에 미션이 나타나요.'}</p>
             </div>
 
             {!isHost && !myParticipant && (
@@ -248,6 +320,9 @@ export default function MissionRoom({ roomId, isHost }: { roomId: string; isHost
                   <button type="button" className={styles.primaryButton} disabled={pending || !activeTarget} onClick={() => void drawCard()}>{pending ? '뽑는 중…' : '랜덤 미션 뽑기'}</button>
                 </div>
                 <button type="button" className={styles.textShare} onClick={() => void shareRoom()}>참가자에게 링크 공유 ↗</button>
+                {state.room.mode === 'team' && selectedStanding?.currentRoundNo && !selectedStanding.currentCompleted && (
+                  <p className={styles.hostHint}>같은 팀에 새 카드를 뽑으면 현재 미션은 점수 없이 넘어갑니다.</p>
+                )}
               </section>
             )}
 
@@ -255,6 +330,39 @@ export default function MissionRoom({ roomId, isHost }: { roomId: string; isHost
               <section className={styles.missionSection} aria-label="내 미션 카드">
                 <div className={styles.sectionTop}><h2>{isHost ? `${targetOptions.find((target) => target.value === activeTarget)?.label ?? '참가자'} 미션` : state.room.mode === 'team' ? `${myParticipant?.team_number}팀 미션` : `${myParticipant?.name}님의 미션`}</h2><span>ROUND {assignment?.roundNo ?? '—'}</span></div>
                 {assignment?.card ? <MissionCardView key={`${isHost ? activeTarget : 'mine'}-${assignment.roundNo}`} card={assignment.card} roundNo={assignment.roundNo} /> : <div className={styles.waitingCard}><span aria-hidden>✦</span><strong>아직 뽑힌 미션이 없어요</strong><p>{isHost ? '참가자를 선택하고 미션을 뽑아 보세요.' : '진행자가 미션을 뽑을 때까지 기다려 주세요.'}</p></div>}
+                {state.room.mode === 'team' && assignment?.card && state.board?.available && (
+                  <div className={styles.missionCompletion}>
+                    <span>{selectedStanding?.currentCompleted ? `완료 · ${selectedStanding.currentPoints}점` : '진행 중'}</span>
+                    {isHost && selectedStanding && (
+                      <MissionScoreActions
+                        key={`${selectedStanding.teamNumber}:${selectedStanding.currentRoundNo}:${selectedStanding.currentPoints}`}
+                        standing={selectedStanding}
+                        pending={pending}
+                        onSubmit={(action, draft) => void updateBoard(action, draft)}
+                      />
+                    )}
+                  </div>
+                )}
+              </section>
+            )}
+
+            {state.room.mode === 'team' && (
+              <section className={styles.boardCard} aria-label="팀 미션보드">
+                <div className={styles.sectionTop}><h2>팀 미션보드</h2><span>공유 순위</span></div>
+                {state.board?.available ? (
+                  <>
+                    <div className={styles.boardList} aria-live="polite">
+                      {state.board.standings.map((standing, index) => (
+                        <div className={styles.boardRow} key={standing.teamNumber}>
+                          <b className={styles.boardRank}>{index + 1}</b>
+                          <span className={styles.boardTeam}>{standing.teamNumber}팀<small>{standing.currentRoundNo ? standing.currentCompleted ? '현재 미션 완료' : '미션 진행 중' : '미션 대기 중'}</small></span>
+                          <span className={styles.boardPoints}><strong>{standing.points}</strong><small>점 · 완료 {standing.completedCount}</small></span>
+                        </div>
+                      ))}
+                    </div>
+                    {isHost && <p className={styles.boardNote}>여기서 완료한 점수만 참여자에게 공유돼요. KIT 진행 도구의 수동 점수는 이 방과 별개입니다.</p>}
+                  </>
+                ) : <p className={styles.boardNote}>공유 미션보드를 준비하는 중이에요. 잠시 후 다시 열어주세요.</p>}
               </section>
             )}
 
