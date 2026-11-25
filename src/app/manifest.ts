@@ -51,8 +51,8 @@ export default function manifest(): MetadataRoute.Manifest {
         icons: [{ src: '/icons/icon-192-v6.png', sizes: '192x192' }],
       },
       {
-        name: '5분 함께 기도',
-        short_name: '함께 기도',
+        name: '기도실',
+        short_name: '기도실',
         url: '/pray',
         icons: [{ src: '/icons/icon-192-v6.png', sizes: '192x192' }],
       },

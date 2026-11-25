@@ -3,11 +3,12 @@ import { AppShell, BottomTabBar } from '@/app/components/ui/AppShell'
 import { requireBetaUser } from '@/lib/betaAuth'
 import { isUrgentPrayerPost } from '@/lib/urgentPrayer'
 import PrayerSession, { type PrayerSessionPost } from './PrayerSession'
+import { generateBiblicalNickname } from '@/lib/profile'
 
 export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
-  title: '5분 함께 기도 | 언블라인드',
+  title: '기도실 | 언블라인드',
   description: '현재 기도가 필요한 익명 요청을 한 장씩 차분히 함께 기도합니다.',
 }
 
@@ -69,8 +70,8 @@ export default async function PrayTogetherPage() {
     }))
 
   return (
-    <AppShell topTitle="함께 기도" bottomBar={<BottomTabBar active="prayer" />}>
-      <PrayerSession posts={sessionPosts} />
+    <AppShell topTitle="기도실" bottomBar={<BottomTabBar active="prayer" />}>
+      <PrayerSession posts={sessionPosts} storageScope={user.id} characterName={generateBiblicalNickname(user.id)} />
     </AppShell>
   )
 }

@@ -98,7 +98,7 @@ function TopLogoBar({
               role="search"
               className="ub-top-search min-w-0 flex-1"
             >
-              <div className="ub-search-control flex h-10 min-w-0 items-center gap-2 rounded-full border border-[var(--ub-control-border)] bg-[var(--ub-surface-input)] pl-3 pr-1 text-[var(--ub-text-primary)] shadow-sm">
+              <div className="ub-search-control ub-liquid-inset flex h-10 min-w-0 items-center gap-2 rounded-full border border-[var(--ub-control-border)] pl-3 pr-1 text-[var(--ub-text-primary)]">
                 <SystemIcon
                   name="search"
                   size={18}
@@ -206,7 +206,7 @@ export function PageHeader({
       {backHref && (
         <Link
           href={backHref}
-          className="mb-4 inline-flex min-h-11 items-center rounded-[var(--ub-radius-pill)] bg-[var(--ub-surface-card)] px-4 ios-title text-[var(--ub-color-brand)] shadow-sm backdrop-blur-xl active:bg-[var(--ub-surface-pressed)]"
+          className="ub-liquid-inset mb-4 inline-flex min-h-11 items-center rounded-[var(--ub-radius-pill)] px-4 ios-title text-[var(--ub-color-brand)] active:bg-[var(--ub-surface-pressed)]"
         >
           ‹ {backLabel}
         </Link>
@@ -251,7 +251,7 @@ type GlassCardProps = {
 export function GlassCard({ children, className = '' }: GlassCardProps) {
   return (
     <div
-      className={`rounded-[var(--ub-radius-xl)] border border-[var(--ub-glass-border)] bg-[var(--ub-surface-card)] p-5 text-[var(--ub-text-primary)] shadow-[var(--ub-shadow-card)] backdrop-blur-2xl ${className}`}
+      className={`ub-liquid-card rounded-[var(--ub-radius-xl)] p-5 text-[var(--ub-text-primary)] ${className}`}
     >
       {children}
     </div>
@@ -273,7 +273,7 @@ export function IosListGroup({ children, title, footer }: IosListGroupProps) {
         </p>
       )}
 
-      <div className="overflow-hidden rounded-[18px] bg-[var(--ub-surface-card-strong)] text-[var(--ub-text-primary)] shadow-sm">
+      <div className="ub-list overflow-hidden rounded-[18px] text-[var(--ub-text-primary)]">
         {children}
       </div>
 
@@ -360,7 +360,7 @@ export function NoticeCard({
       ? 'border-[var(--ub-danger-border)] bg-[var(--ub-danger-soft)] text-[var(--ub-danger-text)]'
       : tone === 'warning'
         ? 'border-[var(--ub-warning-border)] bg-[var(--ub-warning-soft)] text-[var(--ub-warning-text)]'
-        : 'border-[var(--ub-glass-border)] bg-[var(--ub-surface-card)] text-[var(--ub-text-secondary)]'
+        : 'ub-liquid-card text-[var(--ub-text-secondary)]'
 
   return (
     <div
@@ -381,7 +381,7 @@ export function PrimaryLink({ href, children }: PrimaryButtonLikeProps) {
   return (
     <Link
       href={href}
-      className="flex min-h-[52px] items-center justify-center rounded-[16px] bg-[var(--ub-surface-card-strong)] px-5 ios-title text-[var(--ub-color-brand)] shadow-sm active:scale-[0.99]"
+      className="ub-liquid-card flex min-h-[52px] items-center justify-center rounded-[16px] px-5 ios-title text-[var(--ub-color-brand)] active:scale-[0.99]"
     >
       {children}
     </Link>
@@ -392,7 +392,7 @@ export function SecondaryLink({ href, children }: PrimaryButtonLikeProps) {
   return (
     <Link
       href={href}
-      className="flex min-h-[52px] items-center justify-center rounded-[16px] bg-[var(--ub-surface-card-strong)]/78 px-5 ios-title text-[var(--ub-color-brand)] active:scale-[0.99]"
+      className="ub-liquid-inset flex min-h-[52px] items-center justify-center rounded-[16px] px-5 ios-title text-[var(--ub-color-brand)] active:scale-[0.99]"
     >
       {children}
     </Link>

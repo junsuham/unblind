@@ -173,7 +173,7 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
     >
       <PostViewTracker postId={post.id} />
 
-      <article className="overflow-hidden rounded-[22px] bg-[var(--ub-surface-card-strong)] shadow-[var(--ub-shadow-soft)]">
+      <article className="ub-liquid-card overflow-hidden rounded-[22px]">
         <header className="px-5 pb-5 pt-5">
           <div className="flex items-center gap-1.5 text-[13px] text-[var(--ub-text-tertiary)]">
             <Emoji3D name={board.icon} size={21} />
@@ -269,7 +269,7 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
         </div>
       )}
 
-      <section className="mt-6 overflow-hidden rounded-[22px] bg-[var(--ub-surface-card-strong)] shadow-[var(--ub-shadow-soft)]">
+      <section className="ub-liquid-card mt-6 overflow-hidden rounded-[22px]">
         <header className="flex min-h-14 items-center justify-between border-b border-[var(--ub-separator)] px-4">
           <h2 className="text-[16px] font-bold text-[var(--ub-text-primary)]">
             댓글 {postEngagement?.comment_count ?? comments.length}

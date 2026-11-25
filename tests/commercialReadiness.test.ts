@@ -72,7 +72,8 @@ describe('commercial readiness regression guard', () => {
     expect(journey).toContain('신앙 기록은 본인에게만 보이며')
     expect(prayerJourneyApi).toContain('Prayer journey notification failed')
     expect(prayerJourneyApi).toContain("stage === 'answered' || stage === 'grateful'")
-    expect(prayerSession).toContain('5분 함께 기도')
+    expect(prayerSession).toContain('기도실')
+    expect(prayerSession).toContain('PrayerRoomScene')
     expect(prayerSession).toContain("type: 'pray'")
   })
 

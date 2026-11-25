@@ -38,7 +38,7 @@ export default async function NotificationsPage() {
     <AppShell topTitle="알림" bottomBar={<BottomTabBar active="notifications" />}>
       <WebPushControl />
       {hasUnread && <div className="mb-3 flex justify-end"><NotificationActions hasUnread /></div>}
-      <div className="overflow-hidden rounded-[20px] bg-[var(--ub-surface-card-strong)] shadow-[var(--ub-shadow-soft)]">
+      <div className="ub-liquid-card overflow-hidden rounded-[20px]">
         {notifications.map((item) => {
           const href = getSafeNotificationHref(item.href, item.post_id)
           const content = (

@@ -59,7 +59,7 @@ const moodGuides: Record<FaithMood, {
   },
 }
 
-export function DailyFaithCheckIn({ storageScope }: { storageScope: string }) {
+export function DailyFaithCheckIn({ storageScope, characterName }: { storageScope: string; characterName: string }) {
   const [checkin, setCheckin] = useState<CheckinResult | null>(null)
   const [mood, setMood] = useState<FaithMood | null>(null)
   const [weather, setWeather] = useState<FaithWeather | null>(null)
@@ -131,7 +131,7 @@ export function DailyFaithCheckIn({ storageScope }: { storageScope: string }) {
           {loading ? (
             <div className="h-[104px] animate-pulse rounded-[14px] bg-[var(--ub-surface-muted)]" aria-hidden />
           ) : (
-            <FaithAvatar mood={checkin?.mood ?? mood} weather={checkin?.faith_weather ?? weather} storageScope={storageScope} />
+            <FaithAvatar mood={checkin?.mood ?? mood} weather={checkin?.faith_weather ?? weather} storageScope={storageScope} characterName={characterName} />
           )}
           {!loading && (checkin ? (
             <button

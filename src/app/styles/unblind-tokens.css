@@ -4,6 +4,8 @@
   /* Brand */
   --ub-color-brand: #e45330;
   --ub-color-brand-rgb: 228, 83, 48;
+  --ub-color-brand-action: #c9411f;
+  --ub-color-brand-label: #b93b1d;
 
   /* Surfaces */
   --ub-surface-app: #f4f0ed;
@@ -19,6 +21,18 @@
   --ub-surface-muted: rgba(232, 226, 222, 0.72);
   --ub-surface-pressed: #e5e5ea;
   --ub-surface-brand-soft: #fff1e9;
+  --ub-liquid-fill: linear-gradient(138deg, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.54) 72%, rgba(255, 243, 238, 0.48));
+  --ub-liquid-fill-strong: linear-gradient(138deg, rgba(255, 255, 255, 0.91), rgba(255, 255, 255, 0.68) 72%, rgba(255, 241, 234, 0.59));
+  --ub-liquid-fill-soft: linear-gradient(138deg, rgba(255, 255, 255, 0.58), rgba(255, 255, 255, 0.34));
+  --ub-liquid-specular: rgba(255, 255, 255, 0.94);
+  --ub-liquid-bottom-highlight: rgba(255, 255, 255, 0.48);
+  --ub-liquid-sheen: linear-gradient(166deg, rgba(255, 255, 255, 0.34), transparent 38%);
+  --ub-editor-surface: #f5f0ed;
+  --ub-editor-chrome: rgba(255, 255, 255, 0.78);
+  --ub-editor-text: #211713;
+  --ub-editor-muted: rgba(43, 35, 32, 0.7);
+  --ub-editor-placeholder: rgba(43, 35, 32, 0.48);
+  --ub-editor-line: rgba(74, 54, 44, 0.16);
 
   /* Text on the main app surface. The token name is kept for compatibility. */
   --ub-text-on-brand-primary: #211713;
@@ -128,6 +142,8 @@
   :root {
     --ub-color-brand: #e45330;
     --ub-color-brand-rgb: 228, 83, 48;
+    --ub-color-brand-action: #c9411f;
+    --ub-color-brand-label: #ff9778;
     --ub-surface-logo: #e45330;
     --ub-surface-app: #140f0d;
     --ub-app-background:
@@ -141,6 +157,18 @@
     --ub-surface-muted: rgba(83, 72, 67, 0.56);
     --ub-surface-pressed: #3a3a3c;
     --ub-surface-brand-soft: #2a1a14;
+    --ub-liquid-fill: linear-gradient(138deg, rgba(57, 49, 46, 0.79), rgba(35, 31, 30, 0.68) 72%, rgba(30, 26, 25, 0.63));
+    --ub-liquid-fill-strong: linear-gradient(138deg, rgba(59, 52, 49, 0.92), rgba(35, 31, 30, 0.83) 72%, rgba(29, 25, 24, 0.78));
+    --ub-liquid-fill-soft: linear-gradient(138deg, rgba(76, 65, 61, 0.42), rgba(34, 30, 29, 0.45));
+    --ub-liquid-specular: rgba(255, 237, 225, 0.3);
+    --ub-liquid-bottom-highlight: rgba(255, 226, 209, 0.08);
+    --ub-liquid-sheen: linear-gradient(166deg, rgba(255, 229, 215, 0.12), transparent 38%);
+    --ub-editor-surface: #120f0e;
+    --ub-editor-chrome: rgba(31, 28, 27, 0.88);
+    --ub-editor-text: #fff8f4;
+    --ub-editor-muted: rgba(255, 248, 244, 0.72);
+    --ub-editor-placeholder: rgba(255, 248, 244, 0.45);
+    --ub-editor-line: rgba(255, 229, 214, 0.16);
     --ub-text-on-brand-primary: #fff8f4;
     --ub-text-on-brand-secondary: rgba(255, 248, 244, 0.8);
     --ub-text-on-brand-tertiary: rgba(255, 248, 244, 0.62);

@@ -140,7 +140,7 @@ export function getFaithNextStep(checkin?: FaithCheckinInsight | null) {
         title: '누군가의 기도 제목에 마음을 보태주세요',
         description: '지금 기도가 필요한 요청을 한 장씩 천천히 만나보세요.',
         href: '/pray',
-        action: '5분 함께 기도',
+        action: '기도실',
       }
     default:
       return {

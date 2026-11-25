@@ -72,7 +72,7 @@ export default function PraiseRecommendations({
     <div>
       <section
         id="unblind-player"
-        className="sticky top-3 z-20 mb-5 overflow-hidden rounded-[22px] border border-[var(--ub-glass-border)] bg-[var(--ub-surface-card-strong)] text-[var(--ub-text-primary)] shadow-[var(--ub-shadow-card)]"
+        className="ub-liquid-card sticky top-3 z-20 mb-5 overflow-hidden rounded-[22px] text-[var(--ub-text-primary)]"
       >
         <div className="aspect-video w-full bg-black">
           <iframe
@@ -92,7 +92,7 @@ export default function PraiseRecommendations({
             <span className="block truncate text-[15px] font-semibold">{selectedSong.title}</span>
             <span className="block truncate text-[12px] text-[var(--ub-text-tertiary)]">{selectedSong.artist}</span>
           </span>
-          <span className="ml-auto shrink-0 rounded-full bg-[var(--ub-surface-brand-soft)] px-2.5 py-1 text-[11px] font-bold text-[var(--ub-color-brand)]">
+          <span className="ml-auto shrink-0 rounded-full bg-[var(--ub-surface-brand-soft)] px-2.5 py-1 text-[11px] font-bold text-[var(--ub-color-brand-label)]">
             {situation.label}
           </span>
         </div>
@@ -114,8 +114,8 @@ export default function PraiseRecommendations({
                 aria-pressed={isSelected}
                 onClick={() => selectSituation(item.key)}
                 className={isSelected
-                  ? 'min-h-[82px] rounded-[18px] bg-[var(--ub-surface-card-strong)] p-3 text-left text-[var(--ub-text-primary)] shadow-[var(--ub-shadow-card)] ring-2 ring-[var(--ub-color-brand)]'
-                  : 'min-h-[82px] rounded-[18px] bg-[var(--ub-surface-card)] p-3 text-left text-[var(--ub-text-primary)] shadow-[var(--ub-shadow-soft)] active:bg-[var(--ub-surface-pressed)]'}
+                  ? 'ub-liquid-card min-h-[82px] rounded-[18px] p-3 text-left text-[var(--ub-text-primary)] ring-2 ring-[var(--ub-color-brand)]'
+                  : 'ub-liquid-card min-h-[82px] rounded-[18px] p-3 text-left text-[var(--ub-text-primary)] active:bg-[var(--ub-surface-pressed)]'}
               >
                 <span className="flex h-8 w-8 items-center justify-center rounded-[11px] bg-[var(--ub-surface-brand-soft)] text-[var(--ub-color-brand)]">
                   <SystemIcon name={situationIcons[item.key]} size={17} filled={isSelected} />
@@ -130,7 +130,7 @@ export default function PraiseRecommendations({
           <button
             type="button"
             onClick={() => selectSituation('all')}
-            className="mt-2 flex min-h-11 w-full items-center justify-center gap-2 rounded-[14px] bg-[var(--ub-surface-card)] text-[12px] font-semibold text-[var(--ub-text-on-brand-primary)] active:bg-[var(--ub-surface-pressed)]"
+            className="ub-liquid-inset mt-2 flex min-h-11 w-full items-center justify-center gap-2 rounded-[14px] text-[12px] font-semibold text-[var(--ub-text-on-brand-primary)] active:bg-[var(--ub-surface-pressed)]"
           >
             <SystemIcon name="disc" size={16} />
             이번 주 TOP50 보기
@@ -138,7 +138,7 @@ export default function PraiseRecommendations({
         )}
       </section>
 
-      <section className="mt-5 overflow-hidden rounded-[22px] bg-[var(--ub-surface-card-strong)] text-[var(--ub-text-primary)] shadow-[var(--ub-shadow-soft)]">
+      <section className="ub-liquid-card mt-5 overflow-hidden rounded-[22px] text-[var(--ub-text-primary)]">
         <div className="border-b border-[var(--ub-separator)] px-4 py-3">
           <p className="text-[13px] font-bold">{situation.label}</p>
           <p className="mt-0.5 text-[11px] text-[var(--ub-text-tertiary)]">추천 {filteredSongs.length}곡</p>
@@ -154,7 +154,7 @@ export default function PraiseRecommendations({
               aria-label={`${index + 1}번 ${song.title} 재생`}
               className={`flex min-h-[76px] w-full items-center gap-3 border-b border-[var(--ub-separator)] px-3 py-2.5 text-left last:border-b-0 active:bg-[var(--ub-surface-pressed)] ${isSelected ? 'bg-[var(--ub-surface-brand-soft)]' : ''}`}
             >
-              <span className={`w-6 shrink-0 text-center text-[14px] tabular-nums ${index < 3 ? 'font-bold text-[var(--ub-color-brand)]' : 'text-[var(--ub-text-secondary)]'}`}>
+              <span className={`w-6 shrink-0 text-center text-[14px] tabular-nums ${index < 3 ? 'font-bold text-[var(--ub-color-brand-label)]' : 'text-[var(--ub-text-secondary)]'}`}>
                 {index + 1}
               </span>
               <span className="relative h-14 w-14 shrink-0 overflow-hidden rounded-[10px] bg-[var(--ub-surface-muted)]">
@@ -172,7 +172,7 @@ export default function PraiseRecommendations({
                 </span>
               </span>
               <span className="min-w-0 flex-1">
-                <span className={`block truncate text-[14px] font-semibold ${isSelected ? 'text-[var(--ub-color-brand)]' : ''}`}>
+                <span className={`block truncate text-[14px] font-semibold ${isSelected ? 'text-[var(--ub-color-brand-label)]' : ''}`}>
                   {song.title}
                 </span>
                 <span className="mt-1 block truncate text-[12px] text-[var(--ub-text-tertiary)]">
@@ -182,7 +182,7 @@ export default function PraiseRecommendations({
               <SystemIcon
                 name={isSelected ? 'music' : 'play'}
                 size={18}
-                className={isSelected ? 'text-[var(--ub-color-brand)]' : 'text-[var(--ub-text-tertiary)]'}
+                className={isSelected ? 'text-[var(--ub-color-brand-label)]' : 'text-[var(--ub-text-tertiary)]'}
               />
             </button>
           )

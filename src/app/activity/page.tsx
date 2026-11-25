@@ -108,7 +108,7 @@ export default async function ActivityPage() {
             <p className="mt-1 text-[12px] font-semibold text-[var(--ub-text-secondary)]">최근 기도한 글</p>
           </div>
         </section>
-        <nav aria-label="계정 메뉴" className="grid grid-cols-3 gap-2">
+        <nav aria-label="계정 메뉴" className={`grid gap-2 ${dashboardAccess ? 'grid-cols-3' : 'grid-cols-2'}`}>
           <Link href="/settings/account" className="flex min-h-[64px] flex-col items-center justify-center gap-1 rounded-[16px] bg-[var(--ub-surface-card-strong)] text-[12px] font-semibold text-[var(--ub-text-primary)] shadow-sm active:bg-[var(--ub-surface-pressed)]">
             <SystemIcon name="person" size={20} className="text-[var(--ub-color-brand)]" />계정
           </Link>
@@ -117,13 +117,9 @@ export default async function ActivityPage() {
           </Link>
           {dashboardAccess ? (
             <Link href="/church-dashboard" className="flex min-h-[64px] flex-col items-center justify-center gap-1 rounded-[16px] bg-[var(--ub-surface-card-strong)] text-[12px] font-semibold text-[var(--ub-text-primary)] shadow-sm active:bg-[var(--ub-surface-pressed)]">
-              <SystemIcon name="calendar" size={20} className="text-[var(--ub-color-brand)]" />대시보드
+              <SystemIcon name="dashboard" size={20} className="text-[var(--ub-color-brand)]" />대시보드
             </Link>
-          ) : (
-            <span aria-label="대시보드 이용 권한 없음" className="flex min-h-[64px] flex-col items-center justify-center gap-1 rounded-[16px] bg-[var(--ub-surface-card-strong)] text-[12px] font-semibold text-[var(--ub-text-tertiary)] shadow-sm">
-              <SystemIcon name="calendar" size={20} />대시보드
-            </span>
-          )}
+          ) : null}
         </nav>
         {sections.map((section) => (
           <section key={section.title}>

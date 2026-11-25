@@ -93,12 +93,12 @@ function CheckRow({
   children: ReactNode
 }) {
   return (
-    <label className="flex min-h-[50px] cursor-pointer items-start gap-3 border-b border-white/8 py-3.5 last:border-b-0">
+    <label className="flex min-h-[50px] cursor-pointer items-start gap-3 border-b border-[var(--ub-editor-line)] py-3.5 last:border-b-0">
       <span
         className={
           checked
-            ? 'mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#e45330] text-white'
-            : 'mt-0.5 h-5 w-5 shrink-0 rounded-full border border-white/28 bg-white/5'
+            ? 'mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[var(--ub-color-brand-action)] text-white'
+            : 'mt-0.5 h-5 w-5 shrink-0 rounded-full border border-[var(--ub-editor-line)] bg-[var(--ub-surface-card)]'
         }
       >
         {checked && (
@@ -120,7 +120,7 @@ function CheckRow({
         onChange={(event) => onChange(event.target.checked)}
         className="sr-only"
       />
-      <span className="text-[13px] leading-[19px] text-white/66">
+      <span className="text-[13px] leading-[19px] text-[var(--ub-editor-muted)]">
         {children}
       </span>
     </label>
@@ -389,24 +389,24 @@ export default function NewPostForm({
   }
 
   return (
-    <main className="ub-writer-no-tab min-h-[100dvh] overflow-x-hidden bg-[#101011] pb-[calc(72px+env(safe-area-inset-bottom))] text-white">
+    <main className="ub-writer-no-tab min-h-[100dvh] overflow-x-hidden bg-[var(--ub-editor-surface)] pb-[calc(72px+env(safe-area-inset-bottom))] text-[var(--ub-editor-text)]">
       <form
         onSubmit={handleSubmit}
         className="ub-writer mx-auto min-h-[100dvh] max-w-[430px]"
       >
-        <header className="sticky top-0 z-30 border-b border-white/8 bg-[#101011]/98 pt-[env(safe-area-inset-top)] shadow-[0_8px_24px_rgba(0,0,0,0.18)] backdrop-blur-xl">
+        <header className="sticky top-0 z-30 border-b border-[var(--ub-editor-line)] bg-[var(--ub-editor-chrome)] pt-[env(safe-area-inset-top)] shadow-[var(--ub-shadow-soft)] backdrop-blur-xl">
           <div className="flex min-h-[56px] items-center justify-between px-4">
             <button
               type="button"
               onClick={() => router.push('/')}
-              className="min-h-11 px-1 text-[16px] text-white/72 active:text-white"
+              className="min-h-11 px-1 text-[16px] text-[var(--ub-editor-muted)] active:text-[var(--ub-editor-text)]"
             >
               취소
             </button>
             <button
               type="submit"
               disabled={!canSubmit}
-              className="min-h-11 px-1 text-[16px] font-semibold text-[#e45330] disabled:text-white/24"
+              className="min-h-11 px-1 text-[16px] font-semibold text-[var(--ub-color-brand-label)] disabled:text-[var(--ub-text-tertiary)]"
             >
               {isSubmitting ? '등록 중' : '등록'}
             </button>
@@ -418,23 +418,23 @@ export default function NewPostForm({
               onClick={() => setBoardPickerOpen((open) => !open)}
               aria-expanded={boardPickerOpen}
               aria-controls="writer-board-options"
-              className="flex min-h-[54px] w-full items-center justify-between gap-3 rounded-[14px] border border-[#e45330]/45 bg-[#e45330]/10 px-4 text-left active:bg-[#e45330]/16"
+              className="ub-liquid-inset flex min-h-[54px] w-full items-center justify-between gap-3 rounded-[14px] px-4 text-left active:bg-[var(--ub-surface-pressed)]"
             >
               <span className="min-w-0">
-                <span className="block text-[15px] font-bold tracking-[-0.2px] text-white">
+                <span className="block text-[15px] font-bold tracking-[-0.2px] text-[var(--ub-editor-text)]">
                   게시판을 선택해주세요
                 </span>
                 {board && (
-                  <span className="mt-0.5 block truncate text-[11px] font-semibold text-[#ff7559]">
+                  <span className="mt-0.5 block truncate text-[11px] font-semibold text-[var(--ub-color-brand-label)]">
                     {boardOptions.find((option) => option.id === board)?.name}
                   </span>
                 )}
               </span>
-              <span className={`text-[21px] text-[#ff7559] transition-transform ${boardPickerOpen ? 'rotate-180' : ''}`} aria-hidden>⌄</span>
+              <span className={`text-[21px] text-[var(--ub-color-brand-label)] transition-transform ${boardPickerOpen ? 'rotate-180' : ''}`} aria-hidden>⌄</span>
             </button>
 
             {boardPickerOpen && (
-              <div id="writer-board-options" className="mt-2 overflow-hidden rounded-[14px] border border-white/10 bg-[#242426] shadow-xl">
+              <div id="writer-board-options" className="ub-liquid-card mt-2 overflow-hidden rounded-[14px]">
                 {boardOptions.map((option) => (
                   <button
                     key={option.id}
@@ -445,7 +445,7 @@ export default function NewPostForm({
                       setBoardPickerOpen(false)
                     }}
                     aria-pressed={board === option.id}
-                    className={`flex min-h-[48px] w-full items-center justify-between border-b border-white/8 px-4 text-left text-[15px] font-semibold last:border-b-0 ${board === option.id ? 'bg-[#e45330]/14 text-[#ff7559]' : 'text-white/82 active:bg-white/6'}`}
+                    className={`flex min-h-[48px] w-full items-center justify-between border-b border-[var(--ub-editor-line)] px-4 text-left text-[15px] font-semibold last:border-b-0 ${board === option.id ? 'bg-[var(--ub-surface-brand-soft)] text-[var(--ub-color-brand-label)]' : 'text-[var(--ub-editor-text)] active:bg-[var(--ub-surface-pressed)]'}`}
                   >
                     <span>{option.name}</span>
                     {board === option.id && <Emoji3D name="check" size={19} />}
@@ -457,30 +457,30 @@ export default function NewPostForm({
         </header>
 
         {draftRestored && (
-          <div className="mx-4 mt-3 flex min-h-11 items-center justify-between gap-3 rounded-[12px] bg-[#e45330]/12 px-3 text-[12px] font-semibold text-[#ff8e77]" role="status">
+          <div className="mx-4 mt-3 flex min-h-11 items-center justify-between gap-3 rounded-[12px] bg-[var(--ub-surface-brand-soft)] px-3 text-[12px] font-semibold text-[var(--ub-color-brand-label)]" role="status">
             <span>작성 중이던 글을 복원했습니다.</span>
-            <button type="button" onClick={clearDraft} className="min-h-11 shrink-0 px-2 font-bold text-[#ff9a86]">초기화</button>
+            <button type="button" onClick={clearDraft} className="min-h-11 shrink-0 px-2 font-bold text-[var(--ub-color-brand-label)]">초기화</button>
           </div>
         )}
 
         {board === 'prayer' && (
-          <section className="border-b border-white/8 px-4 py-4">
+          <section className="border-b border-[var(--ub-editor-line)] px-4 py-4">
             <button
               type="button"
               aria-pressed={urgentPrayer}
               onClick={() => setUrgentPrayer((current) => !current)}
-              className={`flex min-h-[66px] w-full items-center gap-3 rounded-[16px] border px-3.5 text-left transition-colors ${urgentPrayer ? 'border-[#ff5a4f]/65 bg-[#ff3b30]/14' : 'border-white/10 bg-white/5 active:bg-white/8'}`}
+              className={`flex min-h-[66px] w-full items-center gap-3 rounded-[16px] border px-3.5 text-left transition-colors ${urgentPrayer ? 'border-[var(--ub-danger-border)] bg-[var(--ub-danger-soft)]' : 'border-[var(--ub-editor-line)] bg-[var(--ub-surface-card)] active:bg-[var(--ub-surface-pressed)]'}`}
             >
               <Emoji3D name="siren" size={38} />
               <span className="min-w-0 flex-1">
-                <strong className="block text-[14px] text-white">긴급 중보기도 요청</strong>
-                <span className="mt-0.5 block text-[12px] leading-[17px] text-white/68">빠른 기도가 꼭 필요한 제목에만 표시해주세요.</span>
+                <strong className="block text-[14px] text-[var(--ub-editor-text)]">긴급 중보기도 요청</strong>
+                <span className="mt-0.5 block text-[12px] leading-[17px] text-[var(--ub-editor-muted)]">빠른 기도가 꼭 필요한 제목에만 표시해주세요.</span>
               </span>
-              <span className={`relative h-7 w-12 shrink-0 rounded-full transition-colors ${urgentPrayer ? 'bg-[#ff3b30]' : 'bg-white/16'}`} aria-hidden>
+              <span className={`relative h-7 w-12 shrink-0 rounded-full transition-colors ${urgentPrayer ? 'bg-[var(--ub-danger)]' : 'bg-[var(--ub-surface-muted)]'}`} aria-hidden>
                 <span className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow-sm transition-transform ${urgentPrayer ? 'translate-x-6' : 'translate-x-1'}`} />
               </span>
             </button>
-            <p className="mt-2 px-1 text-[12px] leading-[18px] text-white/68">생명 위험이나 즉시 구조가 필요한 상황에서는 앱보다 112·119와 가까운 보호자에게 먼저 연락해주세요.</p>
+            <p className="mt-2 px-1 text-[12px] leading-[18px] text-[var(--ub-editor-muted)]">생명 위험이나 즉시 구조가 필요한 상황에서는 앱보다 112·119와 가까운 보호자에게 먼저 연락해주세요.</p>
           </section>
         )}
 
@@ -490,10 +490,10 @@ export default function NewPostForm({
           maxLength={80}
           placeholder="제목을 입력해주세요."
           aria-label="제목"
-          className="min-h-[82px] w-full border-b border-white/8 bg-transparent px-4 text-[23px] font-semibold tracking-[-0.4px] text-white outline-none placeholder:text-white/18"
+          className="min-h-[82px] w-full border-b border-[var(--ub-editor-line)] bg-transparent px-4 text-[23px] font-semibold tracking-[-0.4px] text-[var(--ub-editor-text)] outline-none placeholder:text-[var(--ub-editor-placeholder)]"
         />
 
-        <section className="relative border-b border-white/8">
+        <section className="relative border-b border-[var(--ub-editor-line)]">
           <PraiseMentionInput
             ref={mentionInputRef}
             value={content}
@@ -504,18 +504,18 @@ export default function NewPostForm({
             maxLength={2000}
             placeholder="내용을 입력해주세요."
             aria-label="내용"
-            className="min-h-[390px] w-full resize-none bg-transparent px-4 py-5 text-[17px] leading-[25px] text-white outline-none placeholder:text-white/16"
+            className="min-h-[390px] w-full resize-none bg-transparent px-4 py-5 text-[17px] leading-[25px] text-[var(--ub-editor-text)] outline-none placeholder:text-[var(--ub-editor-placeholder)]"
           />
-          <span className="absolute bottom-3 right-4 text-[12px] tabular-nums text-white/55">
+          <span className="absolute bottom-3 right-4 text-[12px] tabular-nums text-[var(--ub-editor-muted)]">
             {content.length}/2000
           </span>
         </section>
 
         {uploadedImages.length > 0 && (
-          <section className="border-b border-white/8 px-4 py-4">
+          <section className="border-b border-[var(--ub-editor-line)] px-4 py-4">
             <div className="grid grid-cols-3 gap-2">
               {uploadedImages.map((image) => (
-                <div key={image.attachment.storagePath} className="relative aspect-square overflow-hidden rounded-[14px] bg-white/6">
+                <div key={image.attachment.storagePath} className="relative aspect-square overflow-hidden rounded-[14px] bg-[var(--ub-surface-card)]">
                   {/* 업로드 직후의 로컬 미리보기이므로 Next 이미지 최적화 대상이 아닙니다. */}
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={image.previewUrl} alt="첨부 이미지 미리보기" className="h-full w-full object-cover" />
@@ -537,8 +537,8 @@ export default function NewPostForm({
           <SafetyIssueList issues={safetyAnalysis.issues} />
         </div>
 
-        <section id="writer-checks" className="scroll-mt-20 border-b border-white/8 px-4 py-5">
-          <h2 className="text-[13px] font-semibold text-white/48">등록 전 확인</h2>
+        <section id="writer-checks" className="scroll-mt-20 border-b border-[var(--ub-editor-line)] px-4 py-5">
+          <h2 className="text-[13px] font-semibold text-[var(--ub-editor-muted)]">등록 전 확인</h2>
           <div className="mt-2">
             <CheckRow checked={checkedPrivacy} onChange={setCheckedPrivacy}>
               이름, 직책, 사역팀 등 개인을 특정할 수 있는 정보를 적지 않았습니다.
@@ -554,7 +554,7 @@ export default function NewPostForm({
           </div>
         </section>
 
-        <p className="px-4 py-4 text-[12px] leading-[18px] text-white/62">
+        <p className="px-4 py-4 text-[12px] leading-[18px] text-[var(--ub-editor-muted)]">
           사용자에게는 랜덤 익명 ID만 표시되며 신고 처리에 필요한 기록은 운영 정책에 따라 보호됩니다.
         </p>
 
@@ -566,8 +566,8 @@ export default function NewPostForm({
           </div>
         )}
 
-        <div className="ub-writer-toolbar fixed inset-x-0 z-30 border-t border-white/8 bg-[#1c1c1e]/98 backdrop-blur-xl">
-          <div className="mx-auto flex min-h-[54px] max-w-[430px] items-center gap-1 px-3 text-white/52">
+        <div className="ub-writer-toolbar fixed inset-x-0 z-30 border-t border-[var(--ub-editor-line)] bg-[var(--ub-editor-chrome)] backdrop-blur-xl">
+          <div className="mx-auto flex min-h-[54px] max-w-[430px] items-center gap-1 px-3 text-[var(--ub-editor-muted)]">
             <input
               ref={imageInputRef}
               type="file"
@@ -582,7 +582,7 @@ export default function NewPostForm({
               onClick={() => imageInputRef.current?.click()}
               disabled={isUploading || uploadedImages.length >= 3}
               aria-label="이미지 업로드"
-              className="flex h-11 w-11 items-center justify-center rounded-[10px] active:bg-white/8 disabled:opacity-35"
+              className="flex h-11 w-11 items-center justify-center rounded-[10px] active:bg-[var(--ub-surface-pressed)] disabled:opacity-35"
             >
               <svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden>
                 <rect x="3" y="4" width="18" height="16" rx="2" />
@@ -594,7 +594,7 @@ export default function NewPostForm({
               type="button"
               onClick={() => mentionInputRef.current?.startMention('location')}
               aria-label="위치 추가"
-              className="flex h-11 w-11 items-center justify-center rounded-[10px] active:bg-white/8"
+              className="flex h-11 w-11 items-center justify-center rounded-[10px] active:bg-[var(--ub-surface-pressed)]"
             >
               <svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden>
                 <path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z" />
@@ -605,7 +605,7 @@ export default function NewPostForm({
               type="button"
               onClick={() => mentionInputRef.current?.startMention('praise')}
               aria-label="찬양 추가"
-              className="flex h-11 w-11 items-center justify-center rounded-[10px] active:bg-white/8"
+              className="flex h-11 w-11 items-center justify-center rounded-[10px] active:bg-[var(--ub-surface-pressed)]"
             >
               <svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden>
                 <path d="M9 18V5l10-2v13" />
@@ -613,7 +613,7 @@ export default function NewPostForm({
                 <circle cx="16" cy="16" r="3" />
               </svg>
             </button>
-            <span className="ml-auto pr-1 text-[11px] text-white/60">
+            <span className="ml-auto pr-1 text-[11px] text-[var(--ub-editor-muted)]">
               {isUploading ? '이미지 올리는 중…' : `${uploadedImages.length}/3 · 위치 · 찬양`}
             </span>
           </div>

@@ -17,6 +17,7 @@ import { getWeeklyManitto } from '@/lib/manitto'
 import { UrgentPrayerBadge } from '@/app/components/UrgentPrayerBadge'
 import { isUrgentPrayerPost } from '@/lib/urgentPrayer'
 import { indexPostEngagement, type PostEngagement } from '@/lib/postEngagement'
+import { generateBiblicalNickname } from '@/lib/profile'
 
 export const dynamic = 'force-dynamic'
 
@@ -105,7 +106,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   return (
     <AppShell bottomBar={<BottomTabBar active="home" />}>
       <h1 className="sr-only">언블라인드 홈</h1>
-      <DailyFaithCheckIn storageScope={user.id} />
+      <DailyFaithCheckIn storageScope={user.id} characterName={generateBiblicalNickname(user.id)} />
       <HomeBibleVerse />
 
       <BuilderHomeSection searchParams={params} />

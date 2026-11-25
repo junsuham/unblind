@@ -20,12 +20,14 @@ export async function GET(request: NextRequest) {
   }
 
   const now = new Date().toISOString()
-  const [arrivalCleanup, missionCleanup] = await Promise.all([
+  const [arrivalCleanup, missionCleanup, manittoMakerCleanup] = await Promise.all([
     supabaseAdmin.from('recreation_arrival_rooms').delete().lt('expires_at', now),
     supabaseAdmin.from('recreation_mission_rooms').delete().lt('expires_at', now),
+    supabaseAdmin.from('manitto_maker_rooms').delete().lt('expires_at', now),
   ])
   if (arrivalCleanup.error) console.error('Expired arrival room cleanup failed:', arrivalCleanup.error.message)
   if (missionCleanup.error) console.error('Expired mission room cleanup failed:', missionCleanup.error.message)
+  if (manittoMakerCleanup.error) console.error('Expired Manitto Maker room cleanup failed:', manittoMakerCleanup.error.message)
 
   return Response.json({ ok: true, checkedAt: new Date().toISOString() })
 }

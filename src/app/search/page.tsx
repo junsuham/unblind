@@ -39,14 +39,14 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   return (
     <AppShell bottomBar={<BottomTabBar />}>
       <form method="get" role="search" className="mb-4 flex gap-2">
-        <label className="ub-search-control flex min-h-12 min-w-0 flex-1 items-center gap-2 rounded-[16px] border border-[var(--ub-control-border)] bg-[var(--ub-surface-input)] px-4 text-[var(--ub-text-primary)] shadow-sm">
+        <label className="ub-liquid-inset ub-search-control flex min-h-12 min-w-0 flex-1 items-center gap-2 rounded-[16px] px-4 text-[var(--ub-text-primary)]">
           <SystemIcon name="search" size={19} className="shrink-0 text-[var(--ub-text-tertiary)]" />
           <input autoFocus name="q" defaultValue={query} aria-label="게시글 검색" placeholder="게시글 검색" className="ub-search-input min-w-0 flex-1 bg-transparent text-[15px] text-[var(--ub-text-primary)] outline-none placeholder:text-[var(--ub-text-tertiary)]" />
         </label>
-        <button className="min-h-12 rounded-[16px] bg-[var(--ub-color-brand)] px-4 text-[15px] font-bold text-white shadow-sm">검색</button>
+        <button className="min-h-12 rounded-[16px] bg-[var(--ub-color-brand-action)] px-4 text-[15px] font-bold text-white shadow-sm">검색</button>
       </form>
 
-      <section className="overflow-hidden rounded-[20px] bg-[var(--ub-surface-card-strong)] shadow-sm">
+      <section className="ub-liquid-card overflow-hidden rounded-[20px]">
         {posts.map((post) => {
           const board = getBoardPresentation(post.board)
           const isUrgent = isUrgentPrayerPost(post.board, post.tags)

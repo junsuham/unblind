@@ -20,10 +20,11 @@ describe('inline search appearance', () => {
   })
 
   it('uses theme-aware semantic colors for the search field', () => {
-    expect(appShell).toContain('bg-[var(--ub-surface-input)]')
+    expect(appShell).toContain('ub-liquid-inset')
     expect(appShell).toContain('text-[var(--ub-text-primary)]')
     expect(appShell).toContain('border-[var(--ub-control-border)]')
     expect(globalStyles).toContain('color-scheme: light dark;')
+    expect(globalStyles).toContain('background: var(--ub-liquid-fill-soft);')
   })
 
   it('keeps the logo visible and expands only inside the remaining header space', () => {

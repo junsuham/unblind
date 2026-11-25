@@ -1,0 +1,72 @@
+.container {
+  overflow: hidden;
+  border: 1px solid var(--ub-glass-border);
+  border-radius: 22px;
+  background: var(--ub-surface-card-strong);
+  box-shadow: var(--ub-shadow-soft);
+}
+.room {
+  position: relative;
+  width: 100%;
+  height: clamp(220px, 64vw, 310px);
+  overflow: hidden;
+  isolation: isolate;
+  background: #c49068;
+}
+.background {
+  z-index: -1;
+  object-fit: cover;
+  object-position: center 60%;
+  image-rendering: pixelated;
+}
+.walkArea {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  cursor: crosshair;
+  background: transparent;
+}
+.walkArea:focus-visible { outline: 3px solid var(--ub-color-brand); outline-offset: -4px; }
+.avatar {
+  position: absolute;
+  z-index: 1;
+  display: grid;
+  justify-items: center;
+  pointer-events: none;
+  transform: translate(-50%, -64%);
+  transition: left .2s steps(3), top .2s steps(3);
+  filter: drop-shadow(0 5px 0 rgba(36, 24, 19, .36));
+}
+.nameTag {
+  max-width: 112px;
+  overflow: hidden;
+  border: 1px solid rgba(37, 27, 21, .64);
+  border-radius: 4px;
+  padding: 2px 4px;
+  background: rgba(255, 250, 238, .95);
+  color: #36251d;
+  font-size: 9px;
+  font-weight: 800;
+  line-height: 1.1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.roomName {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  border: 1px solid rgba(60, 35, 20, .4);
+  border-radius: 6px;
+  padding: 5px 8px;
+  background: rgba(255, 248, 227, .9);
+  color: #3d2a1f;
+  font-size: 11px;
+  font-weight: 900;
+}
+.controls { display: flex; min-height: 46px; align-items: center; justify-content: space-between; gap: 8px; padding: 4px 8px 4px 12px; }
+.hint { color: var(--ub-text-tertiary); font-size: 10px; font-weight: 700; }
+.arrows { display: flex; align-items: center; gap: 2px; }
+.arrows div { display: flex; flex-direction: column; gap: 2px; }
+.arrows button { width: 32px; height: 24px; border-radius: 6px; background: var(--ub-surface-muted); color: var(--ub-text-primary); font-size: 14px; font-weight: 900; line-height: 1; }
+.arrows button:active { background: var(--ub-surface-brand-soft); color: var(--ub-color-brand); }
+@media (max-width: 350px) { .hint { max-width: 130px; } }

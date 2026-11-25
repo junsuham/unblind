@@ -4,6 +4,7 @@ export type SystemIconName =
   | 'bell'
   | 'bookmark'
   | 'calendar'
+  | 'dashboard'
   | 'check'
   | 'close'
   | 'disc'
@@ -50,6 +51,14 @@ const paths: Record<SystemIconName, ReactNode> = {
   ),
   calendar: (
     <path d="M7 2v3M17 2v3M3.5 9h17M5 4h14a2 2 0 0 1 2 2v14H3V6a2 2 0 0 1 2-2Z" />
+  ),
+  dashboard: (
+    <>
+      <rect x="3" y="3" width="8" height="8" rx="1.8" />
+      <rect x="13" y="3" width="8" height="8" rx="1.8" />
+      <rect x="3" y="13" width="8" height="8" rx="1.8" />
+      <rect x="13" y="13" width="8" height="8" rx="1.8" />
+    </>
   ),
   check: (
     <path d="m5 12 4.2 4.2L19 6.5" />

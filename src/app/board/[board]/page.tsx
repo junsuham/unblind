@@ -154,13 +154,13 @@ export default async function BoardPage({ params, searchParams }: BoardPageProps
       {board === 'prayer' && (
         <Link
           href="/pray"
-          className="mb-4 flex min-h-[64px] items-center gap-3 rounded-[18px] bg-[linear-gradient(135deg,var(--ub-surface-card-strong),var(--ub-surface-brand-soft))] px-4 shadow-[var(--ub-shadow-soft)] active:bg-[var(--ub-surface-pressed)]"
+          className="ub-liquid-card mb-4 flex min-h-[64px] items-center gap-3 rounded-[18px] px-4 active:bg-[var(--ub-surface-pressed)]"
         >
           <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--ub-color-brand)] text-white">
             <SystemIcon name="prayer" size={20} />
           </span>
           <span className="min-w-0 flex-1">
-            <strong className="block text-[14px] text-[var(--ub-text-primary)]">5분 함께 기도</strong>
+            <strong className="block text-[14px] text-[var(--ub-text-primary)]">기도실</strong>
             <span className="mt-0.5 block truncate text-[11px] text-[var(--ub-text-secondary)]">
               지금 기도가 필요한 요청을 한 장씩 만나보세요
             </span>
@@ -168,18 +168,18 @@ export default async function BoardPage({ params, searchParams }: BoardPageProps
           <span className="text-[22px] text-[var(--ub-text-tertiary)]" aria-hidden>›</span>
         </Link>
       )}
-      <nav aria-label="게시글 정렬" className="mb-4 ml-auto grid w-fit grid-cols-2 rounded-[14px] bg-[var(--ub-surface-card-strong)] p-1 shadow-sm">
+      <nav aria-label="게시글 정렬" className="ub-liquid-inset mb-4 ml-auto grid w-fit grid-cols-2 rounded-[14px] p-1">
         <Link
           href={getBoardHref(board, { sort: 'latest', stage: prayerFilter })}
           aria-current={sort === 'latest' ? 'page' : undefined}
-          className={`flex min-h-11 items-center rounded-[11px] px-4 text-[13px] font-semibold ${sort === 'latest' ? 'bg-[var(--ub-color-brand)] text-white shadow-sm' : 'text-[var(--ub-text-secondary)]'}`}
+          className={`flex min-h-11 items-center rounded-[11px] px-4 text-[13px] font-semibold ${sort === 'latest' ? 'bg-[var(--ub-color-brand-action)] text-white shadow-sm' : 'text-[var(--ub-text-secondary)]'}`}
         >
           최신순
         </Link>
         <Link
           href={getBoardHref(board, { sort: 'popular', stage: prayerFilter })}
           aria-current={sort === 'popular' ? 'page' : undefined}
-          className={`flex min-h-11 items-center rounded-[11px] px-4 text-[13px] font-semibold ${sort === 'popular' ? 'bg-[var(--ub-color-brand)] text-white shadow-sm' : 'text-[var(--ub-text-secondary)]'}`}
+          className={`flex min-h-11 items-center rounded-[11px] px-4 text-[13px] font-semibold ${sort === 'popular' ? 'bg-[var(--ub-color-brand-action)] text-white shadow-sm' : 'text-[var(--ub-text-secondary)]'}`}
         >
           인기순
         </Link>
@@ -199,8 +199,8 @@ export default async function BoardPage({ params, searchParams }: BoardPageProps
                 aria-current={active ? 'page' : undefined}
                 className={`flex min-h-10 shrink-0 items-center rounded-full px-3.5 text-[12px] font-bold ${
                   active
-                    ? 'bg-[var(--ub-color-brand)] text-white shadow-sm'
-                    : 'bg-[var(--ub-surface-card-strong)] text-[var(--ub-text-secondary)]'
+                    ? 'bg-[var(--ub-color-brand-action)] text-white shadow-sm'
+                    : 'ub-liquid-inset text-[var(--ub-text-secondary)]'
                 }`}
               >
                 {filter.label}
@@ -233,7 +233,7 @@ export default async function BoardPage({ params, searchParams }: BoardPageProps
             : '최근 글'}
         </p>
 
-        <div className="overflow-hidden rounded-[20px] bg-[var(--ub-surface-card-strong)] shadow-[var(--ub-shadow-soft)]">
+        <div className="ub-liquid-card overflow-hidden rounded-[20px]">
           {visiblePosts.map((post) => {
             const postBoard = getBoardPresentation(post.board)
             const engagement = engagementByPost.get(post.id)
@@ -329,11 +329,11 @@ export default async function BoardPage({ params, searchParams }: BoardPageProps
       {(page > 1 || hasNextPage) && (
         <nav aria-label="게시글 페이지" className="mt-4 grid grid-cols-[1fr_auto_1fr] items-center gap-2">
           {page > 1 ? (
-            <Link href={getBoardHref(board, { sort, page: page - 1, stage: prayerFilter })} className="flex min-h-11 items-center justify-center rounded-[14px] bg-[var(--ub-surface-card-strong)] px-3 text-[13px] font-semibold text-[var(--ub-text-primary)] shadow-sm">이전</Link>
+            <Link href={getBoardHref(board, { sort, page: page - 1, stage: prayerFilter })} className="ub-liquid-inset flex min-h-11 items-center justify-center rounded-[14px] px-3 text-[13px] font-semibold text-[var(--ub-text-primary)]">이전</Link>
           ) : <span />}
           <span className="px-2 text-[12px] font-semibold text-[var(--ub-text-on-brand-tertiary)]">{page}페이지</span>
           {hasNextPage ? (
-            <Link href={getBoardHref(board, { sort, page: page + 1, stage: prayerFilter })} className="flex min-h-11 items-center justify-center rounded-[14px] bg-[var(--ub-surface-card-strong)] px-3 text-[13px] font-semibold text-[var(--ub-text-primary)] shadow-sm">다음</Link>
+            <Link href={getBoardHref(board, { sort, page: page + 1, stage: prayerFilter })} className="ub-liquid-inset flex min-h-11 items-center justify-center rounded-[14px] px-3 text-[13px] font-semibold text-[var(--ub-text-primary)]">다음</Link>
           ) : <span />}
         </nav>
       )}

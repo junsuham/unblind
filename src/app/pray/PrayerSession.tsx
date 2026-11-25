@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { SystemIcon } from '@/app/components/ui/SystemIcon'
 import { UrgentPrayerBadge } from '@/app/components/UrgentPrayerBadge'
+import { PrayerRoomScene } from './PrayerRoomScene'
 
 export type PrayerSessionPost = {
   id: string
@@ -16,8 +17,12 @@ const PRAYER_SECONDS = 60
 
 export default function PrayerSession({
   posts,
+  storageScope,
+  characterName,
 }: {
   posts: PrayerSessionPost[]
+  storageScope: string
+  characterName: string
 }) {
   const [started, setStarted] = useState(false)
   const [index, setIndex] = useState(0)
@@ -33,6 +38,7 @@ export default function PrayerSession({
     () => Math.max(0, Math.round((secondsLeft / PRAYER_SECONDS) * 100)),
     [secondsLeft]
   )
+  const roomScene = <PrayerRoomScene storageScope={storageScope} characterName={characterName} />
 
   useEffect(() => {
     if (!started || finished || !current || secondsLeft <= 0) return
@@ -75,6 +81,8 @@ export default function PrayerSession({
 
   if (!posts.length) {
     return (
+      <div className="space-y-4">
+      {roomScene}
       <section className="rounded-[24px] bg-[var(--ub-surface-card-strong)] px-5 py-12 text-center shadow-[var(--ub-shadow-soft)]">
         <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[var(--ub-surface-brand-soft)] text-[var(--ub-color-brand)]">
           <SystemIcon name="prayer" size={28} />
@@ -87,19 +95,21 @@ export default function PrayerSession({
           기도 게시판 보기
         </Link>
       </section>
+      </div>
     )
   }
 
   if (!started) {
     return (
       <div className="space-y-4">
+        {roomScene}
         <section className="overflow-hidden rounded-[26px] bg-[linear-gradient(150deg,var(--ub-surface-card-strong),var(--ub-surface-brand-soft))] p-6 text-center shadow-[var(--ub-shadow-soft)]">
           <span className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[var(--ub-color-brand)] text-white shadow-lg">
             <SystemIcon name="prayer" size={31} />
           </span>
           <p className="mt-5 text-[11px] font-extrabold tracking-[0.12em] text-[var(--ub-color-brand)]">PRAY TOGETHER</p>
           <h2 className="mt-2 text-[23px] font-extrabold tracking-[-0.6px] text-[var(--ub-text-primary)]">
-            5분 함께 기도
+            기도실
           </h2>
           <p className="mt-2 text-[13px] leading-[20px] text-[var(--ub-text-secondary)]">
             지금 기도가 필요한 익명 요청 {posts.length}개를
@@ -124,6 +134,8 @@ export default function PrayerSession({
 
   if (finished) {
     return (
+      <div className="space-y-4">
+      {roomScene}
       <section className="rounded-[26px] bg-[var(--ub-surface-card-strong)] px-6 py-12 text-center shadow-[var(--ub-shadow-soft)]">
         <span className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[var(--ub-surface-brand-soft)] text-[var(--ub-color-brand)]">
           <SystemIcon name="check" size={31} />
@@ -146,11 +158,13 @@ export default function PrayerSession({
           </Link>
         </div>
       </section>
+      </div>
     )
   }
 
   return (
     <div className="space-y-3">
+      {roomScene}
       <div className="flex items-center gap-3 px-1">
         <span className="text-[12px] font-bold text-[var(--ub-text-on-brand-secondary)]">
           {index + 1}/{posts.length}
