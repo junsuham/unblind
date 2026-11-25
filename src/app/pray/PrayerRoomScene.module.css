@@ -7,21 +7,23 @@
 }
 .room {
   position: relative;
-  width: 100%;
-  height: clamp(220px, 64vw, 310px);
+  width: min(100%, 480px);
+  aspect-ratio: 941 / 1672;
+  margin-inline: auto;
   overflow: hidden;
   isolation: isolate;
   background: #c49068;
 }
 .background {
-  z-index: -1;
-  object-fit: cover;
-  object-position: center 60%;
+  z-index: 0;
+  object-fit: contain;
+  object-position: center;
   image-rendering: pixelated;
 }
 .walkArea {
   position: absolute;
   inset: 0;
+  z-index: 1;
   width: 100%;
   cursor: crosshair;
   background: transparent;
@@ -29,13 +31,19 @@
 .walkArea:focus-visible { outline: 3px solid var(--ub-color-brand); outline-offset: -4px; }
 .avatar {
   position: absolute;
-  z-index: 1;
+  z-index: 2;
   display: grid;
   justify-items: center;
   pointer-events: none;
   transform: translate(-50%, -64%);
   transition: left .2s steps(3), top .2s steps(3);
   filter: drop-shadow(0 5px 0 rgba(36, 24, 19, .36));
+}
+.referenceAvatar {
+  width: 96px;
+  height: 96px;
+  object-fit: contain;
+  image-rendering: pixelated;
 }
 .nameTag {
   max-width: 112px;
@@ -53,6 +61,7 @@
 }
 .roomName {
   position: absolute;
+  z-index: 3;
   top: 12px;
   left: 12px;
   border: 1px solid rgba(60, 35, 20, .4);

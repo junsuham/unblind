@@ -120,6 +120,14 @@ await expectResponse('/icons/emoji-3d/siren.png', async (response) => {
   }
 })
 
+for (const path of ['/avatars/faith-player-reference-v2.png', '/prayer/prayer-room-reference-v2.png']) {
+  await expectResponse(path, async (response) => {
+    if (!response.ok || response.headers.get('content-type') !== 'image/png') {
+      throw new Error(`Pixel art reference asset is unavailable: ${path}`)
+    }
+  })
+}
+
 await expectResponse('/characters/mbti/istj-daniel.png', async (response) => {
   if (!response.ok || response.headers.get('content-type') !== 'image/png') {
     throw new Error('Bible character assets are unavailable')

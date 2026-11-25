@@ -7,6 +7,7 @@ import type { FaithMood, FaithWeather } from '@/lib/dailyFaith'
 import {
   appearanceFromPhoto,
   defaultPixelAvatar,
+  isDefaultPixelAvatar,
   readPixelAvatar,
   savePixelAvatar,
   type PixelAvatarAppearance,
@@ -41,6 +42,7 @@ export function FaithAvatar({
   const [customizing, setCustomizing] = useState(false)
   const [readingPhoto, setReadingPhoto] = useState(false)
   const [notice, setNotice] = useState('')
+  const hasCustomAppearance = !isDefaultPixelAvatar(appearance)
 
   useEffect(() => {
     const timer = window.setTimeout(() => setAppearance(readPixelAvatar(storageScope)), 0)
@@ -60,7 +62,7 @@ export function FaithAvatar({
     try {
       const next = await appearanceFromPhoto(file, appearance)
       updateAppearance(next)
-      setNotice('사진의 색감을 가져왔어요. 머리와 의상은 아래에서 조정할 수 있어요.')
+      setNotice('사진에서 색상을 가져와 간단 캐릭터 미리보기에 반영했어요. 도트 원본 이미지를 사진처럼 변환하는 기능은 아니에요.')
     } catch (cause) {
       setNotice(cause instanceof Error ? cause.message : '사진을 읽지 못했습니다.')
     } finally {
@@ -69,14 +71,7 @@ export function FaithAvatar({
     }
   }
 
-  function downloadAvatar() {
-    const sprite = document.createElement('canvas')
-    sprite.width = 56
-    sprite.height = 64
-    const spriteContext = sprite.getContext('2d')
-    if (!spriteContext) return
-    drawPixelAvatar(spriteContext, appearance, mood)
-
+  async function downloadAvatar() {
     const output = document.createElement('canvas')
     output.width = 1080
     output.height = 1080
@@ -85,16 +80,34 @@ export function FaithAvatar({
     context.fillStyle = '#ffffff'
     context.fillRect(0, 0, 1080, 1080)
     context.imageSmoothingEnabled = false
-    const scale = 13
-    const width = sprite.width * scale
-    const height = sprite.height * scale
-    context.drawImage(sprite, Math.round((1080 - width) / 2), Math.round((1080 - height) / 2), width, height)
+    if (hasCustomAppearance) {
+      const sprite = document.createElement('canvas')
+      sprite.width = 56
+      sprite.height = 64
+      const spriteContext = sprite.getContext('2d')
+      if (!spriteContext) return
+      drawPixelAvatar(spriteContext, appearance, mood)
+      const scale = 13
+      const width = sprite.width * scale
+      const height = sprite.height * scale
+      context.drawImage(sprite, Math.round((1080 - width) / 2), Math.round((1080 - height) / 2), width, height)
+    } else {
+      try {
+        const reference = new window.Image()
+        reference.src = '/avatars/faith-player-reference-v2.png'
+        await reference.decode()
+        context.drawImage(reference, 0, 0, 1080, 1080)
+      } catch {
+        setNotice('캐릭터 이미지를 불러오지 못했습니다. 다시 시도해주세요.')
+        return
+      }
+    }
 
     const link = document.createElement('a')
     link.href = output.toDataURL('image/png')
     link.download = `${characterName}-pixel-avatar.png`
     link.click()
-    setNotice('흰 배경의 1080×1080 PNG로 저장했어요.')
+    setNotice(`흰 배경의 1080×1080 ${hasCustomAppearance ? '색상 미리보기' : '도트 캐릭터'} PNG로 저장했어요.`)
   }
 
   return (
@@ -104,14 +117,21 @@ export function FaithAvatar({
         <span className={styles.cloud} aria-hidden />
         <span className={styles.floor} aria-hidden />
         <div className={styles.spriteWrap}>
-          <PixelAvatarCanvas appearance={appearance} mood={mood} size={136} label={`${characterName}의 2D 픽셀 캐릭터`} />
+          <Image
+            src="/avatars/faith-player-reference-v2.png"
+            width={230}
+            height={230}
+            alt={`${characterName}의 오렌지 옷 도트 캐릭터`}
+            className={styles.referenceSprite}
+            unoptimized
+          />
         </div>
         <span className={styles.weatherLabel}>{weather ? weatherNames[weather] : '오늘의 나'}</span>
       </div>
       <div className={styles.caption}>
         <div className={styles.captionText}>
           <strong>{characterName}</strong>
-          <span>나의 2D 캐릭터</span>
+          <span>도트 캐릭터</span>
         </div>
         <button
           type="button"
@@ -123,13 +143,20 @@ export function FaithAvatar({
           {customizing ? '꾸미기 닫기' : '캐릭터 꾸미기'}
         </button>
       </div>
+      {hasCustomAppearance && (
+        <div className={styles.savedPreview}>
+          <PixelAvatarCanvas appearance={appearance} mood={mood} size={58} label={`${characterName}의 색상 꾸미기 미리보기`} />
+          <p><strong>내가 고른 색상 미리보기</strong><span>위 도트 원본과 별개의 간단한 캐릭터입니다.</span></p>
+          <button type="button" onClick={() => updateAppearance(defaultPixelAvatar)}>기본으로</button>
+        </div>
+      )}
       {customizing && (
         <div id="faith-avatar-customizer" className={styles.customizer}>
           <label className={styles.photoButton}>
             {readingPhoto ? '사진 분석 중…' : '내 사진에서 색상 가져오기'}
             <input type="file" accept="image/*" onChange={(event) => void handlePhoto(event)} disabled={readingPhoto} />
           </label>
-          <p className={styles.privacyNote}>사진은 이 기기에서만 분석하며 업로드·저장하지 않아요. 피부·머리·옷 색과 머리 길이를 추정하므로 결과를 아래에서 수정할 수 있어요.</p>
+          <p className={styles.privacyNote}>사진은 이 기기에서만 분석하며 업로드·저장하지 않아요. 피부·머리·옷 색과 머리 길이를 추정해 간단 미리보기에 반영합니다. 위 도트 원본을 사진과 똑같이 변환하지는 않아요.</p>
           {notice && <p role="status" className={styles.notice}>{notice}</p>}
 
           <fieldset className={styles.fieldset}>
@@ -172,11 +199,7 @@ export function FaithAvatar({
               </select>
             </label>
           </div>
-          <details className={styles.example}>
-            <summary>2D 캐릭터 스타일 예시</summary>
-            <Image src="/avatars/faith-player-original-white.png" width={128} height={128} alt="오렌지 상의를 입은 오리지널 2D 픽셀 캐릭터 예시" unoptimized />
-          </details>
-          <button type="button" onClick={downloadAvatar} className={styles.exportButton}>1080×1080 캐릭터 이미지 저장</button>
+          <button type="button" onClick={() => void downloadAvatar()} className={styles.exportButton}>1080×1080 캐릭터 이미지 저장</button>
           <p className={styles.storageNote}>설정은 이 기기에만 저장되며 기도실에서도 같은 모습으로 보여요.</p>
         </div>
       )}

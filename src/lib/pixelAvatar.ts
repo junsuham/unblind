@@ -32,6 +32,11 @@ export const defaultPixelAvatar: PixelAvatarAppearance = {
   prop: 'none',
 }
 
+export function isDefaultPixelAvatar(appearance: PixelAvatarAppearance) {
+  return (Object.keys(defaultPixelAvatar) as Array<keyof PixelAvatarAppearance>)
+    .every((key) => appearance[key] === defaultPixelAvatar[key])
+}
+
 const colorPattern = /^#[0-9a-f]{6}$/i
 const styles = ['short', 'long', 'up']
 const hats = ['none', 'cap', 'beanie']

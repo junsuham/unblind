@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import type { Metadata } from 'next'
 import { requireBetaUser } from '@/lib/betaAuth'
 import {
@@ -154,18 +155,25 @@ export default async function BoardPage({ params, searchParams }: BoardPageProps
       {board === 'prayer' && (
         <Link
           href="/pray"
-          className="ub-liquid-card mb-4 flex min-h-[64px] items-center gap-3 rounded-[18px] px-4 active:bg-[var(--ub-surface-pressed)]"
+          className="ub-liquid-card mb-4 flex min-h-[106px] items-center gap-3 overflow-hidden rounded-[18px] p-2.5 active:bg-[var(--ub-surface-pressed)]"
         >
-          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--ub-color-brand)] text-white">
-            <SystemIcon name="prayer" size={20} />
+          <span className="relative h-[86px] w-[72px] shrink-0 overflow-hidden rounded-[12px] bg-[#c49068]">
+            <Image
+              src="/prayer/prayer-room-reference-v2.png"
+              alt="창과 십자가가 있는 도트 기도실 미리보기"
+              fill
+              sizes="72px"
+              className="object-cover object-top [image-rendering:pixelated]"
+              unoptimized
+            />
           </span>
           <span className="min-w-0 flex-1">
             <strong className="block text-[14px] text-[var(--ub-text-primary)]">기도실</strong>
-            <span className="mt-0.5 block truncate text-[11px] text-[var(--ub-text-secondary)]">
-              지금 기도가 필요한 요청을 한 장씩 만나보세요
+            <span className="mt-0.5 block text-[11px] leading-[16px] text-[var(--ub-text-secondary)]">
+              도트 기도실에서 함께 기도해요
             </span>
+            <span className="mt-2 inline-flex items-center gap-1 text-[11px] font-bold text-[var(--ub-color-brand)]">기도실 들어가기 <span aria-hidden>→</span></span>
           </span>
-          <span className="text-[22px] text-[var(--ub-text-tertiary)]" aria-hidden>›</span>
         </Link>
       )}
       <nav aria-label="게시글 정렬" className="ub-liquid-inset mb-4 ml-auto grid w-fit grid-cols-2 rounded-[14px] p-1">

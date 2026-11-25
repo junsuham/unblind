@@ -70,8 +70,15 @@
 .spriteWrap {
   position: relative;
   z-index: 1;
-  margin-top: 9px;
   filter: drop-shadow(0 6px 0 rgba(61,42,35,.22));
+}
+.referenceSprite {
+  display: block;
+  width: 230px;
+  height: 230px;
+  max-width: none;
+  object-fit: contain;
+  image-rendering: pixelated;
 }
 .weatherLabel {
   position: absolute;
@@ -97,6 +104,19 @@
 .captionText { display: grid; gap: 1px; min-width: 0; }
 .captionText strong { overflow: hidden; color: var(--ub-text-primary); font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
 .captionText span { color: var(--ub-text-tertiary); font-size: 10px; }
+.savedPreview {
+  display: flex;
+  min-height: 88px;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-top: 1px solid var(--ub-separator);
+}
+.savedPreview canvas { flex: none; max-width: 58px; max-height: 70px; object-fit: contain; }
+.savedPreview p { display: grid; min-width: 0; gap: 3px; margin: 0; }
+.savedPreview strong { color: var(--ub-text-primary); font-size: 11px; }
+.savedPreview span { color: var(--ub-text-tertiary); font-size: 10px; line-height: 1.4; }
+.savedPreview button { flex: none; margin-left: auto; padding: 7px 8px; border-radius: 8px; background: var(--ub-surface-brand-soft); color: var(--ub-color-brand); font-size: 10px; font-weight: 800; }
 .customizeButton {
   flex: none;
   min-height: 34px;

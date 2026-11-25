@@ -4,7 +4,7 @@ import Image from 'next/image'
 import { useEffect, useState } from 'react'
 import type { MouseEvent } from 'react'
 import type { FaithMood } from '@/lib/dailyFaith'
-import { defaultPixelAvatar, readPixelAvatar, type PixelAvatarAppearance } from '@/lib/pixelAvatar'
+import { defaultPixelAvatar, isDefaultPixelAvatar, readPixelAvatar, type PixelAvatarAppearance } from '@/lib/pixelAvatar'
 import { PixelAvatarCanvas } from '@/app/components/PixelAvatarCanvas'
 import styles from './PrayerRoomScene.module.css'
 
@@ -26,6 +26,7 @@ export function PrayerRoomScene({
 }) {
   const [appearance, setAppearance] = useState<PixelAvatarAppearance>(defaultPixelAvatar)
   const [position, setPosition] = useState<Position>(START)
+  const hasCustomAppearance = !isDefaultPixelAvatar(appearance)
 
   useEffect(() => {
     const sync = () => setAppearance(readPixelAvatar(storageScope))
@@ -59,16 +60,27 @@ export function PrayerRoomScene({
     <section className={styles.container} aria-label="2D 기도실">
       <div className={styles.room}>
         <Image
-          src="/prayer/prayer-room-original.png"
-          alt="기도실의 창과 의자, 성경이 보이는 오리지널 픽셀 아트 배경"
+          src="/prayer/prayer-room-reference-v2.png"
+          alt="창과 나무 의자, 십자가가 보이는 도트 그림 기도실"
           fill
-          sizes="(max-width: 600px) 100vw, 480px"
+          sizes="(max-width: 480px) 100vw, 480px"
           className={styles.background}
           unoptimized
         />
         <button type="button" className={styles.walkArea} onClick={moveTo} aria-label="기도실에서 이동할 위치 선택" />
         <div className={styles.avatar} style={{ left: `${position.x}%`, top: `${position.y}%` }}>
-          <PixelAvatarCanvas appearance={appearance} mood={mood} size={67} label={`${characterName}의 기도실 캐릭터`} />
+          {hasCustomAppearance ? (
+            <PixelAvatarCanvas appearance={appearance} mood={mood} size={76} label={`${characterName}의 기도실 캐릭터`} />
+          ) : (
+            <Image
+              src="/avatars/faith-player-reference-v2.png"
+              alt={`${characterName}의 도트 캐릭터`}
+              width={96}
+              height={96}
+              className={styles.referenceAvatar}
+              unoptimized
+            />
+          )}
           <span className={styles.nameTag}>{characterName}</span>
         </div>
         <span className={styles.roomName}>기도실</span>
