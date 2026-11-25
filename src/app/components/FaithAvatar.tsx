@@ -6,6 +6,7 @@ import { bibleAvatarScenes, getBibleAvatarScene, saveBibleAvatarSceneId, type Bi
 import type { FaithMood, FaithWeather } from '@/lib/dailyFaith'
 import { bibleAvatarPresets, saveBibleAvatarPreset, type BibleAvatarPreset } from '@/lib/pixelAvatar'
 import { FaithAvatarSprite } from './FaithAvatarSprite'
+import { FaithAvatarWeather } from './FaithAvatarWeather'
 import { FaithWeatherIcon } from './FaithWeatherIcon'
 import { useBibleAvatarScene } from './useBibleAvatarScene'
 import { useFaithAvatar } from './useFaithAvatar'
@@ -92,8 +93,9 @@ export function FaithAvatar({
           className={styles.sceneImage}
           unoptimized
         />
+        <FaithAvatarWeather weather={weather} sceneId={visibleScene.id} />
         {ready ? (
-          <FaithAvatarSprite avatar={avatar} name={characterName} size={228} className={styles.sprite} />
+          <FaithAvatarSprite avatar={avatar} name={characterName} size={228} className={styles.sprite} mood={mood} />
         ) : (
           <span className={styles.loadingSprite} role="status">캐릭터 불러오는 중…</span>
         )}

@@ -1,12 +1,13 @@
 'use client'
 
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useId, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import {
   getHomeManittoPhase,
   type HomeManittoState,
 } from '@/lib/homeManitto'
 import { SystemIcon } from '@/app/components/ui/SystemIcon'
+import { HomeAppTileContent, homeAppTileClassName } from '@/app/components/HomeAppTile'
 
 type ManittoResponse = HomeManittoState & {
   error?: string
@@ -29,6 +30,7 @@ export function HomeManittoFinder({
   initialState,
 }: HomeManittoFinderProps) {
   const router = useRouter()
+  const descriptionId = useId()
   const [state, setState] = useState(initialState)
   const [submitting, setSubmitting] = useState(false)
   const [dialogOpen, setDialogOpen] = useState(false)
@@ -108,35 +110,36 @@ export function HomeManittoFinder({
     }
   }
 
+  const status = error || (submitting ? '참여 중'
+    : phase === 'waiting' ? `대기 중 · ${state.participantCount}명`
+    : phase === 'matched' ? '배정 완료'
+    : phase === 'inactive' ? '다음 주 모임'
+    : undefined)
+
   return (
     <>
       <button
         type="button"
         disabled={phase === 'inactive' || submitting}
         onClick={startFinding}
-        className="flex min-h-[68px] w-full items-center gap-3 border-t border-[var(--ub-separator)] px-4 py-3 text-left text-[var(--ub-text-primary)] active:bg-[var(--ub-surface-pressed)] disabled:opacity-60"
+        aria-label="마니또 메이커"
+        aria-describedby={descriptionId}
+        aria-busy={submitting}
+        aria-haspopup={phase === 'matched' ? 'dialog' : undefined}
+        className={homeAppTileClassName}
       >
-        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[13px] bg-[var(--ub-surface-brand-soft)] text-[var(--ub-color-brand)]">
-          <SystemIcon name="gift" size={21} filled={phase === 'matched'} />
+        <HomeAppTileContent
+          icon="gift"
+          label="마니또 메이커"
+          tone="rose"
+          filled={phase === 'matched'}
+          status={status}
+          error={Boolean(error)}
+          badge={submitting || phase === 'waiting' ? 'waiting' : phase === 'matched' ? 'matched' : undefined}
+        />
+        <span id={descriptionId} className="sr-only">
+          {error || (submitting ? '마니또 참여 시작 중' : getPhaseCopy(state))}
         </span>
-        <span className="min-w-0 flex-1">
-          <span className="block text-[15px] font-bold tracking-[-0.2px]">
-            마니또 메이커
-          </span>
-          <span className="mt-0.5 block truncate text-[11px] text-[var(--ub-text-secondary)]">
-            {error || getPhaseCopy(state)}
-          </span>
-        </span>
-        {submitting || phase === 'waiting' ? (
-          <span
-            aria-label={submitting ? '마니또 참여 시작 중' : '마니또 배정 대기 중'}
-            className="h-4 w-4 shrink-0 animate-spin rounded-full border-2 border-[var(--ub-separator)] border-t-[var(--ub-color-brand)]"
-          />
-        ) : (
-          <span className="text-[22px] leading-none text-[var(--ub-text-tertiary)]" aria-hidden>
-            ›
-          </span>
-        )}
       </button>
 
       {dialogOpen && (

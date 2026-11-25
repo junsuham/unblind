@@ -134,7 +134,7 @@ for (const path of ['/avatars/faith-player-reference-v2.png', '/prayer/prayer-ro
   })
 }
 
-for (const [pack, count] of [['bible-v1', 20], ['bible-mbti-v1', 5], ['bible-scenes-v1', 10], ['bible-scenes-v1/thumbs', 10]]) {
+for (const [pack, count] of [['bible-v1', 20], ['bible-mbti-v1', 5], ['bible-scenes-v1', 10], ['bible-scenes-v1/thumbs', 10], ['bible-expressions-v1', 20]]) {
   const images = readdirSync(new URL(`../public/avatars/${pack}/`, import.meta.url)).filter((file) => file.endsWith('.webp'))
   if (images.length !== count) throw new Error(`${pack} must contain ${count} images`)
   await Promise.all(images.map((file) => expectResponse(`/avatars/${pack}/${file}`, async (response) => {

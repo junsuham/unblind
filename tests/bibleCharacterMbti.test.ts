@@ -25,6 +25,10 @@ const homePage = readFileSync(
   new URL('../src/app/page.tsx', import.meta.url),
   'utf8',
 )
+const homeAppDrawer = readFileSync(
+  new URL('../src/app/components/HomeAppDrawer.tsx', import.meta.url),
+  'utf8',
+)
 const mbtiScreen = readFileSync(
   new URL('../src/app/mbti/BibleCharacterMbti.tsx', import.meta.url),
   'utf8',
@@ -117,8 +121,9 @@ describe('Bible character MBTI', () => {
   })
 
   it('links the experience from home and states its reflective scope', () => {
-    expect(homePage).toContain('href="/mbti"')
-    expect(homePage).toContain('성경 MBTI')
+    expect(homePage).toContain('<HomeAppDrawer')
+    expect(homeAppDrawer).toContain('href="/mbti"')
+    expect(homeAppDrawer).toContain('성경 MBTI')
     expect(mbtiScreen).toContain('나와 닮은 성경 인물은?')
     expect(mbtiScreen).toContain('My Bible character Type Indicator')
     expect(mbtiScreen).toContain('공식 MBTI 검사나 신앙·성격의 평가는 아닙니다')

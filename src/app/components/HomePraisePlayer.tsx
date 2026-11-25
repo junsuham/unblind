@@ -1,17 +1,19 @@
 'use client'
 
+import { useId } from 'react'
 import { officialPraiseTracks } from '@/lib/officialPraiseTracks'
 import {
   OPEN_PRAISE_PLAYER_EVENT,
   type PraisePlayerTrack,
 } from '@/app/components/praisePlayerEvents'
-import { SystemIcon } from '@/app/components/ui/SystemIcon'
+import { HomeAppTileContent, homeAppTileClassName } from '@/app/components/HomeAppTile'
 
 type HomePraisePlayerProps = {
   initialTracks: PraisePlayerTrack[]
 }
 
 export function HomePraisePlayer({ initialTracks }: HomePraisePlayerProps) {
+  const descriptionId = useId()
   const playlist = initialTracks.length
     ? initialTracks
     : officialPraiseTracks.slice(0, 10)
@@ -19,24 +21,18 @@ export function HomePraisePlayer({ initialTracks }: HomePraisePlayerProps) {
   return (
     <button
       type="button"
+      aria-label="오늘의 찬양"
+      aria-describedby={descriptionId}
       disabled={!playlist.length}
       onClick={() => {
         window.dispatchEvent(new CustomEvent(OPEN_PRAISE_PLAYER_EVENT, {
           detail: { tracks: playlist },
         }))
       }}
-      className="flex min-h-[68px] w-full items-center gap-3 border-t border-[var(--ub-separator)] px-4 py-3 text-left text-[var(--ub-text-primary)] active:bg-[var(--ub-surface-pressed)] disabled:opacity-60"
+      className={homeAppTileClassName}
     >
-      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[13px] bg-[var(--ub-surface-brand-soft)] text-[var(--ub-color-brand)]">
-        <SystemIcon name="disc" size={21} />
-      </span>
-      <span className="min-w-0 flex-1">
-        <span className="block text-[15px] font-bold tracking-[-0.2px]">오늘의 찬양</span>
-        <span className="mt-0.5 block truncate text-[11px] text-[var(--ub-text-secondary)]">
-          바로 재생 · 상황별 추천 제공
-        </span>
-      </span>
-      <span className="text-[22px] leading-none text-[var(--ub-text-tertiary)]" aria-hidden>›</span>
+      <HomeAppTileContent icon="disc" label="오늘의 찬양" tone="amber" />
+      <span id={descriptionId} className="sr-only">바로 재생 · 상황별 추천 제공</span>
     </button>
   )
 }

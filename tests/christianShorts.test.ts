@@ -13,6 +13,10 @@ const homePage = readFileSync(
   new URL('../src/app/page.tsx', import.meta.url),
   'utf8'
 )
+const homeAppDrawer = readFileSync(
+  new URL('../src/app/components/HomeAppDrawer.tsx', import.meta.url),
+  'utf8'
+)
 
 const shortsPage = readFileSync(
   new URL('../src/app/shorts/page.tsx', import.meta.url),
@@ -198,8 +202,9 @@ describe('Christian Shorts feed', () => {
   })
 
   it('links the feature from home and keeps the player policy-safe', () => {
-    expect(homePage).toContain('href="/shorts"')
-    expect(homePage).toContain('크리스천 쇼츠')
+    expect(homePage).toContain('<HomeAppDrawer')
+    expect(homeAppDrawer).toContain('href="/shorts"')
+    expect(homeAppDrawer).toContain('크리스천 쇼츠')
     expect(shortsPage).toContain('쇼츠 중독, 피할 수 없으면 하나님으로 채우기')
     expect(shortsPage).not.toContain('AI 제작물을 제외하고')
     expect(shortsPage).not.toContain('화면에 들어오면 음소거로 자동 재생됩니다')

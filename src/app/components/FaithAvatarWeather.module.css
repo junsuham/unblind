@@ -1,0 +1,169 @@
+.weather {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  overflow: hidden;
+  pointer-events: none;
+  --cloud-edge: #fff7db;
+  --cloud-light: #e9ebf0;
+  --cloud-mid: #c8d2de;
+  --cloud-shadow: #a1b0c3;
+}
+
+.weather > * {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 420ms ease-out;
+}
+
+.weather > svg {
+  width: 100%;
+  height: 100%;
+}
+
+.sunGlow {
+  background:
+    radial-gradient(ellipse at 86% 3%, rgb(255 219 137 / 58%), transparent 67%),
+    linear-gradient(171deg, rgb(255 222 152 / 14%), transparent 57%, rgb(247 157 94 / 17%));
+}
+
+.skyShade {
+  background:
+    linear-gradient(180deg, rgb(44 67 108 / 43%), rgb(58 75 109 / 23%) 48%, rgb(53 56 68 / 23%)),
+    radial-gradient(ellipse at 10% 3%, rgb(72 84 110 / 40%), transparent 70%);
+}
+
+.rainShade {
+  background:
+    linear-gradient(180deg, rgb(16 38 75 / 59%), rgb(36 68 108 / 37%) 57%, rgb(36 67 105 / 36%)),
+    linear-gradient(90deg, rgb(74 91 111 / 22%), rgb(98 118 154 / 16%));
+}
+
+.cloudEdge { fill: var(--cloud-edge); }
+.cloudLight { fill: var(--cloud-light); }
+.cloudMid { fill: var(--cloud-mid); }
+.cloudShadow { fill: var(--cloud-shadow); }
+
+.clouds svg {
+  position: absolute;
+  height: auto;
+  animation: drift var(--cloud-time, 18s) ease-in-out infinite alternate;
+  animation-play-state: paused;
+  transition: opacity 420ms ease-out;
+}
+
+.distantCloud {
+  --cloud-time: 24s;
+  width: 51%;
+  right: -9%;
+  top: -7%;
+  opacity: .7;
+}
+
+.nearCloud {
+  width: 47%;
+  left: -8%;
+  top: -2%;
+  opacity: .96;
+}
+
+.lowCloud {
+  --cloud-time: 30s;
+  width: 35%;
+  right: 18%;
+  top: 12%;
+  opacity: 0;
+}
+
+.weather[data-weather='sunny'] .sunGlow { opacity: .85; }
+.weather[data-weather='sunny'] .sunRays { opacity: .16; }
+.weather[data-weather='sunny'][data-water='true'] .glints {
+  opacity: .52;
+  animation: shimmer 4s steps(3, end) infinite alternate;
+}
+
+.weather[data-weather='partly_cloudy'] .skyShade { opacity: .43; }
+.weather[data-weather='partly_cloudy'] .clouds { opacity: .45; }
+.weather[data-weather='partly_cloudy'] .distantCloud { opacity: .24; }
+
+.weather[data-weather='cloudy'] {
+  --cloud-edge: #e0e7ee;
+  --cloud-light: #c0ccd7;
+  --cloud-mid: #99a9ba;
+  --cloud-shadow: #6e8199;
+}
+.weather[data-weather='cloudy'] .skyShade { opacity: .92; }
+.weather[data-weather='cloudy'] .clouds { opacity: .80; }
+.weather[data-weather='cloudy'] .lowCloud { opacity: .55; }
+
+.weather[data-weather='rainy'] {
+  --cloud-edge: #aebdd1;
+  --cloud-light: #8d9db2;
+  --cloud-mid: #677c97;
+  --cloud-shadow: #4d617f;
+}
+.weather[data-weather='rainy'] .rainShade { opacity: .85; }
+.weather[data-weather='rainy'] .clouds { opacity: .78; }
+.weather[data-weather='rainy'] .lowCloud { opacity: .75; }
+
+.weather[data-weather='partly_cloudy'] .clouds svg,
+.weather[data-weather='cloudy'] .clouds svg,
+.weather[data-weather='rainy'] .clouds svg { animation-play-state: running; }
+
+.weather[data-weather='cloudy'] .distantCloud,
+.weather[data-weather='rainy'] .distantCloud { opacity: .94; }
+
+.weather[data-weather='rainy'] .rainFar {
+  opacity: .4;
+  animation: fallingRain 1.55s linear infinite;
+}
+
+.weather[data-weather='rainy'] .rainNear {
+  opacity: .58;
+  animation: fallingRain .92s linear infinite;
+  animation-delay: -.48s;
+}
+
+.weather[data-weather='rainy'] .ripples {
+  opacity: .54;
+  animation: shimmer 2.3s steps(3, end) infinite alternate;
+}
+
+.weather[data-water='false'] .waterRipples { display: none; }
+
+.weather[data-night='true'] .sunGlow {
+  background:
+    radial-gradient(ellipse at 80% 0, rgb(155 180 255 / 31%), transparent 59%),
+    linear-gradient(170deg, rgb(90 115 198 / 13%), transparent 64%);
+}
+
+.weather[data-night='true'] .sunRays,
+.weather[data-night='true'] .glints { visibility: hidden; }
+
+.weather[data-night='true'] .clouds {
+  --cloud-edge: #b9cce5;
+  --cloud-light: #9aaecc;
+  --cloud-mid: #7589a7;
+  --cloud-shadow: #4e6485;
+}
+
+@keyframes drift {
+  from { transform: translateX(-6%); }
+  to { transform: translateX(8%); }
+}
+
+@keyframes fallingRain {
+  from { transform: translate3d(1%, -10%, 0) scale(1.18); }
+  to { transform: translate3d(-2%, 12%, 0) scale(1.18); }
+}
+
+@keyframes shimmer {
+  from { transform: translateX(-1px); }
+  to { transform: translateX(1px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .weather > *, .weather .clouds svg { transition: none; }
+  .weather > svg, .weather .clouds svg { animation: none !important; }
+}

@@ -8,8 +8,7 @@ import {
 import { AppShell, BottomTabBar, NoticeCard } from '@/app/components/ui/AppShell'
 import { SystemIcon } from '@/app/components/ui/SystemIcon'
 import { Emoji3D } from '@/app/components/ui/Emoji3D'
-import { HomePraisePlayer } from '@/app/components/HomePraisePlayer'
-import { HomeManittoFinder } from '@/app/components/HomeManittoFinder'
+import { HomeAppDrawer } from '@/app/components/HomeAppDrawer'
 import { HomeBibleVerse } from '@/app/components/HomeBibleVerse'
 import { DailyFaithCheckIn } from '@/app/components/DailyFaithCheckIn'
 import { BuilderHomeSection } from '@/app/components/builder/BuilderHomeSection'
@@ -111,94 +110,14 @@ export default async function HomePage({ searchParams }: HomePageProps) {
 
       <BuilderHomeSection searchParams={params} />
 
-      <section className="mb-4" aria-labelledby="unblind-app-shortcuts">
-        <p id="unblind-app-shortcuts" className="mb-1.5 px-1 text-[12px] font-bold tracking-[0.04em] text-[var(--ub-text-on-brand-tertiary)]">언블라인드 앱</p>
-        <div className="ub-liquid-card overflow-hidden">
-          <Link
-            href="/journey"
-            className="flex min-h-[68px] w-full items-center gap-3 px-4 py-3 text-left text-[var(--ub-text-primary)] active:bg-[var(--ub-surface-pressed)]"
-          >
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[13px] bg-[var(--ub-surface-brand-soft)] text-[var(--ub-color-brand)]">
-              <SystemIcon name="leaf" size={21} />
-            </span>
-            <span className="min-w-0 flex-1">
-              <span className="block text-[15px] font-bold tracking-[-0.2px]">나의 신앙 여정</span>
-              <span className="mt-0.5 block truncate text-[11px] text-[var(--ub-text-secondary)]">
-                체크인 · 감사 · 기도 리듬 한눈에 보기
-              </span>
-            </span>
-            <span className="text-[22px] leading-none text-[var(--ub-text-tertiary)]" aria-hidden>›</span>
-          </Link>
-          <HomeManittoFinder initialState={manitto} />
-          <Link
-            href="/gratitude"
-            className="flex min-h-[68px] w-full items-center gap-3 border-t border-[var(--ub-separator)] px-4 py-3 text-left text-[var(--ub-text-primary)] active:bg-[var(--ub-surface-pressed)]"
-          >
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[13px] bg-[var(--ub-surface-brand-soft)] text-[var(--ub-color-brand)]">
-              <SystemIcon name="calendar" size={21} />
-            </span>
-            <span className="min-w-0 flex-1">
-              <span className="block text-[15px] font-bold tracking-[-0.2px]">감사일기 챌린지</span>
-              <span className="mt-0.5 block truncate text-[11px] text-[var(--ub-text-secondary)]">
-                하루 한 줄 · 감사 달력 · 익명 전달
-              </span>
-            </span>
-            <span className="text-[22px] leading-none text-[var(--ub-text-tertiary)]" aria-hidden>›</span>
-          </Link>
-          <Link
-            href="/recreation"
-            className="flex min-h-[68px] w-full items-center gap-3 border-t border-[var(--ub-separator)] px-4 py-3 text-left text-[var(--ub-text-primary)] active:bg-[var(--ub-surface-pressed)]"
-          >
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[13px] bg-[var(--ub-surface-brand-soft)] text-[var(--ub-color-brand)]">
-              <SystemIcon name="dice" size={21} />
-            </span>
-            <span className="min-w-0 flex-1">
-              <span className="block text-[15px] font-bold tracking-[-0.2px]">모임 KIT</span>
-              <span className="mt-0.5 block truncate text-[11px] text-[var(--ub-text-secondary)]">
-                상황별 게임 추천 · 팀 편성 · 타이머 · 점수판
-              </span>
-            </span>
-            <span className="text-[22px] leading-none text-[var(--ub-text-tertiary)]" aria-hidden>›</span>
-          </Link>
-          <Link
-            href="/mbti"
-            className="flex min-h-[68px] w-full items-center gap-3 border-t border-[var(--ub-separator)] px-4 py-3 text-left text-[var(--ub-text-primary)] active:bg-[var(--ub-surface-pressed)]"
-          >
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[13px] bg-[var(--ub-surface-brand-soft)] text-[var(--ub-color-brand)]">
-              <SystemIcon name="sparkles" size={21} />
-            </span>
-            <span className="min-w-0 flex-1">
-              <span className="block text-[15px] font-bold tracking-[-0.2px]">성경 MBTI</span>
-              <span className="mt-0.5 block truncate text-[11px] text-[var(--ub-text-secondary)]">
-                나와 닮은 성경 속 믿음의 인물 찾기
-              </span>
-            </span>
-            <span className="text-[22px] leading-none text-[var(--ub-text-tertiary)]" aria-hidden>›</span>
-          </Link>
-          <Link
-            href="/shorts"
-            className="flex min-h-[68px] w-full items-center gap-3 border-t border-[var(--ub-separator)] px-4 py-3 text-left text-[var(--ub-text-primary)] active:bg-[var(--ub-surface-pressed)]"
-          >
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[13px] bg-[var(--ub-surface-brand-soft)] text-[var(--ub-color-brand)]">
-              <SystemIcon name="play" size={21} filled />
-            </span>
-            <span className="min-w-0 flex-1">
-              <span className="block text-[15px] font-bold tracking-[-0.2px]">크리스천 쇼츠</span>
-              <span className="mt-0.5 block truncate text-[11px] text-[var(--ub-text-secondary)]">
-                기독교 태그로 엄선한 3분 이하 영상
-              </span>
-            </span>
-            <span className="text-[22px] leading-none text-[var(--ub-text-tertiary)]" aria-hidden>›</span>
-          </Link>
-          <HomePraisePlayer
-            initialTracks={(praiseTracks ?? []).map((track) => ({
-              id: track.youtube_id,
-              title: track.title,
-              artist: track.artist,
-            }))}
-          />
-        </div>
-      </section>
+      <HomeAppDrawer
+        manitto={manitto}
+        tracks={(praiseTracks ?? []).map((track) => ({
+          id: track.youtube_id,
+          title: track.title,
+          artist: track.artist,
+        }))}
+      />
 
       <section
         aria-label={sort === 'popular' ? '인기 게시글' : '최신 게시글'}
