@@ -1,6 +1,6 @@
 import 'server-only'
 
-import { google } from 'googleapis'
+import { GoogleAuth } from 'google-auth-library'
 import { aggregateSecondDepartmentDashboard, type SourceValues } from '@/lib/churchDashboardSource'
 
 type SourceConfig = {
@@ -53,14 +53,23 @@ export async function loadSecondDepartmentDashboardSnapshot() {
   const config = sourceConfig()
   if (!config) return null
 
-  const auth = new google.auth.GoogleAuth({
+  const auth = new GoogleAuth({
     credentials: { client_email: config.clientEmail, private_key: config.privateKey },
     scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly'],
   })
-  const sheets = google.sheets({ version: 'v4', auth })
+  const accessToken = await auth.getAccessToken()
+  if (!accessToken) throw new Error('dashboard_google_auth_unavailable')
   const read = async (spreadsheetId: string, range: string): Promise<SourceValues> => {
-    const response = await sheets.spreadsheets.values.get({ spreadsheetId, range, valueRenderOption: 'FORMATTED_VALUE' })
-    return (response.data.values ?? []) as SourceValues
+    const url = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodeURIComponent(range)}?valueRenderOption=FORMATTED_VALUE`
+    const response = await fetch(url, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+      signal: AbortSignal.timeout(15_000),
+      cache: 'no-store',
+    })
+    if (!response.ok) throw new Error(`dashboard_sheet_http_${response.status}`)
+    const data = await response.json() as { values?: unknown }
+    if (!Array.isArray(data.values)) throw new Error('dashboard_sheet_values_invalid')
+    return data.values as SourceValues
   }
   const [people, attendance, prayer] = await Promise.all([
     read(config.peopleId, sheetRange(process.env.CHURCH_DASHBOARD_PEOPLE_SHEET_NAME?.trim() || 'DB', 'A:ZZ')),
