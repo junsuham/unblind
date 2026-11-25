@@ -1,4 +1,9 @@
+import { readFileSync } from 'node:fs'
+
 const baseUrl = (process.env.SMOKE_BASE_URL ?? 'https://unbd.vercel.app').replace(/\/$/, '')
+const localWorker = readFileSync(new URL('../public/sw.js', import.meta.url), 'utf8')
+const workerVersion = localWorker.match(/WORKER_VERSION = '([^']+)'/)?.[1]
+if (!workerVersion) throw new Error('Local service worker version is missing')
 
 async function expectResponse(path, validate) {
   const response = await fetch(`${baseUrl}${path}`, {
@@ -92,7 +97,7 @@ await expectResponse('/manifest.webmanifest', async (response) => {
 
 await expectResponse('/sw.js', async (response) => {
   const body = await response.text()
-  if (!response.ok || !body.includes("WORKER_VERSION = '63'")) {
+  if (!response.ok || !body.includes(`WORKER_VERSION = '${workerVersion}'`)) {
     throw new Error('Service worker version is not current')
   }
   if (!body.includes("OUTBOX_DB = 'unblind-offline-outbox-v1'")) {
