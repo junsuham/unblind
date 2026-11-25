@@ -31,7 +31,7 @@ export function HomePraisePlayer({ initialTracks }: HomePraisePlayerProps) {
       }}
       className={homeAppTileClassName}
     >
-      <HomeAppTileContent icon="disc" label="오늘의 찬양" tone="amber" />
+      <HomeAppTileContent label="오늘의 찬양" tone="amber" />
       <span id={descriptionId} className="sr-only">바로 재생 · 상황별 추천 제공</span>
     </button>
   )

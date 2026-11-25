@@ -2,7 +2,6 @@ import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it, vi } from 'vitest'
 import { readFileSync } from 'node:fs'
-import sharp from 'sharp'
 import { HomeAppDrawer } from '../src/app/components/HomeAppDrawer'
 
 vi.mock('next/navigation', () => ({
@@ -33,14 +32,17 @@ describe('home app drawer', () => {
     expect(html).toMatch(/<button(?=[^>]*aria-label="오늘의 찬양")(?![^>]*disabled)/)
   })
 
-  it('loads seven compact square iOS-style icon images in the app drawer', async () => {
+  it('renders seven centered, decorative layered app symbols', () => {
     const html = renderDrawer()
     for (const name of ['journey', 'manitto', 'gratitude', 'recreation', 'mbti', 'shorts', 'praise']) {
-      const path = `/icons/app-drawer-v3/${name}.webp`
-      expect(html).toContain(`src="${path}"`)
-      const data = readFileSync(new URL(`../public${path}`, import.meta.url))
-      expect(data.byteLength).toBeLessThan(18_000)
-      expect(await sharp(data).metadata()).toMatchObject({ width: 192, height: 192, format: 'webp' })
+      expect(html).toMatch(new RegExp(`data-app-icon="${name}" aria-hidden="true"><span[^>]*><svg[^>]*viewBox="0 0 32 32"[^>]*focusable="false"`))
     }
+    expect(html.match(/<svg/g)).toHaveLength(7)
+  })
+
+  it('uses a small dedicated mask for the drawer rather than the install icon', () => {
+    const mask = readFileSync(new URL('../public/icons/app-drawer-mask-v1.svg', import.meta.url), 'utf8')
+    expect(mask).toContain('viewBox="0 0 64 64"')
+    expect(mask.length).toBeLessThan(500)
   })
 })

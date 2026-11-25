@@ -129,10 +129,8 @@ export function HomeManittoFinder({
         className={homeAppTileClassName}
       >
         <HomeAppTileContent
-          icon="gift"
           label="마니또 메이커"
           tone="rose"
-          filled={phase === 'matched'}
           status={status}
           error={Boolean(error)}
           badge={submitting || phase === 'waiting' ? 'waiting' : phase === 'matched' ? 'matched' : undefined}

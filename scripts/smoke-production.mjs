@@ -79,13 +79,19 @@ await expectResponse('/api/prayer-room/live', async (response) => {
   if (response.status !== 405) throw new Error('Prayer room live must not serve a public GET')
 })
 
-for (const path of ['prayer/golgotha-ascent-v1.webp', 'prayer/pew-pixel-v1.webp', 'icons/church-dashboard-v1.webp', ...['journey', 'manitto', 'gratitude', 'recreation', 'mbti', 'shorts', 'praise'].map((name) => `icons/app-drawer-v3/${name}.webp`)]) {
+for (const path of ['prayer/golgotha-ascent-v1.webp', 'prayer/pew-pixel-v1.webp', 'icons/church-dashboard-v1.webp']) {
   await expectResponse(`/${path}`, async (response) => {
     if (!response.ok || response.headers.get('content-type') !== 'image/webp') {
       throw new Error(`App artwork is unavailable: ${path}`)
     }
   })
 }
+
+await expectResponse('/icons/app-drawer-mask-v1.svg', async (response) => {
+  if (!response.ok || !response.headers.get('content-type')?.startsWith('image/svg+xml')) {
+    throw new Error('Home app drawer mask is unavailable')
+  }
+})
 
 await expectResponse('/builder-preview/home', async (response) => {
   if (response.status !== 200) {
