@@ -16,6 +16,10 @@ UNBLIND의 `/church-dashboard`는 공개 대시보드나 Google Sheets를 브라
 4. 기존 대시보드와 다른 탭 이름을 사용한다면 `CHURCH_DASHBOARD_PEOPLE_SHEET_NAME`, `CHURCH_DASHBOARD_ATTENDANCE_SHEET_NAME`, `CHURCH_DASHBOARD_PRAYER_SHEET_NAME`을 추가합니다. 기본값은 각각 `DB`, `52주 예배 참불 현황(NUM)`, `DB`입니다.
 5. `/api/cron/church-dashboard`가 하루 한 번 2부 데이터만 읽어 `church_dashboard_snapshots`에 집계 수치를 기록합니다. `CRON_SECRET`이 필요하며, 승인받은 앱 사용자는 읽기만 할 수 있습니다. 달력은 부서 구분이 확인되지 않아 연동하지 않고, 일정/돌봄 수치는 비워 둡니다.
 
+관리자 센터 → 앱 상태 → **교회 대시보드 · 대학청년회 2부**에서 원본 연결 설정의 누락·형식 오류와 첫 집계 또는 최근 갱신 여부를 확인할 수 있습니다. 설정 형식이 올바르더라도 Google의 실제 읽기 권한과 원본 구조는 첫 집계 때 확인됩니다.
+
+기존 대시보드 코드에서 원본 구분은 회원 DB(`RAWDATA_SHEET_ID`), 부서별 출석 통계(`DEPARTMENT_STATS_SHEET_ID`), 기도 DB(`PRAYER_SHEET_ID`)입니다. 연결 전 승인받은 **2부 전용 공유본**을 우선 사용합니다. 회원·기도는 `부서` 또는 `부` 열에 2부 구분이 필요하고, 출석 통계는 날짜 열과 유일한 2부 행이 필요합니다. 기도 원본에 부서 구분이 없으면 이름으로 소속을 추정하지 않고, 관리자가 확인한 2부 구분 열을 먼저 마련해야 합니다.
+
 기존 `christ-dashboard` 화면은 현재 실명, 출석, 기도 등 개인별 자료를 포함하므로 iframe이나 공개 URL로 연결하지 않습니다. 원본 데이터의 이용 목적·동의·열람권한을 확인한 뒤 서버에서 비식별 집계만 만들고, `church_place_id`와 부서로 나누어 게시해야 합니다. 이름만으로 교회를 묶으면 동명이교회가 섞일 수 있습니다.
 
 ### 기존 `christ-dashboard` 연결 전 확인사항

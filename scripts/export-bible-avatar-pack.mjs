@@ -85,7 +85,7 @@ function foreground(pixels, w, h) {
   }
 }
 
-async function convert(source) {
+async function convert(source, spriteHeight) {
   const input = sharp(source, { limitInputPixels: 16_777_216, failOn: 'error' })
   const metadata = await input.metadata()
   if (metadata.format !== 'png' || !metadata.hasAlpha) {
@@ -95,7 +95,7 @@ async function convert(source) {
   const crop = foreground(data, info.width, info.height)
   const { data: sprite, info: size } = await input
     .extract(crop)
-    .resize(width - 2 * horizontalMargin, maximumSpriteHeight, { fit: 'inside', kernel: 'nearest' })
+    .resize(width - 2 * horizontalMargin, spriteHeight, { fit: 'inside', kernel: 'nearest' })
     .png()
     .toBuffer({ resolveWithObject: true })
   const webp = await sharp({ create: { width, height, channels: 4, background: invisible } })
@@ -107,10 +107,16 @@ async function convert(source) {
 
 async function main(args) {
   const replace = args.includes('--replace')
-  const pack = args.includes('--mbti') ? 'bible-mbti-v1' : 'bible-v1'
+  const mbti = args.includes('--mbti')
+  const prayer = args.includes('--prayer')
+  if (mbti && prayer) throw new Error('Select only one pack.')
+  const pack = prayer ? 'bible-prayer-v1' : mbti ? 'bible-mbti-v1' : 'bible-v1'
+  // Keep the same ground anchor as the standing pose, with space above the
+  // lowered head so the in-game body size stays consistent when kneeling.
+  const spriteHeight = prayer ? 160 : maximumSpriteHeight
   const outputDirectory = fileURLToPath(new URL(`../public/avatars/${pack}/`, import.meta.url))
-  const entries = args.filter((arg) => arg !== '--replace' && arg !== '--mbti')
-  if (!entries.length) throw new Error('Usage: node scripts/export-bible-avatar-pack.mjs [--replace] [--mbti] id=/absolute/source.png [...]')
+  const entries = args.filter((arg) => !['--replace', '--mbti', '--prayer'].includes(arg))
+  if (!entries.length) throw new Error('Usage: node scripts/export-bible-avatar-pack.mjs [--replace] [--mbti | --prayer] id=/absolute/source.png [...]')
   const seen = new Set()
   const sources = entries.map((entry) => {
     const separator = entry.indexOf('=')
@@ -127,7 +133,7 @@ async function main(args) {
   for (const { id, source } of sources) {
     try {
       const file = join(outputDirectory, `${id}.webp`)
-      const result = await convert(source)
+      const result = await convert(source, spriteHeight)
       let action = 'wrote'
       try {
         await writeFile(file, result.webp, { flag: replace ? 'w' : 'wx' })

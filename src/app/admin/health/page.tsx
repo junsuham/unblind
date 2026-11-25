@@ -1,4 +1,6 @@
 import { requireAdmin } from '@/lib/adminAuth'
+import { CHURCH_DASHBOARD_TARGET_DEPARTMENT, CHURCH_DASHBOARD_TARGET_PLACE_ID } from '@/lib/churchDashboardScope'
+import { readChurchDashboardSourceSetup } from '@/lib/churchDashboardSourceConfig'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
 import {
   AdminHeader,
@@ -30,13 +32,27 @@ const severityLabel = {
   fatal: '치명적 오류',
 }
 
+const churchDashboardSetupMessage = {
+  missing: {
+    title: '원본 연결 설정 필요',
+    subtitle: '서버에 Google 읽기 계정과 2부 회원·출석·기도 자료의 연결 설정이 필요합니다.',
+  },
+  invalid: {
+    title: '원본 연결 설정 오류',
+    subtitle: '서버의 Google 읽기 계정과 원본 시트 주소·탭 설정을 확인해 주세요.',
+  },
+  configured: {
+    title: '원본 연결 설정 있음',
+    subtitle: '설정 형식만 확인했습니다. Google 읽기 권한은 실제 집계가 갱신될 때 확인됩니다.',
+  },
+}
+
 export default async function AdminHealthPage() {
   await requireAdmin()
 
-  const oneDayAgoDate = new Date()
-  oneDayAgoDate.setDate(oneDayAgoDate.getDate() - 1)
-  const oneDayAgo = oneDayAgoDate.toISOString()
-  const [eventsResult, fatalCount, errorCount, warningCount, totalCount, rolesResult] = await Promise.all([
+  const now = new Date()
+  const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString()
+  const [eventsResult, fatalCount, errorCount, warningCount, totalCount, rolesResult, churchDashboardResult] = await Promise.all([
     supabaseAdmin
       .from('app_events')
       .select('id, source, severity, name, message, release, route, created_at')
@@ -52,12 +68,33 @@ export default async function AdminHealthPage() {
       .from('admin_roles')
       .select('*', { count: 'exact', head: true })
       .eq('is_active', true),
+    supabaseAdmin
+      .from('church_dashboard_snapshots')
+      .select('generated_at')
+      .eq('church_place_id', CHURCH_DASHBOARD_TARGET_PLACE_ID)
+      .eq('department', CHURCH_DASHBOARD_TARGET_DEPARTMENT)
+      .maybeSingle<{ generated_at: string }>(),
   ])
   const events = eventsResult.data ?? []
   const errors = errorCount.count ?? 0
   const fatals = fatalCount.count ?? 0
   const warnings = warningCount.count ?? 0
   const databaseError = eventsResult.error ?? fatalCount.error ?? errorCount.error ?? warningCount.error ?? totalCount.error
+  const churchDashboardSetup = churchDashboardSetupMessage[readChurchDashboardSourceSetup().status]
+  const dashboardGeneratedAt = churchDashboardResult.data?.generated_at
+  const dashboardSync = churchDashboardResult.error
+    ? { title: '집계 상태를 확인하지 못했습니다', subtitle: '대시보드 집계 테이블 연결을 확인해 주세요.' }
+    : dashboardGeneratedAt
+      ? {
+          title: now.getTime() - new Date(dashboardGeneratedAt).getTime() > 48 * 60 * 60 * 1000
+            ? '최근 48시간 동안 집계 갱신 없음'
+            : '최근 2부 집계 확인',
+          subtitle: new Date(dashboardGeneratedAt).toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' }),
+        }
+      : {
+          title: '아직 저장된 집계가 없습니다',
+          subtitle: '설정 후에도 이 상태라면 Google 읽기 권한과 원본의 2부 구분을 확인해 주세요.',
+        }
 
   return (
     <AdminPageShell>
@@ -86,6 +123,14 @@ export default async function AdminHealthPage() {
           <AdminStatCard label="릴리스" value={process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 7) ?? 'local'} />
         </AdminStatGrid>
       </section>
+
+      <AdminListGroup
+        title="교회 대시보드 · 대학청년회 2부"
+        footer="자료는 매일 비식별 집계로 갱신됩니다. 이 화면에는 인증 정보와 원본 자료가 표시되지 않습니다."
+      >
+        <AdminListRow {...churchDashboardSetup} />
+        <AdminListRow {...dashboardSync} />
+      </AdminListGroup>
 
       <AdminListGroup
         title="최근 이벤트"

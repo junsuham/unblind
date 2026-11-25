@@ -5,7 +5,10 @@ describe('2부 dashboard source aggregation', () => {
   it('rejects lookalike or different departments', () => {
     expect(isSecondDepartment('대학청년회 2부')).toBe(true)
     expect(isSecondDepartment('2 부')).toBe(true)
+    expect(isSecondDepartment('연세중앙교회 대학청년회 ２부')).toBe(true)
     expect(isSecondDepartment('전도2부')).toBe(false)
+    expect(isSecondDepartment('초등부 2부')).toBe(false)
+    expect(isSecondDepartment('다른교회 대학청년회 2부')).toBe(false)
     expect(isSecondDepartment('12부')).toBe(false)
     expect(isSecondDepartment('3부')).toBe(false)
   })
@@ -21,6 +24,7 @@ describe('2부 dashboard source aggregation', () => {
         ['가명마', '1005', '2부', 'O'],
         ['가명가', '1001', '2부', 'O'],
         ['다른부서', '9999', '3부', 'O'],
+        ['다른2부', '9998', '고등부 2부', 'O'],
         ['비활동', '1006', '2부', 'X'],
       ],
       attendance: [
@@ -36,6 +40,7 @@ describe('2부 dashboard source aggregation', () => {
         ['2부', '가명라', '2026.11.24', '10'],
         ['2부', '가명마', '2026.11.24', '5'],
         ['3부', '다른부서', '2026.11.24', '300분'],
+        ['고등부 2부', '다른2부', '2026.11.24', '300분'],
       ],
       now: new Date('2026-11-25T00:00:00.000Z'),
     })
@@ -58,5 +63,13 @@ describe('2부 dashboard source aggregation', () => {
       attendance: [['부서', '2026.11.22'], ['3부', '50']],
       prayer: [['부서', '이름', '날짜', '기도시간']],
     })).toThrow('attendance_department_ambiguous')
+  })
+
+  it('fails closed without a prayer department column; it does not match people by name', () => {
+    expect(() => aggregateSecondDepartmentDashboard({
+      people: [['회원', '부서'], ['가명가', '2부']],
+      attendance: [['부서', '2026.11.22'], ['2부', '50']],
+      prayer: [['이름', '날짜', '기도시간'], ['가명가', '2026.11.24', '30분']],
+    })).toThrow('source_columns_missing')
   })
 })

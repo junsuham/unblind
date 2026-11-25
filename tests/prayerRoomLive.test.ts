@@ -3,7 +3,12 @@ import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { POST } from '../src/app/api/prayer-room/live/route'
 import { PrayerRoomChat, usePrayerRoomLive } from '../src/app/components/PrayerRoomLive'
-import { parsePrayerRoomMessage, parsePrayerRoomPosition, parsePrayerRoomVisitId, prayerRoomMaxY } from '../src/lib/prayerRoomLive'
+import { PrayerRoomScene } from '../src/app/pray/PrayerRoomScene'
+import { bibleAvatarPresets } from '../src/lib/pixelAvatar'
+import {
+  latestPrayerRoomBubbles, parsePrayerRoomMessage, parsePrayerRoomPosition,
+  parsePrayerRoomVisitId, prayerRoomMaxY, prayerRoomPoseSrc,
+} from '../src/lib/prayerRoomLive'
 
 const { from, rpc, getUser, guard } = vi.hoisted(() => ({
   from: vi.fn(),
@@ -42,19 +47,47 @@ describe('prayer room exchange input', () => {
       expect(parsePrayerRoomMessage(unsafe)).toBeNull()
     }
   })
+  it('maps only the twenty known portraits to dedicated prayer-pose files', () => {
+    expect(new Set(bibleAvatarPresets.map(({ id }) => prayerRoomPoseSrc(id))).size).toBe(20)
+    expect(prayerRoomPoseSrc('daniel')).toBe('/avatars/bible-prayer-v1/daniel.webp')
+    expect(prayerRoomPoseSrc('../daniel')).toBeNull()
+  })
+  it('uses the latest message per server nickname and expires bubbles independently of the history', () => {
+    const now = Date.parse('2026-11-25T10:00:00Z')
+    const message = (id: string, nickname: string, age: number) => ({
+      id, nickname, text: id, sentAt: new Date(now - age).toISOString(),
+    })
+    const latest = message('latest', '다니엘D', 100)
+    const otherSpeaker = message('other', '다니엘A', 4500)
+    const bubbles = latestPrayerRoomBubbles([
+      latest, otherSpeaker, message('old', '다니엘D', 3000), message('stale', '루디아K', 10001),
+    ], now)
+    expect(bubbles.get('다니엘D')).toBe(latest)
+    expect(bubbles.get('다니엘A')).toBe(otherSpeaker)
+    expect(bubbles.has('루디아K')).toBe(false)
+    expect(latestPrayerRoomBubbles([latest], now + 10_000).size).toBe(0)
+  })
 })
 
 function ChatExample() {
   return createElement(PrayerRoomChat, { live: usePrayerRoomLive() })
 }
 
-it('shows the live chat and sharing notice immediately, with an option to play alone', () => {
+it('shows a blank live composer immediately and keeps accessible reporting and privacy guidance', () => {
   const html = renderToStaticMarkup(createElement(ChatExample))
   expect(html).toContain('기도의 방 채팅')
   expect(html).toContain('닉네임과 캐릭터가 보여요')
   expect(html).toContain('보낼 채팅 메시지')
-  expect(html).toContain('혼자 하기')
-  expect(html).not.toContain('함께 입장')
+  expect(html).toContain('aria-label="채팅 보내기"')
+  expect(html).toContain('aria-label="신고·문의"')
+  expect(html).not.toContain('placeholder=')
+  expect(html).not.toContain('혼자 하기')
+})
+
+it('removes help and puts the icon-only solo toggle directly before the jump button', () => {
+  const html = renderToStaticMarkup(createElement(PrayerRoomScene, { storageScope: userId, characterName: '다니엘D' }))
+  expect(html).toMatch(/aria-label="혼자 하기"[^>]*><svg.*?<\/button><button[^>]*aria-label="점프"/)
+  expect(html).not.toContain('aria-label="조작법"')
 })
 
 function mutation(body: Record<string, unknown>) {

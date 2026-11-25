@@ -108,6 +108,11 @@
   line-height: 1;
 }
 .customizeButton[aria-expanded='true'] { border-color: var(--ub-color-brand); background: var(--ub-surface-pressed); }
+.characterButton:not([aria-expanded='true']) { background: #fff2c7; }
+.characterButton > span { font-size: 24px; }
+@media (prefers-color-scheme: dark) {
+  .characterButton:not([aria-expanded='true']) { background: #523d24; }
+}
 .customizeButton:focus-visible { outline: 2px solid var(--ub-color-brand); outline-offset: 2px; }
 .customizeButton:disabled { opacity: .55; }
 .picker { container-type: inline-size; display: grid; gap: 11px; padding: 14px 12px 12px; border-top: 1px solid var(--ub-separator); }

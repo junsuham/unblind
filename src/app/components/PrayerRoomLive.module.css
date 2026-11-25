@@ -1,60 +1,121 @@
-.lobby, .chat {
+.chat {
+  min-width: 0;
+  padding: 6px;
   border: 1px solid var(--ub-glass-border);
-  border-radius: 18px;
+  border-radius: 16px;
   background: var(--ub-surface-card-strong);
   color: var(--ub-text-primary);
-  padding: 12px;
-  min-width: 0;
 }
-.lobby {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-.lobby strong, .toolbar strong { display: block; font-size: 13px; }
-.lobby p, .privacy, .hint, .notice { color: var(--ub-text-secondary); margin: 4px 0 0; font-size: 11px; line-height: 1.45; overflow-wrap: anywhere; }
-.lobby button, .toolbar button, .compose button {
-  border-radius: 10px;
-  line-height: 1.15;
-  min-height: 44px;
-  flex: none;
-  padding-inline: 10px;
-  font-size: 12px;
-  font-weight: 750;
-  background: var(--ub-surface-brand-soft);
-  color: var(--ub-color-brand);
-}
-.lobby button:focus-visible, .toolbar button:focus-visible, .compose button:focus-visible, .compose input:focus-visible { outline: 2px solid var(--ub-color-brand); }
-.toolbar { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
-.connection { margin-inline-start: 4px; font-weight: 650; font-size: 11px; color: var(--ub-text-secondary); }
-.toolbar button { background: var(--ub-surface-muted); color: var(--ub-text-secondary); }
+
 .thread {
-  margin: 0 0 8px;
-  padding: 8px;
-  min-height: 58px;
-  max-height: min(144px, 23dvh);
+  max-height: min(69px, 13dvh);
+  margin: 0 0 6px;
+  padding: 4px 8px;
   overflow-y: auto;
   overscroll-behavior: contain;
+  border-radius: 9px;
   background: var(--ub-surface-input);
-  border-radius: 10px;
   font-size: 12px;
   list-style: none;
 }
-.thread li { display: flex; gap: 8px; line-height: 1.45; padding-block: 2px; }
-.thread b { color: var(--ub-color-brand); flex: none; }
+
+.thread li { display: flex; gap: 8px; padding-block: 2px; line-height: 1.4; }
+.thread b { flex: none; color: var(--ub-color-brand); }
 .thread span { min-width: 0; overflow-wrap: anywhere; }
-.placeholder { color: var(--ub-text-secondary); }
-.compose { display: flex; gap: 6px; align-items: stretch; }
-.compose input {
-  flex: 1;
+
+.compose { display: flex; gap: 5px; align-items: stretch; }
+
+.field {
+  display: flex;
   min-width: 0;
-  padding-inline: 9px;
+  min-height: 44px;
+  flex: 1;
+  align-items: center;
   border: 1px solid var(--ub-control-border);
   border-radius: 10px;
-  font-size: 16px;
   background: var(--ub-surface-input);
 }
-.compose button:disabled { opacity: .45; }
-.hint a { color: var(--ub-color-brand); text-decoration: underline; text-underline-offset: 2px; }
-.notice { color: var(--ub-danger-text); }
+
+.fieldIcon {
+  display: grid;
+  position: relative;
+  flex: none;
+  place-items: center;
+  width: 34px;
+  color: var(--ub-text-secondary);
+  pointer-events: none;
+}
+
+.connectionDot {
+  position: absolute;
+  inset: -2px 5px auto auto;
+  width: 7px;
+  height: 7px;
+  border: 1px solid var(--ub-surface-card-strong);
+  border-radius: 50%;
+  background: var(--ub-text-secondary);
+}
+
+.connectionDot[data-state='ready'] { background: #2f995b; }
+.connectionDot[data-state='retry'] { background: #c16a1c; }
+.connectionDot[data-state='unavailable'] { background: var(--ub-danger-text); }
+
+.compose input {
+  flex: 1;
+  align-self: stretch;
+  min-width: 0;
+  padding-inline: 0 9px;
+  border: 0;
+  font-size: 16px;
+  background: transparent;
+  color: inherit;
+}
+
+.compose input:focus-visible { outline: none; }
+
+.field:focus-within, .compose button:focus-visible, .report:focus-visible {
+  outline: 2px solid var(--ub-focus-ring);
+  outline-offset: 2px;
+}
+
+.compose button, .report {
+  display: grid;
+  min-width: 44px;
+  min-height: 44px;
+  flex: none;
+  place-items: center;
+  border-radius: 10px;
+  color: var(--ub-color-brand);
+}
+
+.compose button { background: var(--ub-surface-brand-soft); }
+.compose svg { pointer-events: none; }
+.compose button:disabled { opacity: .55; }
+.report { color: var(--ub-text-secondary); }
+
+.notice {
+  margin: 4px 4px 0;
+  color: var(--ub-danger-text);
+  font-size: 11px;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+/* While the software keyboard is visible, follow the visual viewport instead
+   of keeping the installed PWA's fixed frame behind the keyboard. */
+:global(.ub-app-frame[data-prayer-keyboard]):has(.chat) {
+  inset-block: var(--prayer-visible-top, 0px) auto;
+  height: var(--prayer-visible-height, 100dvh);
+  grid-template-rows: minmax(0, 1fr);
+}
+
+:global(.ub-app-frame[data-prayer-keyboard]):has(.chat) :global(.ub-app-tabbar) {
+  display: none;
+}
+
+:global(.ub-app-frame[data-prayer-keyboard]):has(.chat) :global(.ub-app-content--contained) {
+  min-height: 0;
+  padding-bottom: 0;
+}
+
+.chat:focus-within .thread { max-height: min(62px, 12dvh); }

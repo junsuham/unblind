@@ -144,7 +144,7 @@ export function DailyFaithCheckIn({ storageScope, characterName }: { storageScop
             </button>
           ) : (
             <>
-              <div className="mt-3 grid grid-cols-5 gap-1.5" role="group" aria-label="오늘의 마음">
+              <div className="mt-2.5 grid grid-cols-5 gap-1" role="group" aria-label="오늘의 마음">
                 {faithMoodOptions.map((option) => (
                   <button
                     key={option.value}
@@ -152,46 +152,47 @@ export function DailyFaithCheckIn({ storageScope, characterName }: { storageScop
                     aria-label={option.label}
                     aria-pressed={mood === option.value}
                     onClick={() => setMood(option.value)}
-                    className={`grid min-h-11 min-w-0 place-items-center rounded-[13px] focus-visible:ring-2 focus-visible:ring-[var(--ub-color-brand)] ${
+                    className={`grid min-h-11 min-w-0 place-items-center rounded-[11px] focus-visible:ring-2 focus-visible:ring-[var(--ub-color-brand)] ${
                       mood === option.value
-                        ? 'bg-[var(--ub-color-brand)]'
+                        ? 'bg-[var(--ub-surface-brand-soft)] ring-1 ring-inset ring-[var(--ub-color-brand)]'
                         : 'bg-[var(--ub-surface-muted)]'
                     }`}
                   >
-                    <span className="text-[24px] leading-none" aria-hidden="true">{option.emoji}</span>
+                    <span className="text-[22px] leading-none" aria-hidden="true">{option.emoji}</span>
                   </button>
                 ))}
               </div>
 
-              <div className="mt-2 grid grid-cols-4 gap-1.5" role="group" aria-label="오늘의 신앙 날씨">
-                {faithWeatherOptions.map((option) => (
-                  <button
-                    key={option.value}
-                    type="button"
-                    aria-label={option.label}
-                    aria-pressed={weather === option.value}
-                    onClick={() => setWeather(option.value)}
-                    className={`grid min-h-11 min-w-0 place-items-center rounded-[13px] focus-visible:ring-2 focus-visible:ring-[var(--ub-color-brand)] ${
-                      weather === option.value
-                        ? 'bg-[var(--ub-surface-brand-soft)] ring-1 ring-[var(--ub-color-brand)]'
-                        : 'bg-[var(--ub-surface-muted)]'
-                    }`}
-                  >
-                    <FaithWeatherIcon weather={option.value} />
-                  </button>
-                ))}
+              <div className="mt-1 grid grid-cols-5 gap-1">
+                <div className="col-span-4 grid min-w-0 grid-cols-4 gap-1" role="group" aria-label="오늘의 신앙 날씨">
+                  {faithWeatherOptions.map((option) => (
+                    <button
+                      key={option.value}
+                      type="button"
+                      aria-label={option.label}
+                      aria-pressed={weather === option.value}
+                      onClick={() => setWeather(option.value)}
+                      className={`grid min-h-11 min-w-0 place-items-center rounded-[11px] focus-visible:ring-2 focus-visible:ring-[var(--ub-color-brand)] ${
+                        weather === option.value
+                          ? 'bg-[var(--ub-surface-brand-soft)] ring-1 ring-inset ring-[var(--ub-color-brand)]'
+                          : 'bg-[var(--ub-surface-muted)]'
+                      }`}
+                    >
+                      <FaithWeatherIcon weather={option.value} />
+                    </button>
+                  ))}
+                </div>
+                <button
+                  type="button"
+                  aria-label={saving ? '기록 중…' : '오늘 체크인 남기기'}
+                  aria-busy={saving}
+                  onClick={saveCheckin}
+                  disabled={!mood || !weather || saving}
+                  className="grid min-h-11 min-w-0 place-items-center rounded-[11px] bg-[var(--ub-color-brand)] text-white focus-visible:ring-2 focus-visible:ring-[var(--ub-color-brand)] focus-visible:ring-offset-2 disabled:bg-[var(--ub-surface-muted)] disabled:text-[var(--ub-text-tertiary)]"
+                >
+                  {saving ? <Emoji3D name="hourglass" size={21} decorative /> : <SystemIcon name="check" size={24} strokeWidth={2.4} />}
+                </button>
               </div>
-
-              <button
-                type="button"
-                aria-label={saving ? '기록 중…' : '오늘 체크인 남기기'}
-                aria-busy={saving}
-                onClick={saveCheckin}
-                disabled={!mood || !weather || saving}
-                className="mt-3 grid min-h-11 w-full place-items-center rounded-[13px] bg-[var(--ub-color-brand)] text-[23px] leading-none focus-visible:ring-2 focus-visible:ring-[var(--ub-color-brand)] focus-visible:ring-offset-2 disabled:opacity-50"
-              >
-                {saving ? <Emoji3D name="hourglass" size={24} decorative /> : <span aria-hidden="true">📝</span>}
-              </button>
               {error && <p className="mt-2 text-[12px] text-[var(--ub-danger-text)]" role="alert">{error}</p>}
             </>
           )}

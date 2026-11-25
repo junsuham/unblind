@@ -14,16 +14,19 @@ type AppShellProps = {
   topTitle?: string
   topBackHref?: string
   topTrailing?: ReactNode
+  homeChrome?: boolean
 }
 
 function TopLogoBar({
   title,
   backHref,
   trailing,
+  homeChrome,
 }: {
   title?: string
   backHref?: string
   trailing?: ReactNode
+  homeChrome?: boolean
 }) {
   const [searchOpen, setSearchOpen] = useState(false)
   const searchInputRef = useRef<HTMLInputElement>(null)
@@ -54,9 +57,11 @@ function TopLogoBar({
             <Link
               href="/"
               aria-label="언블라인드 홈으로 이동"
-              className={`flex h-11 shrink-0 items-center justify-start active:scale-[0.96] ${title ? 'w-9' : 'w-[108px]'}`}
+              className={`flex h-11 shrink-0 items-center justify-start active:scale-[0.96] ${homeChrome ? 'w-11' : title ? 'w-9' : 'w-[108px]'}`}
             >
-              {title ? (
+              {homeChrome ? (
+                <span className="ub-home-brand-mark" aria-hidden="true" />
+              ) : title ? (
               <Image
                 src="/brand/unblind-monogram-relief-v5.png"
                 alt="UNBLIND"
@@ -153,9 +158,10 @@ export function AppShell({
   topTitle,
   topBackHref,
   topTrailing,
+  homeChrome = false,
 }: AppShellProps) {
   return (
-    <div className="ub-app-frame">
+    <div className={`ub-app-frame${homeChrome ? ' ub-app-frame--home' : ''}`}>
       <main
         className={`ub-app-scroll ub-app-surface overflow-x-hidden px-4 pt-[calc(18px+env(safe-area-inset-top))] text-[var(--ub-text-on-brand-primary)] ${
           contentMode === 'contained' ? 'ub-app-scroll--contained' : ''
@@ -166,6 +172,7 @@ export function AppShell({
             title={topTitle}
             backHref={topBackHref}
             trailing={topTrailing}
+            homeChrome={homeChrome}
           />
         )}
 

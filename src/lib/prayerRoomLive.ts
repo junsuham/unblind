@@ -15,6 +15,25 @@ export type PrayerRoomSnapshot = { peers: PrayerRoomPeer[]; messages: PrayerRoom
 export const prayerRoomMessageLimit = 160
 export const prayerRoomLiveVersion = 2
 export const prayerRoomMaxY = 2240
+export const prayerRoomBubbleDuration = 10_000
+
+export function prayerRoomPoseSrc(avatarId: string) {
+  return findBibleAvatarPreset(avatarId) ? `/avatars/bible-prayer-v1/${avatarId}.webp` : null
+}
+
+/** Both room RPC lists use the same unique, server-assigned profile nickname. */
+export function latestPrayerRoomBubbles(messages: readonly PrayerRoomMessage[], now: number) {
+  const bubbles = new Map<string, PrayerRoomMessage>()
+  const stamps = new Map<string, number>()
+  for (const message of messages) {
+    const stamp = Date.parse(message.sentAt)
+    if (!Number.isFinite(stamp) || stamp + prayerRoomBubbleDuration <= now || stamp > now + prayerRoomBubbleDuration) continue
+    if ((stamps.get(message.nickname) ?? -Infinity) > stamp) continue
+    stamps.set(message.nickname, stamp)
+    bubbles.set(message.nickname, message)
+  }
+  return bubbles
+}
 
 export function parsePrayerRoomPosition(value: unknown, roomVersion: 1 | 2 = prayerRoomLiveVersion): PrayerRoomPosition | null {
   if (!value || typeof value !== 'object') return null

@@ -33,8 +33,8 @@ function table(values: SourceValues, required: string[][]): Table {
 }
 
 export function isSecondDepartment(value: Cell) {
-  const normalized = cell(value).replace(/\s+/g, '')
-  return /(^|[^0-9])2부$/.test(normalized) && !normalized.includes('전도2부')
+  const normalized = cell(value).normalize('NFKC').replace(/\s+/g, '')
+  return ['2부', '대학청년회2부', '연세중앙교회대학청년회2부'].includes(normalized)
 }
 
 function sourceDate(value: Cell): { key: string; timestamp: number } | null {
@@ -93,7 +93,7 @@ export function aggregateSecondDepartmentDashboard(input: {
   const attendance = table(input.attendance, [['부서']])
   const attendanceDepartment = column(attendance.headers, ['부서'])
   if (!attendance.headers.some((header) => sourceDate(header))) throw new Error('attendance_date_columns_missing')
-  const departmentRows = attendance.rows.filter((row) => cell(row[attendanceDepartment]).replace(/\s+/g, '') === '2부')
+  const departmentRows = attendance.rows.filter((row) => isSecondDepartment(row[attendanceDepartment]))
   if (departmentRows.length !== 1) throw new Error('attendance_department_ambiguous')
   const latestAllowed = now.getTime()
   const recentFloor = latestAllowed - 45 * 86_400_000

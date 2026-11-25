@@ -1,17 +1,19 @@
 'use client'
 
 import Image from 'next/image'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import type { DragEvent, KeyboardEvent, MouseEvent, PointerEvent, TouchEvent } from 'react'
 import { FaithAvatarSprite } from '@/app/components/FaithAvatarSprite'
 import { PrayerRoomChat, usePrayerRoomLive } from '@/app/components/PrayerRoomLive'
 import { useFaithAvatar } from '@/app/components/useFaithAvatar'
-import { bibleAvatarPresets, suggestedBibleAvatar } from '@/lib/pixelAvatar'
+import { SystemIcon } from '@/app/components/ui/SystemIcon'
+import { bibleAvatarPresets, suggestedBibleAvatar, type BibleAvatarPreset } from '@/lib/pixelAvatar'
 import {
   prayerCameraY, prayerPlatforms, prayerSummitLevel,
   prayerWorldHeight, prayerWorldWidth, startPrayerAscent, stepPrayerAscent,
   type PrayerMove,
 } from '@/lib/prayerParkour'
+import { latestPrayerRoomBubbles, prayerRoomPoseSrc } from '@/lib/prayerRoomLive'
 import styles from './PrayerRoomScene.module.css'
 
 const arrows = [
@@ -26,14 +28,45 @@ const keyboardMoves: Readonly<Record<string, PrayerMove | undefined>> = {
 }
 const avatars = new Map(bibleAvatarPresets.map((item) => [item.id, item]))
 
-function PrayerPoseMark() {
+function bubbleEdge(x: number) {
+  return x < 78 ? 'left' : x > prayerWorldWidth - 78 ? 'right' : undefined
+}
+
+function PrayerRoomAvatar({
+  avatar, name, size, message, preloadPose = false,
+}: {
+  avatar: BibleAvatarPreset
+  name: string
+  size: number
+  message?: string
+  preloadPose?: boolean
+}) {
+  const [loadedPose, setLoadedPose] = useState<string | null>(null)
+  const [failedPose, setFailedPose] = useState<string | null>(null)
+  const kneeling = prayerRoomPoseSrc(avatar.id)
+  const canLoad = Boolean(kneeling && failedPose !== kneeling)
+  const hasPose = canLoad && loadedPose === kneeling
   return (
-    <svg className={styles.poseMark} width="23" height="24" viewBox="0 0 23 24" shapeRendering="crispEdges" aria-hidden="true">
-      <path fill="#57312d" d="M2 15h3v-4h3V7h2V3h4v4h2v4h3v4h2v4h-4v3H7v-3H2z" />
-      <path fill="#ffe1a3" d="M4 16h3v-5h3V7h1V4h2v3h1v4h3v5h3v2h-4v3H8v-3H4z" />
-      <path fill="#cc8c57" d="M11 7h1v10h4v3H9v-5h2z" />
-      <path fill="#fff7d6" d="M0 6h2V4h1v2h2v1H3v2H2V7H0zm18-3h2V1h1v2h2v1h-2v2h-1V4h-2z" />
-    </svg>
+    <>
+      <span className={styles.avatarArt} data-has-pose={hasPose || undefined}>
+        <FaithAvatarSprite avatar={avatar} name={name} size={size} className={`${styles.sprite} ${styles.standingSprite}`} />
+        {canLoad && kneeling && (
+          <Image
+            src={kneeling}
+            alt={`${name}의 기도 자세`}
+            className={`${styles.sprite} ${styles.kneelingSprite}`}
+            width={size}
+            height={size}
+            unoptimized
+            loading={preloadPose ? 'eager' : 'lazy'}
+            onLoad={() => setLoadedPose(kneeling)}
+            onError={() => setFailedPose(kneeling)}
+          />
+        )}
+      </span>
+      <span className={styles.nameTag} title={name}>{name}</span>
+      {message && <span className={styles.speechBubble} aria-hidden="true"><span>{message}</span></span>}
+    </>
   )
 }
 
@@ -57,7 +90,7 @@ export function PrayerRoomScene({
   const [bestLevel, setBestLevel] = useState(0)
   const [inChapel, setInChapel] = useState(false)
   const [chapelPraying, setChapelPraying] = useState(false)
-  const [helpOpen, setHelpOpen] = useState(false)
+  const [messageTime, setMessageTime] = useState(0)
   const viewportRef = useRef<HTMLDivElement>(null)
   const spriteRef = useRef<HTMLDivElement>(null)
   const chapelClose = useRef<HTMLButtonElement>(null)
@@ -68,10 +101,20 @@ export function PrayerRoomScene({
   const queuedPrayer = useRef(false)
   const swipeStart = useRef<{ x: number; y: number } | null>(null)
   const timers = useRef(new Set<number>())
+  const hasMessages = live.messages.length > 0
+  const bubbles = useMemo(() => latestPrayerRoomBubbles(live.messages, messageTime), [live.messages, messageTime])
 
   useEffect(() => {
     if (inChapel) chapelClose.current?.focus({ preventScroll: true })
   }, [inChapel])
+
+  useEffect(() => {
+    if (!hasMessages) return
+    const tick = () => setMessageTime(Date.now())
+    const first = window.setTimeout(tick, 0)
+    const interval = window.setInterval(tick, 500)
+    return () => { window.clearTimeout(first); window.clearInterval(interval) }
+  }, [hasMessages])
 
   useEffect(() => {
     const viewport = viewportRef.current
@@ -126,6 +169,7 @@ export function PrayerRoomScene({
         sprite.dataset.facing = facing
         sprite.dataset.moving = String(platform === null || movement.has('left') || movement.has('right'))
         sprite.dataset.praying = String(isPraying)
+        sprite.dataset.bubbleEdge = bubbleEdge(x) ?? ''
       }
       if (platform !== null && platform > best.current) {
         best.current = platform
@@ -263,7 +307,6 @@ export function PrayerRoomScene({
             role="group"
             aria-label="골고다 언덕 오르기"
             aria-keyshortcuts="ArrowUp ArrowDown ArrowLeft ArrowRight Space"
-            aria-describedby={helpOpen ? 'prayer-motion-help' : undefined}
             tabIndex={inChapel ? -1 : 0}
             data-level={bestLevel}
             onWheel={(event) => { if (!inChapel && !event.ctrlKey && event.deltaY > 1) queuedPrayer.current = true }}
@@ -301,18 +344,14 @@ export function PrayerRoomScene({
                   style={{ left: peer.x, top: peer.y }}
                   data-facing={peer.facing}
                   data-praying={peer.isPraying === true}
-                  title={peer.nickname}
+                  data-bubble-edge={bubbleEdge(peer.x)}
                 >
-                  <span className={styles.nameTag}>{peer.nickname}</span>
-                  <FaithAvatarSprite avatar={avatars.get(peer.avatarId) ?? suggestedBibleAvatar(peer.nickname)} name={peer.nickname} size={60} className={styles.sprite} />
-                  <PrayerPoseMark />
+                  <PrayerRoomAvatar avatar={avatars.get(peer.avatarId) ?? suggestedBibleAvatar(peer.nickname)} name={peer.nickname} size={60} message={bubbles.get(peer.nickname)?.text} />
                 </div>
               ))}
               {ready && (
                 <div ref={spriteRef} className={styles.player} style={{ left: initialPlayer.x, top: initialPlayer.y }}>
-                  <span className={styles.nameTag}>{characterName}</span>
-                  <FaithAvatarSprite avatar={avatar} name={characterName} size={67} className={styles.sprite} />
-                  <PrayerPoseMark />
+                  <PrayerRoomAvatar avatar={avatar} name={characterName} size={67} message={bubbles.get(characterName)?.text} preloadPose />
                 </div>
               )}
             </div>
@@ -331,9 +370,7 @@ export function PrayerRoomScene({
                   언덕으로 돌아가기
                 </button>
                 <div className={styles.chapelAvatar} data-praying={chapelPraying}>
-                  <span className={styles.nameTag}>{characterName}</span>
-                  <FaithAvatarSprite avatar={avatar} name={characterName} size={96} className={styles.sprite} />
-                  <PrayerPoseMark />
+                  <PrayerRoomAvatar avatar={avatar} name={characterName} size={96} message={bubbles.get(characterName)?.text} preloadPose />
                 </div>
                 <button type="button" className={styles.chapelAction} aria-pressed={chapelPraying} onClick={() => setChapelPraying((value) => !value)}>
                   <span aria-hidden="true">🙏 </span>{chapelPraying ? '묵상 마치기' : '조용히 기도하기'}
@@ -360,24 +397,27 @@ export function PrayerRoomScene({
                 ))}
                 <span className={styles.padCenter} aria-hidden="true" />
               </div>
-              <div className={styles.controlCenter}>
-                <button type="button" className={styles.iconButton} aria-label="조작법" aria-expanded={helpOpen} aria-controls={helpOpen ? 'prayer-motion-help' : undefined} onClick={() => setHelpOpen((value) => !value)}>?</button>
+              <div className={styles.controlActions}>
                 <button type="button" className={styles.iconButton} aria-label="언덕 시작점으로" onClick={resetAscent}>↺</button>
+                <button
+                  type="button"
+                  className={styles.iconButton}
+                  data-solo={!live.joined || undefined}
+                  aria-label={live.joined ? '혼자 하기' : '함께 입장'}
+                  title={live.joined ? '혼자 하기' : '함께 입장'}
+                  onClick={live.joined ? live.leave : live.enter}
+                >
+                  <SystemIcon name={live.joined ? 'person' : 'people'} size={19} />
+                </button>
+                <button type="button" className={styles.jump} aria-label="점프" {...buttonControls('jump')}>
+                  <JumpPictogram />
+                </button>
               </div>
-              <button type="button" className={styles.jump} aria-label="점프" {...buttonControls('jump')}>
-                <JumpPictogram />
-              </button>
             </div>
           )}
         </div>
-        {helpOpen && !inChapel && (
-          <p id="prayer-motion-help" className={styles.hint}>
-            왼쪽·오른쪽으로 움직이고 점프로 다음 발판에 올라요. 언덕 화면을 아래로 스크롤하거나 아래 화살표를 누르면 기도 자세가 돼요.
-            키보드는 방향키와 스페이스바를 사용하세요.
-          </p>
-        )}
       </section>
-      <PrayerRoomChat live={live} />
+      {live.joined && <PrayerRoomChat live={live} />}
     </div>
   )
 }

@@ -32,13 +32,13 @@ describe('home app drawer', () => {
     expect(html).toMatch(/<button(?=[^>]*aria-label="오늘의 찬양")(?![^>]*disabled)/)
   })
 
-  it('renders seven decorative filled icons on a shared vector grid', () => {
+  it('renders seven uncluttered decorative pictograms on a shared vector grid', () => {
     const html = renderDrawer()
     for (const name of ['journey', 'manitto', 'gratitude', 'recreation', 'mbti', 'shorts', 'praise']) {
-      expect(html).toMatch(new RegExp(`data-app-icon="${name}" aria-hidden="true"><span[^>]*><svg[^>]*viewBox="0 0 48 48"[^>]*fill="currentColor"[^>]*focusable="false"`))
+      expect(html).toMatch(new RegExp(`data-app-icon="${name}" aria-hidden="true"><span[^>]*><svg[^>]*viewBox="0 0 24 24"[^>]*stroke="currentColor"[^>]*focusable="false"`))
     }
     expect(html.match(/<svg/g)).toHaveLength(7)
-    expect(html).not.toMatch(/\bstroke(?:-width)?=/)
+    expect(html).not.toContain('data-tone=')
     expect(html).not.toContain('<text')
   })
 

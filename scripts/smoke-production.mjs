@@ -152,7 +152,7 @@ for (const path of ['/avatars/faith-player-reference-v2.png', '/prayer/prayer-ro
   })
 }
 
-for (const [pack, count] of [['bible-v1', 20], ['bible-mbti-v1', 5], ['bible-scenes-v1', 10], ['bible-scenes-v1/thumbs', 10], ['bible-expressions-v1', 20], ['bible-expressions-v2', 20]]) {
+for (const [pack, count] of [['bible-v1', 20], ['bible-prayer-v1', 20], ['bible-mbti-v1', 5], ['bible-scenes-v1', 10], ['bible-scenes-v1/thumbs', 10], ['bible-expressions-v1', 20], ['bible-expressions-v2', 20]]) {
   const images = readdirSync(new URL(`../public/avatars/${pack}/`, import.meta.url)).filter((file) => file.endsWith('.webp'))
   if (images.length !== count) throw new Error(`${pack} must contain ${count} images`)
   await Promise.all(images.map((file) => expectResponse(`/avatars/${pack}/${file}`, async (response) => {
@@ -171,6 +171,12 @@ await expectResponse('/characters/mbti/istj-daniel.png', async (response) => {
 await expectResponse('/brand/unblind-wordmark-relief-v5.png', async (response) => {
   if (!response.ok || response.headers.get('content-type') !== 'image/png') {
     throw new Error('Relief wordmark is unavailable')
+  }
+})
+
+await expectResponse('/brand/unblind-monogram-flat-v7.png', async (response) => {
+  if (!response.ok || response.headers.get('content-type') !== 'image/png') {
+    throw new Error('Home square logo mask is unavailable')
   }
 })
 

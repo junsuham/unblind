@@ -51,7 +51,7 @@
   align-items: center;
   width: 100%;
   min-width: 0;
-  min-height: 92px;
+  min-height: 84px;
   height: 100%;
   gap: 5px;
   padding: 6px 3px 8px;
@@ -75,12 +75,9 @@
 }
 
 .icon {
-  --tile-top: var(--tile-light);
-  --tile-bottom: var(--tile-light-edge);
-  --tile-front: var(--tile-paper);
   position: relative;
-  inline-size: 60px;
-  block-size: 60px;
+  inline-size: 52px;
+  block-size: 52px;
   flex: none;
   transition: transform .16s ease;
 }
@@ -90,78 +87,11 @@
   place-items: center;
   inline-size: 100%;
   block-size: 100%;
-  border-radius: 20%; /* When masks are unavailable, keep a rounded plate. */
+  border-radius: 20%;
   -webkit-mask: url('/icons/app-drawer-mask-v1.svg') center / 100% 100% no-repeat;
   mask: url('/icons/app-drawer-mask-v1.svg') center / 100% 100% no-repeat;
-  background: linear-gradient(160deg, var(--tile-top), var(--tile-bottom));
-  color: var(--tile-front);
-}
-
-.glyph { display: block; }
-.glyphDepth { fill: var(--tile-tint); }
-.glyphDetail { fill: var(--tile-detail); }
-
-.icon[data-tone='sage'] {
-  --tile-light: #128772;
-  --tile-light-edge: #096250;
-  --tile-dark: #203c34;
-  --tile-paper: #f3fffb;
-  --tile-tint: #a4e9d4;
-  --tile-detail: #14584a;
-}
-
-.icon[data-tone='rose'] {
-  --tile-light: #b7511c;
-  --tile-light-edge: #a03c18;
-  --tile-dark: #4a3126;
-  --tile-paper: #fff6e8;
-  --tile-tint: #f8c18e;
-  --tile-detail: #813516;
-}
-
-.icon[data-tone='apricot'] {
-  --tile-light: #bd4e70;
-  --tile-light-edge: #90294c;
-  --tile-dark: #49303c;
-  --tile-paper: #fff2f6;
-  --tile-tint: #f3afc7;
-  --tile-detail: #8c2b50;
-}
-
-.icon[data-tone='blue'] {
-  --tile-light: #2b82bd;
-  --tile-light-edge: #2454a4;
-  --tile-dark: #23374b;
-  --tile-paper: #f0faff;
-  --tile-tint: #a5daf7;
-  --tile-detail: #225195;
-}
-
-.icon[data-tone='violet'] {
-  --tile-light: #7959be;
-  --tile-light-edge: #503491;
-  --tile-dark: #352b4b;
-  --tile-paper: #f8f1ff;
-  --tile-tint: #d6c0fb;
-  --tile-detail: #5b378f;
-}
-
-.icon[data-tone='coral'] {
-  --tile-light: #cf5142;
-  --tile-light-edge: #aa342b;
-  --tile-dark: #492d29;
-  --tile-paper: #fff6ed;
-  --tile-tint: #ffb4a3;
-  --tile-detail: #90362b;
-}
-
-.icon[data-tone='amber'] {
-  --tile-light: #596cc6;
-  --tile-light-edge: #394992;
-  --tile-dark: #2e3550;
-  --tile-paper: #f3f4ff;
-  --tile-tint: #b9c4fa;
-  --tile-detail: #3a478a;
+  background: #f1e7e0;
+  color: #6c473a;
 }
 
 .label {
@@ -198,7 +128,7 @@
   right: -3px;
   width: 13px;
   height: 13px;
-  border: 2px solid var(--tile-top);
+  border: 2px solid var(--ub-surface-card-strong);
   border-radius: 50%;
   box-shadow: 0 1px 3px rgb(36 22 24 / 20%);
   background: #fff0f5;
@@ -228,13 +158,10 @@
     --drawer-glow: rgb(255 216 193 / 7%);
   }
 
-  .icon {
-    --tile-top: var(--tile-dark);
-    --tile-bottom: #1a191c;
-    --tile-front: var(--tile-tint);
+  .iconFace {
+    background: #3c302d;
+    color: #f5d9c9;
   }
-
-  .glyphDepth { opacity: .72; }
 }
 
 @media (prefers-contrast: more), (prefers-reduced-transparency: reduce) {

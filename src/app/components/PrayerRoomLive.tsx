@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { useCallback, useEffect, useId, useRef, useState, type FormEvent } from 'react'
+import { SystemIcon } from '@/app/components/ui/SystemIcon'
 import {
   parsePrayerRoomMessage, prayerRoomLiveVersion, prayerRoomMessageLimit, type PrayerRoomPosition, type PrayerRoomSnapshot,
 } from '@/lib/prayerRoomLive'
@@ -135,6 +136,7 @@ export function PrayerRoomChat({ live }: { live: ReturnType<typeof usePrayerRoom
   const [sending, setSending] = useState(false)
   const [notice, setNotice] = useState('')
   const thread = useRef<HTMLUListElement>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
   const pinned = useRef(true)
   const hint = useId()
   const lastMessage = live.messages.at(-1)?.id
@@ -143,17 +145,54 @@ export function PrayerRoomChat({ live }: { live: ReturnType<typeof usePrayerRoom
     if (pinned.current && thread.current) thread.current.scrollTop = thread.current.scrollHeight
   }, [lastMessage])
 
-  if (!live.joined) {
-    return (
-      <section aria-label="기도의 방 혼자 하기" className={styles.lobby}>
-        <div>
-          <strong>혼자 오르는 중</strong>
-          <p>함께 입장하면 같은 방의 회원에게 닉네임과 캐릭터가 보여요.</p>
-        </div>
-        <button type="button" onClick={() => { setNotice(''); live.enter() }}>함께 입장</button>
-      </section>
-    )
-  }
+  useEffect(() => {
+    const input = inputRef.current
+    const frame = input?.closest<HTMLElement>('.ub-app-frame')
+    const viewport = window.visualViewport
+    if (!input || !frame || !viewport) return
+    let normalHeight = viewport.height
+    let resetTimer = 0
+
+    const reset = () => {
+      window.clearTimeout(resetTimer)
+      frame.removeAttribute('data-prayer-keyboard')
+      frame.style.removeProperty('--prayer-visible-height')
+      frame.style.removeProperty('--prayer-visible-top')
+    }
+
+    const sync = () => {
+      const focused = document.activeElement === input
+      if (!focused) {
+        if (frame.hasAttribute('data-prayer-keyboard') && normalHeight - viewport.height > 72) {
+          // Wait for the keyboard transition before moving nearby tap targets.
+          window.clearTimeout(resetTimer)
+          resetTimer = window.setTimeout(reset, 280)
+        } else {
+          normalHeight = viewport.height
+          reset()
+        }
+      } else if (viewport.scale <= 1.05 && Math.max(normalHeight, window.innerHeight) - viewport.height > 72) {
+        window.clearTimeout(resetTimer)
+        frame.style.setProperty('--prayer-visible-height', `${viewport.height}px`)
+        frame.style.setProperty('--prayer-visible-top', `${viewport.offsetTop}px`)
+        frame.setAttribute('data-prayer-keyboard', '')
+      } else reset()
+    }
+
+    input.addEventListener('focus', sync)
+    input.addEventListener('blur', sync)
+    viewport.addEventListener('resize', sync)
+    viewport.addEventListener('scroll', sync)
+    return () => {
+      input.removeEventListener('focus', sync)
+      input.removeEventListener('blur', sync)
+      viewport.removeEventListener('resize', sync)
+      viewport.removeEventListener('scroll', sync)
+      reset()
+    }
+  }, [live.joined])
+
+  if (!live.joined) return null
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -180,15 +219,9 @@ export function PrayerRoomChat({ live }: { live: ReturnType<typeof usePrayerRoom
 
   return (
     <section aria-label="기도의 방 채팅" className={styles.chat}>
-      <div className={styles.toolbar}>
-        <div>
-          <strong>채팅 <span className={styles.connection} role="status">{connection}</span></strong>
-          <p className={styles.privacy}>이 방의 회원에게 닉네임과 캐릭터가 보여요.</p>
-        </div>
-        <button type="button" onClick={() => { setDraft(''); setNotice(''); live.leave() }}>혼자 하기</button>
-      </div>
       <ul
         ref={thread}
+        hidden={!live.messages.length}
         aria-label="최근 대화"
         className={styles.thread}
         onScroll={(event) => {
@@ -196,23 +229,42 @@ export function PrayerRoomChat({ live }: { live: ReturnType<typeof usePrayerRoom
           pinned.current = e.scrollHeight - e.scrollTop - e.clientHeight < 28
         }}
       >
-        {live.messages.length ? live.messages.map(({ id, nickname, text }) => (
+        {live.messages.map(({ id, nickname, text }) => (
           <li key={id}><b>{nickname}</b><span>{text}</span></li>
-        )) : <li className={styles.placeholder}>가벼운 인사나 응원으로 대화를 시작해 보세요.</li>}
+        ))}
       </ul>
       <form onSubmit={submit} className={styles.compose}>
-        <input
-          aria-label="보낼 채팅 메시지"
-          aria-describedby={hint}
-          value={draft}
-          maxLength={prayerRoomMessageLimit}
-          onChange={(event) => setDraft(event.target.value)}
-          placeholder="응원 메시지 쓰기"
-          enterKeyHint="send"
-        />
-        <button type="submit" disabled={live.status !== 'ready' || sending || !draft.trim()}>보내기</button>
+        <div className={styles.field}>
+          <span className={styles.fieldIcon} aria-hidden="true">
+            <SystemIcon name="message" size={18} />
+            <span className={styles.connectionDot} data-state={live.status} />
+          </span>
+          <input
+            ref={inputRef}
+            aria-label="보낼 채팅 메시지"
+            aria-describedby={hint}
+            value={draft}
+            maxLength={prayerRoomMessageLimit}
+            onChange={(event) => setDraft(event.target.value)}
+            enterKeyHint="send"
+            autoComplete="off"
+          />
+        </div>
+        <button
+          type="submit"
+          aria-label="채팅 보내기"
+          disabled={live.status !== 'ready' || sending || !draft.trim()}
+        >
+          <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="currentColor">
+            <path d="M21.3 3.1a1 1 0 0 1 1 1.2l-3.7 15.3a1 1 0 0 1-1.5.6l-5.4-3.5-2.5 2.6a.7.7 0 0 1-1.1-.5v-4.3l9-8.2-10.2 6.8-4.1-1.6a1 1 0 0 1 0-1.9l18-6.4Z" />
+          </svg>
+        </button>
+        <Link href="/support" aria-label="신고·문의" title="신고·문의" className={styles.report}>
+          <SystemIcon name="flag" size={17} />
+        </Link>
       </form>
-      <p id={hint} className={styles.hint}>최근 15분 대화만 보입니다. 개인 정보는 쓰지 마세요. <Link href="/support">신고·문의</Link></p>
+      <span role="status" className="sr-only">{connection}</span>
+      <p id={hint} className="sr-only">함께 있는 회원에게 닉네임과 캐릭터가 보여요. 최근 15분 대화만 보입니다. 개인 정보는 쓰지 마세요.</p>
       {notice && <p role="status" className={styles.notice}>{notice}</p>}
     </section>
   )

@@ -130,7 +130,7 @@ export function HomeManittoFinder({
       >
         <HomeAppTileContent
           label="마니또 메이커"
-          tone="rose"
+          kind="manitto"
           status={status}
           error={Boolean(error)}
           badge={submitting || phase === 'waiting' ? 'waiting' : phase === 'matched' ? 'matched' : undefined}

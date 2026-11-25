@@ -8,7 +8,6 @@ import { bibleAvatarPresets, saveBibleAvatarPreset, type BibleAvatarPreset } fro
 import { FaithAvatarSprite } from './FaithAvatarSprite'
 import { FaithAvatarWeather } from './FaithAvatarWeather'
 import { FaithWeatherIcon } from './FaithWeatherIcon'
-import { Emoji3D } from './ui/Emoji3D'
 import { useBibleAvatarScene } from './useBibleAvatarScene'
 import { useFaithAvatar } from './useFaithAvatar'
 import styles from './FaithAvatar.module.css'
@@ -123,9 +122,9 @@ export function FaithAvatar({
             aria-controls={open ? panelId : undefined}
             onClick={() => togglePicker('avatar')}
             disabled={!ready}
-            className={styles.customizeButton}
+            className={`${styles.customizeButton} ${styles.characterButton}`}
           >
-            <Emoji3D name="person" size={24} decorative />
+            <span aria-hidden="true">😀</span>
           </button>
           <button
             type="button"

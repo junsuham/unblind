@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 export default async function PrayTogetherPage() {
   const { user, profile } = await requireBetaUser()
   return (
-    <AppShell topTitle="🍁 기도의 방" bottomBar={<BottomTabBar active="prayer" />}>
+    <AppShell topTitle="🍁 기도의 방" contentMode="contained" bottomBar={<BottomTabBar active="prayer" />}>
       <PrayerRoomScene storageScope={user.id} characterName={profile.nickname || generateBiblicalNickname(user.id)} />
     </AppShell>
   )

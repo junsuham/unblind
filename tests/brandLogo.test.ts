@@ -62,6 +62,14 @@ const webTokenSource = readFileSync(
   new URL('../src/app/styles/unblind-tokens.css', import.meta.url),
   'utf8',
 )
+const webGlobalStyles = readFileSync(
+  new URL('../src/app/globals.css', import.meta.url),
+  'utf8',
+)
+const webHomeSource = readFileSync(
+  new URL('../src/app/page.tsx', import.meta.url),
+  'utf8',
+)
 const mobileThemeSource = readFileSync(
   new URL('../mobile/src/constants/design.ts', import.meta.url),
   'utf8',
@@ -140,6 +148,15 @@ describe('relief brand logo set', () => {
     expect(webTokenSource).toContain('--ub-color-brand: #e45330')
     expect(webTokenSource).toContain('--ub-color-brand-rgb: 228, 83, 48')
     expect(mobileThemeSource.match(/#E45330/g)?.length).toBeGreaterThanOrEqual(6)
+  })
+
+  it('opts only the home page into the light and dark square brand mark', async () => {
+    expect(webHomeSource).toContain('<AppShell homeChrome')
+    expect(shellSource).toContain('homeChrome = false')
+    expect(shellSource).toContain('className="ub-home-brand-mark"')
+    expect(webGlobalStyles).toMatch(/\.ub-home-brand-mark\s*\{[^}]*width: 42px;[^}]*height: 42px;/)
+    expect(webGlobalStyles).toMatch(/@media \(prefers-color-scheme: dark\) \{\s*\.ub-home-brand-mark \{[^}]*background: #39251f;/)
+    await expect(pngAlphaRange('../public/brand/unblind-monogram-flat-v7.png')).resolves.toEqual({ min: 0, max: 255 })
   })
 
   it('keeps in-app logos subordinate to page content', () => {

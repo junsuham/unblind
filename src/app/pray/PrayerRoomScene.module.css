@@ -1,10 +1,16 @@
 .experience {
   display: grid;
+  flex: 1;
+  grid-template-rows: minmax(0, 1fr) auto;
   min-width: 0;
-  gap: 12px;
+  min-height: 0;
+  gap: 8px;
+  margin-bottom: -12px;
 }
 
 .container {
+  display: flex;
+  min-height: 0;
   overflow: hidden;
   border: 1px solid var(--ub-glass-border);
   border-radius: 23px;
@@ -13,6 +19,11 @@
 }
 
 .game {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
   background: #30201e;
 }
 
@@ -21,7 +32,8 @@
   --room-pan: -1850px;
   position: relative;
   width: 100%;
-  height: clamp(296px, 52svh, 520px);
+  flex: 1;
+  min-height: 0;
   overflow: hidden;
   isolation: isolate;
   background: #573e42;
@@ -170,7 +182,11 @@
   pointer-events: none;
 }
 
+.avatarArt { display: grid; justify-items: center; }
+
 .sprite {
+  display: block;
+  grid-area: 1 / 1;
   object-fit: contain;
   image-rendering: pixelated;
   filter: drop-shadow(0 2px #2e1e2a70);
@@ -183,22 +199,54 @@
   animation: step .26s steps(2, jump-none) infinite;
 }
 
-.player[data-praying='true'] .sprite {
-  transform: scaleX(var(--facing, 1)) rotate(10deg) scaleY(.82);
-  transform-origin: center bottom;
-  animation: none;
-}
+.kneelingSprite { visibility: hidden; }
+[data-praying='true'] > .avatarArt[data-has-pose] .standingSprite { visibility: hidden; }
+[data-praying='true'] > .avatarArt[data-has-pose] .kneelingSprite { visibility: visible; animation: none; }
 
-.poseMark {
+.speechBubble {
   position: absolute;
-  right: 1px;
-  bottom: 12px;
-  display: none;
-  filter: drop-shadow(0 0 4px #ffc563b0);
+  z-index: 1;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  width: max-content;
+  max-width: 144px;
+  padding: 6px 8px;
+  border: 1px solid #c3a17b;
+  border-radius: 9px;
+  transform: translateX(-50%);
+  background: #fff7e8;
+  color: #392820;
+  box-shadow: 0 2px 3px #2e1e2a42;
+  font-size: 12px;
+  font-weight: 720;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
 }
 
-.player[data-praying='true'] .poseMark, .chapelAvatar[data-praying='true'] .poseMark { display: block; }
-.player[data-facing='left'] .poseMark { right: auto; left: 1px; }
+.speechBubble::after {
+  content: '';
+  position: absolute;
+  left: calc(50% - 4px);
+  bottom: -5px;
+  width: 8px;
+  height: 8px;
+  border-right: 1px solid #c3a17b;
+  border-bottom: 1px solid #c3a17b;
+  background: inherit;
+  transform: rotate(45deg);
+}
+
+.speechBubble > span {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+[data-bubble-edge='left'] > .speechBubble { left: 45%; transform: none; }
+[data-bubble-edge='left'] > .speechBubble::after { left: 6px; }
+[data-bubble-edge='right'] > .speechBubble { left: auto; right: 45%; transform: none; }
+[data-bubble-edge='right'] > .speechBubble::after { left: auto; right: 6px; }
 
 @keyframes step {
   0%, 100% { transform: translateY(0) scaleX(var(--facing, 1)); }
@@ -212,6 +260,10 @@
 .peer .sprite { width: 60px; height: 60px; }
 
 .nameTag {
+  position: absolute;
+  top: calc(100% - 1px);
+  left: 50%;
+  width: max-content;
   max-width: 90px;
   overflow: hidden;
   padding: 2px 4px;
@@ -224,6 +276,7 @@
   line-height: 1.1;
   text-overflow: ellipsis;
   white-space: nowrap;
+  transform: translateX(-50%);
 }
 
 .peer .nameTag {
@@ -266,11 +319,11 @@
 
 .controls {
   display: flex;
-  min-height: 103px;
+  flex: none;
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  padding: 8px 12px;
+  padding: 6px 12px;
   background: linear-gradient(180deg, #3b2624, #2c1e20);
 }
 
@@ -284,8 +337,8 @@
 .pad {
   position: relative;
   display: grid;
-  grid-template-columns: repeat(3, 37px);
-  grid-template-rows: 31px 41px 31px;
+  grid-template-columns: repeat(3, 36px);
+  grid-template-rows: 28px 36px 28px;
   gap: 0;
 }
 
@@ -312,14 +365,17 @@
 .padCenter { grid-area: 2 / 2; margin: -1px; z-index: 0; background: #49312c; }
 .pad button:active, .iconButton:active { background: #a76135; }
 
-.controlCenter { display: flex; gap: 5px; }
+.controlActions { display: flex; align-items: center; gap: 7px; }
 .iconButton {
-  min-width: 36px;
+  display: grid;
+  place-items: center;
+  min-width: 44px;
   min-height: 44px;
   border-radius: 9px;
   background: #48302d;
   font-size: 16px;
 }
+.iconButton[data-solo] { border-color: #ffc58e; background: #855437; }
 
 .jump {
   display: grid;
@@ -348,11 +404,6 @@
 .backToHill { right: 9px; min-height: 40px; }
 .chapelAvatar { top: 77%; left: 51%; transition: transform .25s ease; }
 .chapelAvatar .sprite { width: 96px; height: 96px; }
-.chapelAvatar[data-praying='true'] {
-  transform: translate(-50%, calc(-100% + 11px));
-  filter: drop-shadow(0 0 12px #ffe3a7b3);
-}
-.chapelAvatar[data-praying='true'] .sprite { transform: rotate(5deg) scaleY(.88); transform-origin: bottom; }
 .chapelAction {
   position: absolute;
   z-index: 5;
@@ -368,14 +419,19 @@
   font-weight: 850;
 }
 
-.hint { margin: 0; padding: 10px 12px; color: var(--ub-text-secondary); font-size: 12px; line-height: 1.5; }
-
 @media (max-width: 350px) {
-  .controlCenter { gap: 3px; }
-  .iconButton { min-width: 31px; }
+  .controlActions { gap: 5px; }
   .controls { gap: 5px; padding-inline: 8px; }
+  .pad { grid-template-columns: repeat(3, 33px); }
   .jump { width: 61px; height: 61px; }
 }
+
+@media (display-mode: standalone) {
+  .experience { margin-bottom: 0; }
+}
+
+:global(.ub-app-frame[data-prayer-keyboard]) .experience { margin-bottom: 0; }
+:global(.ub-app-frame[data-prayer-keyboard]) .controls { display: none; }
 
 @media (prefers-reduced-motion: reduce) {
   .player[data-moving='true'] .sprite { animation: none; }

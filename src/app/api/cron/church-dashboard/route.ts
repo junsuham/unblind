@@ -1,5 +1,5 @@
 import type { NextRequest } from 'next/server'
-import { isChurchDashboardSourceConfigured, loadSecondDepartmentDashboardSnapshot } from '@/lib/churchDashboardGoogle'
+import { loadSecondDepartmentDashboardSnapshot } from '@/lib/churchDashboardGoogle'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
 
 export const runtime = 'nodejs'
@@ -12,11 +12,10 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    if (!isChurchDashboardSourceConfigured()) {
+    const snapshot = await loadSecondDepartmentDashboardSnapshot()
+    if (!snapshot) {
       return Response.json({ ok: true, configured: false }, { headers: { 'Cache-Control': 'no-store' } })
     }
-    const snapshot = await loadSecondDepartmentDashboardSnapshot()
-    if (!snapshot) throw new Error('dashboard_source_unavailable')
     const { error } = await supabaseAdmin.from('church_dashboard_snapshots').upsert(snapshot, {
       onConflict: 'church_place_id,department',
     })

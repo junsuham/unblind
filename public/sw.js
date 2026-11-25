@@ -1,4 +1,4 @@
-const WORKER_VERSION = '77'
+const WORKER_VERSION = '78'
 const CACHE_NAME = `unblind-static-v${WORKER_VERSION}`
 const OUTBOX_DB = 'unblind-offline-outbox-v1'
 const OUTBOX_STORE = 'mutations'
@@ -7,6 +7,7 @@ const OFFLINE_MUTATION_AUTHOR_HEADER = 'x-unblind-author-id'
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 const PRECACHE_URLS = [
   '/offline.html',
+  '/brand/unblind-monogram-flat-v7.png',
   '/brand/unblind-monogram-relief-v5.png',
   '/brand/unblind-wordmark-relief-v5.png',
   '/brand/unblind-slogan-relief-v5.png',
@@ -256,7 +257,7 @@ self.addEventListener('fetch', (event) => {
   }
 
   const isVersionedAsset = url.pathname.startsWith('/_next/static/')
-    || /^\/avatars\/bible(?:-mbti|-scenes|-expressions)?-v\d+\/(?:thumbs\/)?[a-z]+(?:-[a-z]+)*\.webp$/.test(url.pathname)
+    || /^\/avatars\/bible(?:-mbti|-scenes|-expressions|-prayer)?-v\d+\/(?:thumbs\/)?[a-z]+(?:-[a-z]+)*\.webp$/.test(url.pathname)
     || /^\/icons\/app-drawer-v\d+\/[a-z]+\.webp$/.test(url.pathname)
     || /^\/icons\/app-drawer-mask-v\d+\.svg$/.test(url.pathname)
     || /^\/icons\/church-dashboard-v\d+\.webp$/.test(url.pathname)

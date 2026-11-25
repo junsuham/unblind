@@ -119,6 +119,18 @@ describe('app shell bottom tab bar', () => {
     expect(routeLoading).not.toContain('ub-app-tabbar')
   })
 
+  it('keeps home tabs in one frame row with no duplicated inset or translated links', () => {
+    const homeTabRule = globalStyles.match(/\.ub-app-frame--home > \.ub-app-tabbar\s*\{([^}]*)\}/)?.[1]
+    expect(homeTabRule).toContain('height: calc(var(--ub-home-tab-row) + env(safe-area-inset-bottom, 0px));')
+    expect(homeTabRule).toContain('padding-bottom: env(safe-area-inset-bottom, 0px);')
+    expect(homeTabRule).toContain('background: var(--ub-bottom-surface);')
+    expect(globalStyles).toContain('--ub-home-tab-row: 48px;')
+    expect(globalStyles).toMatch(/\.ub-app-frame--home \.ub-app-tabbar-link\s*\{\s*min-height: 44px;/)
+    expect(globalStyles).toMatch(/@media \(display-mode: standalone\) \{[\s\S]*?\.ub-app-frame--home > \.ub-app-scroll > section\s*\{\s*min-height: 0;\s*padding-bottom: 0;/)
+    expect(globalStyles).toMatch(/@media \(display-mode: standalone\) \{[\s\S]*?\.ub-app-frame--home > \.ub-app-tabbar\s*\{\s*position: relative;/)
+    expect(globalStyles).toMatch(/@media \(display-mode: standalone\) \{[\s\S]*?\.ub-app-frame--home \.ub-app-tabbar-content\s*\{\s*transform: none;/)
+  })
+
   it('covers the complete standalone viewport above the app frame during launch', () => {
     const splashRule = globalStyles.match(
       /\.ub-launch-splash\s*\{([\s\S]*?)\}/,
