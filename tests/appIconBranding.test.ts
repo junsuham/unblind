@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto'
 import { readFileSync } from 'node:fs'
 import sharp from 'sharp'
 import { describe, expect, it } from 'vitest'
@@ -5,31 +6,23 @@ import manifest from '../src/app/manifest'
 
 const asset = (path: string) => readFileSync(new URL(`../${path}`, import.meta.url))
 
-describe('flat Unblind app mark', () => {
+describe('Unblind launcher branding stays separate from the in-app drawer', () => {
   it.each([
-    ['icon-192-v7.png', 192],
-    ['icon-512-v7.png', 512],
-    ['apple-touch-icon-v7.png', 180],
-  ] as const)('keeps %s centered on the same full-bleed orange', async (name, size) => {
-    const { data, info } = await sharp(asset(`public/icons/${name}`)).removeAlpha().raw().toBuffer({ resolveWithObject: true })
-    expect(info).toMatchObject({ width: size, height: size, channels: 3 })
-    expect([...data.subarray(0, 3)]).toEqual([228, 83, 48])
-    let symbolPixels = 0
-    for (let y = 0; y < size; y++) for (let x = 0; x < size; x++) {
-      if (data[(y * size + x) * 3 + 1] < 130) continue
-      if (Math.hypot(x - size / 2, y - size / 2) > 0.40 * size) {
-        throw new Error('The mark exceeds the maskable icon safe area')
-      }
-      symbolPixels++
-    }
-    expect(symbolPixels).toBeGreaterThan(size * size * 0.07)
+    ['icon-192-v6.png', 192, 'ae1df9850d5d4015ac30507db18321284000ae142bad156878ae2673da533d8e'],
+    ['icon-512-v6.png', 512, 'bad78cbfb4b36dc6d3844f92f05e4dfa072b3e266be4bfba280a590215528df9'],
+    ['apple-touch-icon-v6.png', 180, 'abd5c071bd5639d717dea6fb802de14d98feaec1362e45535215e7360ed9e80f'],
+  ] as const)('preserves the original %s artwork', async (name, size, checksum) => {
+    const image = asset(`public/icons/${name}`)
+    expect(createHash('sha256').update(image).digest('hex')).toBe(checksum)
+    await expect(sharp(image).metadata()).resolves.toMatchObject({ width: size, height: size, format: 'png' })
   })
 
   it('matches the installation manifest and Next.js metadata icon files', () => {
     expect(manifest().icons).toContainEqual(expect.objectContaining({
-      src: '/icons/icon-512-v7.png', purpose: 'maskable',
+      src: '/icons/icon-512-v6.png', purpose: 'maskable',
     }))
-    expect(asset('src/app/apple-icon.png')).toEqual(asset('public/icons/apple-touch-icon-v7.png'))
-    expect(asset('src/app/icon.png')).toEqual(asset('public/icons/icon-512-v7.png'))
+    expect(manifest().shortcuts?.every(({ icons }) => icons?.[0]?.src === '/icons/icon-192-v6.png')).toBe(true)
+    expect(asset('src/app/apple-icon.png')).toEqual(asset('public/icons/apple-touch-icon-v6.png'))
+    expect(asset('src/app/icon.png')).toEqual(asset('public/icons/icon-512-v6.png'))
   })
 })

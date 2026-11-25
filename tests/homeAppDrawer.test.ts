@@ -33,10 +33,10 @@ describe('home app drawer', () => {
     expect(html).toMatch(/<button(?=[^>]*aria-label="오늘의 찬양")(?![^>]*disabled)/)
   })
 
-  it('loads seven compact square liquid-glass icon images', async () => {
+  it('loads seven compact square iOS-style icon images in the app drawer', async () => {
     const html = renderDrawer()
     for (const name of ['journey', 'manitto', 'gratitude', 'recreation', 'mbti', 'shorts', 'praise']) {
-      const path = `/icons/app-drawer-v2/${name}.webp`
+      const path = `/icons/app-drawer-v3/${name}.webp`
       expect(html).toContain(`src="${path}"`)
       const data = readFileSync(new URL(`../public${path}`, import.meta.url))
       expect(data.byteLength).toBeLessThan(18_000)

@@ -58,7 +58,7 @@ function TopLogoBar({
             >
               {title ? (
               <Image
-                src="/brand/unblind-monogram-flat-v7.png"
+                src="/brand/unblind-monogram-relief-v5.png"
                 alt="UNBLIND"
                 width={36}
                 height={36}

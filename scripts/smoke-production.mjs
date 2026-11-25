@@ -79,7 +79,7 @@ await expectResponse('/api/prayer-room/live', async (response) => {
   if (response.status !== 405) throw new Error('Prayer room live must not serve a public GET')
 })
 
-for (const path of ['prayer/golgotha-ascent-v1.webp', 'prayer/pew-pixel-v1.webp', 'icons/church-dashboard-v1.webp', ...['journey', 'manitto', 'gratitude', 'recreation', 'mbti', 'shorts', 'praise'].map((name) => `icons/app-drawer-v2/${name}.webp`)]) {
+for (const path of ['prayer/golgotha-ascent-v1.webp', 'prayer/pew-pixel-v1.webp', 'icons/church-dashboard-v1.webp', ...['journey', 'manitto', 'gratitude', 'recreation', 'mbti', 'shorts', 'praise'].map((name) => `icons/app-drawer-v3/${name}.webp`)]) {
   await expectResponse(`/${path}`, async (response) => {
     if (!response.ok || response.headers.get('content-type') !== 'image/webp') {
       throw new Error(`App artwork is unavailable: ${path}`)
@@ -105,8 +105,8 @@ await expectResponse('/manifest.webmanifest', async (response) => {
   if (!Array.isArray(manifest.icons) || manifest.icons.length < 2) {
     throw new Error('PWA icons are incomplete')
   }
-  if (!manifest.icons.some((icon) => icon.src === '/icons/icon-512-v7.png' && icon.purpose === 'maskable')) {
-    throw new Error('The PWA must use the flat UNBLIND app icon')
+  if (!manifest.icons.some((icon) => icon.src === '/icons/icon-512-v6.png' && icon.purpose === 'maskable')) {
+    throw new Error('The PWA must keep the original UNBLIND installation icon')
   }
   if (manifest.share_target?.action !== '/post/new') {
     throw new Error('PWA share target is unavailable')
@@ -174,10 +174,22 @@ await expectResponse('/brand/unblind-slogan-relief-v5.png', async (response) => 
   }
 })
 
-for (const icon of ['icons/icon-192-v7.png', 'icons/icon-512-v7.png', 'icons/apple-touch-icon-v7.png', 'brand/unblind-monogram-flat-v7.png']) {
+for (const icon of ['icons/icon-192-v6.png', 'icons/icon-512-v6.png', 'icons/apple-touch-icon-v6.png', 'brand/unblind-monogram-relief-v5.png']) {
   await expectResponse(`/${icon}`, async (response) => {
     if (!response.ok || response.headers.get('content-type') !== 'image/png') {
       throw new Error(`App icon is unavailable: ${icon}`)
+    }
+  })
+}
+
+for (const [path, original] of [
+  ['/icon.png', 'icon-512-v6.png'],
+  ['/apple-icon.png', 'apple-touch-icon-v6.png'],
+]) {
+  await expectResponse(path, async (response) => {
+    const expected = readFileSync(new URL(`../public/icons/${original}`, import.meta.url))
+    if (!response.ok || !Buffer.from(await response.arrayBuffer()).equals(expected)) {
+      throw new Error(`The installed app must keep its original logo: ${path}`)
     }
   })
 }

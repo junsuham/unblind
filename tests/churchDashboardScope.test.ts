@@ -11,6 +11,10 @@ const secondDepartmentMigration = readFileSync(
   new URL('../supabase/migrations/20261125020000_church_dashboard_verified_2bu.sql', import.meta.url),
   'utf8',
 )
+const auditActionMigration = readFileSync(
+  new URL('../supabase/migrations/20261125070000_allow_church_dashboard_audit_actions.sql', import.meta.url),
+  'utf8',
+)
 
 describe('church dashboard access boundaries', () => {
   const snapshotRow: ChurchDashboardSnapshotRow = {
@@ -106,5 +110,19 @@ describe('church dashboard access boundaries', () => {
     expect(secondDepartmentMigration).toContain("v_profile.church_place_id <> 'way-465724410'")
     expect(secondDepartmentMigration).toContain("p_department <> '2부'")
     expect(secondDepartmentMigration).toContain('revoke all on function public.set_church_dashboard_access_v2')
+  })
+
+  it('accepts the two dashboard audit events without losing the legacy admin actions', () => {
+    const oldActions = ['add', 'block', 'unblock', 'reset_agreement', 'remove', 'update_memo']
+    const auditEvents = [...new Set(secondDepartmentMigration.match(/'church_dashboard_(grant|revoke)'/g))]
+      .map((event) => event.slice(1, -1))
+    const allowed = auditActionMigration.match(/check\s*\(action_type in \(([\s\S]*?)\)\);/)?.[1]
+    const actions = [...(allowed?.matchAll(/'([a-z_]+)'/g) ?? [])].map((entry) => entry[1])
+
+    expect(auditEvents).toEqual(['church_dashboard_grant', 'church_dashboard_revoke'])
+    expect(actions).toEqual([...oldActions, ...auditEvents])
+    expect(auditActionMigration).toContain('drop constraint if exists admin_user_actions_action_type_check')
+    expect(auditActionMigration).toContain('add constraint admin_user_actions_action_type_check')
+    expect(auditActionMigration).not.toMatch(/grant\s+execute|create\s+or\s+replace\s+function/)
   })
 })
