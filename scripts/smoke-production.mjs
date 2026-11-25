@@ -134,13 +134,15 @@ for (const path of ['/avatars/faith-player-reference-v2.png', '/prayer/prayer-ro
   })
 }
 
-const bibleSprites = readdirSync(new URL('../public/avatars/bible-v1/', import.meta.url)).filter((file) => file.endsWith('.webp'))
-if (bibleSprites.length !== 20) throw new Error('Bible avatar pack must contain 20 sprites')
-await Promise.all(bibleSprites.map((file) => expectResponse(`/avatars/bible-v1/${file}`, async (response) => {
-  if (!response.ok || response.headers.get('content-type') !== 'image/webp') {
-    throw new Error(`Bible avatar asset is unavailable: ${file}`)
-  }
-})))
+for (const [pack, count] of [['bible-v1', 20], ['bible-mbti-v1', 5], ['bible-scenes-v1', 10], ['bible-scenes-v1/thumbs', 10]]) {
+  const images = readdirSync(new URL(`../public/avatars/${pack}/`, import.meta.url)).filter((file) => file.endsWith('.webp'))
+  if (images.length !== count) throw new Error(`${pack} must contain ${count} images`)
+  await Promise.all(images.map((file) => expectResponse(`/avatars/${pack}/${file}`, async (response) => {
+    if (!response.ok || response.headers.get('content-type') !== 'image/webp') {
+      throw new Error(`Bible image is unavailable: ${pack}/${file}`)
+    }
+  })))
+}
 
 await expectResponse('/characters/mbti/istj-daniel.png', async (response) => {
   if (!response.ok || response.headers.get('content-type') !== 'image/png') {

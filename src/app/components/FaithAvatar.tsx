@@ -2,9 +2,12 @@
 
 import Image from 'next/image'
 import { useId, useState } from 'react'
+import { bibleAvatarScenes, getBibleAvatarScene, saveBibleAvatarSceneId, type BibleAvatarSceneId } from '@/lib/bibleAvatarScenes'
 import type { FaithMood, FaithWeather } from '@/lib/dailyFaith'
 import { bibleAvatarPresets, saveBibleAvatarPreset, type BibleAvatarPreset } from '@/lib/pixelAvatar'
 import { FaithAvatarSprite } from './FaithAvatarSprite'
+import { FaithWeatherIcon } from './FaithWeatherIcon'
+import { useBibleAvatarScene } from './useBibleAvatarScene'
 import { useFaithAvatar } from './useFaithAvatar'
 import styles from './FaithAvatar.module.css'
 
@@ -26,23 +29,35 @@ export function FaithAvatar({
   characterName: string
 }) {
   const { ready, avatar } = useFaithAvatar(storageScope, characterName)
-  const panelId = useId()
-  const [open, setOpen] = useState(false)
+  const scene = useBibleAvatarScene(storageScope)
+  const id = useId()
+  const panelId = `${id}-characters`
+  const scenePanelId = `${id}-scenes`
+  const [picker, setPicker] = useState<'avatar' | 'scene' | null>(null)
   const [gender, setGender] = useState<BibleAvatarPreset['gender']>('male')
   const [draftId, setDraftId] = useState<BibleAvatarPreset['id'] | null>(null)
+  const [draftSceneId, setDraftSceneId] = useState<BibleAvatarSceneId | null>(null)
   const [notice, setNotice] = useState<{ text: string; error?: boolean } | null>(null)
 
+  const open = picker === 'avatar'
+  const sceneOpen = picker === 'scene'
   const draft = bibleAvatarPresets.find((preset) => preset.id === draftId) ?? avatar
   const candidates = bibleAvatarPresets.filter((preset) => preset.gender === gender)
   const unchanged = draft.id === avatar.id
+  const draftScene = draftSceneId ? getBibleAvatarScene(draftSceneId) : scene
+  const sceneUnchanged = draftScene.id === scene.id
+  const visibleScene = sceneOpen ? draftScene : scene
 
-  function togglePicker() {
-    if (!open) {
+  function togglePicker(kind: 'avatar' | 'scene') {
+    const willOpen = picker !== kind
+    if (willOpen && kind === 'avatar') {
       setGender(avatar.gender)
       setDraftId(avatar.id)
+    } else if (willOpen) {
+      setDraftSceneId(scene.id)
     }
     setNotice(null)
-    setOpen(!open)
+    setPicker(willOpen ? kind : null)
   }
 
   function applyAvatar() {
@@ -55,34 +70,68 @@ export function FaithAvatar({
     }
   }
 
+  function applyScene() {
+    if (sceneUnchanged) return
+    try {
+      saveBibleAvatarSceneId(storageScope, draftScene.id)
+      setNotice({ text: `${draftScene.name} 배경을 홈에 적용했어요.` })
+    } catch {
+      setNotice({ error: true, text: '이 브라우저에 배경을 저장할 수 없어요. 저장 설정을 확인해주세요.' })
+    }
+  }
+
   return (
     <div className={styles.studio}>
       <div className={styles.scene} data-weather={weather ?? 'unset'} data-mood={mood ?? 'unset'}>
-        <span className={styles.sun} aria-hidden />
-        <span className={styles.cloud} aria-hidden />
-        <span className={styles.floor} aria-hidden />
+        <Image
+          src={visibleScene.src}
+          alt=""
+          fill
+          sizes="(max-width: 520px) calc(100vw - 32px), 480px"
+          loading="eager"
+          className={styles.sceneImage}
+          unoptimized
+        />
         {ready ? (
           <FaithAvatarSprite avatar={avatar} name={characterName} size={228} className={styles.sprite} />
         ) : (
           <span className={styles.loadingSprite} role="status">캐릭터 불러오는 중…</span>
         )}
-        {weather && <span className={styles.weatherLabel}>{weatherNames[weather]}</span>}
+        <div className={styles.sceneLabel}>
+          <span>{sceneOpen && !sceneUnchanged ? '미리보기 · ' : ''}{visibleScene.name}</span>
+          <small>{visibleScene.reference}</small>
+        </div>
+        <span className={styles.weatherLabel}>
+          <FaithWeatherIcon weather={weather} />
+          {weather ? weatherNames[weather] : '날씨 기록 전'}
+        </span>
       </div>
       <div className={styles.caption}>
         <div className={styles.identity}>
           <strong className={styles.name}>{characterName}</strong>
           {ready && <span className={styles.currentAvatar}>{avatar.name} 캐릭터</span>}
         </div>
-        <button
-          type="button"
-          aria-expanded={open}
-          aria-controls={open ? panelId : undefined}
-          onClick={togglePicker}
-          disabled={!ready}
-          className={styles.customizeButton}
-        >
-          {open ? '선택 닫기' : '캐릭터 선택'}
-        </button>
+        <div className={styles.pickerActions}>
+          <button
+            type="button"
+            aria-expanded={open}
+            aria-controls={open ? panelId : undefined}
+            onClick={() => togglePicker('avatar')}
+            disabled={!ready}
+            className={styles.customizeButton}
+          >
+            {open ? '캐릭터 닫기' : '캐릭터 선택'}
+          </button>
+          <button
+            type="button"
+            aria-expanded={sceneOpen}
+            aria-controls={sceneOpen ? scenePanelId : undefined}
+            onClick={() => togglePicker('scene')}
+            className={styles.customizeButton}
+          >
+            {sceneOpen ? '배경 닫기' : '배경 선택'}
+          </button>
+        </div>
       </div>
       {open && (
         <section id={panelId} aria-labelledby={`${panelId}-title`} className={styles.picker}>
@@ -133,6 +182,45 @@ export function FaithAvatar({
             </div>
             <button type="button" onClick={applyAvatar} className={styles.applyButton} disabled={unchanged}>
               {unchanged ? '적용 중인 캐릭터' : '이 캐릭터 적용'}
+            </button>
+          </div>
+          {notice && <p role={notice.error ? 'alert' : 'status'} className={styles.notice} data-error={Boolean(notice.error)}>{notice.text}</p>}
+        </section>
+      )}
+      {sceneOpen && (
+        <section id={scenePanelId} aria-labelledby={`${scenePanelId}-title`} className={styles.picker}>
+          <div className={styles.pickerIntro}>
+            <h3 id={`${scenePanelId}-title`}>성경 속 배경</h3>
+            <p>장면을 눌러 미리보고, 마음에 들면 홈에 적용해요.</p>
+          </div>
+          <div className={styles.scenes} role="group" aria-label="선택할 성경 속 배경">
+            {bibleAvatarScenes.map((option) => (
+              <button
+                key={option.id}
+                type="button"
+                aria-pressed={option.id === draftScene.id}
+                className={styles.sceneOption}
+                onClick={() => {
+                  setDraftSceneId(option.id)
+                  setNotice(null)
+                }}
+              >
+                <span className={styles.scenePreview}>
+                  <Image src={option.thumbnailSrc} alt="" fill sizes="(max-width: 410px) 40vw, 140px" unoptimized />
+                </span>
+                <span className={styles.sceneOptionTitle}>{option.name}</span>
+                <small>{option.reference}</small>
+                {option.id === draftScene.id && <span className={styles.check} aria-hidden>✓</span>}
+              </button>
+            ))}
+          </div>
+          <div className={styles.selection}>
+            <div className={styles.selectionDetails}>
+              <strong>{draftScene.name}</strong>
+              <span>{draftScene.reference}</span>
+            </div>
+            <button type="button" onClick={applyScene} className={styles.applyButton} disabled={sceneUnchanged}>
+              {sceneUnchanged ? '적용 중인 배경' : '이 배경 적용'}
             </button>
           </div>
           {notice && <p role={notice.error ? 'alert' : 'status'} className={styles.notice} data-error={Boolean(notice.error)}>{notice.text}</p>}

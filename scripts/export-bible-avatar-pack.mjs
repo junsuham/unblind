@@ -3,7 +3,6 @@ import { isAbsolute, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import sharp from 'sharp'
 
-const outputDirectory = fileURLToPath(new URL('../public/avatars/bible-v1/', import.meta.url))
 const width = 192
 const height = 224
 const horizontalMargin = 8
@@ -108,14 +107,16 @@ async function convert(source) {
 
 async function main(args) {
   const replace = args.includes('--replace')
-  const entries = args.filter((arg) => arg !== '--replace')
-  if (!entries.length) throw new Error('Usage: node scripts/export-bible-avatar-pack.mjs [--replace] id=/absolute/source.png [...]')
+  const pack = args.includes('--mbti') ? 'bible-mbti-v1' : 'bible-v1'
+  const outputDirectory = fileURLToPath(new URL(`../public/avatars/${pack}/`, import.meta.url))
+  const entries = args.filter((arg) => arg !== '--replace' && arg !== '--mbti')
+  if (!entries.length) throw new Error('Usage: node scripts/export-bible-avatar-pack.mjs [--replace] [--mbti] id=/absolute/source.png [...]')
   const seen = new Set()
   const sources = entries.map((entry) => {
     const separator = entry.indexOf('=')
     const id = entry.slice(0, separator)
     const source = entry.slice(separator + 1)
-    if (separator < 1 || !/^[a-z]{1,40}$/.test(id) || !isAbsolute(source) || !source.toLowerCase().endsWith('.png') || seen.has(id)) {
+    if (separator < 1 || id.length > 40 || !/^[a-z]+(?:-[a-z]+)*$/.test(id) || !isAbsolute(source) || !source.toLowerCase().endsWith('.png') || seen.has(id)) {
       throw new Error(`Invalid or duplicate mapping: ${entry}`)
     }
     seen.add(id)

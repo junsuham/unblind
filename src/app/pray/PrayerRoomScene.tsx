@@ -48,6 +48,7 @@ export function PrayerRoomScene({
           fill
           sizes="(max-width: 480px) 100vw, 480px"
           className={styles.background}
+          loading="eager"
           unoptimized
         />
         <button type="button" className={styles.walkArea} onClick={moveTo} aria-label="기도실에서 이동할 위치 선택" />

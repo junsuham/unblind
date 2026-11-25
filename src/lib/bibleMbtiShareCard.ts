@@ -31,7 +31,7 @@ function loadImage(source: string) {
   })
 }
 
-function drawCoverImage(
+function drawContainedSprite(
   context: CanvasRenderingContext2D,
   image: HTMLImageElement,
   x: number,
@@ -39,22 +39,19 @@ function drawCoverImage(
   width: number,
   height: number,
 ) {
-  const scale = Math.max(width / image.naturalWidth, height / image.naturalHeight)
-  const sourceWidth = width / scale
-  const sourceHeight = height / scale
-  const sourceX = (image.naturalWidth - sourceWidth) / 2
-  const sourceY = (image.naturalHeight - sourceHeight) / 2
+  const scale = Math.min(width / image.naturalWidth, height / image.naturalHeight)
+  const imageWidth = Math.round(image.naturalWidth * scale)
+  const imageHeight = Math.round(image.naturalHeight * scale)
+  context.save()
+  context.imageSmoothingEnabled = false
   context.drawImage(
     image,
-    sourceX,
-    sourceY,
-    sourceWidth,
-    sourceHeight,
-    x,
-    y,
-    width,
-    height,
+    Math.round(x + (width - imageWidth) / 2),
+    Math.round(y + height - imageHeight),
+    imageWidth,
+    imageHeight,
   )
+  context.restore()
 }
 
 function canvasToPng(canvas: HTMLCanvasElement) {
@@ -104,12 +101,24 @@ export async function createBibleMbtiShareImage(result: BibleMbtiResult) {
   roundedRect(context, 160, 154, 760, 760, 56)
   context.save()
   context.clip()
-  drawCoverImage(context, characterImage, 160, 154, 760, 760)
-  const portraitShade = context.createLinearGradient(0, 650, 0, 914)
-  portraitShade.addColorStop(0, 'rgba(11, 8, 7, 0)')
-  portraitShade.addColorStop(1, 'rgba(11, 8, 7, 0.56)')
-  context.fillStyle = portraitShade
+  const portraitBackdrop = context.createLinearGradient(0, 154, 0, 914)
+  portraitBackdrop.addColorStop(0, '#f6d1a5')
+  portraitBackdrop.addColorStop(0.82, '#d6a476')
+  portraitBackdrop.addColorStop(0.821, '#b78056')
+  portraitBackdrop.addColorStop(1, '#9f684b')
+  context.fillStyle = portraitBackdrop
   context.fillRect(160, 154, 760, 760)
+
+  const portraitGlow = context.createRadialGradient(540, 376, 23, 540, 376, 551)
+  portraitGlow.addColorStop(0, '#fff1ce')
+  portraitGlow.addColorStop(1, 'rgba(255, 241, 206, 0)')
+  context.fillStyle = portraitGlow
+  context.fillRect(160, 154, 760, 760)
+  context.beginPath()
+  context.ellipse(540, 837, 203, 21, 0, 0, Math.PI * 2)
+  context.fillStyle = 'rgba(74, 39, 26, 0.2)'
+  context.fill()
+  drawContainedSprite(context, characterImage, 230, 198, 620, 660)
   context.restore()
   roundedRect(context, 160, 154, 760, 760, 56)
   context.strokeStyle = 'rgba(255, 255, 255, 0.18)'

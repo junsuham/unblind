@@ -1,3 +1,5 @@
+import { bibleAvatarPresets } from './pixelAvatar'
+
 export type MbtiAxis = 'EI' | 'SN' | 'TF' | 'JP'
 export type MbtiPole = 'E' | 'I' | 'S' | 'N' | 'T' | 'F' | 'J' | 'P'
 export type MbtiType =
@@ -285,24 +287,27 @@ export const bibleCharacters: Record<MbtiType, BibleCharacterProfile> = {
   },
 }
 
-export const bibleCharacterImages: Record<MbtiType, string> = {
-  ISTJ: '/characters/mbti-cartoon-v1/istj-daniel.jpg',
-  ISFJ: '/characters/mbti-cartoon-v1/isfj-ruth.jpg',
-  INFJ: '/characters/mbti-cartoon-v1/infj-esther.jpg',
-  INTJ: '/characters/mbti-cartoon-v1/intj-nehemiah.jpg',
-  ISTP: '/characters/mbti-cartoon-v1/istp-bezalel.jpg',
-  ISFP: '/characters/mbti-cartoon-v1/isfp-david.jpg',
-  INFP: '/characters/mbti-cartoon-v1/infp-hannah.jpg',
-  INTP: '/characters/mbti-cartoon-v1/intp-apollos.jpg',
-  ESTP: '/characters/mbti-cartoon-v1/estp-peter.jpg',
-  ESFP: '/characters/mbti-cartoon-v1/esfp-mary-magdalene.jpg',
-  ENFP: '/characters/mbti-cartoon-v1/enfp-barnabas.jpg',
-  ENTP: '/characters/mbti-cartoon-v1/entp-priscilla.jpg',
-  ESTJ: '/characters/mbti-cartoon-v1/estj-joshua.jpg',
-  ESFJ: '/characters/mbti-cartoon-v1/esfj-lydia.jpg',
-  ENFJ: '/characters/mbti-cartoon-v1/enfj-deborah.jpg',
-  ENTJ: '/characters/mbti-cartoon-v1/entj-paul.jpg',
+const mbtiOnlyAvatars: Partial<Record<MbtiType, string>> = {
+  INTJ: 'nehemiah',
+  ISTP: 'bezalel',
+  INTP: 'apollos',
+  ESFP: 'mary-magdalene',
+  ENFP: 'barnabas',
 }
+
+// Match by the complete Bible name, not a substring: Mary Magdalene is not Mary.
+function imageForBibleCharacter(type: MbtiType) {
+  const preset = bibleAvatarPresets.find(({ name }) => name === bibleCharacters[type].name)
+  if (preset) return preset.src
+
+  const id = mbtiOnlyAvatars[type]
+  if (!id) throw new Error(`Missing pixel portrait for Bible MBTI type ${type}`)
+  return `/avatars/bible-mbti-v1/${id}.webp`
+}
+
+export const bibleCharacterImages = Object.fromEntries(
+  (Object.keys(bibleCharacters) as MbtiType[]).map((type) => [type, imageForBibleCharacter(type)]),
+) as Record<MbtiType, string>
 
 export const axisCopy: Record<MbtiAxis, {
   left: { pole: MbtiPole; label: string }

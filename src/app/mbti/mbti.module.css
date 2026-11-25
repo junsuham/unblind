@@ -392,10 +392,24 @@
   margin: 16px auto 0;
   border: 1px solid rgba(255, 255, 255, 0.16);
   border-radius: 30px;
-  background: #171211;
+  background:
+    radial-gradient(ellipse at 49% 28%, #fff1ce 0%, transparent 76%),
+    linear-gradient(180deg, #f6d1a5 0%, #d6a476 82%, #b78056 82%, #9f684b 100%);
   box-shadow:
     0 18px 36px rgba(0, 0, 0, 0.3),
     0 0 36px rgba(228, 83, 48, 0.13);
+}
+
+.resultPortrait::before {
+  position: absolute;
+  right: 23%;
+  bottom: 9%;
+  left: 23%;
+  height: 6%;
+  border-radius: 50%;
+  background: rgba(74, 39, 26, 0.2);
+  content: '';
+  pointer-events: none;
 }
 
 .resultPortrait::after {
@@ -408,10 +422,15 @@
 }
 
 .resultPortrait img {
+  position: relative;
   display: block;
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  padding: 10px 16px 17px;
+  box-sizing: border-box;
+  object-fit: contain;
+  object-position: center bottom;
+  image-rendering: pixelated;
 }
 
 .resultLabel {

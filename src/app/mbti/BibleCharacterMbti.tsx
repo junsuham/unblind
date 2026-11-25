@@ -285,10 +285,11 @@ function Result({
         </div>
         <div className={styles.resultPortrait}>
           <Image
-            fill
             src={characterImage}
-            alt={`${character.name} 캐릭터`}
-            sizes="(max-width: 350px) 78vw, 224px"
+            alt={`${character.name} 도트 캐릭터`}
+            width={192}
+            height={224}
+            unoptimized
             loading="eager"
           />
         </div>

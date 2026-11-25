@@ -1,5 +1,6 @@
 import { readFileSync, statSync } from 'node:fs'
-import { describe, expect, it } from 'vitest'
+import sharp from 'sharp'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import {
   bibleCharacterImages,
   bibleCharacters,
@@ -10,6 +11,8 @@ import {
   type MbtiPole,
   type MbtiType,
 } from '../src/lib/bibleCharacterMbti'
+import { createBibleMbtiShareImage } from '../src/lib/bibleMbtiShareCard'
+import { bibleAvatarPresets } from '../src/lib/pixelAvatar'
 
 const axisPoles: Record<MbtiAxis, readonly MbtiPole[]> = {
   EI: ['E', 'I'],
@@ -30,6 +33,12 @@ const shareCard = readFileSync(
   new URL('../src/lib/bibleMbtiShareCard.ts', import.meta.url),
   'utf8',
 )
+const mbtiStyles = readFileSync(
+  new URL('../src/app/mbti/mbti.module.css', import.meta.url),
+  'utf8',
+)
+
+afterEach(() => vi.unstubAllGlobals())
 
 describe('Bible character MBTI', () => {
   it('provides 28 balanced questions and alternates the four axes', () => {
@@ -62,11 +71,31 @@ describe('Bible character MBTI', () => {
       expect(profile.references.length).toBeGreaterThanOrEqual(2)
       expect(profile.reflection.trim().length).toBeGreaterThan(10)
     }
+  })
 
+  it('uses the exact character picker art for the eleven matching Bible names', () => {
+    const types = Object.keys(bibleCharacters) as MbtiType[]
+    const sharedTypes = types.filter((type) => bibleCharacterImages[type].startsWith('/avatars/bible-v1/'))
+    expect(sharedTypes).toHaveLength(11)
     expect(new Set(Object.values(bibleCharacterImages)).size).toBe(16)
+    for (const type of sharedTypes) {
+      const preset = bibleAvatarPresets.find(({ name }) => name === bibleCharacters[type].name)
+      expect(bibleCharacterImages[type]).toBe(preset?.src)
+    }
+    expect(bibleCharacterImages.ESFP).toBe('/avatars/bible-mbti-v1/mary-magdalene.webp')
+    expect(bibleCharacterImages.ESFP).not.toBe(bibleAvatarPresets.find(({ id }) => id === 'mary')?.src)
+  })
+
+  it('ships all sixteen webp portraits as transparent sprites', async () => {
     for (const imagePath of Object.values(bibleCharacterImages)) {
       const asset = new URL(`../public${imagePath}`, import.meta.url)
-      expect(statSync(asset).size).toBeGreaterThan(10_000)
+      expect(statSync(asset).size).toBeGreaterThan(5_000)
+      expect(await sharp(asset.pathname).metadata()).toMatchObject({
+        format: 'webp',
+        hasAlpha: true,
+        width: 192,
+        height: 224,
+      })
     }
   })
 
@@ -96,12 +125,51 @@ describe('Bible character MBTI', () => {
   })
 
   it('renders a centered character card and shares a generated PNG file', () => {
-    expect(Object.values(bibleCharacterImages).every((path) => path.includes('/mbti-cartoon-v1/'))).toBe(true)
+    expect(Object.values(bibleCharacterImages).every((path) => path.endsWith('.webp'))).toBe(true)
     expect(mbtiScreen).toContain('className={styles.resultPortrait}')
+    expect(mbtiScreen).toContain('alt={`${character.name} 도트 캐릭터`}')
+    expect(mbtiStyles).toMatch(/\.resultPortrait img\s*\{[^}]*object-fit:\s*contain;[^}]*image-rendering:\s*pixelated;/)
     expect(mbtiScreen).toContain('결과 이미지 공유하기')
     expect(mbtiScreen).toContain('navigator.canShare?.(fileShare)')
     expect(shareCard).toContain('canvas.toBlob')
     expect(shareCard).toContain('new File([blob]')
     expect(shareCard).toContain("type: 'image/png'")
+  })
+
+  it('draws the same portrait at its full aspect ratio on the PNG card', async () => {
+    const type = 'ESFP'
+    const imageSources: string[] = []
+    class FakeImage {
+      naturalWidth = 192
+      naturalHeight = 224
+      onload?: () => void
+      set src(value: string) {
+        imageSources.push(value)
+        this.onload?.()
+      }
+    }
+    const gradient = { addColorStop: vi.fn() }
+    const context = {
+      imageSmoothingEnabled: true,
+      createLinearGradient: vi.fn(() => gradient),
+      createRadialGradient: vi.fn(() => gradient),
+      fillRect: vi.fn(), beginPath: vi.fn(), moveTo: vi.fn(), arcTo: vi.fn(),
+      closePath: vi.fn(), fill: vi.fn(), stroke: vi.fn(), fillText: vi.fn(),
+      save: vi.fn(), restore: vi.fn(), clip: vi.fn(), ellipse: vi.fn(),
+      drawImage: vi.fn(),
+    }
+    const canvas = {
+      width: 0, height: 0,
+      getContext: vi.fn(() => context),
+      toBlob: (callback: (blob: Blob) => void) => callback(new Blob(['test'], { type: 'image/png' })),
+    }
+    vi.stubGlobal('Image', FakeImage)
+    vi.stubGlobal('document', { createElement: vi.fn(() => canvas) })
+
+    const result = await createBibleMbtiShareImage({ type, character: bibleCharacters[type], similarity: 100, axes: [] })
+    expect(imageSources).toEqual([bibleCharacterImages[type]])
+    expect(context.drawImage).toHaveBeenCalledExactlyOnceWith(expect.any(FakeImage), 257, 198, 566, 660)
+    expect(context.imageSmoothingEnabled).toBe(false)
+    expect(result.name).toBe('unblind-bible-mbti-esfp.png')
   })
 })

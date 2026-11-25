@@ -10,6 +10,7 @@ import {
 } from '@/lib/dailyFaith'
 import { SystemIcon } from './ui/SystemIcon'
 import { FaithAvatar } from './FaithAvatar'
+import { FaithWeatherIcon } from './FaithWeatherIcon'
 
 type CheckinResult = {
   mood: FaithMood
@@ -174,7 +175,7 @@ export function DailyFaithCheckIn({ storageScope, characterName }: { storageScop
                         : 'bg-[var(--ub-surface-muted)] text-[var(--ub-text-secondary)]'
                     }`}
                   >
-                    <span className="block text-[22px]" aria-hidden>{option.emoji}</span>
+                    <span className="flex justify-center" aria-hidden><FaithWeatherIcon weather={option.value} /></span>
                     <span className="mt-0.5 block text-[10px] font-bold">{option.label}</span>
                   </button>
                 ))}
