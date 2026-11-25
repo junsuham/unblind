@@ -25,12 +25,12 @@ export default async function ChurchDashboardPage() {
 
   const { snapshot, error } = await readChurchDashboardSnapshot(access)
   const stats = snapshot ? [
-    { label: '등록 인원', value: count(snapshot.memberCount, '명') },
-    { label: '최근 출석', value: count(snapshot.attendanceCount, '명') },
-    { label: '기도 시간', value: count(snapshot.prayerMinutes, '분') },
-    { label: '돌봄 확인', value: count(snapshot.carePendingCount, '건') },
-    { label: '다가오는 일정', value: count(snapshot.upcomingEventCount, '건') },
-  ] : []
+    { label: '2부 등록 인원', value: snapshot.memberCount, suffix: '명' },
+    { label: '최근 출석', value: snapshot.attendanceCount, suffix: '명' },
+    { label: '최근 30일 기도 시간', value: snapshot.prayerMinutes, suffix: '분' },
+    { label: '돌봄 확인', value: snapshot.carePendingCount, suffix: '건' },
+    { label: '다가오는 일정', value: snapshot.upcomingEventCount, suffix: '건' },
+  ].filter((stat) => stat.value !== null) : []
 
   return (
     <AppShell topTitle="대시보드" topBackHref="/activity" bottomBar={<BottomTabBar />}>
@@ -43,7 +43,7 @@ export default async function ChurchDashboardPage() {
           <h2 className="min-w-0 text-[20px] font-extrabold tracking-[-0.4px] text-[var(--ub-text-primary)]">{access.churchName}</h2>
         </div>
         <p className="mt-1 text-[13px] text-[var(--ub-text-secondary)]">
-          {access.department ? `${access.department} 자료만 표시됩니다.` : '교회 전체 요약이 표시됩니다.'}
+          2부 자료만 표시됩니다.
         </p>
       </header>
 
@@ -67,10 +67,15 @@ export default async function ChurchDashboardPage() {
             {stats.map((stat) => (
               <div key={stat.label} className="rounded-[18px] bg-[var(--ub-surface-card-strong)] p-4 shadow-sm">
                 <p className="text-[12px] text-[var(--ub-text-secondary)]">{stat.label}</p>
-                <p className="mt-2 text-[21px] font-extrabold text-[var(--ub-text-primary)]">{stat.value}</p>
+                <p className="mt-2 text-[21px] font-extrabold text-[var(--ub-text-primary)]">{count(stat.value, stat.suffix)}</p>
               </div>
             ))}
           </section>
+          {stats.length === 0 && (
+            <p className="rounded-[18px] bg-[var(--ub-surface-card-strong)] p-4 text-[13px] text-[var(--ub-text-secondary)]">
+              현재 안전하게 표시할 수 있는 2부 집계가 없습니다.
+            </p>
+          )}
           {snapshot.attendanceWeeks.length > 0 && (
             <section className="mt-5 overflow-hidden rounded-[20px] bg-[var(--ub-surface-card-strong)] shadow-sm">
               <h2 className="px-4 py-4 text-[15px] font-bold text-[var(--ub-text-primary)]">주별 출석</h2>

@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
+import Link from 'next/link'
 import {
   AppShell,
   GlassCard,
@@ -50,15 +51,12 @@ export default function ErrorPage({ error, unstable_retry }: ErrorPageProps) {
           다시 시도하기
         </button>
 
-        <button
-          type="button"
-          onClick={() => {
-            window.location.href = '/'
-          }}
+        <Link
+          href="/"
           className="flex min-h-[52px] w-full items-center justify-center rounded-[16px] bg-[var(--ub-surface-pressed)] px-5 text-[17px] font-semibold text-[var(--ub-color-brand)] active:scale-[0.99]"
         >
           홈으로 이동
-        </button>
+        </Link>
       </div>
     </AppShell>
   )
