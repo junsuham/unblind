@@ -235,7 +235,7 @@ export default async function FaithJourneyPage() {
             })}
             {topMoods.length === 0 && (
               <p className="py-4 text-center text-[13px] text-[var(--ub-text-tertiary)]">
-                홈에서 오늘의 신앙 체크인을 남겨보세요.
+                홈에서 오늘의 마음과 신앙 날씨를 남겨보세요.
               </p>
             )}
           </div>

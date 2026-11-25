@@ -121,19 +121,12 @@ export function DailyFaithCheckIn({ storageScope, characterName }: { storageScop
 
   return (
     <>
-      <section className="mb-4" aria-labelledby="daily-faith-checkin-title">
-        <div className="mb-1.5 flex items-center justify-between px-1">
-          <p id="daily-faith-checkin-title" className="text-[12px] font-bold tracking-[0.04em] text-[var(--ub-text-on-brand-tertiary)]">오늘의 신앙 체크인</p>
-          {checkin && <span className="text-[11px] font-semibold text-[var(--ub-text-on-brand-tertiary)]">오늘 완료</span>}
-        </div>
-
-        <div className="ub-liquid-card p-4 text-[var(--ub-text-primary)]">
+      <section className="ub-liquid-card mb-4 p-4 text-[var(--ub-text-primary)]" aria-label="마음과 신앙 기록">
+        <FaithAvatar key={storageScope} mood={checkin?.mood ?? mood} weather={checkin?.faith_weather ?? weather} storageScope={storageScope} characterName={characterName} />
+        <div aria-busy={loading}>
           {loading ? (
-            <div className="h-[104px] animate-pulse rounded-[14px] bg-[var(--ub-surface-muted)]" aria-hidden />
-          ) : (
-            <FaithAvatar mood={checkin?.mood ?? mood} weather={checkin?.faith_weather ?? weather} storageScope={storageScope} characterName={characterName} />
-          )}
-          {!loading && (checkin ? (
+            <div className="mt-3 h-[50px] animate-pulse rounded-[13px] bg-[var(--ub-surface-muted)]" aria-hidden />
+          ) : checkin ? (
             <button
               type="button"
               onClick={() => setGuideOpen(true)}
@@ -149,8 +142,7 @@ export function DailyFaithCheckIn({ storageScope, characterName }: { storageScop
             </button>
           ) : (
             <>
-              <p className="mt-4 text-[14px] font-extrabold">오늘 마음은 어떤가요?</p>
-              <div className="mt-2.5 grid grid-cols-5 gap-1.5" aria-label="오늘의 마음">
+              <div className="mt-3 grid grid-cols-5 gap-1.5" role="group" aria-label="오늘의 마음">
                 {faithMoodOptions.map((option) => (
                   <button
                     key={option.value}
@@ -169,8 +161,7 @@ export function DailyFaithCheckIn({ storageScope, characterName }: { storageScop
                 ))}
               </div>
 
-              <p className="mt-3 text-[14px] font-extrabold">신앙의 날씨는요?</p>
-              <div className="mt-2 grid grid-cols-4 gap-1.5" aria-label="오늘의 신앙 날씨">
+              <div className="mt-2 grid grid-cols-4 gap-1.5" role="group" aria-label="오늘의 신앙 날씨">
                 {faithWeatherOptions.map((option) => (
                   <button
                     key={option.value}
@@ -199,7 +190,7 @@ export function DailyFaithCheckIn({ storageScope, characterName }: { storageScop
               </button>
               {error && <p className="mt-2 text-[12px] text-[var(--ub-danger-text)]" role="alert">{error}</p>}
             </>
-          ))}
+          )}
         </div>
       </section>
 

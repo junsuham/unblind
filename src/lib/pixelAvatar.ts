@@ -1,171 +1,109 @@
-export type PixelHairStyle = 'short' | 'long' | 'up'
-export type PixelHat = 'none' | 'cap' | 'beanie'
-export type PixelFaceAccessory = 'none' | 'glasses'
-export type PixelCape = 'none' | 'scarf'
-export type PixelProp = 'none' | 'book'
+export const DEFAULT_PIXEL_SPRITE = '/avatars/faith-player-reference-v2.png'
+export const PIXEL_AVATAR_ENDPOINT = '/api/faith-avatar/generate'
 
-export type PixelAvatarAppearance = {
-  skin: string
-  hair: string
-  eyes: string
-  top: string
-  bottom: string
-  shoes: string
-  hairStyle: PixelHairStyle
-  hat: PixelHat
-  faceAccessory: PixelFaceAccessory
-  cape: PixelCape
-  prop: PixelProp
-}
+export type GeneratedPixelAvatar = { sprite: string; background: string }
+export type PixelHairStyle = '' | 'short' | 'long' | 'up'
+export const pixelColorFields = [
+  ['skin', '피부', '#efb98e'], ['hair', '머리', '#3b2924'], ['eyes', '눈', '#352b29'],
+  ['top', '상의', '#e45330'], ['bottom', '하의', '#474039'], ['shoes', '신발', '#282322'],
+] as const
+export type PixelColorField = (typeof pixelColorFields)[number][0]
 
-export const defaultPixelAvatar: PixelAvatarAppearance = {
-  skin: '#efb98e',
-  hair: '#3b2924',
-  eyes: '#352b29',
-  top: '#e45330',
-  bottom: '#474039',
-  shoes: '#282322',
-  hairStyle: 'short',
-  hat: 'none',
-  faceAccessory: 'none',
-  cape: 'none',
-  prop: 'none',
-}
+const DATABASE = 'unblind-faith-avatar-v2'
+const STORE = 'characters'
+export const PIXEL_AVATAR_UPDATED_EVENT = 'unblind:generated-pixel-avatar-updated'
+const imageDataPattern = /^data:image\/(?:png|webp|jpeg);base64,[A-Za-z0-9+/]+={0,2}$/
 
-export function isDefaultPixelAvatar(appearance: PixelAvatarAppearance) {
-  return (Object.keys(defaultPixelAvatar) as Array<keyof PixelAvatarAppearance>)
-    .every((key) => appearance[key] === defaultPixelAvatar[key])
-}
-
-const colorPattern = /^#[0-9a-f]{6}$/i
-const styles = ['short', 'long', 'up']
-const hats = ['none', 'cap', 'beanie']
-const faceAccessories = ['none', 'glasses']
-const capes = ['none', 'scarf']
-const props = ['none', 'book']
-
-export function isPixelAvatarAppearance(value: unknown): value is PixelAvatarAppearance {
+export function isGeneratedPixelAvatar(value: unknown): value is GeneratedPixelAvatar {
   if (!value || typeof value !== 'object') return false
-  const item = value as Record<string, unknown>
-  return ['skin', 'hair', 'eyes', 'top', 'bottom', 'shoes'].every((key) =>
-    typeof item[key] === 'string' && colorPattern.test(item[key]))
-    && styles.includes(String(item.hairStyle))
-    && hats.includes(String(item.hat))
-    && faceAccessories.includes(String(item.faceAccessory))
-    && capes.includes(String(item.cape))
-    && props.includes(String(item.prop))
+  const images = value as Record<string, unknown>
+  return [images.sprite, images.background].every((image) => (
+    typeof image === 'string' && image.length <= 2_500_000 && imageDataPattern.test(image)
+  ))
 }
 
-export function avatarStorageKey(scope: string) {
-  return `unblind-pixel-avatar:${scope}`
+function openDatabase() {
+  return new Promise<IDBDatabase>((resolve, reject) => {
+    const request = indexedDB.open(DATABASE, 1)
+    request.onupgradeneeded = () => request.result.createObjectStore(STORE)
+    request.onsuccess = () => resolve(request.result)
+    request.onerror = () => reject(request.error)
+  })
 }
 
-export function readPixelAvatar(scope: string): PixelAvatarAppearance {
-  if (typeof window === 'undefined') return defaultPixelAvatar
-  try {
-    const stored = window.localStorage.getItem(avatarStorageKey(scope))
-    if (!stored) return defaultPixelAvatar
-    const parsed: unknown = JSON.parse(stored)
-    return isPixelAvatarAppearance(parsed) ? parsed : defaultPixelAvatar
-  } catch {
-    return defaultPixelAvatar
-  }
-}
-
-export function savePixelAvatar(scope: string, appearance: PixelAvatarAppearance) {
-  if (typeof window === 'undefined') return
-  try {
-    window.localStorage.setItem(avatarStorageKey(scope), JSON.stringify(appearance))
-    window.dispatchEvent(new CustomEvent('unblind:pixel-avatar-updated', { detail: scope }))
-  } catch {
-    // The preview remains usable when local storage is unavailable.
-  }
-}
-
-function toHex(red: number, green: number, blue: number) {
-  return `#${[red, green, blue].map((value) => Math.max(0, Math.min(255, Math.round(value))).toString(16).padStart(2, '0')).join('')}`
-}
-
-function averageRegion(
-  pixels: Uint8ClampedArray,
-  width: number,
-  bounds: [number, number, number, number],
-  fallback: string,
-  accept: (red: number, green: number, blue: number) => boolean,
+async function withStore<T>(
+  mode: IDBTransactionMode,
+  operation: (store: IDBObjectStore) => IDBRequest<T>,
 ) {
-  const [x0, y0, x1, y1] = bounds
-  let red = 0
-  let green = 0
-  let blue = 0
-  let count = 0
-  for (let y = y0; y < y1; y += 2) {
-    for (let x = x0; x < x1; x += 2) {
-      const index = (y * width + x) * 4
-      const r = pixels[index]
-      const g = pixels[index + 1]
-      const b = pixels[index + 2]
-      if (pixels[index + 3] < 200 || !accept(r, g, b)) continue
-      red += r
-      green += g
-      blue += b
-      count += 1
-    }
+  const database = await openDatabase()
+  try {
+    return await new Promise<T>((resolve, reject) => {
+      const transaction = database.transaction(STORE, mode)
+      const request = operation(transaction.objectStore(STORE))
+      transaction.oncomplete = () => resolve(request.result)
+      transaction.onabort = () => reject(transaction.error ?? new Error('저장 작업이 중단됐어요.'))
+    })
+  } finally {
+    database.close()
   }
-  return count < 8 ? fallback : toHex(red / count, green / count, blue / count)
 }
 
-/** Returns only coarse palette hints. The original photo is never uploaded or stored. */
-export async function appearanceFromPhoto(file: File, current: PixelAvatarAppearance) {
-  if (!file.type.startsWith('image/') || file.size > 12 * 1024 * 1024) {
+export async function readGeneratedAvatar(scope: string) {
+  const value: unknown = await withStore('readonly', (store) => store.get(scope))
+  return isGeneratedPixelAvatar(value) ? value : null
+}
+
+export async function writeGeneratedAvatar(scope: string, avatar: GeneratedPixelAvatar | null) {
+  if (avatar) {
+    if (!isGeneratedPixelAvatar(avatar)) throw new Error('캐릭터 이미지 형식이 올바르지 않아요.')
+    await withStore('readwrite', (store) => store.put({ sprite: avatar.sprite, background: avatar.background }, scope))
+  } else {
+    await withStore('readwrite', (store) => store.delete(scope))
+  }
+  window.dispatchEvent(new CustomEvent(PIXEL_AVATAR_UPDATED_EVENT, { detail: scope }))
+}
+
+/** Resize and strip original metadata before sending a photo to the generation API. */
+export async function prepareAvatarPhoto(file: File) {
+  if (file.size === 0 || file.size > 12 * 1024 * 1024) {
     throw new Error('12MB 이하의 사진을 선택해주세요.')
   }
-  const canvas = document.createElement('canvas')
-  canvas.width = 96
-  canvas.height = 96
-  const context = canvas.getContext('2d', { willReadFrequently: true })
-  if (!context) throw new Error('이 기기에서 사진을 분석할 수 없습니다.')
 
-  let source: ImageBitmap | HTMLImageElement | null = null
-  let objectUrl: string | null = null
+  let url: string | undefined
+  let bitmap: ImageBitmap | undefined
   try {
     if (typeof createImageBitmap === 'function') {
-      try {
-        source = await createImageBitmap(file)
-      } catch {
-        // Some iOS browsers can display a photo but cannot make an ImageBitmap from it.
-      }
+      bitmap = await createImageBitmap(file).catch(() => undefined)
     }
-    if (!source) {
-      objectUrl = URL.createObjectURL(file)
-      const image = new window.Image()
-      image.src = objectUrl
+    let source: HTMLImageElement | ImageBitmap
+    if (bitmap) {
+      source = bitmap
+    } else {
+      url = URL.createObjectURL(file)
+      const image = new Image()
+      image.src = url
       await image.decode()
       source = image
     }
-    const width = source.width
-    const height = source.height
-    const side = Math.min(width, height)
-    context.drawImage(source, (width - side) / 2, (height - side) / 2, side, side, 0, 0, 96, 96)
-    const { data } = context.getImageData(0, 0, 96, 96)
-    const hair = averageRegion(data, 96, [24, 9, 73, 35], current.hair,
-      (r, g, b) => r + g + b < 560 && Math.max(r, g, b) - Math.min(r, g, b) > 10)
-    const skin = averageRegion(data, 96, [35, 39, 63, 66], current.skin,
-      (r, g, b) => r > 80 && r > b * 1.08 && g > b * 0.78 && r + g + b < 700)
-    const top = averageRegion(data, 96, [27, 70, 70, 92], current.top,
-      (r, g, b) => Math.max(r, g, b) - Math.min(r, g, b) > 24 && r + g + b < 680)
-    let sideHair = 0
-    for (let y = 38; y < 67; y += 3) {
-      for (const x of [25, 29, 67, 71]) {
-        const index = (y * 96 + x) * 4
-        if (data[index] + data[index + 1] + data[index + 2] < 330) sideHair += 1
-      }
+
+    const scale = Math.min(1, 1024 / Math.max(source.width, source.height))
+    const canvas = document.createElement('canvas')
+    canvas.width = Math.max(1, Math.round(source.width * scale))
+    canvas.height = Math.max(1, Math.round(source.height * scale))
+    const context = canvas.getContext('2d', { alpha: false })
+    if (!context) throw new Error('사진을 변환할 수 없어요.')
+    context.fillStyle = '#fff'
+    context.fillRect(0, 0, canvas.width, canvas.height)
+    context.drawImage(source, 0, 0, canvas.width, canvas.height)
+    const jpeg = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/jpeg', .88))
+    if (!jpeg || jpeg.type !== 'image/jpeg' || jpeg.size > 1.5 * 1024 * 1024) {
+      throw new Error('사진 크기를 줄일 수 없어요.')
     }
-    return { ...current, skin, hair, top, hairStyle: sideHair >= 20 ? 'long' : 'short' } satisfies PixelAvatarAppearance
+    return jpeg
   } catch {
-    throw new Error('사진을 읽지 못했습니다. JPG·PNG·HEIC 사진으로 다시 시도해주세요.')
+    throw new Error('사진을 읽지 못했어요. 다른 JPG·PNG 사진으로 다시 시도해주세요.')
   } finally {
-    if (objectUrl) URL.revokeObjectURL(objectUrl)
-    if (source && typeof ImageBitmap !== 'undefined' && source instanceof ImageBitmap) source.close()
+    bitmap?.close()
+    if (url) URL.revokeObjectURL(url)
   }
 }
-

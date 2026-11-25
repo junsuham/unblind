@@ -1,27 +1,44 @@
-import { describe, expect, it } from 'vitest'
 import { readFileSync } from 'node:fs'
-import { avatarStorageKey, defaultPixelAvatar, isDefaultPixelAvatar, isPixelAvatarAppearance } from '../src/lib/pixelAvatar'
+import { describe, expect, it } from 'vitest'
+import { DEFAULT_PIXEL_SPRITE, isGeneratedPixelAvatar } from '../src/lib/pixelAvatar'
 
-describe('faith check-in pixel avatar', () => {
-  it('accepts only supported equipment layers and six-digit colors', () => {
-    expect(isPixelAvatarAppearance(defaultPixelAvatar)).toBe(true)
-    expect(isPixelAvatarAppearance({ ...defaultPixelAvatar, skin: '#fff' })).toBe(false)
-    expect(isPixelAvatarAppearance({ ...defaultPixelAvatar, hat: 'crown' })).toBe(false)
+const read = (path: string) => readFileSync(new URL(path, import.meta.url), 'utf8')
+
+describe('shared photo-generated pixel avatar', () => {
+  it('requires both results and rejects arbitrary URLs or markup as stored images', () => {
+    const sprite = 'data:image/webp;base64,AA=='
+    const background = 'data:image/jpeg;base64,BB=='
+    expect(isGeneratedPixelAvatar({ sprite, background })).toBe(true)
+    expect(isGeneratedPixelAvatar({ sprite })).toBe(false)
+    expect(isGeneratedPixelAvatar({ sprite: 'https://example.com/tracker', background })).toBe(false)
+    expect(isGeneratedPixelAvatar({ sprite: 'data:image/svg+xml;base64,AA==', background })).toBe(false)
+    expect(isGeneratedPixelAvatar({ sprite, background: 'data:image/png;base64,' + 'A'.repeat(2_500_000) })).toBe(false)
   })
 
-  it('separates the locally saved appearance by account', () => {
-    expect(avatarStorageKey('member-a')).not.toBe(avatarStorageKey('member-b'))
-  })
-
-  it('uses the supplied pixel sprite by default and keeps custom colors separate', () => {
-    expect(isDefaultPixelAvatar(defaultPixelAvatar)).toBe(true)
-    expect(isDefaultPixelAvatar({ ...defaultPixelAvatar, top: '#123456' })).toBe(false)
-    const avatar = readFileSync(new URL('../src/app/components/FaithAvatar.tsx', import.meta.url), 'utf8')
-    const room = readFileSync(new URL('../src/app/pray/PrayerRoomScene.tsx', import.meta.url), 'utf8')
-    const prayerBoard = readFileSync(new URL('../src/app/board/[board]/page.tsx', import.meta.url), 'utf8')
-    expect(avatar).toContain('/avatars/faith-player-reference-v2.png')
-    expect(room).toContain('/avatars/faith-player-reference-v2.png')
+  it('uses the same local appearance on home and in the prayer room', () => {
+    expect(DEFAULT_PIXEL_SPRITE).toBe('/avatars/faith-player-reference-v2.png')
+    expect(read('../src/app/components/FaithAvatarSprite.tsx')).toContain('avatar?.sprite ?? DEFAULT_PIXEL_SPRITE')
+    const avatar = read('../src/app/components/FaithAvatar.tsx')
+    const room = read('../src/app/pray/PrayerRoomScene.tsx')
+    for (const consumer of [avatar, room]) {
+      expect(consumer).toContain('useFaithAvatar(storageScope)')
+      expect(consumer).toContain('<FaithAvatarSprite avatar={avatar}')
+      expect(consumer).not.toContain('PixelAvatarCanvas')
+    }
+    expect(avatar).toContain('src={avatar.background}')
     expect(room).toContain('/prayer/prayer-room-reference-v2.png')
-    expect(prayerBoard).toContain('/prayer/prayer-room-reference-v2.png')
+  })
+
+  it('keeps the check-in choices without the removed copy or accessories', () => {
+    const checkin = read('../src/app/components/DailyFaithCheckIn.tsx')
+    for (const copy of ['오늘 마음은 어떤가요?', '신앙의 날씨는요?', '오늘의 신앙 체크인']) {
+      expect(checkin).not.toContain(copy)
+    }
+    expect(checkin).toContain('faithMoodOptions.map')
+    expect(checkin).toContain('faithWeatherOptions.map')
+    const avatar = read('../src/app/components/FaithAvatar.tsx')
+    for (const copy of ['얼굴 장식', '망토·스카프', '손 소품', '색상 미리보기', 'appearanceFromPhoto']) {
+      expect(avatar).not.toContain(copy)
+    }
   })
 })

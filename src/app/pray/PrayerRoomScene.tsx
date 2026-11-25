@@ -1,11 +1,10 @@
 'use client'
 
 import Image from 'next/image'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import type { MouseEvent } from 'react'
-import type { FaithMood } from '@/lib/dailyFaith'
-import { defaultPixelAvatar, isDefaultPixelAvatar, readPixelAvatar, type PixelAvatarAppearance } from '@/lib/pixelAvatar'
-import { PixelAvatarCanvas } from '@/app/components/PixelAvatarCanvas'
+import { FaithAvatarSprite } from '@/app/components/FaithAvatarSprite'
+import { useFaithAvatar } from '@/app/components/useFaithAvatar'
 import styles from './PrayerRoomScene.module.css'
 
 type Position = { x: number; y: number }
@@ -18,28 +17,12 @@ function clamp(value: number, min: number, max: number) {
 export function PrayerRoomScene({
   storageScope,
   characterName,
-  mood = null,
 }: {
   storageScope: string
   characterName: string
-  mood?: FaithMood | null
 }) {
-  const [appearance, setAppearance] = useState<PixelAvatarAppearance>(defaultPixelAvatar)
+  const { ready, avatar } = useFaithAvatar(storageScope)
   const [position, setPosition] = useState<Position>(START)
-  const hasCustomAppearance = !isDefaultPixelAvatar(appearance)
-
-  useEffect(() => {
-    const sync = () => setAppearance(readPixelAvatar(storageScope))
-    const timer = window.setTimeout(sync, 0)
-    const onUpdated = (event: Event) => {
-      if ((event as CustomEvent<string>).detail === storageScope) sync()
-    }
-    window.addEventListener('unblind:pixel-avatar-updated', onUpdated)
-    return () => {
-      window.clearTimeout(timer)
-      window.removeEventListener('unblind:pixel-avatar-updated', onUpdated)
-    }
-  }, [storageScope])
 
   function moveTo(event: MouseEvent<HTMLButtonElement>) {
     const bounds = event.currentTarget.getBoundingClientRect()
@@ -68,21 +51,12 @@ export function PrayerRoomScene({
           unoptimized
         />
         <button type="button" className={styles.walkArea} onClick={moveTo} aria-label="기도실에서 이동할 위치 선택" />
-        <div className={styles.avatar} style={{ left: `${position.x}%`, top: `${position.y}%` }}>
-          {hasCustomAppearance ? (
-            <PixelAvatarCanvas appearance={appearance} mood={mood} size={76} label={`${characterName}의 기도실 캐릭터`} />
-          ) : (
-            <Image
-              src="/avatars/faith-player-reference-v2.png"
-              alt={`${characterName}의 도트 캐릭터`}
-              width={96}
-              height={96}
-              className={styles.referenceAvatar}
-              unoptimized
-            />
-          )}
-          <span className={styles.nameTag}>{characterName}</span>
-        </div>
+        {ready && (
+          <div className={styles.avatar} style={{ left: `${position.x}%`, top: `${position.y}%` }}>
+            <FaithAvatarSprite avatar={avatar} name={characterName} size={96} className={styles.sprite} />
+            <span className={styles.nameTag}>{characterName}</span>
+          </div>
+        )}
         <span className={styles.roomName}>기도실</span>
       </div>
       <div className={styles.controls} aria-label="캐릭터 이동 조작">
