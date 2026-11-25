@@ -1,18 +1,13 @@
 'use client'
 
 import Image from 'next/image'
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import type { FormEvent } from 'react'
 import type { FaithMood, FaithWeather } from '@/lib/dailyFaith'
 import {
   DEFAULT_PIXEL_SPRITE,
-  PIXEL_AVATAR_ENDPOINT,
-  isGeneratedPixelAvatar,
-  pixelColorFields,
-  prepareAvatarPhoto,
+  prepareImportedAvatar,
   writeGeneratedAvatar,
-  type PixelColorField,
-  type PixelHairStyle,
 } from '@/lib/pixelAvatar'
 import { FaithAvatarSprite } from './FaithAvatarSprite'
 import { useFaithAvatar } from './useFaithAvatar'
@@ -21,6 +16,11 @@ import styles from './FaithAvatar.module.css'
 const weatherNames: Record<FaithWeather, string> = {
   sunny: '맑음', partly_cloudy: '구름 조금', cloudy: '흐림', rainy: '비',
 }
+
+const prompts = [
+  ['캐릭터 요청문', '첨부한 인물 사진을 참고해 전신이 보이는 2D 횡스크롤 RPG 도트 캐릭터 한 명을 만들어줘. 헤어와 의상 특징을 살리고, 큰 머리와 작은 몸, 선명한 픽셀 윤곽으로 그려줘. 배경은 실제로 투명하게 만들고, 그림자·글자·다른 인물 없이 캐릭터만 PNG 한 장으로 만들어줘.'],
+  ['배경 요청문', '앞 사진의 색감과 분위기를 참고해 2D 횡스크롤 RPG용 가로 도트 배경을 별도 이미지 한 장으로 만들어줘. 가운데 아래에는 캐릭터를 놓을 자리와 바닥을 남기고, 사람·캐릭터·글자는 넣지 마.'],
+] as const
 
 export function FaithAvatar({
   mood, weather, storageScope, characterName,
@@ -32,85 +32,61 @@ export function FaithAvatar({
 }) {
   const { ready, avatar } = useFaithAvatar(storageScope)
   const [customizing, setCustomizing] = useState(false)
-  const [available, setAvailable] = useState<boolean | null>(null)
-  const [file, setFile] = useState<File | null>(null)
-  const [consent, setConsent] = useState(false)
-  const [hairStyle, setHairStyle] = useState<PixelHairStyle>('')
-  const [colors, setColors] = useState<Partial<Record<PixelColorField, string>>>({})
-  const [action, setAction] = useState<'generate' | 'reset' | null>(null)
-  const [notice, setNotice] = useState('')
-  const generation = useRef<AbortController | null>(null)
-  const fileInput = useRef<HTMLInputElement>(null)
+  const [spriteFile, setSpriteFile] = useState<File | null>(null)
+  const [backgroundFile, setBackgroundFile] = useState<File | null>(null)
+  const [action, setAction] = useState<'import' | 'reset' | null>(null)
+  const [notice, setNotice] = useState<{ text: string; error?: boolean } | null>(null)
+  const spriteInput = useRef<HTMLInputElement>(null)
+  const backgroundInput = useRef<HTMLInputElement>(null)
+  const working = useRef(false)
   const busy = action !== null
 
-  useEffect(() => {
-    if (!customizing) return
-    const controller = new AbortController()
-    void fetch(PIXEL_AVATAR_ENDPOINT, { cache: 'no-store', signal: controller.signal })
-      .then((response) => response.ok ? response.json() : null)
-      .then((result) => {
-        if (!controller.signal.aborted) setAvailable(result?.available === true)
-      })
-      .catch(() => {
-        if (!controller.signal.aborted) setAvailable(false)
-      })
-    return () => controller.abort()
-  }, [customizing])
-
-  useEffect(() => () => generation.current?.abort(), [storageScope])
-
-  async function generate(event: FormEvent<HTMLFormElement>) {
+  async function importAvatar(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    if (!file || !consent || !available || generation.current || busy || !ready) return
-    const controller = new AbortController()
-    generation.current = controller
-    setAction('generate')
-    setNotice('')
+    if (!spriteFile || !backgroundFile || working.current || !ready) return
+    working.current = true
+    setAction('import')
+    setNotice(null)
     try {
-      const photo = await prepareAvatarPhoto(file)
-      if (controller.signal.aborted) return
-      const form = new FormData()
-      form.set('photo', photo, 'portrait.jpg')
-      form.set('consent', 'accepted')
-      if (hairStyle) form.set('hairStyle', hairStyle)
-      for (const [field, color] of Object.entries(colors)) {
-        if (color) form.set(field, color)
-      }
-      const response = await fetch(PIXEL_AVATAR_ENDPOINT, {
-        method: 'POST', body: form, signal: controller.signal,
-      })
-      const result = await response.json().catch(() => null)
-      if (!response.ok) {
-        throw new Error(typeof result?.error === 'string' ? result.error : '이미지를 만들지 못했어요. 잠시 후 다시 시도해주세요.')
-      }
-      if (!isGeneratedPixelAvatar(result)) throw new Error('생성된 이미지가 올바르지 않아요. 다시 시도해주세요.')
-      if (controller.signal.aborted) return
+      const result = await prepareImportedAvatar(spriteFile, backgroundFile)
       await writeGeneratedAvatar(storageScope, result).catch(() => {
-        throw new Error('이미지를 기기에 저장하지 못했어요. 저장 공간을 확인해주세요.')
+        throw new Error('이미지를 이 기기에 저장하지 못했어요. 저장 공간을 확인해주세요.')
       })
-      if (fileInput.current) fileInput.current.value = ''
-      setFile(null)
-      setConsent(false)
-      setNotice('캐릭터와 배경을 만들었어요. 기도실에서도 같은 캐릭터가 보여요.')
+      if (spriteInput.current) spriteInput.current.value = ''
+      if (backgroundInput.current) backgroundInput.current.value = ''
+      setSpriteFile(null)
+      setBackgroundFile(null)
+      setNotice({ text: '적용했어요. 기도실에도 같은 캐릭터가 보여요.' })
     } catch (cause) {
-      if (!controller.signal.aborted) setNotice(cause instanceof Error ? cause.message : '이미지를 만들지 못했어요.')
+      setNotice({ text: cause instanceof Error ? cause.message : '이미지를 가져오지 못했어요. 다시 시도해주세요.', error: true })
     } finally {
-      if (generation.current === controller) {
-        generation.current = null
-        if (!controller.signal.aborted) setAction(null)
-      }
+      working.current = false
+      setAction(null)
     }
   }
 
   async function restoreDefault() {
+    if (working.current) return
+    working.current = true
     setAction('reset')
+    setNotice(null)
     try {
       await writeGeneratedAvatar(storageScope, null)
-      setNotice('이 기기의 생성 이미지를 지우고 기본 캐릭터로 바꿨어요.')
+      setNotice({ text: '이 기기에 저장한 캐릭터와 배경을 지우고 기본으로 돌렸어요.' })
     } catch {
-      setNotice('이미지를 지우지 못했어요. 다시 시도해주세요.')
+      setNotice({ text: '이미지를 지우지 못했어요. 다시 시도해주세요.', error: true })
     } finally {
+      working.current = false
       setAction(null)
+    }
+  }
+
+  async function copyPrompt(label: string, prompt: string) {
+    try {
+      await navigator.clipboard.writeText(prompt)
+      setNotice({ text: `${label}을 복사했어요.` })
+    } catch {
+      setNotice({ text: '자동 복사가 되지 않았어요. 요청문을 길게 눌러 복사해주세요.', error: true })
     }
   }
 
@@ -123,8 +99,6 @@ export function FaithAvatar({
       output.width = output.height = 1080
       const context = output.getContext('2d')
       if (!context) throw new Error()
-      context.fillStyle = '#fff'
-      context.fillRect(0, 0, 1080, 1080)
       context.imageSmoothingEnabled = false
       const scale = (avatar ? 810 : 1080) / Math.max(sprite.naturalWidth, sprite.naturalHeight)
       const width = sprite.naturalWidth * scale
@@ -134,9 +108,9 @@ export function FaithAvatar({
       link.href = output.toDataURL('image/png')
       link.download = `${characterName}-pixel-avatar.png`
       link.click()
-      setNotice('캐릭터를 흰 배경의 PNG로 저장했어요.')
+      setNotice({ text: '투명 배경 PNG 다운로드를 시작했어요.' })
     } catch {
-      setNotice('캐릭터 이미지를 저장하지 못했어요.')
+      setNotice({ text: '캐릭터 이미지를 저장하지 못했어요.', error: true })
     }
   }
 
@@ -144,7 +118,7 @@ export function FaithAvatar({
     <div className={styles.studio}>
       <div className={styles.scene} data-weather={weather ?? 'unset'} data-mood={mood ?? 'unset'}>
         {avatar ? (
-          <Image src={avatar.background} alt="" fill unoptimized className={styles.generatedBackground} />
+          <Image src={avatar.background} alt="" fill unoptimized className={styles.customBackground} />
         ) : (
           <>
             <span className={styles.sun} aria-hidden />
@@ -163,10 +137,10 @@ export function FaithAvatar({
           aria-expanded={customizing}
           aria-controls="faith-avatar-customizer"
           onClick={() => {
-            if (!customizing) setAvailable(null)
-            else {
-              setFile(null)
-              setConsent(false)
+            if (customizing) {
+              setSpriteFile(null)
+              setBackgroundFile(null)
+              setNotice(null)
             }
             setCustomizing(!customizing)
           }}
@@ -177,54 +151,39 @@ export function FaithAvatar({
         </button>
       </div>
       {customizing && (
-        <form id="faith-avatar-customizer" className={styles.customizer} onSubmit={(event) => void generate(event)} aria-busy={busy}>
-          {available === null && <p role="status" className={styles.privacyNote}>사진 생성 서비스 확인 중…</p>}
-          {available === false && <p role="status" className={styles.privacyNote}>사진 생성 서비스가 현재 연결되지 않았어요. 저장된 캐릭터는 계속 사용할 수 있어요.</p>}
-          {available && (
-            <>
-              <label className={styles.fileLabel}>
-                한 사람이 잘 보이는 사진
-                <input ref={fileInput} type="file" accept="image/*" onChange={(event) => {
-                  setFile(event.currentTarget.files?.[0] ?? null)
-                  setConsent(false)
-                  setNotice('')
-                }} disabled={busy} />
-              </label>
-              <details className={styles.preferences}>
-                <summary>헤어·색상 선택 (선택사항)</summary>
-                <label className={styles.hairField}>헤어
-                  <select value={hairStyle} onChange={(event) => setHairStyle(event.currentTarget.value as PixelHairStyle)} disabled={busy}>
-                    <option value="">사진 그대로</option><option value="short">짧은 머리</option><option value="long">긴 머리</option><option value="up">묶은 머리</option>
-                  </select>
-                </label>
-                <div className={styles.colorGrid}>
-                  {pixelColorFields.map(([field, label, defaultColor]) => (
-                    <div key={field} className={styles.colorField} data-overridden={Boolean(colors[field])}>
-                      <label>
-                        {label}
-                        <input type="color" value={colors[field] ?? defaultColor} onChange={(event) => {
-                          const color = event.currentTarget.value
-                          setColors((current) => ({ ...current, [field]: color }))
-                        }} aria-label={`${label} 색상`} disabled={busy} />
-                      </label>
-                      {colors[field] && <button type="button" onClick={() => setColors((current) => ({ ...current, [field]: undefined }))} aria-label={`${label} 색상 선택 해제`} disabled={busy}>해제</button>}
-                    </div>
-                  ))}
+        <form id="faith-avatar-customizer" className={styles.customizer} onSubmit={(event) => void importAvatar(event)} aria-busy={busy}>
+          <div className={styles.guide}>
+            <a className={styles.chatLink} href="https://chatgpt.com/" target="_blank" rel="noopener noreferrer">ChatGPT 열기 <span aria-hidden>↗</span></a>
+            <p className={styles.helpText}>새 채팅에서 <strong>임시 채팅</strong>을 켜고, 투명 캐릭터와 가로 배경을 각각 만드세요. 화면을 캡처하지 말고 이미지 파일을 저장하세요.</p>
+            <details className={styles.prompts}>
+              <summary>이미지 만들기 요청문</summary>
+              {prompts.map(([label, prompt]) => (
+                <div key={label} className={styles.prompt}>
+                  <p>{prompt}</p>
+                  <button type="button" onClick={() => void copyPrompt(label, prompt)}>{label} 복사</button>
                 </div>
-                <p className={styles.privacyNote}>변경하지 않은 곳은 사진의 모습과 색을 바탕으로 만들어요.</p>
-              </details>
-              <label className={styles.consent}>
-                <input type="checkbox" checked={consent} onChange={(event) => setConsent(event.currentTarget.checked)} disabled={busy} />
-                <span>사진을 도트 캐릭터와 배경 생성에 사용하도록 OpenAI에 보내는 데 동의합니다.</span>
-              </label>
-              <p className={styles.privacyNote}>본인이 사용 권한을 가진 사진만 올려주세요. 언블라인드는 원본 사진을 저장하지 않으며 결과물은 이 기기에만 보관합니다.</p>
-              <button type="submit" className={styles.generateButton} disabled={!file || !consent || busy || !ready}>
-                {action === 'generate' ? '캐릭터와 배경을 만드는 중…' : '사진으로 캐릭터 만들기'}
-              </button>
-              {action === 'generate' && <p role="status" className={styles.privacyNote}>완료될 때까지 이 화면을 열어주세요. 최대 몇 분이 걸릴 수 있어요.</p>}
-            </>
-          )}
-          {notice && <p role="status" className={styles.notice}>{notice}</p>}
+              ))}
+            </details>
+          </div>
+          <label className={styles.fileLabel}>
+            <span>1. 투명 도트 캐릭터 <small>PNG · WebP</small></span>
+            <input ref={spriteInput} type="file" accept="image/png,image/webp,.png,.webp" onChange={(event) => {
+              setSpriteFile(event.currentTarget.files?.[0] ?? null)
+              setNotice(null)
+            }} disabled={busy} />
+          </label>
+          <label className={styles.fileLabel}>
+            <span>2. 홈 배경 <small>PNG · JPG · WebP</small></span>
+            <input ref={backgroundInput} type="file" accept="image/png,image/jpeg,image/webp,.png,.jpg,.jpeg,.webp" onChange={(event) => {
+              setBackgroundFile(event.currentTarget.files?.[0] ?? null)
+              setNotice(null)
+            }} disabled={busy} />
+          </label>
+          <p className={styles.helpText}>파일당 최대 12MB. 이미지는 서버로 보내지 않고 현재 브라우저 또는 설치 앱에만 저장합니다.</p>
+          <button type="submit" className={styles.importButton} disabled={!spriteFile || !backgroundFile || busy || !ready}>
+            {action === 'import' ? '이미지 가져오는 중…' : '캐릭터와 배경 적용'}
+          </button>
+          {notice && <p role={notice.error ? 'alert' : 'status'} className={styles.notice} data-error={Boolean(notice.error)}>{notice.text}</p>}
           <div className={styles.actions}>
             <button type="button" onClick={() => void downloadAvatar()} disabled={!ready || busy}>캐릭터 PNG 저장</button>
             {avatar && <button type="button" onClick={() => void restoreDefault()} disabled={busy}>기본으로 돌리기</button>}

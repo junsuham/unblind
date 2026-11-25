@@ -4,7 +4,7 @@ import { DEFAULT_PIXEL_SPRITE, isGeneratedPixelAvatar } from '../src/lib/pixelAv
 
 const read = (path: string) => readFileSync(new URL(path, import.meta.url), 'utf8')
 
-describe('shared photo-generated pixel avatar', () => {
+describe('shared local pixel avatar', () => {
   it('requires both results and rejects arbitrary URLs or markup as stored images', () => {
     const sprite = 'data:image/webp;base64,AA=='
     const background = 'data:image/jpeg;base64,BB=='
@@ -40,5 +40,13 @@ describe('shared photo-generated pixel avatar', () => {
     for (const copy of ['얼굴 장식', '망토·스카프', '손 소품', '색상 미리보기', 'appearanceFromPhoto']) {
       expect(avatar).not.toContain(copy)
     }
+  })
+
+  it('imports both files locally without the former API or a ChatGPT connection', () => {
+    const avatar = read('../src/app/components/FaithAvatar.tsx')
+    expect(avatar).toContain('prepareImportedAvatar(spriteFile, backgroundFile)')
+    expect(avatar).toContain('writeGeneratedAvatar(storageScope, result)')
+    expect(avatar).toContain('임시 채팅')
+    expect(avatar).not.toMatch(/fetch\(|PIXEL_AVATAR_ENDPOINT|FormData/)
   })
 })

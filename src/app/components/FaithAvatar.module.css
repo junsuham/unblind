@@ -67,7 +67,7 @@
   background: #c39d78;
   border-top: 5px solid #937253;
 }
-.generatedBackground {
+.customBackground {
   object-fit: cover;
   image-rendering: pixelated;
 }
@@ -119,28 +119,26 @@
   font-weight: 800;
 }
 .customizer { display: grid; gap: 12px; padding: 14px; border-top: 1px solid var(--ub-separator); }
-.fileLabel, .hairField { display: grid; gap: 6px; color: var(--ub-text-primary); font-size: 12px; font-weight: 700; }
-.fileLabel input, .hairField select { box-sizing: border-box; width: 100%; min-width: 0; min-height: 40px; padding: 7px; border: 1px solid var(--ub-separator); border-radius: 9px; background: var(--ub-surface-card-strong); color: var(--ub-text-primary); font: inherit; }
+.guide { display: grid; gap: 8px; padding: 10px; border-radius: 12px; background: var(--ub-surface-muted); }
+.chatLink { justify-self: start; min-height: 32px; display: inline-flex; align-items: center; gap: 5px; color: var(--ub-color-brand); font-size: 13px; font-weight: 800; }
+.fileLabel { display: grid; min-width: 0; gap: 6px; color: var(--ub-text-primary); font-size: 12px; font-weight: 700; }
+.fileLabel span { display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: baseline; }
+.fileLabel small { color: var(--ub-text-secondary); font-size: 10px; font-weight: 600; }
+.fileLabel input { box-sizing: border-box; width: 100%; min-width: 0; min-height: 40px; padding: 7px; border: 1px solid var(--ub-separator); border-radius: 9px; background: var(--ub-surface-card-strong); color: var(--ub-text-primary); font: inherit; }
 .fileLabel input::file-selector-button { margin-right: 8px; padding: 5px 7px; border: 0; border-radius: 5px; background: var(--ub-surface-brand-soft); color: var(--ub-color-brand); font: inherit; }
-.privacyNote, .notice { margin: 0; color: var(--ub-text-secondary); font-size: 12px; line-height: 1.55; overflow-wrap: anywhere; }
+.helpText, .notice { margin: 0; color: var(--ub-text-secondary); font-size: 12px; line-height: 1.55; overflow-wrap: anywhere; }
 .notice { font-weight: 700; }
-.preferences { min-width: 0; font-size: 12px; color: var(--ub-text-secondary); }
-.preferences summary { cursor: pointer; font-weight: 700; }
-.preferences[open] > :not(summary) { margin-top: 9px; }
-.colorGrid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
-.colorField { display: grid; min-width: 0; padding: 5px; border: 1px solid var(--ub-separator); border-radius: 8px; font-size: 11px; }
-.colorField label { display: flex; align-items: center; justify-content: space-between; gap: 2px; }
-.colorField[data-overridden='false'] input { opacity: .6; }
-.colorField input { width: 28px; height: 28px; padding: 0; border: 0; background: transparent; }
-.colorField button { justify-self: start; padding: 3px; color: var(--ub-color-brand); }
-.consent { display: flex; align-items: flex-start; gap: 8px; color: var(--ub-text-primary); font-size: 12px; line-height: 1.5; }
-.consent input { flex: none; width: 16px; height: 16px; margin-top: 2px; accent-color: var(--ub-color-brand); }
-.generateButton, .actions button { min-height: 40px; padding: 8px; border-radius: 11px; font-size: 12px; font-weight: 800; }
-.generateButton { background: var(--ub-color-brand); color: white; }
-.generateButton:disabled, .actions button:disabled { opacity: .45; }
+.notice[data-error='true'] { color: var(--ub-danger-text); }
+.prompts { min-width: 0; color: var(--ub-text-secondary); font-size: 12px; }
+.prompts summary { min-height: 26px; cursor: pointer; font-weight: 750; }
+.prompt { display: grid; gap: 5px; padding: 8px 0; border-top: 1px solid var(--ub-separator); }
+.prompt p { margin: 0; line-height: 1.55; user-select: text; }
+.prompt button { justify-self: start; min-height: 32px; padding: 0 8px; border-radius: 8px; background: var(--ub-surface-brand-soft); color: var(--ub-color-brand); font-size: 11px; font-weight: 750; }
+.importButton, .actions button { min-height: 40px; padding: 8px; border-radius: 11px; font-size: 12px; font-weight: 800; }
+.importButton { background: var(--ub-color-brand); color: white; }
+.importButton:disabled, .actions button:disabled { opacity: .45; }
 .actions { display: flex; flex-wrap: wrap; gap: 8px; }
 .actions button { flex: 1 1 auto; border: 1px solid var(--ub-glass-border); background: var(--ub-surface-brand-soft); color: var(--ub-color-brand); }
-@media (max-width: 350px) { .colorGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (prefers-color-scheme: dark) {
   .scene { background: #5b4338; }
   .scene[data-weather='partly_cloudy'] { background: #415451; }

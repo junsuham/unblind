@@ -70,9 +70,8 @@ await expectResponse('/pray', async (response) => {
 })
 
 await expectResponse('/api/faith-avatar/generate', async (response) => {
-  const body = await response.json()
-  if (!response.ok || body.available !== false || !response.headers.get('cache-control')?.includes('no-store')) {
-    throw new Error('Unauthenticated avatar generation must be unavailable and uncached')
+  if (response.status !== 404) {
+    throw new Error('Avatar imports must not expose the retired photo generation endpoint')
   }
 })
 
