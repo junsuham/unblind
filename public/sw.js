@@ -1,4 +1,4 @@
-const WORKER_VERSION = '67'
+const WORKER_VERSION = '68'
 const CACHE_NAME = `unblind-static-v${WORKER_VERSION}`
 const OUTBOX_DB = 'unblind-offline-outbox-v1'
 const OUTBOX_STORE = 'mutations'
@@ -256,6 +256,7 @@ self.addEventListener('fetch', (event) => {
   }
 
   const isVersionedAsset = url.pathname.startsWith('/_next/static/')
+    || /^\/avatars\/bible-v\d+\/[a-z]+\.webp$/.test(url.pathname)
   const isPwaAsset = PRECACHE_URLS.includes(url.pathname)
   if (!isVersionedAsset && !isPwaAsset) return
 

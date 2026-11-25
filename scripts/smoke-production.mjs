@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs'
+import { readFileSync, readdirSync } from 'node:fs'
 
 const baseUrl = (process.env.SMOKE_BASE_URL ?? 'https://unbd.vercel.app').replace(/\/$/, '')
 const localWorker = readFileSync(new URL('../public/sw.js', import.meta.url), 'utf8')
@@ -71,7 +71,7 @@ await expectResponse('/pray', async (response) => {
 
 await expectResponse('/api/faith-avatar/generate', async (response) => {
   if (response.status !== 404) {
-    throw new Error('Avatar imports must not expose the retired photo generation endpoint')
+    throw new Error('Bible avatars must not expose the retired photo generation endpoint')
   }
 })
 
@@ -133,6 +133,14 @@ for (const path of ['/avatars/faith-player-reference-v2.png', '/prayer/prayer-ro
     }
   })
 }
+
+const bibleSprites = readdirSync(new URL('../public/avatars/bible-v1/', import.meta.url)).filter((file) => file.endsWith('.webp'))
+if (bibleSprites.length !== 20) throw new Error('Bible avatar pack must contain 20 sprites')
+await Promise.all(bibleSprites.map((file) => expectResponse(`/avatars/bible-v1/${file}`, async (response) => {
+  if (!response.ok || response.headers.get('content-type') !== 'image/webp') {
+    throw new Error(`Bible avatar asset is unavailable: ${file}`)
+  }
+})))
 
 await expectResponse('/characters/mbti/istj-daniel.png', async (response) => {
   if (!response.ok || response.headers.get('content-type') !== 'image/png') {

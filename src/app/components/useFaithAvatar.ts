@@ -1,38 +1,38 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { PIXEL_AVATAR_UPDATED_EVENT, readGeneratedAvatar, type GeneratedPixelAvatar } from '@/lib/pixelAvatar'
+import { useCallback, useSyncExternalStore } from 'react'
+import {
+  bibleAvatarStorageKey,
+  PIXEL_AVATAR_UPDATED_EVENT,
+  readBibleAvatarPreset,
+  suggestedBibleAvatar,
+} from '@/lib/pixelAvatar'
 
-export function useFaithAvatar(scope: string) {
-  const [record, setRecord] = useState<{ scope: string; avatar: GeneratedPixelAvatar | null } | null>(null)
+const getServerSnapshot = () => undefined
 
-  useEffect(() => {
-    let active = true
-    let readVersion = 0
-    function sync() {
-      const version = ++readVersion
-      void readGeneratedAvatar(scope).catch(() => null).then((avatar) => {
-        if (active && version === readVersion) setRecord({ scope, avatar })
-      })
-    }
-    function onUpdate(event: Event) {
+export function useFaithAvatar(scope: string, nickname: string) {
+  const subscribe = useCallback((sync: () => void) => {
+    const onUpdate = (event: Event) => {
       if ((event as CustomEvent<string>).detail === scope) sync()
     }
-    function onVisible() {
+    const onStorage = (event: StorageEvent) => {
+      if (event.key === null || event.key === bibleAvatarStorageKey(scope)) sync()
+    }
+    const onVisible = () => {
       if (document.visibilityState === 'visible') sync()
     }
     window.addEventListener(PIXEL_AVATAR_UPDATED_EVENT, onUpdate)
+    window.addEventListener('storage', onStorage)
     window.addEventListener('pageshow', sync)
     document.addEventListener('visibilitychange', onVisible)
-    sync()
     return () => {
-      active = false
       window.removeEventListener(PIXEL_AVATAR_UPDATED_EVENT, onUpdate)
+      window.removeEventListener('storage', onStorage)
       window.removeEventListener('pageshow', sync)
       document.removeEventListener('visibilitychange', onVisible)
     }
   }, [scope])
-
-  const ready = record?.scope === scope
-  return { ready, avatar: ready ? record.avatar : null }
+  const getSnapshot = useCallback(() => readBibleAvatarPreset(scope), [scope])
+  const saved = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot)
+  return { ready: saved !== undefined, avatar: saved ?? suggestedBibleAvatar(nickname) }
 }

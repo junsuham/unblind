@@ -21,7 +21,7 @@ export function PrayerRoomScene({
   storageScope: string
   characterName: string
 }) {
-  const { ready, avatar } = useFaithAvatar(storageScope)
+  const { ready, avatar } = useFaithAvatar(storageScope, characterName)
   const [position, setPosition] = useState<Position>(START)
 
   function moveTo(event: MouseEvent<HTMLButtonElement>) {
@@ -53,7 +53,7 @@ export function PrayerRoomScene({
         <button type="button" className={styles.walkArea} onClick={moveTo} aria-label="기도실에서 이동할 위치 선택" />
         {ready && (
           <div className={styles.avatar} style={{ left: `${position.x}%`, top: `${position.y}%` }}>
-            <FaithAvatarSprite avatar={avatar} name={characterName} size={96} className={styles.sprite} />
+            <FaithAvatarSprite avatar={avatar} name={characterName} size={72} className={styles.sprite} />
             <span className={styles.nameTag}>{characterName}</span>
           </div>
         )}

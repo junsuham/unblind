@@ -40,12 +40,11 @@
   filter: drop-shadow(0 5px 0 rgba(36, 24, 19, .36));
 }
 .sprite {
-  width: 96px;
-  height: 96px;
+  width: 72px;
+  height: 72px;
   object-fit: contain;
   image-rendering: pixelated;
 }
-.sprite[data-generated='true'] { width: 72px; height: 72px; }
 .nameTag {
   max-width: 112px;
   overflow: hidden;
