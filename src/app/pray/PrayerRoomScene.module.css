@@ -18,7 +18,7 @@
 
 .viewport {
   --room-scale: 1;
-  --room-pan: -740px;
+  --room-pan: -1850px;
   position: relative;
   width: 100%;
   height: clamp(296px, 52svh, 520px);
@@ -26,6 +26,8 @@
   isolation: isolate;
   background: #573e42;
   touch-action: pan-y;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 .viewport:focus-visible {
@@ -44,26 +46,53 @@
 .landscape {
   position: absolute;
   inset: 0;
-  background:
-    linear-gradient(180deg, transparent 23%, #34223227 56%, #2f202c46),
-    url('/prayer/golgotha-ascent-v1.webp') center / 100% 100% no-repeat,
-    linear-gradient(180deg, #ac7d94 4%, #ffa563 19%, #864e40 38%, #352734 100%);
+  z-index: 0;
+  background: linear-gradient(180deg, #ac7d94, #864e40 35%, #352734);
   image-rendering: pixelated;
 }
+
+.summitScenery, .ridgeScenery, .baseScenery { position: absolute; inset-inline: 0; }
+
+.summitScenery {
+  inset-block: 0 auto;
+  height: 945px;
+  z-index: 2;
+  background: url('/prayer/golgotha-ascent-v1.webp') center top / 100% 100% no-repeat;
+  mask-image: linear-gradient(#000 71%, transparent);
+}
+
+.ridgeScenery {
+  inset-block: 630px auto;
+  height: 1055px;
+  z-index: 1;
+  background:
+    linear-gradient(180deg, #d77c5d0d, #40234448),
+    url('/prayer/golgotha-ascent-v1.webp') center bottom / 100% 171% no-repeat;
+  mask-image: linear-gradient(#000 79%, transparent);
+}
+
+.baseScenery {
+  inset-block: 1430px 0;
+  background:
+    linear-gradient(180deg, #38264a16, #1e182b72),
+    url('/prayer/golgotha-ascent-v1.webp') center bottom / 100% 195% no-repeat;
+}
+
+.terrainPiece { position: absolute; z-index: 2; height: 0; }
 
 .ledge {
   --stone-top: #f7c77c;
   --stone-face: #a96540;
   position: absolute;
-  z-index: 2;
-  height: 20px;
+  inset: 0 0 auto;
+  height: 23px;
   border-top: 3px solid var(--stone-top);
-  border-bottom: 3px solid #5c3a39;
+  border-bottom: 3px solid #513238;
   background:
-    repeating-linear-gradient(90deg, transparent 0 14px, #603c333e 14px 16px, #ffd29538 16px 20px, transparent 20px 29px),
-    linear-gradient(180deg, #f9c68852, transparent 30%, #53323665 95%),
+    repeating-linear-gradient(125deg, transparent 0 15px, #603c333e 15px 17px, #ffd29538 17px 20px, transparent 20px 29px),
+    linear-gradient(180deg, #f9c68852 0 22%, transparent 22% 74%, #53323665 74%),
     var(--stone-face);
-  clip-path: polygon(0 0, 100% 0, 100% 42%, calc(100% - 4px) 42%, calc(100% - 4px) 70%, calc(100% - 9px) 70%, calc(100% - 9px) 100%, 8px 100%, 8px 76%, 4px 76%, 4px 50%, 0 50%);
+  clip-path: polygon(0 0, 100% 0, 100% 47%, calc(100% - 4px) 47%, calc(100% - 4px) 72%, calc(100% - 11px) 72%, calc(100% - 11px) 100%, 10px 100%, 10px 76%, 4px 76%, 4px 47%, 0 47%);
 }
 
 .ledge[data-ground] {
@@ -71,22 +100,29 @@
   clip-path: none;
 }
 
-.ledge[data-summit] {
+.ledge[data-checkpoint] {
   --stone-top: #ffdf9a;
   --stone-face: #c7804e;
+}
+
+.ledge[data-summit] {
   height: 24px;
 }
 
-.ladder {
+.pew {
   position: absolute;
-  z-index: 1;
-  width: 20px;
+  left: 66%;
+  bottom: -1px;
+  width: 61px;
+  height: 36px;
   transform: translateX(-50%);
-  border-inline: 3px solid #b67b52;
-  background:
-    repeating-linear-gradient(180deg, transparent 0 7px, #deb080 7px 9px, #794a34 9px 10px, transparent 10px 12px);
-  box-shadow: 1px 0 #4e2c29, -1px 0 #4e2c29, inset 1px 0 #55332c, inset -1px 0 #55332c;
+  background: url('/prayer/pew-pixel-v1.webp') center bottom / contain no-repeat;
+  image-rendering: pixelated;
+  filter: drop-shadow(1px 2px #231321a0);
 }
+
+.terrainPiece:nth-of-type(2n) .pew { left: 34%; }
+.pew[data-rest-level='20'] { left: 34%; }
 
 .summitChapel {
   position: absolute;
@@ -147,6 +183,23 @@
   animation: step .26s steps(2, jump-none) infinite;
 }
 
+.player[data-praying='true'] .sprite {
+  transform: scaleX(var(--facing, 1)) rotate(10deg) scaleY(.82);
+  transform-origin: center bottom;
+  animation: none;
+}
+
+.poseMark {
+  position: absolute;
+  right: 1px;
+  bottom: 12px;
+  display: none;
+  filter: drop-shadow(0 0 4px #ffc563b0);
+}
+
+.player[data-praying='true'] .poseMark, .chapelAvatar[data-praying='true'] .poseMark { display: block; }
+.player[data-facing='left'] .poseMark { right: auto; left: 1px; }
+
 @keyframes step {
   0%, 100% { transform: translateY(0) scaleX(var(--facing, 1)); }
   50% { transform: translateY(-2.5px) scaleX(var(--facing, 1)); }
@@ -200,7 +253,9 @@
 }
 
 .hudTitle { left: 9px; }
-.steps { right: 9px; font-variant-numeric: tabular-nums; }
+.steps { right: 9px; min-width: 62px; text-align: center; font-variant-numeric: tabular-nums; }
+.progress { display: block; height: 3px; margin-top: 4px; overflow: hidden; background: #ffffff37; border-radius: 100px; }
+.progress span { display: block; height: 100%; background: #ffc48c; }
 .summitButton {
   inset: 54px 12px auto auto;
   min-height: 44px;
@@ -217,6 +272,13 @@
   gap: 10px;
   padding: 8px 12px;
   background: linear-gradient(180deg, #3b2624, #2c1e20);
+}
+
+.controls, .controls * {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-user-drag: none;
 }
 
 .pad {
@@ -261,18 +323,15 @@
 
 .jump {
   display: grid;
-  align-content: center;
-  justify-items: center;
-  gap: 2px;
+  place-items: center;
   width: 68px;
   height: 68px;
   flex: 0 0 auto;
   border-radius: 50%;
   background: linear-gradient(#f6bc7e, #c8774b);
   color: #412027;
-  font-size: 11px;
 }
-.jump span { font-size: 24px; line-height: 1; }
+.jump svg { pointer-events: none; }
 .jump:active { background: #ffdaaa; transform: scale(.94); }
 .jump:focus-visible, .controls button:focus-visible, .chapelView button:focus-visible {
   outline: 2px solid #fff2cb;
@@ -309,18 +368,7 @@
   font-weight: 850;
 }
 
-.hint { margin: 0; padding: 10px 12px 0; color: var(--ub-text-secondary); font-size: 12px; line-height: 1.5; }
-.chapelShortcut {
-  display: flex;
-  min-width: 0;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  padding: 3px 12px;
-  color: var(--ub-text-secondary);
-  font-size: 11px;
-}
-.chapelShortcut button { min-height: 44px; color: var(--ub-color-brand); text-align: end; font-size: 12px; font-weight: 800; }
+.hint { margin: 0; padding: 10px 12px; color: var(--ub-text-secondary); font-size: 12px; line-height: 1.5; }
 
 @media (max-width: 350px) {
   .controlCenter { gap: 3px; }

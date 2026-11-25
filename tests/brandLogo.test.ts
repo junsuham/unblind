@@ -117,7 +117,7 @@ describe('relief brand logo set', () => {
   })
 
   it('uses each composition in the context where it remains legible', () => {
-    expect(shellSource).toContain('/brand/unblind-monogram-relief-v5.png')
+    expect(shellSource).toContain('/brand/unblind-monogram-flat-v7.png')
     expect(shellSource).toContain('/brand/unblind-wordmark-relief-v5.png')
     expect(webLoginSource).toContain('/brand/unblind-wordmark-relief-v5.png')
     expect(mobileLoginSource).toContain('unblind-wordmark-relief-v5.png')

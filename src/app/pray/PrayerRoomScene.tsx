@@ -2,22 +2,22 @@
 
 import Image from 'next/image'
 import { useEffect, useRef, useState } from 'react'
-import type { KeyboardEvent, PointerEvent } from 'react'
+import type { DragEvent, KeyboardEvent, MouseEvent, PointerEvent, TouchEvent } from 'react'
 import { FaithAvatarSprite } from '@/app/components/FaithAvatarSprite'
 import { PrayerRoomChat, usePrayerRoomLive } from '@/app/components/PrayerRoomLive'
 import { useFaithAvatar } from '@/app/components/useFaithAvatar'
 import { bibleAvatarPresets, suggestedBibleAvatar } from '@/lib/pixelAvatar'
 import {
-  prayerCameraY, prayerLadders, prayerPlatforms, prayerSummitLevel,
+  prayerCameraY, prayerPlatforms, prayerSummitLevel,
   prayerWorldHeight, prayerWorldWidth, startPrayerAscent, stepPrayerAscent,
   type PrayerMove,
 } from '@/lib/prayerParkour'
 import styles from './PrayerRoomScene.module.css'
 
 const arrows = [
-  { move: 'up', glyph: '▲', label: '위로 이동' },
+  { move: 'up', glyph: '▲', label: '위로 뛰기' },
   { move: 'left', glyph: '◀', label: '왼쪽으로 이동' },
-  { move: 'down', glyph: '▼', label: '아래로 이동' },
+  { move: 'down', glyph: '▼', label: '기도 자세' },
   { move: 'right', glyph: '▶', label: '오른쪽으로 이동' },
 ] as const
 const keyboardMoves: Readonly<Record<string, PrayerMove | undefined>> = {
@@ -25,6 +25,25 @@ const keyboardMoves: Readonly<Record<string, PrayerMove | undefined>> = {
   ArrowUp: 'up', KeyW: 'up', ArrowDown: 'down', KeyS: 'down', Space: 'jump',
 }
 const avatars = new Map(bibleAvatarPresets.map((item) => [item.id, item]))
+
+function PrayerPoseMark() {
+  return (
+    <svg className={styles.poseMark} width="23" height="24" viewBox="0 0 23 24" shapeRendering="crispEdges" aria-hidden="true">
+      <path fill="#57312d" d="M2 15h3v-4h3V7h2V3h4v4h2v4h3v4h2v4h-4v3H7v-3H2z" />
+      <path fill="#ffe1a3" d="M4 16h3v-5h3V7h1V4h2v3h1v4h3v5h3v2h-4v3H8v-3H4z" />
+      <path fill="#cc8c57" d="M11 7h1v10h4v3H9v-5h2z" />
+      <path fill="#fff7d6" d="M0 6h2V4h1v2h2v1H3v2H2V7H0zm18-3h2V1h1v2h2v1h-2v2h-1V4h-2z" />
+    </svg>
+  )
+}
+
+function JumpPictogram() {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 28 28" width="31" height="31" fill="currentColor">
+      <path d="M13 3h2l8 8-3 3-4-4v11h-4V10l-4 4-3-3zM6 23h16v2H6z" />
+    </svg>
+  )
+}
 
 export function PrayerRoomScene({
   storageScope, characterName,
@@ -37,7 +56,7 @@ export function PrayerRoomScene({
   const { updatePosition } = live
   const [bestLevel, setBestLevel] = useState(0)
   const [inChapel, setInChapel] = useState(false)
-  const [praying, setPraying] = useState(false)
+  const [chapelPraying, setChapelPraying] = useState(false)
   const [helpOpen, setHelpOpen] = useState(false)
   const viewportRef = useRef<HTMLDivElement>(null)
   const spriteRef = useRef<HTMLDivElement>(null)
@@ -46,6 +65,8 @@ export function PrayerRoomScene({
   const best = useRef(0)
   const keys = useRef(new Map<string, PrayerMove>())
   const queuedJump = useRef(false)
+  const queuedPrayer = useRef(false)
+  const swipeStart = useRef<{ x: number; y: number } | null>(null)
   const timers = useRef(new Set<number>())
 
   useEffect(() => {
@@ -86,11 +107,13 @@ export function PrayerRoomScene({
       if (!inChapel) {
         const jump = queuedJump.current
         queuedJump.current = false
+        if (queuedPrayer.current) movement.add('down')
         if (movement.size || jump || player.current.platform === null) {
           player.current = stepPrayerAscent(player.current, movement, jump, dt)
+          if (player.current.platform !== null) queuedPrayer.current = false
         }
       }
-      const { x, y, facing, platform, climbing } = player.current
+      const { x, y, facing, platform, isPraying } = player.current
       const idealCamera = prayerCameraY(y, height)
       if (Math.abs(camera - idealCamera) > .3) {
         camera += (idealCamera - camera) * Math.min(1, dt * 12)
@@ -101,7 +124,8 @@ export function PrayerRoomScene({
         sprite.style.left = `${x}px`
         sprite.style.top = `${y}px`
         sprite.dataset.facing = facing
-        sprite.dataset.moving = String(climbing || platform === null || movement.has('left') || movement.has('right'))
+        sprite.dataset.moving = String(platform === null || movement.has('left') || movement.has('right'))
+        sprite.dataset.praying = String(isPraying)
       }
       if (platform !== null && platform > best.current) {
         best.current = platform
@@ -109,7 +133,7 @@ export function PrayerRoomScene({
       }
       if (ready && now - lastSent > 250) {
         lastSent = now
-        updatePosition({ x, y, facing, avatarId: avatar.id })
+        updatePosition({ x, y, facing, avatarId: avatar.id, isPraying: inChapel ? chapelPraying : isPraying })
       }
       frame = window.requestAnimationFrame(render)
     }
@@ -117,6 +141,7 @@ export function PrayerRoomScene({
     function release() {
       inputs.clear()
       queuedJump.current = false
+      queuedPrayer.current = false
     }
 
     resize()
@@ -134,12 +159,34 @@ export function PrayerRoomScene({
       pendingTimers.clear()
       release()
     }
-  }, [avatar.id, inChapel, ready, updatePosition])
+  }, [avatar.id, chapelPraying, inChapel, ready, updatePosition])
 
   function beginMove(id: string, move: PrayerMove) {
     if (inChapel) return
-    if (move === 'jump' && !keys.current.has(id)) queuedJump.current = true
+    if (move === 'down') queuedPrayer.current = true
+    else {
+      queuedPrayer.current = false
+      if ((move === 'jump' || move === 'up') && !keys.current.has(id)) queuedJump.current = true
+    }
     keys.current.set(id, move)
+  }
+
+  function stageTouchStart(event: TouchEvent<HTMLDivElement>) {
+    const target = event.target as HTMLElement
+    const touch = event.touches[0]
+    swipeStart.current = !inChapel && event.touches.length === 1 && touch && !target.closest('button')
+      ? { x: touch.clientX, y: touch.clientY } : null
+  }
+
+  function stageTouchMove(event: TouchEvent<HTMLDivElement>) {
+    const start = swipeStart.current
+    const touch = event.touches[0]
+    if (!start || !touch || event.touches.length !== 1) return
+    const down = start.y - touch.clientY
+    if (down >= 22 && down > Math.abs(start.x - touch.clientX)) {
+      queuedPrayer.current = true
+      swipeStart.current = null
+    }
   }
 
   function keyboardDown(event: KeyboardEvent<HTMLDivElement>) {
@@ -159,8 +206,12 @@ export function PrayerRoomScene({
       keys.current.delete(`pointer:${event.pointerId}`)
     }
     return {
+      draggable: false,
+      onDragStart(event: DragEvent<HTMLButtonElement>) { event.preventDefault() },
+      onContextMenu(event: MouseEvent<HTMLButtonElement>) { event.preventDefault() },
       onPointerDown(event: PointerEvent<HTMLButtonElement>) {
         if (event.pointerType === 'mouse' && event.button !== 0) return
+        if (event.pointerType !== 'mouse') event.preventDefault()
         event.currentTarget.setPointerCapture(event.pointerId)
         beginMove(`pointer:${event.pointerId}`, move)
       },
@@ -183,6 +234,8 @@ export function PrayerRoomScene({
   function resetAscent() {
     player.current = startPrayerAscent()
     keys.current.clear()
+    queuedJump.current = false
+    queuedPrayer.current = false
     best.current = 0
     setBestLevel(0)
   }
@@ -213,31 +266,33 @@ export function PrayerRoomScene({
             aria-describedby={helpOpen ? 'prayer-motion-help' : undefined}
             tabIndex={inChapel ? -1 : 0}
             data-level={bestLevel}
+            onWheel={(event) => { if (!inChapel && !event.ctrlKey && event.deltaY > 1) queuedPrayer.current = true }}
+            onTouchStart={stageTouchStart}
+            onTouchMove={stageTouchMove}
+            onTouchEnd={() => { swipeStart.current = null }}
+            onTouchCancel={() => { swipeStart.current = null }}
           >
             <div className={styles.world} style={{ width: prayerWorldWidth, height: prayerWorldHeight }} inert={inChapel}>
-              <div className={styles.landscape} aria-hidden="true" />
+              <div className={styles.landscape} aria-hidden="true">
+                <div className={styles.summitScenery} />
+                <div className={styles.ridgeScenery} />
+                <div className={styles.baseScenery} />
+              </div>
               <div className={styles.summitChapel} style={{ left: 257, top: prayerPlatforms[prayerSummitLevel].y - 60 }} aria-hidden="true">
                 <div className={styles.chapelRoof} />
                 <div className={styles.chapelCross} />
                 <div className={styles.chapelDoor} />
               </div>
-              {prayerLadders.map(({ x, top, bottom }) => (
-                <div
-                  key={top}
-                  className={styles.ladder}
-                  style={{ left: x, top: prayerPlatforms[top].y - 4, height: prayerPlatforms[bottom].y - prayerPlatforms[top].y + 6 }}
-                  aria-hidden="true"
-                />
-              ))}
               {prayerPlatforms.map(({ x, y, width }, level) => (
-                <div
-                  key={level}
-                  className={styles.ledge}
-                  data-ground={level === 0 || undefined}
-                  data-summit={level === prayerSummitLevel || undefined}
-                  style={{ left: x, top: y, width }}
-                  aria-hidden="true"
-                />
+                <div key={level} className={styles.terrainPiece} aria-hidden="true" style={{ left: x, top: y, width }}>
+                  {level > 0 && <div className={styles.pew} data-rest-level={level} />}
+                  <div
+                    className={styles.ledge}
+                    data-ground={level === 0 || undefined}
+                    data-summit={level === prayerSummitLevel || undefined}
+                    data-checkpoint={level > 0 && level % 5 === 0 || undefined}
+                  />
+                </div>
               ))}
               {!inChapel && live.peers.map((peer) => (
                 <div
@@ -245,16 +300,19 @@ export function PrayerRoomScene({
                   className={`${styles.player} ${styles.peer}`}
                   style={{ left: peer.x, top: peer.y }}
                   data-facing={peer.facing}
+                  data-praying={peer.isPraying === true}
                   title={peer.nickname}
                 >
                   <span className={styles.nameTag}>{peer.nickname}</span>
                   <FaithAvatarSprite avatar={avatars.get(peer.avatarId) ?? suggestedBibleAvatar(peer.nickname)} name={peer.nickname} size={60} className={styles.sprite} />
+                  <PrayerPoseMark />
                 </div>
               ))}
               {ready && (
                 <div ref={spriteRef} className={styles.player} style={{ left: initialPlayer.x, top: initialPlayer.y }}>
                   <span className={styles.nameTag}>{characterName}</span>
                   <FaithAvatarSprite avatar={avatar} name={characterName} size={67} className={styles.sprite} />
+                  <PrayerPoseMark />
                 </div>
               )}
             </div>
@@ -269,21 +327,25 @@ export function PrayerRoomScene({
                   className={styles.chapelBackground}
                 />
                 <span className={styles.hudTitle}>기도하는 예배당</span>
-                <button type="button" ref={chapelClose} className={styles.backToHill} onClick={() => { setInChapel(false); setPraying(false); viewportRef.current?.focus({ preventScroll: true }) }}>
+                <button type="button" ref={chapelClose} className={styles.backToHill} onClick={() => { setInChapel(false); setChapelPraying(false); viewportRef.current?.focus({ preventScroll: true }) }}>
                   언덕으로 돌아가기
                 </button>
-                <div className={styles.chapelAvatar} data-praying={praying}>
+                <div className={styles.chapelAvatar} data-praying={chapelPraying}>
                   <span className={styles.nameTag}>{characterName}</span>
                   <FaithAvatarSprite avatar={avatar} name={characterName} size={96} className={styles.sprite} />
+                  <PrayerPoseMark />
                 </div>
-                <button type="button" className={styles.chapelAction} aria-pressed={praying} onClick={() => setPraying((value) => !value)}>
-                  <span aria-hidden="true">🙏 </span>{praying ? '묵상 마치기' : '조용히 기도하기'}
+                <button type="button" className={styles.chapelAction} aria-pressed={chapelPraying} onClick={() => setChapelPraying((value) => !value)}>
+                  <span aria-hidden="true">🙏 </span>{chapelPraying ? '묵상 마치기' : '조용히 기도하기'}
                 </button>
               </div>
             ) : (
               <div className={styles.hud}>
-                <span className={styles.hudTitle}><span aria-hidden="true">🍁 </span>골고다 언덕</span>
-                <span className={styles.steps} aria-label={`제일 높이 도달한 단계 ${bestLevel} / ${prayerSummitLevel}`}>{bestLevel} / {prayerSummitLevel}</span>
+                <span className={styles.hudTitle}>골고다 언덕</span>
+                <span className={styles.steps} aria-label={`제일 높이 도달한 단계 ${bestLevel} / ${prayerSummitLevel}`}>
+                  {bestLevel} / {prayerSummitLevel}
+                  <span className={styles.progress} aria-hidden="true"><span style={{ inlineSize: `${bestLevel / prayerSummitLevel * 100}%` }} /></span>
+                </span>
                 {bestLevel === prayerSummitLevel && (
                   <button type="button" className={styles.summitButton} onClick={() => setInChapel(true)}>예배당 입장</button>
                 )}
@@ -303,22 +365,16 @@ export function PrayerRoomScene({
                 <button type="button" className={styles.iconButton} aria-label="언덕 시작점으로" onClick={resetAscent}>↺</button>
               </div>
               <button type="button" className={styles.jump} aria-label="점프" {...buttonControls('jump')}>
-                <span aria-hidden="true">↑</span>점프
+                <JumpPictogram />
               </button>
             </div>
           )}
         </div>
         {helpOpen && !inChapel && (
           <p id="prayer-motion-help" className={styles.hint}>
-            왼쪽·오른쪽으로 움직이고 점프로 다음 발판에 올라요. 사다리에서는 위·아래로 이동할 수 있어요.
+            왼쪽·오른쪽으로 움직이고 점프로 다음 발판에 올라요. 언덕 화면을 아래로 스크롤하거나 아래 화살표를 누르면 기도 자세가 돼요.
             키보드는 방향키와 스페이스바를 사용하세요.
           </p>
-        )}
-        {!inChapel && (
-          <div className={styles.chapelShortcut}>
-            <span>{bestLevel === prayerSummitLevel ? '정상에 도착했어요.' : '오르지 않고도 기도할 수 있어요.'}</span>
-            <button type="button" onClick={() => setInChapel(true)}>예배당 바로 가기</button>
-          </div>
         )}
       </section>
       <PrayerRoomChat live={live} />

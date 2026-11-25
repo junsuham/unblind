@@ -3,96 +3,129 @@
 import Link from 'next/link'
 import { useCallback, useEffect, useId, useRef, useState, type FormEvent } from 'react'
 import {
-  parsePrayerRoomMessage, prayerRoomMessageLimit, type PrayerRoomPosition, type PrayerRoomSnapshot,
+  parsePrayerRoomMessage, prayerRoomLiveVersion, prayerRoomMessageLimit, type PrayerRoomPosition, type PrayerRoomSnapshot,
 } from '@/lib/prayerRoomLive'
 import styles from './PrayerRoomLive.module.css'
 
 const emptyRoom: PrayerRoomSnapshot = { peers: [], messages: [], chatSent: false }
 const exchangeUrl = '/api/prayer-room/live'
+const pollInterval = 3200
+type ExchangeResult = { response: Response; data: PrayerRoomSnapshot & { error?: string } }
 
 export function usePrayerRoomLive() {
-  const [joined, setJoined] = useState(false)
+  const [joined, setJoined] = useState(true)
   const [snapshot, setSnapshot] = useState(emptyRoom)
   const [status, setStatus] = useState<'connecting' | 'ready' | 'retry' | 'unavailable'>('connecting')
   const position = useRef<PrayerRoomPosition | null>(null)
   const active = useRef(false)
-  const busy = useRef<Promise<PrayerRoomSnapshot> | null>(null)
+  const visit = useRef<string | null>(null)
+  const busy = useRef<{ visitId: string; pending: Promise<ExchangeResult> } | null>(null)
+  const retryAt = useRef(0)
 
-  const updatePosition = useCallback((value: PrayerRoomPosition) => { position.current = value }, [])
   const exchange = useCallback(async (chat?: string) => {
-    if (!active.current || !position.current) return false
-    if (busy.current) {
+    if (!active.current || !position.current || document.visibilityState !== 'visible' || Date.now() < retryAt.current) return false
+    const visitId = visit.current ?? crypto.randomUUID()
+    visit.current = visitId
+    if (busy.current?.visitId === visitId) {
       if (!chat) return false
-      await busy.current.catch(() => undefined)
+      await busy.current.pending.catch(() => undefined)
     }
-    if (!active.current || busy.current) return false
+    if (!active.current || visit.current !== visitId || busy.current?.visitId === visitId || Date.now() < retryAt.current) return false
     const current = fetch(exchangeUrl, {
       method: 'POST',
       cache: 'no-store',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ position: position.current, ...(chat ? { chat } : {}) }),
+      body: JSON.stringify({ roomVersion: prayerRoomLiveVersion, visitId, position: position.current, ...(chat ? { chat } : {}) }),
       signal: AbortSignal.timeout(7000),
-    }).then(async (response) => {
-      const data = await response.json()
+    }).then(async (response): Promise<ExchangeResult> => ({
+      response,
+      data: await response.json(),
+    }))
+    busy.current = { visitId, pending: current }
+    try {
+      const { response, data } = await current
+      if (!active.current || visit.current !== visitId) return false
       if (!response.ok) {
-        if (response.status === 401 || response.status === 403) setStatus('unavailable')
+        if (response.status === 401 || response.status === 403) {
+          setStatus('unavailable')
+          retryAt.current = Infinity
+        } else {
+          const retryAfter = Number(response.headers.get('Retry-After'))
+          if (retryAfter > 0) retryAt.current = Date.now() + retryAfter * 1000
+        }
         throw new Error(data.error ?? '기도의 방 연결을 다시 시도하고 있어요.')
       }
-      return data as PrayerRoomSnapshot
-    })
-    busy.current = current
-    try {
-      const newRoom = await current
-      if (!active.current) return false
-      setSnapshot(newRoom)
+      setSnapshot(data)
       setStatus('ready')
-      if (chat && !newRoom.chatSent) throw new Error('채팅은 4초에 한 번 보낼 수 있어요.')
+      if (chat && !data.chatSent) throw new Error('채팅은 4초에 한 번 보낼 수 있어요.')
       return Boolean(chat)
     } catch (error) {
       if (chat) throw error
-      if (active.current) setStatus((value) => value === 'unavailable' ? value : 'retry')
+      if (active.current && visit.current === visitId) setStatus((value) => value === 'unavailable' ? value : 'retry')
       return false
     } finally {
-      if (busy.current === current) busy.current = null
+      if (busy.current?.pending === current) busy.current = null
     }
   }, [])
 
+  const updatePosition = useCallback((value: PrayerRoomPosition) => {
+    position.current = value
+    if (!visit.current && active.current && document.visibilityState === 'visible') void exchange()
+  }, [exchange])
+
+  const clearPresence = useCallback(() => {
+    active.current = false
+    const visitId = visit.current
+    visit.current = null
+    if (!visitId) return
+    const sendLeave = () => {
+      void fetch(exchangeUrl, {
+        method: 'POST',
+        keepalive: true,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ roomVersion: prayerRoomLiveVersion, visitId, leave: true }),
+      }).catch(() => undefined)
+    }
+    const pending = busy.current
+    if (pending?.visitId === visitId) void pending.pending.then(sendLeave, sendLeave)
+    else sendLeave()
+  }, [])
+
   const enter = useCallback(() => {
-    active.current = true
+    retryAt.current = 0
     setStatus('connecting')
     setJoined(true)
   }, [])
 
   const leave = useCallback(() => {
-    active.current = false
+    clearPresence()
     setJoined(false)
     setSnapshot(emptyRoom)
-    const sendLeave = () => {
-      if (active.current) return
-      void fetch(exchangeUrl, {
-        method: 'POST',
-        keepalive: true,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ leave: true }),
-      }).catch(() => undefined)
-    }
-    if (busy.current) void busy.current.then(sendLeave, sendLeave)
-    else sendLeave()
-  }, [])
+  }, [clearPresence])
 
   useEffect(() => {
     if (!joined) return
+    active.current = true
     const poll = () => {
       if (document.visibilityState === 'visible') void exchange()
     }
+    const restore = () => {
+      active.current = true
+      poll()
+    }
     poll()
-    const timer = window.setInterval(poll, 3200)
+    const timer = window.setInterval(poll, pollInterval)
     document.addEventListener('visibilitychange', poll)
+    window.addEventListener('pageshow', restore)
+    window.addEventListener('pagehide', clearPresence)
     return () => {
       window.clearInterval(timer)
       document.removeEventListener('visibilitychange', poll)
+      window.removeEventListener('pageshow', restore)
+      window.removeEventListener('pagehide', clearPresence)
+      clearPresence()
     }
-  }, [joined, exchange])
+  }, [joined, exchange, clearPresence])
 
   return { joined, status, peers: snapshot.peers, messages: snapshot.messages, updatePosition, enter, leave, send: exchange }
 }
@@ -112,10 +145,10 @@ export function PrayerRoomChat({ live }: { live: ReturnType<typeof usePrayerRoom
 
   if (!live.joined) {
     return (
-      <section aria-label="함께 입장" className={styles.lobby}>
+      <section aria-label="기도의 방 혼자 하기" className={styles.lobby}>
         <div>
-          <strong>함께 오르기</strong>
-          <p>입장하면 같은 방의 회원에게 앱 닉네임과 캐릭터가 보입니다.</p>
+          <strong>혼자 오르는 중</strong>
+          <p>함께 입장하면 같은 방의 회원에게 닉네임과 캐릭터가 보여요.</p>
         </div>
         <button type="button" onClick={() => { setNotice(''); live.enter() }}>함께 입장</button>
       </section>
@@ -148,8 +181,11 @@ export function PrayerRoomChat({ live }: { live: ReturnType<typeof usePrayerRoom
   return (
     <section aria-label="기도의 방 채팅" className={styles.chat}>
       <div className={styles.toolbar}>
-        <strong>{connection}</strong>
-        <button type="button" onClick={() => { setDraft(''); setNotice(''); live.leave() }}>나가기</button>
+        <div>
+          <strong>채팅 <span className={styles.connection} role="status">{connection}</span></strong>
+          <p className={styles.privacy}>이 방의 회원에게 닉네임과 캐릭터가 보여요.</p>
+        </div>
+        <button type="button" onClick={() => { setDraft(''); setNotice(''); live.leave() }}>혼자 하기</button>
       </div>
       <ul
         ref={thread}

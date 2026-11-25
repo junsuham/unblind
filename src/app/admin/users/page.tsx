@@ -3,7 +3,11 @@ import { isAdminUser } from '@/lib/adminRole'
 import { listAllAuthUsers } from '@/lib/adminUsers'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
 import { createServerSupabase } from '@/lib/supabaseServer'
-import { CHURCH_DASHBOARD_TARGET_PLACE_ID } from '@/lib/churchDashboardScope'
+import {
+  CHURCH_DASHBOARD_TARGET_PLACE_ID,
+  getChurchDashboardGrantBlocker,
+  type ChurchDashboardGrantBlocker,
+} from '@/lib/churchDashboardScope'
 import { occupationLabels, type Occupation } from '@/lib/profile'
 import AddAllowedUserForm from './AddAllowedUserForm'
 import AdminUserActionButtons from './AdminUserActionButtons'
@@ -71,6 +75,8 @@ type ManagedUserRow = {
   churchInfoConsentAt: string | null
   occupation: Occupation | null
   dashboardGrantedDepartment: string | null | undefined
+  dashboardDepartmentVerified: boolean
+  dashboardGrantBlocker: ChurchDashboardGrantBlocker | null
 }
 
 function formatDate(value: string | null) {
@@ -240,13 +246,14 @@ function UserRows({
               memo={user.memo}
               profileComplete={user.profileComplete}
             />
-            {user.userId && user.churchName && user.churchPlaceId === CHURCH_DASHBOARD_TARGET_PLACE_ID && (user.status === 'active' || user.dashboardGrantedDepartment !== undefined) && (
+            {user.userId && (user.churchPlaceId === CHURCH_DASHBOARD_TARGET_PLACE_ID || user.dashboardGrantedDepartment !== undefined) && (
               canManageDashboardAccess ? (
                 <DashboardAccessControl
-                  key={`${user.userId}-${user.dashboardGrantedDepartment === undefined ? 'none' : (user.dashboardGrantedDepartment ?? 'church')}`}
+                  key={`${user.userId}-${user.dashboardGrantedDepartment ?? 'none'}-${user.dashboardDepartmentVerified}`}
                   userId={user.userId}
-                  churchName={user.churchName}
                   grantedDepartment={user.dashboardGrantedDepartment}
+                  departmentVerified={user.dashboardDepartmentVerified}
+                  blocker={user.dashboardGrantBlocker}
                 />
               ) : (
                 <p className="mt-4 rounded-[14px] bg-[var(--ub-surface-muted)] px-3 py-3 text-[12px] text-[var(--ub-text-secondary)]">
@@ -276,7 +283,7 @@ export default async function AdminUsersPage() {
 
   const authSupabase = await createServerSupabase()
   const { data: { user: currentUser } } = await authSupabase.auth.getUser()
-  const canManageDashboardAccess = await isAdminUser(currentUser)
+  const canManageDashboardAccess = currentUser?.app_metadata?.provider === 'google' && await isAdminUser(currentUser)
 
   const [allowedResult, authResult, profileResult, dashboardAccessResult] = await Promise.all([
     supabaseAdmin
@@ -295,9 +302,9 @@ export default async function AdminUsersPage() {
       .returns<ProfileRow[]>(),
     supabaseAdmin
       .from('church_dashboard_access')
-      .select('user_id, department, is_active')
+      .select('user_id, department, is_active, verified_department')
       .eq('is_active', true)
-      .returns<{ user_id: string; department: string | null; is_active: boolean }[]>(),
+      .returns<{ user_id: string; department: string | null; is_active: boolean; verified_department: boolean }[]>(),
   ])
 
   const allowedUsers = allowedResult.data ?? []
@@ -316,7 +323,7 @@ export default async function AdminUsersPage() {
     ])
   )
   const dashboardAccessByUserId = new Map(
-    (dashboardAccessResult.data ?? []).map((role) => [role.user_id, role.department])
+    (dashboardAccessResult.data ?? []).map((role) => [role.user_id, role])
   )
   const emails = new Set([
     ...allowedByEmail.keys(),
@@ -329,6 +336,7 @@ export default async function AdminUsersPage() {
     const authUser = authByEmail.get(email)
     const profile = profilesByEmail.get(email)
     const userId = authUser?.id ?? profile?.user_id ?? null
+    const dashboardRole = userId ? dashboardAccessByUserId.get(userId) : undefined
 
     return {
       userId,
@@ -356,7 +364,19 @@ export default async function AdminUsersPage() {
       churchDepartment: profile?.church_department ?? null,
       churchInfoConsentAt: profile?.church_info_consent_at ?? null,
       occupation: profile?.occupation ?? null,
-      dashboardGrantedDepartment: userId ? dashboardAccessByUserId.get(userId) : undefined,
+      dashboardGrantedDepartment: dashboardRole?.department,
+      dashboardDepartmentVerified: dashboardRole?.verified_department === true,
+      dashboardGrantBlocker: getChurchDashboardGrantBlocker({
+        isGoogleMember: authUser?.app_metadata?.provider === 'google',
+        isApprovedAndAgreed: allowedUser?.status === 'active' && Boolean(allowedUser.agreed_at),
+        profile: {
+          complete: Boolean(profile?.completed_at),
+          hasChurchConsent: Boolean(profile?.church_info_consent_at),
+          referenceAge: profile?.reference_age ?? null,
+          churchPlaceId: profile?.church_name?.trim() ? profile.church_place_id : null,
+          churchDepartment: profile?.church_department ?? null,
+        },
+      }),
     }
   })
 

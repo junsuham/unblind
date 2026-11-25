@@ -29,7 +29,14 @@ describe('church dashboard shortcut in My account', () => {
   it('keeps the shortcut at the top of My account and checks access separately from administrator status', () => {
     const activityPage = readFileSync(new URL('../src/app/activity/page.tsx', import.meta.url), 'utf8')
     expect(activityPage).toContain('getChurchDashboardAccess(user)')
-    expect(activityPage).toContain('<ChurchDashboardShortcut access={dashboardAccess} />')
+    expect(activityPage).toContain('<ChurchDashboardShortcut access={dashboardAccess} needsChurchConsent={needsChurchConsent} />')
     expect(activityPage.indexOf('<ChurchDashboardShortcut')).toBeLessThan(activityPage.indexOf('href="/journey"'))
+  })
+
+  it('offers only the consent form, not dashboard data, to a legacy member missing consent', () => {
+    const rendered = renderToStaticMarkup(createElement(ChurchDashboardShortcut, { access: null, needsChurchConsent: true }))
+    expect(rendered).toContain('href="/settings/church-consent"')
+    expect(rendered).toContain('동의하기')
+    expect(rendered).not.toContain('href="/church-dashboard"')
   })
 })

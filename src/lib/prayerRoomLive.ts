@@ -5,6 +5,7 @@ export type PrayerRoomPosition = {
   y: number
   facing: 'left' | 'right'
   avatarId: string
+  isPraying?: boolean
 }
 
 export type PrayerRoomPeer = PrayerRoomPosition & { id: string; nickname: string }
@@ -12,15 +13,25 @@ export type PrayerRoomMessage = { id: string; nickname: string; text: string; se
 export type PrayerRoomSnapshot = { peers: PrayerRoomPeer[]; messages: PrayerRoomMessage[]; chatSent: boolean }
 
 export const prayerRoomMessageLimit = 160
+export const prayerRoomLiveVersion = 2
+export const prayerRoomMaxY = 2240
 
-export function parsePrayerRoomPosition(value: unknown): PrayerRoomPosition | null {
+export function parsePrayerRoomPosition(value: unknown, roomVersion: 1 | 2 = prayerRoomLiveVersion): PrayerRoomPosition | null {
   if (!value || typeof value !== 'object') return null
-  const { x, y, facing, avatarId } = value as Record<string, unknown>
+  const { x, y, facing, avatarId, isPraying } = value as Record<string, unknown>
+  const maxY = roomVersion === 1 ? 1120 : prayerRoomMaxY
   if (typeof x !== 'number' || !Number.isFinite(x) || x < 0 || x > 360
-    || typeof y !== 'number' || !Number.isFinite(y) || y < 0 || y > 1120
+    || typeof y !== 'number' || !Number.isFinite(y) || y < 0 || y > maxY
     || (facing !== 'left' && facing !== 'right')
-    || typeof avatarId !== 'string' || !findBibleAvatarPreset(avatarId)) return null
-  return { x: Math.round(x), y: Math.round(y), facing, avatarId }
+    || typeof avatarId !== 'string' || !findBibleAvatarPreset(avatarId)
+    || (isPraying !== undefined && typeof isPraying !== 'boolean')) return null
+  return { x: Math.round(x), y: Math.round(y), facing, avatarId, ...(typeof isPraying === 'boolean' ? { isPraying } : {}) }
+}
+
+export function parsePrayerRoomVisitId(value: unknown): string | null {
+  return typeof value === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value)
+    ? value.toLowerCase()
+    : null
 }
 
 export function parsePrayerRoomMessage(value: unknown): string | null {

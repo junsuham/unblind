@@ -47,7 +47,7 @@ export async function getChurchDashboardAccess(user: User | null | undefined): P
   const role = accessResult.data
   const profile = profileResult.data
   const allowed = allowedResult.data
-  if (!role?.is_active || !profile?.completed_at || !profile.church_info_consent_at ||
+  if (!role?.is_active || !role.verified_department || !profile?.completed_at || !profile.church_info_consent_at ||
       !profile.reference_age || profile.reference_age < 20 || profile.reference_age > 59 ||
       allowed?.status !== 'active' || !allowed.agreed_at) return null
 

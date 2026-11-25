@@ -1,4 +1,4 @@
-const WORKER_VERSION = '73'
+const WORKER_VERSION = '74'
 const CACHE_NAME = `unblind-static-v${WORKER_VERSION}`
 const OUTBOX_DB = 'unblind-offline-outbox-v1'
 const OUTBOX_STORE = 'mutations'
@@ -8,11 +8,12 @@ const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{
 const PRECACHE_URLS = [
   '/offline.html',
   '/brand/unblind-monogram-relief-v5.png',
+  '/brand/unblind-monogram-flat-v7.png',
   '/brand/unblind-wordmark-relief-v5.png',
   '/brand/unblind-slogan-relief-v5.png',
-  '/icons/icon-192-v6.png',
-  '/icons/icon-512-v6.png',
-  '/icons/apple-touch-icon-v6.png',
+  '/icons/icon-192-v7.png',
+  '/icons/icon-512-v7.png',
+  '/icons/apple-touch-icon-v7.png',
   '/icons/emoji-3d/bell.png',
   '/icons/emoji-3d/chat.png',
   '/icons/emoji-3d/check.png',
@@ -196,8 +197,8 @@ self.addEventListener('push', (event) => {
     typeof payload.title === 'string' && payload.title ? payload.title : '언블라인드',
     {
       body: typeof payload.body === 'string' ? payload.body : '',
-      icon: '/icons/icon-192-v6.png',
-      badge: '/icons/icon-192-v6.png',
+      icon: '/icons/icon-192-v7.png',
+      badge: '/icons/icon-192-v7.png',
       tag: typeof payload.notificationId === 'string' ? `unblind-${payload.notificationId}` : 'unblind-notification',
       data: { href },
     },
@@ -259,7 +260,7 @@ self.addEventListener('fetch', (event) => {
     || /^\/avatars\/bible(?:-mbti|-scenes|-expressions)?-v\d+\/(?:thumbs\/)?[a-z]+(?:-[a-z]+)*\.webp$/.test(url.pathname)
     || /^\/icons\/app-drawer-v\d+\/[a-z]+\.webp$/.test(url.pathname)
     || /^\/icons\/church-dashboard-v\d+\.webp$/.test(url.pathname)
-    || /^\/prayer\/golgotha-ascent-v\d+\.webp$/.test(url.pathname)
+    || /^\/prayer\/(?:golgotha-ascent|pew-pixel)-v\d+\.webp$/.test(url.pathname)
   const isPwaAsset = PRECACHE_URLS.includes(url.pathname)
   if (!isVersionedAsset && !isPwaAsset) return
 

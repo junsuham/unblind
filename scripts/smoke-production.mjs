@@ -79,7 +79,7 @@ await expectResponse('/api/prayer-room/live', async (response) => {
   if (response.status !== 405) throw new Error('Prayer room live must not serve a public GET')
 })
 
-for (const path of ['prayer/golgotha-ascent-v1.webp', 'icons/church-dashboard-v1.webp', ...['journey', 'manitto', 'gratitude', 'recreation', 'mbti', 'shorts', 'praise'].map((name) => `icons/app-drawer-v2/${name}.webp`)]) {
+for (const path of ['prayer/golgotha-ascent-v1.webp', 'prayer/pew-pixel-v1.webp', 'icons/church-dashboard-v1.webp', ...['journey', 'manitto', 'gratitude', 'recreation', 'mbti', 'shorts', 'praise'].map((name) => `icons/app-drawer-v2/${name}.webp`)]) {
   await expectResponse(`/${path}`, async (response) => {
     if (!response.ok || response.headers.get('content-type') !== 'image/webp') {
       throw new Error(`App artwork is unavailable: ${path}`)
@@ -105,8 +105,8 @@ await expectResponse('/manifest.webmanifest', async (response) => {
   if (!Array.isArray(manifest.icons) || manifest.icons.length < 2) {
     throw new Error('PWA icons are incomplete')
   }
-  if (!manifest.icons.some((icon) => icon.src === '/icons/icon-512-v6.png')) {
-    throw new Error('PWA glass icon is not current')
+  if (!manifest.icons.some((icon) => icon.src === '/icons/icon-512-v7.png' && icon.purpose === 'maskable')) {
+    throw new Error('The PWA must use the flat UNBLIND app icon')
   }
   if (manifest.share_target?.action !== '/post/new') {
     throw new Error('PWA share target is unavailable')
@@ -174,11 +174,13 @@ await expectResponse('/brand/unblind-slogan-relief-v5.png', async (response) => 
   }
 })
 
-await expectResponse('/icons/icon-192-v6.png', async (response) => {
-  if (!response.ok || response.headers.get('content-type') !== 'image/png') {
-    throw new Error('Glass app icon is unavailable')
-  }
-})
+for (const icon of ['icons/icon-192-v7.png', 'icons/icon-512-v7.png', 'icons/apple-touch-icon-v7.png', 'brand/unblind-monogram-flat-v7.png']) {
+  await expectResponse(`/${icon}`, async (response) => {
+    if (!response.ok || response.headers.get('content-type') !== 'image/png') {
+      throw new Error(`App icon is unavailable: ${icon}`)
+    }
+  })
+}
 
 await expectResponse('/offline.html', async (response) => {
   const body = await response.text()

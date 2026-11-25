@@ -151,7 +151,7 @@ export default async function BoardPage({ params, searchParams }: BoardPageProps
       : undefined
 
   return (
-    <AppShell topTitle={boardName} bottomBar={<BottomTabBar active={activeTab} />}>
+    <AppShell topTitle={board === 'prayer' ? '🍁 기도의 방' : boardName} bottomBar={<BottomTabBar active={activeTab} />}>
       {board === 'prayer' && (
         <Link
           href="/pray"
@@ -168,7 +168,7 @@ export default async function BoardPage({ params, searchParams }: BoardPageProps
             />
           </span>
           <span className="min-w-0 flex-1">
-            <strong className="block text-[14px] text-[var(--ub-text-primary)]"><span aria-hidden="true">🍁 </span>기도의 방</strong>
+            <strong className="block text-[14px] text-[var(--ub-text-primary)]">골고다 언덕</strong>
             <span className="mt-0.5 block text-[11px] leading-[16px] text-[var(--ub-text-secondary)]">
               골고다 언덕을 올라 예배당에서 기도해요
             </span>

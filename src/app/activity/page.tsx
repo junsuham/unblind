@@ -6,6 +6,7 @@ import { SystemIcon } from '@/app/components/ui/SystemIcon'
 import { ChurchDashboardShortcut } from '@/app/components/ChurchDashboardShortcut'
 import { isAdminUser } from '@/lib/adminRole'
 import { getChurchDashboardAccess } from '@/lib/churchDashboardAccess'
+import { CHURCH_DASHBOARD_TARGET_PLACE_ID } from '@/lib/churchDashboardScope'
 import LogoutButton from '@/app/components/LogoutButton'
 import { generateBiblicalNickname } from '@/lib/profile'
 
@@ -50,7 +51,8 @@ export default async function ActivityPage() {
     supabase.from('comments').select('id, post_id, content, created_at').eq('author_user_id', user.id).order('created_at', { ascending: false }).limit(20),
     supabase.from('reactions').select('post_id, created_at, posts(title)').eq('actor_key', `user:${user.id}`).eq('type', 'pray').order('created_at', { ascending: false }).limit(60),
     supabase.from('saved_posts').select('post_id, created_at, posts(title)').eq('user_id', user.id).order('created_at', { ascending: false }).limit(20),
-    supabase.from('user_profiles').select('nickname').eq('user_id', user.id).maybeSingle<{ nickname: string }>(),
+    supabase.from('user_profiles').select('nickname, church_place_id, church_info_consent_at').eq('user_id', user.id)
+      .maybeSingle<{ nickname: string, church_place_id: string | null, church_info_consent_at: string | null }>(),
     isAdminUser(user),
     getChurchDashboardAccess(user),
   ])
@@ -62,6 +64,7 @@ export default async function ActivityPage() {
     { title: '저장한 글', items: (saves ?? []).map((item) => ({ href: `/post/${item.post_id}`, title: (item.posts as unknown as { title?: string } | null)?.title ?? '저장한 게시글' })) },
   ]
   const prayerStreak = getPrayerStreak((prayers ?? []).map((item) => item.created_at))
+  const needsChurchConsent = profile?.church_place_id === CHURCH_DASHBOARD_TARGET_PLACE_ID && !profile.church_info_consent_at
 
   return (
     <AppShell topTitle="내 정보" bottomBar={<BottomTabBar />}>
@@ -84,7 +87,7 @@ export default async function ActivityPage() {
         </div>
       </div>
       <div className="space-y-6">
-        <ChurchDashboardShortcut access={dashboardAccess} />
+        <ChurchDashboardShortcut access={dashboardAccess} needsChurchConsent={needsChurchConsent} />
         <Link
           href="/journey"
           className="flex min-h-[76px] items-center gap-3 rounded-[18px] bg-[linear-gradient(135deg,var(--ub-surface-card-strong),var(--ub-surface-brand-soft))] px-4 shadow-sm active:bg-[var(--ub-surface-pressed)]"

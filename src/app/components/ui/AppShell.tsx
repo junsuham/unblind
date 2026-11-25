@@ -58,7 +58,7 @@ function TopLogoBar({
             >
               {title ? (
               <Image
-                src="/brand/unblind-monogram-relief-v5.png"
+                src="/brand/unblind-monogram-flat-v7.png"
                 alt="UNBLIND"
                 width={36}
                 height={36}
@@ -422,7 +422,7 @@ const bottomTabs: {
   key: BottomTabKey
   label: string
   href: string
-  icon?: SystemIconName
+  icon: SystemIconName
 }[] = [
   {
     key: 'home',
@@ -432,8 +432,9 @@ const bottomTabs: {
   },
   {
     key: 'prayer',
-    label: '기도의 방',
+    label: '기도',
     href: '/pray',
+    icon: 'prayer',
   },
   {
     key: 'faith',
@@ -599,15 +600,11 @@ export function BottomTabBar({ active }: BottomTabBarProps) {
                     : 'text-[var(--ub-text-secondary)]'
                 }
               >
-                {tab.key === 'prayer' ? (
-                  <span className="grid h-[22px] w-[22px] place-content-center text-[19px] leading-none" aria-hidden="true">🍁</span>
-                ) : tab.icon && (
-                  <SystemIcon
-                    name={tab.icon}
-                    size={isWrite ? 24 : 22}
-                    filled={isActive && !isWrite}
-                  />
-                )}
+                <SystemIcon
+                  name={tab.icon}
+                  size={isWrite ? 24 : 22}
+                  filled={isActive && !isWrite}
+                />
               </span>
 
               <span
