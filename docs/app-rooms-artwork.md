@@ -6,7 +6,8 @@
 - `public/icons/app-drawer-v1/`: “앱 서랍용 정사각형 아이콘. 작은 크기에서 읽히는 실루엣, 둥근 재질, 은은한 광택과 따뜻한 스튜디오 조명. 텍스트와 로고 금지.” 소재: 신앙 여정의 십자가로 향하는 길, 마니또 선물 상자, 감사 일기장, 모임 KIT 주사위, 성경 MBTI 보라색 별과 성경, 쇼츠 재생 버튼, 찬양 레코드와 헤드폰.
 - `public/icons/app-drawer-v2/` (이전 시안): 기존 2부 대시보드 방패 아이콘을 스타일 참조로 사용하여 내장 이미지 생성으로 제작했습니다. 진주색 리퀴드 글래스, 은색 모서리와 오렌지 에나멜을 사용합니다.
 - `public/icons/app-drawer-v3/` (이전 시안, 192px WebP): 홈의 ‘언블라인드 앱’ 박스에 썼던 단색 배경 및 흰색 기호 7종입니다.
-- 현재 홈 앱 서랍은 첨부된 `Apple App Icon Template OS27.sketch`의 정사각형과 중앙 크기 가이드(1024 중 512)를 참고합니다. 기존 7개 기호를 직접 그린 벡터로 유지하고, 색상 판·광택·전경 기호를 나눴습니다. `public/icons/app-drawer-mask-v1.svg`는 웹용 연속 곡면 마스크입니다. 박스 표면은 `Apple iOS 27 UI Kit.sketch`의 라이트·다크 `Liquid Glass/App Library` 스타일을 참고한 웹 구현입니다. 템플릿의 이미지나 브랜드 로고는 배포하지 않습니다.
+- 홈 앱 서랍은 첨부된 `Apple App Icon Template OS27.sketch`의 정사각형과 중앙 가이드를 참고합니다. `public/icons/app-drawer-mask-v1.svg`는 웹용 연속 곡면 마스크입니다. 박스 표면은 `Apple iOS 27 UI Kit.sketch`의 라이트·다크 `Liquid Glass/App Library` 스타일을 웹으로 구현했습니다.
+- 7개 바로가기 아이콘은 [Apple App Icons HIG](https://developer.apple.com/design/human-interface-guidelines/app-icons.md)를 참고해 중앙의 채움형 벡터와 단순한 색상 배경을 분리했습니다. 모드별로 채도와 대비만 조정하고 실루엣은 유지합니다. 고정 광택과 그림자는 넣지 않습니다. Apple 이미지나 브랜드 로고는 배포하지 않습니다.
 - `public/icons/church-dashboard-v1.webp`: 기존 대시보드의 방패 이미지를 줄여 ‘내 정보’ 카드와 대시보드 상단에 다시 사용합니다.
 - 설치·브라우저 아이콘과 공통 헤더는 각각 기존 v6 이미지와 음각 v5 모노그램을 사용합니다. 직전 v7 시안 파일은 이전 버전 호환 목적만으로 남겨 둡니다.
 - `public/prayer/pew-pixel-v1.webp`: 내장 이미지 생성으로 “황갈색 널판과 두 팔걸이, 앞에서 바라본 목재 교회 장의자 한 개, 낮은 해상도의 선명한 사각 픽셀, 투명 배경, 사람·텍스트·배경 없음.”

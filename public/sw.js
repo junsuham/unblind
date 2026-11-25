@@ -1,4 +1,4 @@
-const WORKER_VERSION = '76'
+const WORKER_VERSION = '77'
 const CACHE_NAME = `unblind-static-v${WORKER_VERSION}`
 const OUTBOX_DB = 'unblind-offline-outbox-v1'
 const OUTBOX_STORE = 'mutations'
