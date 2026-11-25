@@ -2,9 +2,9 @@ import 'server-only'
 
 import type { User } from '@supabase/supabase-js'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
-import { matchesChurchDashboardScope, type ChurchDashboardScope } from '@/lib/churchDashboardScope'
+import { isChurchDashboardTarget, matchesChurchDashboardScope, type ChurchDashboardScope } from '@/lib/churchDashboardScope'
 
-type AccessRow = ChurchDashboardScope & { is_active: boolean }
+type AccessRow = ChurchDashboardScope & { is_active: boolean; verified_department: boolean }
 
 type ProfileRow = {
   completed_at: string | null
@@ -27,9 +27,9 @@ export async function getChurchDashboardAccess(user: User | null | undefined): P
   const [accessResult, profileResult, allowedResult] = await Promise.all([
     supabaseAdmin
       .from('church_dashboard_access')
-      .select('church_place_id, church_name, department, is_active')
+      .select('church_place_id, church_name, department, verified_department, is_active')
       .eq('user_id', user.id)
-      .maybeSingle<{ church_place_id: string; church_name: string; department: string | null; is_active: boolean }>(),
+      .maybeSingle<{ church_place_id: string; church_name: string; department: string | null; verified_department: boolean; is_active: boolean }>(),
     supabaseAdmin
       .from('user_profiles')
       .select('completed_at, reference_age, church_name, church_place_id, church_department, church_info_consent_at')
@@ -55,13 +55,14 @@ export async function getChurchDashboardAccess(user: User | null | undefined): P
     churchPlaceId: role.church_place_id,
     churchName: role.church_name,
     department: role.department,
+    verified_department: role.verified_department,
     is_active: role.is_active,
   }
 
-  if (!matchesChurchDashboardScope(scope, {
+  if (!isChurchDashboardTarget(scope) || !matchesChurchDashboardScope(scope, {
     churchPlaceId: profile.church_place_id,
     department: profile.church_department,
-  })) return null
+  }, scope.verified_department)) return null
 
   return { churchPlaceId: scope.churchPlaceId, churchName: scope.churchName, department: scope.department }
 }

@@ -3,6 +3,7 @@ import { isAdminUser } from '@/lib/adminRole'
 import { listAllAuthUsers } from '@/lib/adminUsers'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
 import { createServerSupabase } from '@/lib/supabaseServer'
+import { CHURCH_DASHBOARD_TARGET_PLACE_ID } from '@/lib/churchDashboardScope'
 import { occupationLabels, type Occupation } from '@/lib/profile'
 import AddAllowedUserForm from './AddAllowedUserForm'
 import AdminUserActionButtons from './AdminUserActionButtons'
@@ -239,17 +240,12 @@ function UserRows({
               memo={user.memo}
               profileComplete={user.profileComplete}
             />
-            {user.userId && user.churchName && (user.status === 'active' || user.dashboardGrantedDepartment !== undefined) && (
-              !user.churchPlaceId ? (
-                <p className="mt-4 rounded-[14px] bg-[var(--ub-surface-muted)] px-3 py-3 text-[12px] text-[var(--ub-text-secondary)]">
-                  교회 장소 확인 ID가 없어 대시보드 권한을 부여할 수 없습니다.
-                </p>
-              ) : canManageDashboardAccess ? (
+            {user.userId && user.churchName && user.churchPlaceId === CHURCH_DASHBOARD_TARGET_PLACE_ID && (user.status === 'active' || user.dashboardGrantedDepartment !== undefined) && (
+              canManageDashboardAccess ? (
                 <DashboardAccessControl
                   key={`${user.userId}-${user.dashboardGrantedDepartment === undefined ? 'none' : (user.dashboardGrantedDepartment ?? 'church')}`}
                   userId={user.userId}
                   churchName={user.churchName}
-                  department={user.churchDepartment}
                   grantedDepartment={user.dashboardGrantedDepartment}
                 />
               ) : (

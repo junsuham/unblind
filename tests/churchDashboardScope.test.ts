@@ -1,10 +1,14 @@
 import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
-import { matchesChurchDashboardScope } from '../src/lib/churchDashboardScope'
+import { isChurchDashboardTarget, matchesChurchDashboardScope } from '../src/lib/churchDashboardScope'
 import { projectChurchDashboardSnapshot, type ChurchDashboardSnapshotRow } from '../src/lib/churchDashboardProjection'
 
 const migration = readFileSync(
   new URL('../supabase/migrations/20261124020000_church_dashboard_access.sql', import.meta.url),
+  'utf8',
+)
+const secondDepartmentMigration = readFileSync(
+  new URL('../supabase/migrations/20261125020000_church_dashboard_verified_2bu.sql', import.meta.url),
   'utf8',
 )
 
@@ -50,6 +54,20 @@ describe('church dashboard access boundaries', () => {
       { churchPlaceId: 'place-one', department: '2부' },
     )).toBe(true)
   })
+  it('accepts an empty self-reported department only after a separate administrator verification', () => {
+    const granted = { churchPlaceId: 'place-one', churchName: '연세중앙교회', department: '2부' }
+    const profile = { churchPlaceId: 'place-one', department: null }
+    expect(matchesChurchDashboardScope(granted, profile)).toBe(false)
+    expect(matchesChurchDashboardScope(granted, profile, true)).toBe(true)
+    expect(matchesChurchDashboardScope(granted, { ...profile, churchPlaceId: 'place-two' }, true)).toBe(false)
+    expect(matchesChurchDashboardScope(granted, { ...profile, department: '3부' }, true)).toBe(false)
+  })
+  it('limits the linked dashboard to the explicitly requested 2부 scope', () => {
+    expect(isChurchDashboardTarget({ churchPlaceId: 'way-465724410', department: '2부' })).toBe(true)
+    expect(isChurchDashboardTarget({ churchPlaceId: 'way-465724410', department: null })).toBe(false)
+    expect(isChurchDashboardTarget({ churchPlaceId: 'way-465724410', department: '3부' })).toBe(false)
+    expect(isChurchDashboardTarget({ churchPlaceId: 'other-place', department: '2부' })).toBe(false)
+  })
 
   it('denies legacy profiles without a place identifier', () => {
     expect(matchesChurchDashboardScope(
@@ -85,5 +103,8 @@ describe('church dashboard access boundaries', () => {
     expect(migration).toContain('grant execute on function public.set_church_dashboard_access')
     expect(migration).toContain('insert into public.admin_user_actions')
     expect(migration).toContain('revoke all on function public.set_church_dashboard_access')
+    expect(secondDepartmentMigration).toContain("v_profile.church_place_id <> 'way-465724410'")
+    expect(secondDepartmentMigration).toContain("p_department <> '2부'")
+    expect(secondDepartmentMigration).toContain('revoke all on function public.set_church_dashboard_access_v2')
   })
 })

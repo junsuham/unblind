@@ -10,6 +10,7 @@ type GrantBody = {
   action?: unknown
   userId?: unknown
   scope?: unknown
+  department?: unknown
 }
 
 const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
@@ -30,18 +31,20 @@ export async function POST(request: NextRequest) {
   const action = body?.action
   const userId = body?.userId
   const scope = body?.scope
+  const department = body?.department
   if ((action !== 'grant' && action !== 'revoke') || typeof userId !== 'string' || !uuidPattern.test(userId)) {
     return Response.json({ error: '요청 형식이 올바르지 않습니다.' }, { status: 400 })
   }
-  if (action === 'grant' && scope !== 'church' && scope !== 'department') {
-    return Response.json({ error: '접근 범위를 선택해 주세요.' }, { status: 400 })
+  if (action === 'grant' && (scope !== 'verified_2bu' || department !== '2부')) {
+    return Response.json({ error: '연세중앙교회 2부 권한만 부여할 수 있습니다.' }, { status: 400 })
   }
 
-  const { error } = await supabaseAdmin.rpc('set_church_dashboard_access', {
+  const { error } = await supabaseAdmin.rpc('set_church_dashboard_access_v2', {
     p_actor_user_id: actor.id,
     p_target_user_id: userId,
     p_action: action,
     p_scope: action === 'grant' ? scope : null,
+    p_department: action === 'grant' ? '2부' : null,
   })
 
   // The RPC commits role and audit together. On any error neither is applied.
