@@ -3,6 +3,7 @@ import type { Metadata } from 'next'
 import { requireBetaUser } from '@/lib/betaAuth'
 import { AppShell, BottomTabBar } from '@/app/components/ui/AppShell'
 import { SystemIcon } from '@/app/components/ui/SystemIcon'
+import { ChurchDashboardShortcut } from '@/app/components/ChurchDashboardShortcut'
 import { isAdminUser } from '@/lib/adminRole'
 import { getChurchDashboardAccess } from '@/lib/churchDashboardAccess'
 import LogoutButton from '@/app/components/LogoutButton'
@@ -83,6 +84,7 @@ export default async function ActivityPage() {
         </div>
       </div>
       <div className="space-y-6">
+        <ChurchDashboardShortcut access={dashboardAccess} />
         <Link
           href="/journey"
           className="flex min-h-[76px] items-center gap-3 rounded-[18px] bg-[linear-gradient(135deg,var(--ub-surface-card-strong),var(--ub-surface-brand-soft))] px-4 shadow-sm active:bg-[var(--ub-surface-pressed)]"
@@ -108,18 +110,13 @@ export default async function ActivityPage() {
             <p className="mt-1 text-[12px] font-semibold text-[var(--ub-text-secondary)]">최근 기도한 글</p>
           </div>
         </section>
-        <nav aria-label="계정 메뉴" className={`grid gap-2 ${dashboardAccess ? 'grid-cols-3' : 'grid-cols-2'}`}>
+        <nav aria-label="계정 메뉴" className="grid grid-cols-2 gap-2">
           <Link href="/settings/account" className="flex min-h-[64px] flex-col items-center justify-center gap-1 rounded-[16px] bg-[var(--ub-surface-card-strong)] text-[12px] font-semibold text-[var(--ub-text-primary)] shadow-sm active:bg-[var(--ub-surface-pressed)]">
             <SystemIcon name="person" size={20} className="text-[var(--ub-color-brand)]" />계정
           </Link>
           <Link href="/notifications" className="flex min-h-[64px] flex-col items-center justify-center gap-1 rounded-[16px] bg-[var(--ub-surface-card-strong)] text-[12px] font-semibold text-[var(--ub-text-primary)] shadow-sm active:bg-[var(--ub-surface-pressed)]">
             <SystemIcon name="bell" size={20} className="text-[var(--ub-color-brand)]" />알림
           </Link>
-          {dashboardAccess ? (
-            <Link href="/church-dashboard" className="flex min-h-[64px] flex-col items-center justify-center gap-1 rounded-[16px] bg-[var(--ub-surface-card-strong)] text-[12px] font-semibold text-[var(--ub-text-primary)] shadow-sm active:bg-[var(--ub-surface-pressed)]">
-              <SystemIcon name="dashboard" size={20} className="text-[var(--ub-color-brand)]" />대시보드
-            </Link>
-          ) : null}
         </nav>
         {sections.map((section) => (
           <section key={section.title}>

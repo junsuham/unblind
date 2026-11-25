@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { AppShell, BottomTabBar } from '@/app/components/ui/AppShell'
-import { SystemIcon } from '@/app/components/ui/SystemIcon'
+import { ChurchDashboardIcon } from '@/app/components/ChurchDashboardShortcut'
 import { requireBetaUser } from '@/lib/betaAuth'
 import { getChurchDashboardAccess } from '@/lib/churchDashboardAccess'
 import { readChurchDashboardSnapshot } from '@/lib/churchDashboardData'
@@ -37,9 +37,7 @@ export default async function ChurchDashboardPage() {
       <header className="mb-5 rounded-[22px] bg-[var(--ub-surface-card-strong)] p-5 shadow-sm">
         <p className="text-[11px] font-bold tracking-[0.08em] text-[var(--ub-color-brand)]">교회 운영 · 읽기 전용</p>
         <div className="mt-2 flex items-center gap-2.5">
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[11px] bg-[var(--ub-surface-brand-soft)] text-[var(--ub-color-brand)]">
-            <SystemIcon name="dashboard" size={21} />
-          </span>
+          <ChurchDashboardIcon className="h-9 w-9 shrink-0 rounded-[11px] ring-1 ring-black/10" />
           <h2 className="min-w-0 text-[20px] font-extrabold tracking-[-0.4px] text-[var(--ub-text-primary)]">{access.churchName}</h2>
         </div>
         <p className="mt-1 text-[13px] text-[var(--ub-text-secondary)]">

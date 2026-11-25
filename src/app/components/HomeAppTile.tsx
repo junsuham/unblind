@@ -31,7 +31,7 @@ export function HomeAppTileContent({ label, tone, badge, status, error }: HomeAp
   return (
     <>
       <span className={styles.icon} data-tone={tone} aria-hidden="true">
-        <Image src={`/icons/app-drawer-v1/${iconArt[tone]}.webp`} alt="" width={192} height={192} className={styles.iconImage} unoptimized />
+        <Image src={`/icons/app-drawer-v2/${iconArt[tone]}.webp`} alt="" width={192} height={192} className={styles.iconImage} unoptimized />
         {badge && <span className={styles.badge} data-state={badge} />}
       </span>
       <span className={styles.label}>{label}</span>

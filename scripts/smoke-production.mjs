@@ -79,7 +79,7 @@ await expectResponse('/api/prayer-room/live', async (response) => {
   if (response.status !== 405) throw new Error('Prayer room live must not serve a public GET')
 })
 
-for (const path of ['prayer/golgotha-ascent-v1.webp', ...['journey', 'manitto', 'gratitude', 'recreation', 'mbti', 'shorts', 'praise'].map((name) => `icons/app-drawer-v1/${name}.webp`)]) {
+for (const path of ['prayer/golgotha-ascent-v1.webp', 'icons/church-dashboard-v1.webp', ...['journey', 'manitto', 'gratitude', 'recreation', 'mbti', 'shorts', 'praise'].map((name) => `icons/app-drawer-v2/${name}.webp`)]) {
   await expectResponse(`/${path}`, async (response) => {
     if (!response.ok || response.headers.get('content-type') !== 'image/webp') {
       throw new Error(`App artwork is unavailable: ${path}`)
