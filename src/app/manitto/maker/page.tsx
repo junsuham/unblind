@@ -5,8 +5,8 @@ import ManittoMakerLobby from './ManittoMakerLobby'
 
 export const dynamic = 'force-dynamic'
 export const metadata: Metadata = {
-  title: '마니또 모임 만들기 | 언블라인드',
-  description: '모임 링크를 만들고 참가자가 직접 들어와 비밀 마니또를 확인합니다.',
+  title: '기도 마니또 만들기 | 언블라인드',
+  description: '명단을 만들고 한 사람을 위해 비밀스럽게 기도하고 응원해요.',
 }
 
 export default async function ManittoMakerPage() {

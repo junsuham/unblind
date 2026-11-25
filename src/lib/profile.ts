@@ -44,6 +44,43 @@ const biblicalNames = [
   '아굴라',
   '스데반',
   '빌립',
+  '드보라',
+  '한나',
+  '나오미',
+  '아비가일',
+  '훌다',
+  '요게벳',
+  '십보라',
+  '엘리사벳',
+  '막달라 마리아',
+  '마르다',
+  '뵈뵈',
+  '유니게',
+  '로이스',
+  '안나',
+  '브살렐',
+  '아볼로',
+  '에스라',
+  '스가랴',
+  '말라기',
+  '미가',
+  '하박국',
+  '아모스',
+  '호세아',
+  '요엘',
+  '학개',
+  '이사갈',
+  '아삽',
+  '에브라임',
+  '예드두둔',
+  '실라',
+  '디도',
+  '누가',
+  '마가',
+  '안드레',
+  '야고보',
+  '나사로',
+  '시므온',
 ] as const
 
 function hashUserId(userId: string) {
@@ -58,16 +95,9 @@ function hashUserId(userId: string) {
 }
 
 export function generateBiblicalNickname(userId: string) {
-  let seed = hashUserId(userId)
+  const seed = hashUserId(userId)
   const name = biblicalNames[seed % biblicalNames.length]
-  let suffix = ''
-
-  for (let index = 0; index < 4; index += 1) {
-    seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0
-    suffix += String.fromCharCode(65 + (seed % 26))
-  }
-
-  return `${name}-${suffix}`
+  return `${name}${String.fromCharCode(65 + (Math.floor(seed / biblicalNames.length) % 26))}`
 }
 
 export function getReferenceAge(birthDate: string) {

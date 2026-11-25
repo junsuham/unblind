@@ -36,6 +36,7 @@ describe('Bible avatar preset selection', () => {
   })
 
   it('uses the nickname as a suggestion, with a stable fallback when no name matches', () => {
+    expect(suggestedBibleAvatar('다니엘A').id).toBe('daniel')
     expect(suggestedBibleAvatar('에스더-SOAP').id).toBe('esther')
     expect(suggestedBibleAvatar('모세-TEST').id).toBe('moses')
     expect(bibleAvatarPresets).toContain(suggestedBibleAvatar('노아아님-TEST'))

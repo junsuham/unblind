@@ -432,9 +432,8 @@ const bottomTabs: {
   },
   {
     key: 'prayer',
-    label: '기도',
-    href: '/board/prayer',
-    icon: 'prayer',
+    label: '기도의 방',
+    href: '/pray',
   },
   {
     key: 'faith',
@@ -562,7 +561,7 @@ export function BottomTabBar({ active }: BottomTabBarProps) {
   }, [active])
 
   useEffect(() => {
-    const routes = ['/', '/board/prayer', '/board/faith', '/board/daily', '/notifications', '/post/new']
+    const routes = ['/', '/pray', '/board/faith', '/board/daily', '/notifications', '/post/new']
     const prefetchTimer = window.setTimeout(() => {
       routes.forEach((route) => router.prefetch(route))
     }, 700)
@@ -600,7 +599,9 @@ export function BottomTabBar({ active }: BottomTabBarProps) {
                     : 'text-[var(--ub-text-secondary)]'
                 }
               >
-                {tab.icon && (
+                {tab.key === 'prayer' ? (
+                  <span className="grid h-[22px] w-[22px] place-content-center text-[19px] leading-none" aria-hidden="true">🍁</span>
+                ) : tab.icon && (
                   <SystemIcon
                     name={tab.icon}
                     size={isWrite ? 24 : 22}

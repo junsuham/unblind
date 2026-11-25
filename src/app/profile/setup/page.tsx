@@ -1,7 +1,6 @@
 import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 import { createServerSupabase } from '@/lib/supabaseServer'
-import { generateBiblicalNickname } from '@/lib/profile'
 import { getVerifiedSocialAge } from '@/lib/socialAge'
 import ProfileSetupForm from './ProfileSetupForm'
 import {
@@ -52,7 +51,6 @@ export default async function ProfileSetupPage() {
       />
 
       <ProfileSetupForm
-        nickname={generateBiblicalNickname(user.id)}
         referenceAge={verifiedAge.referenceAge}
       />
     </AppShell>

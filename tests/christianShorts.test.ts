@@ -1,7 +1,8 @@
 import { readFileSync } from 'node:fs'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import {
   filterChristianShortVideos,
+  getChristianShortsFeed,
   isLikelyAiGeneratedVideo,
   isSafeYouTubePageToken,
   parseYouTubeDuration,
@@ -187,6 +188,76 @@ describe('Christian Shorts feed', () => {
     ])).toEqual([])
   })
 
+  it.each([
+    { title: '마음을 평안하게 하는 스님 법문 #shorts #기독교' },
+    { title: '기도로 마음을 다스리는 법 #shorts #성경', channelTitle: '대한 불교 조계종' },
+    { description: '하루 1분 반야심경 읽기 #예수님' },
+    { tags: ['shorts', '기독교', '템플스테이'] },
+    { localized: { title: '부&#8203;처님의 가르침' } },
+    { description: 'An uplifting reflection #BuddhistWisdom #Christian' },
+    { tags: ['shorts', 'bible', 'BuddhismForBeginners'] },
+    { description: '仏教のお話 #bible #prayer' },
+    { title: '라마단 기간에 기도하는 법 #shorts #기독교' },
+    { channelTitle: 'Hindu Dharma' },
+  ])('discards religion conflicts despite Christian tags: %o', (overrides) => {
+    expect(filterChristianShortVideos([video({
+      snippet: { ...video().snippet, ...overrides },
+    })])).toEqual([])
+  })
+
+  it('requires content evidence instead of loose prayer words, unrelated hashtags or substring matches', () => {
+    const subjects = [
+      { title: '하루를 여는 기도 #shorts #기도', tags: ['기도'], description: '' },
+      { title: '모바일 게임 하이라이트 #shorts #예수님', tags: ['bible'], description: '일상 인기 영상' },
+      { title: '아침에 드리는 기도 #shorts', tags: ['bibleversary', 'unrelatedchristian'], description: '' },
+      { title: '마음이 편안해지는 영성 이야기 #shorts', tags: ['christian', '성경'], description: '#기도 #복음' },
+      { title: '하루를 여는 마음 명상과 기도 #shorts', tags: ['christian'], description: '' },
+    ]
+    expect(filterChristianShortVideos(subjects.map((subject, index) => video({
+      id: `ambiguous0${index}`,
+      snippet: { ...video().snippet, ...subject },
+    })))).toEqual([])
+  })
+
+  it('allows explicit Christian titles and scripture references without relying on hashtag volume', () => {
+    const subjects = [
+      { title: '예수님이 가르쳐 주신 용서 #Shorts', tags: [], description: '' },
+      { title: '시편 23:1 | 묵상 #쇼츠', tags: [], description: '' },
+      { title: 'When I first read the Bible #Shorts', tags: [], description: '' },
+      { title: '조용한 아침 예배 #Shorts', tags: [], description: '누가복음 5:1을 함께 읽습니다.' },
+    ]
+    expect(filterChristianShortVideos(subjects.map((subject, index) => video({
+      id: `explicit00${index}`,
+      snippet: { ...video().snippet, ...subject },
+    })))).toHaveLength(subjects.length)
+  })
+
+  it.each([undefined, 'NEXT_PAGE'])('filters the retrieved YouTube page (%s) before returning videos', async (pageToken) => {
+    const unqualified = video({
+      id: 'nonfaith001',
+      snippet: { ...video().snippet, title: '법륜스님의 법문 #shorts #성경' },
+    })
+    const http = vi.fn()
+      .mockResolvedValueOnce(Response.json({
+        items: [video(), unqualified].map(({ id }) => ({ id: { videoId: id } })),
+        nextPageToken: 'NEXT_2',
+      }))
+      .mockResolvedValueOnce(Response.json({ items: [video(), unqualified] }))
+    vi.stubEnv('YOUTUBE_API_KEY', 'test-key')
+    vi.stubGlobal('fetch', http)
+    try {
+      const result = await getChristianShortsFeed(pageToken)
+      expect(result.videos.map(({ id }) => id)).toEqual([video().id])
+      expect(result.nextPageToken).toBe('NEXT_2')
+      const search = http.mock.calls[0][0] as URL
+      expect(search.searchParams.get('pageToken')).toBe(pageToken ?? null)
+      expect(search.searchParams.get('q')).toContain('-불교')
+    } finally {
+      vi.unstubAllGlobals()
+      vi.unstubAllEnvs()
+    }
+  })
+
   it('prioritizes higher view counts and uses YouTube search order for ties', () => {
     const first = video({ id: 'firstVid01', statistics: { viewCount: '1000' } })
     const second = video({ id: 'secondVid1', statistics: { viewCount: '5000' } })
@@ -212,6 +283,7 @@ describe('Christian Shorts feed', () => {
     expect(shortsPage).toContain('https://policies.google.com/privacy')
     expect(shortsClient).toContain('https://www.youtube-nocookie.com/embed/')
     expect(shortsClient).toContain('autoplay=1&mute=1&playsinline=1')
+    expect(shortsClient).toContain('loop=1&playlist=${video.id}')
     expect(shortsClient).toContain('referrerPolicy="strict-origin-when-cross-origin"')
     expect(shortsClient).toContain('setPageVisible(!document.hidden)')
     expect(shortsClient).toContain('조회 {formatViewCount(video.viewCount)}')
@@ -230,6 +302,8 @@ describe('Christian Shorts feed', () => {
     expect(shortsClient).toContain('ref={loadMoreRef}')
     expect(shortsClient).toContain('/api/shorts?')
     expect(shortsClient).toContain("rootMargin: '0px 0px 120% 0px'")
+    expect(shortsClient).toContain('MAX_CONSECUTIVE_EMPTY_PAGES = 3')
+    expect(shortsClient).toContain('loadedTokens.current.has(followingToken)')
     expect(shortsApi).toContain("searchParams.get('pageToken')")
     expect(shortsApi).toContain('getChristianShortsFeed(pageToken)')
     expect(shortsLibrary).toContain("searchUrl.searchParams.set('order', 'viewCount')")

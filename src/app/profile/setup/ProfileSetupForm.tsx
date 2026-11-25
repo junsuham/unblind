@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { occupationLabels, type Occupation } from '@/lib/profile'
 
 type ChurchResult = { id: string; name: string; address: string; roadAddress: string; phone: string; placeUrl: string }
-type Props = { nickname: string; referenceAge: number }
+type Props = { referenceAge: number }
 const steps = ['연령 확인', '정보 수집 동의', '교회 선택', '가입 요청'] as const
 const cardClass = 'rounded-[var(--ub-radius-xl)] border border-[var(--ub-glass-border)] bg-[var(--ub-surface-card)] p-5 text-[var(--ub-text-primary)] shadow-[var(--ub-shadow-card)] backdrop-blur-2xl'
 
@@ -26,7 +26,7 @@ function StepProgress({ current }: { current: number }) {
   )
 }
 
-export default function ProfileSetupForm({ nickname, referenceAge }: Props) {
+export default function ProfileSetupForm({ referenceAge }: Props) {
   const router = useRouter()
   const [step, setStep] = useState(1)
   const [consented, setConsented] = useState(false)
@@ -146,7 +146,7 @@ export default function ProfileSetupForm({ nickname, referenceAge }: Props) {
       <p className="ios-caption font-semibold text-[var(--ub-color-brand)]">4 · 확인 대기 또는 가입 완료</p>
       <h2 className="mt-2 text-[20px] font-semibold tracking-[-0.3px]">입력한 정보를 확인해주세요</h2>
       <div className="mt-5 overflow-hidden rounded-[18px] border border-[var(--ub-separator)] bg-[var(--ub-surface-input)]">
-        <div className="border-b border-[var(--ub-separator)] px-4 py-3"><span className="ios-caption text-[var(--ub-text-tertiary)]">앱 아이디</span><p className="mt-1 ios-title">{nickname}</p></div>
+        <div className="border-b border-[var(--ub-separator)] px-4 py-3"><span className="ios-caption text-[var(--ub-text-tertiary)]">앱 아이디</span><p className="mt-1 ios-title">자동 생성 · 예: 다니엘A</p></div>
         <div className="border-b border-[var(--ub-separator)] px-4 py-3"><span className="ios-caption text-[var(--ub-text-tertiary)]">출석 교회</span><p className="mt-1 ios-title">{selectedChurch.name}</p><p className="mt-1 ios-caption text-[var(--ub-text-secondary)]">{selectedChurch.roadAddress || selectedChurch.address}</p></div>
         <div className="border-b border-[var(--ub-separator)] px-4 py-3"><span className="ios-caption text-[var(--ub-text-tertiary)]">하위 부서</span><p className="mt-1 ios-title">{churchDepartment.trim() || '입력하지 않음'}</p></div>
         <div className="px-4 py-3"><span className="ios-caption text-[var(--ub-text-tertiary)]">현재 상태</span><p className="mt-1 ios-title">{occupation ? occupationLabels[occupation] : '-'}</p></div>

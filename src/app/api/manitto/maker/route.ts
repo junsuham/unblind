@@ -1,7 +1,13 @@
 import { randomBytes } from 'node:crypto'
 import { getCommunityRequestUser } from '@/lib/communityRequestUser'
 import { guardMutation } from '@/lib/mutationGuard'
-import { isManittoMakerCapacity, isManittoMakerTitle } from '@/lib/manittoMakerShared'
+import {
+  MANITTO_MAKER_DEFAULT_CAPACITY,
+  isManittoMakerCapacity,
+  isManittoMakerName,
+  isManittoMakerTitle,
+  normalizeManittoMakerName,
+} from '@/lib/manittoMakerShared'
 import { isSafeMutationRequest } from '@/lib/security'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
 
@@ -55,17 +61,19 @@ export async function POST(request: Request) {
   if (blocked) return blocked
 
   const body = await request.json().catch(() => null)
+  const hostName = typeof body?.hostName === 'string' ? normalizeManittoMakerName(body.hostName) : ''
   const title = typeof body?.title === 'string' ? body.title.trim().replace(/\s+/g, ' ') : ''
   const note = typeof body?.note === 'string' ? body.note.trim() : ''
-  const capacity = Number(body?.capacity)
-  if (!isManittoMakerTitle(title) || !isManittoMakerCapacity(capacity) || note.length > 200 || /[\p{Cc}\p{Cf}]/u.test(note)) {
-    return Response.json({ error: '모임 이름(2~60자), 인원(3~50명), 안내(200자 이하)를 확인해주세요.' }, { status: 400, headers: noStore })
+  const capacity = body?.capacity === undefined ? MANITTO_MAKER_DEFAULT_CAPACITY : body.capacity
+  if (!isManittoMakerName(hostName) || !isManittoMakerTitle(title) || !isManittoMakerCapacity(capacity)
+    || note.length > 200 || /[\p{Cc}\p{Cf}]/u.test(note.replace(/[\n\r]/g, ''))) {
+    return Response.json({ error: '방장 이름(1~24자), 모임 이름(2~60자), 인원(2~50명), 안내(200자 이하)를 확인해주세요.' }, { status: 400, headers: noStore })
   }
 
   for (let attempt = 0; attempt < 3; attempt += 1) {
     const code = randomBytes(9).toString('base64url')
     const { data, error } = await supabaseAdmin.from('manitto_maker_rooms')
-      .insert({ code, host_user_id: user.id, title, note, capacity })
+      .insert({ code, host_user_id: user.id, host_name: hostName, title, note, capacity })
       .select('code')
       .single<{ code: string }>()
     if (!error && data) return Response.json({ code: data.code }, { status: 201, headers: noStore })

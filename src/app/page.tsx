@@ -12,7 +12,6 @@ import { HomeAppDrawer } from '@/app/components/HomeAppDrawer'
 import { HomeBibleVerse } from '@/app/components/HomeBibleVerse'
 import { DailyFaithCheckIn } from '@/app/components/DailyFaithCheckIn'
 import { BuilderHomeSection } from '@/app/components/builder/BuilderHomeSection'
-import { getWeeklyManitto } from '@/lib/manitto'
 import { UrgentPrayerBadge } from '@/app/components/UrgentPrayerBadge'
 import { isUrgentPrayerPost } from '@/lib/urgentPrayer'
 import { indexPostEngagement, type PostEngagement } from '@/lib/postEngagement'
@@ -42,7 +41,7 @@ type HomePraiseRow = {
 }
 
 export default async function HomePage({ searchParams }: HomePageProps) {
-  const { supabase, user } = await requireBetaUser()
+  const { supabase, user, profile } = await requireBetaUser()
   const params = await searchParams
   const sort = params.sort === 'popular' ? 'popular' : 'latest'
 
@@ -70,7 +69,6 @@ export default async function HomePage({ searchParams }: HomePageProps) {
     { data: posts, error },
     { data: blockedRows },
     { data: praiseTracks },
-    manitto,
   ] = await Promise.all([
     postsQuery.limit(30).returns<FeedPost[]>(),
     supabase
@@ -84,7 +82,6 @@ export default async function HomePage({ searchParams }: HomePageProps) {
       .order('rank', { ascending: true })
       .limit(10)
       .returns<HomePraiseRow[]>(),
-    getWeeklyManitto(user.id),
   ])
 
   const blockedIds = new Set(
@@ -105,13 +102,12 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   return (
     <AppShell bottomBar={<BottomTabBar active="home" />}>
       <h1 className="sr-only">언블라인드 홈</h1>
-      <DailyFaithCheckIn storageScope={user.id} characterName={generateBiblicalNickname(user.id)} />
+      <DailyFaithCheckIn storageScope={user.id} characterName={profile.nickname || generateBiblicalNickname(user.id)} />
       <HomeBibleVerse />
 
       <BuilderHomeSection searchParams={params} />
 
       <HomeAppDrawer
-        manitto={manitto}
         tracks={(praiseTracks ?? []).map((track) => ({
           id: track.youtube_id,
           title: track.title,

@@ -16,5 +16,5 @@ export function getFaithExpression(mood: FaithMood | null) {
 }
 
 export function faithExpressionAtlasSrc(avatarId: string) {
-  return `/avatars/bible-expressions-v1/${avatarId}.webp`
+  return `/avatars/bible-expressions-v2/${avatarId}.webp`
 }

@@ -75,6 +75,18 @@ await expectResponse('/api/faith-avatar/generate', async (response) => {
   }
 })
 
+await expectResponse('/api/prayer-room/live', async (response) => {
+  if (response.status !== 405) throw new Error('Prayer room live must not serve a public GET')
+})
+
+for (const path of ['prayer/golgotha-ascent-v1.webp', ...['journey', 'manitto', 'gratitude', 'recreation', 'mbti', 'shorts', 'praise'].map((name) => `icons/app-drawer-v1/${name}.webp`)]) {
+  await expectResponse(`/${path}`, async (response) => {
+    if (!response.ok || response.headers.get('content-type') !== 'image/webp') {
+      throw new Error(`App artwork is unavailable: ${path}`)
+    }
+  })
+}
+
 await expectResponse('/builder-preview/home', async (response) => {
   if (response.status !== 200) {
     throw new Error(`Builder preview returned ${response.status}`)
@@ -134,7 +146,7 @@ for (const path of ['/avatars/faith-player-reference-v2.png', '/prayer/prayer-ro
   })
 }
 
-for (const [pack, count] of [['bible-v1', 20], ['bible-mbti-v1', 5], ['bible-scenes-v1', 10], ['bible-scenes-v1/thumbs', 10], ['bible-expressions-v1', 20]]) {
+for (const [pack, count] of [['bible-v1', 20], ['bible-mbti-v1', 5], ['bible-scenes-v1', 10], ['bible-scenes-v1/thumbs', 10], ['bible-expressions-v1', 20], ['bible-expressions-v2', 20]]) {
   const images = readdirSync(new URL(`../public/avatars/${pack}/`, import.meta.url)).filter((file) => file.endsWith('.webp'))
   if (images.length !== count) throw new Error(`${pack} must contain ${count} images`)
   await Promise.all(images.map((file) => expectResponse(`/avatars/${pack}/${file}`, async (response) => {

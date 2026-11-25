@@ -1,15 +1,17 @@
 import type { Metadata } from 'next'
+import Link from 'next/link'
 import { AppShell, BottomTabBar } from '@/app/components/ui/AppShell'
 import { requireBetaUser } from '@/lib/betaAuth'
 import { isUrgentPrayerPost } from '@/lib/urgentPrayer'
 import PrayerSession, { type PrayerSessionPost } from './PrayerSession'
+import { PrayerRoomScene } from './PrayerRoomScene'
 import { generateBiblicalNickname } from '@/lib/profile'
 
 export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
-  title: '기도실 | 언블라인드',
-  description: '현재 기도가 필요한 익명 요청을 한 장씩 차분히 함께 기도합니다.',
+  title: '기도의 방 | 언블라인드',
+  description: '도트 캐릭터와 골고다 언덕을 오르고, 예배당에서 함께 기도합니다.',
 }
 
 type PrayerPostRow = {
@@ -30,7 +32,7 @@ function shuffle<T>(values: T[]) {
 }
 
 export default async function PrayTogetherPage() {
-  const { supabase, user } = await requireBetaUser()
+  const { supabase, user, profile } = await requireBetaUser()
   const [{ data: posts }, { data: blockedRows }] = await Promise.all([
     supabase
       .from('posts')
@@ -70,8 +72,19 @@ export default async function PrayTogetherPage() {
     }))
 
   return (
-    <AppShell topTitle="기도실" bottomBar={<BottomTabBar active="prayer" />}>
-      <PrayerSession posts={sessionPosts} storageScope={user.id} characterName={generateBiblicalNickname(user.id)} />
+    <AppShell topTitle="기도의 방" bottomBar={<BottomTabBar active="prayer" />}>
+      <h1 className="sr-only">기도의 방</h1>
+      <PrayerRoomScene storageScope={user.id} characterName={profile.nickname || generateBiblicalNickname(user.id)} />
+      <details className="ub-liquid-card mt-3 overflow-hidden">
+        <summary className="min-h-11 cursor-pointer px-4 py-3 text-[14px] font-bold text-[var(--ub-text-primary)]">기도 제목 놓고 기도하기</summary>
+        <div className="px-3 pb-3">
+          <PrayerSession posts={sessionPosts} />
+        </div>
+      </details>
+      <nav aria-label="기도 게시판 바로가기" className="mt-3 grid grid-cols-2 gap-2 text-center">
+        <Link href="/board/prayer" className="ub-liquid-card flex min-h-11 items-center justify-center px-2 text-[12px] font-bold text-[var(--ub-text-primary)]">기도 게시판</Link>
+        <Link href="/post/new?board=prayer" className="ub-liquid-card flex min-h-11 items-center justify-center px-2 text-[12px] font-bold text-[var(--ub-text-primary)]">기도 요청 쓰기</Link>
+      </nav>
     </AppShell>
   )
 }

@@ -9,6 +9,7 @@ import {
   type FaithWeather,
 } from '@/lib/dailyFaith'
 import { SystemIcon } from './ui/SystemIcon'
+import { Emoji3D } from './ui/Emoji3D'
 import { FaithAvatar } from './FaithAvatar'
 import { FaithWeatherIcon } from './FaithWeatherIcon'
 
@@ -131,14 +132,14 @@ export function DailyFaithCheckIn({ storageScope, characterName }: { storageScop
             <button
               type="button"
               onClick={() => setGuideOpen(true)}
-              className="mt-3 flex min-h-[50px] w-full items-center gap-3 rounded-[13px] bg-[var(--ub-surface-muted)] px-3 text-left"
+              aria-label={`오늘 마음 ${selectedMood?.label ?? ''}, 신앙 날씨 ${selectedWeather?.label ?? ''} · 맞춤 안내 보기`}
+              className="mt-3 flex min-h-[48px] w-full items-center gap-3 rounded-[13px] bg-[var(--ub-surface-muted)] px-3 focus-visible:ring-2 focus-visible:ring-[var(--ub-color-brand)]"
             >
-              <span className="min-w-0 flex-1">
-                <strong className="block text-[14px]">마음은 {selectedMood?.label}</strong>
-                <span className="mt-0.5 block text-[11px] text-[var(--ub-text-secondary)]">
-                  신앙 날씨 {selectedWeather?.label} · 맞춤 안내 보기
-                </span>
+              <span className="flex min-w-0 flex-1 items-center gap-3" aria-hidden="true">
+                <span className="text-[24px] leading-none">{selectedMood?.emoji}</span>
+                <FaithWeatherIcon weather={selectedWeather?.value ?? null} />
               </span>
+              <Emoji3D name="check" size={21} decorative />
               <span className="text-[22px] text-[var(--ub-text-tertiary)]" aria-hidden>›</span>
             </button>
           ) : (
@@ -148,16 +149,16 @@ export function DailyFaithCheckIn({ storageScope, characterName }: { storageScop
                   <button
                     key={option.value}
                     type="button"
+                    aria-label={option.label}
                     aria-pressed={mood === option.value}
                     onClick={() => setMood(option.value)}
-                    className={`min-w-0 rounded-[13px] px-1 py-2 text-center ${
+                    className={`grid min-h-11 min-w-0 place-items-center rounded-[13px] focus-visible:ring-2 focus-visible:ring-[var(--ub-color-brand)] ${
                       mood === option.value
-                        ? 'bg-[var(--ub-color-brand)] text-white'
-                        : 'bg-[var(--ub-surface-muted)] text-[var(--ub-text-secondary)]'
+                        ? 'bg-[var(--ub-color-brand)]'
+                        : 'bg-[var(--ub-surface-muted)]'
                     }`}
                   >
-                    <span className="block text-[20px]" aria-hidden>{option.emoji}</span>
-                    <span className="mt-0.5 block text-[10px] font-bold">{option.label}</span>
+                    <span className="text-[24px] leading-none" aria-hidden="true">{option.emoji}</span>
                   </button>
                 ))}
               </div>
@@ -167,27 +168,29 @@ export function DailyFaithCheckIn({ storageScope, characterName }: { storageScop
                   <button
                     key={option.value}
                     type="button"
+                    aria-label={option.label}
                     aria-pressed={weather === option.value}
                     onClick={() => setWeather(option.value)}
-                    className={`rounded-[13px] px-1 py-2 ${
+                    className={`grid min-h-11 min-w-0 place-items-center rounded-[13px] focus-visible:ring-2 focus-visible:ring-[var(--ub-color-brand)] ${
                       weather === option.value
-                        ? 'bg-[var(--ub-surface-brand-soft)] text-[var(--ub-color-brand)] ring-1 ring-[var(--ub-color-brand)]'
-                        : 'bg-[var(--ub-surface-muted)] text-[var(--ub-text-secondary)]'
+                        ? 'bg-[var(--ub-surface-brand-soft)] ring-1 ring-[var(--ub-color-brand)]'
+                        : 'bg-[var(--ub-surface-muted)]'
                     }`}
                   >
-                    <span className="flex justify-center" aria-hidden><FaithWeatherIcon weather={option.value} /></span>
-                    <span className="mt-0.5 block text-[10px] font-bold">{option.label}</span>
+                    <FaithWeatherIcon weather={option.value} />
                   </button>
                 ))}
               </div>
 
               <button
                 type="button"
+                aria-label={saving ? '기록 중…' : '오늘 체크인 남기기'}
+                aria-busy={saving}
                 onClick={saveCheckin}
                 disabled={!mood || !weather || saving}
-                className="mt-3 min-h-11 w-full rounded-[13px] bg-[var(--ub-color-brand)] px-4 text-[13px] font-bold text-white disabled:opacity-35"
+                className="mt-3 grid min-h-11 w-full place-items-center rounded-[13px] bg-[var(--ub-color-brand)] text-[23px] leading-none focus-visible:ring-2 focus-visible:ring-[var(--ub-color-brand)] focus-visible:ring-offset-2 disabled:opacity-50"
               >
-                {saving ? '기록 중…' : '오늘 체크인 남기기'}
+                {saving ? <Emoji3D name="hourglass" size={24} decorative /> : <span aria-hidden="true">📝</span>}
               </button>
               {error && <p className="mt-2 text-[12px] text-[var(--ub-danger-text)]" role="alert">{error}</p>}
             </>

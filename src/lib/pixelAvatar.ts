@@ -52,7 +52,7 @@ export function bibleAvatarStorageKey(scope: string) {
 }
 
 export function suggestedBibleAvatar(nickname: string): BibleAvatarPreset {
-  const name = nickname.split('-', 1)[0]?.trim() ?? ''
+  const name = nickname.trim().replace(/-?[A-Z]+$/, '')
   const sameName = presetByName.get(name)
   if (sameName) return sameName
 
@@ -63,6 +63,10 @@ export function suggestedBibleAvatar(nickname: string): BibleAvatarPreset {
     hash = Math.imul(hash ^ character.charCodeAt(0), 16777619)
   }
   return bibleAvatarPresets[(hash >>> 0) % bibleAvatarPresets.length]!
+}
+
+export function findBibleAvatarPreset(id: string) {
+  return presetById.get(id) ?? null
 }
 
 export function readBibleAvatarPreset(scope: string): BibleAvatarPreset | null {

@@ -1,81 +1,335 @@
+.experience {
+  display: grid;
+  min-width: 0;
+  gap: 12px;
+}
+
 .container {
   overflow: hidden;
   border: 1px solid var(--ub-glass-border);
-  border-radius: 22px;
+  border-radius: 23px;
   background: var(--ub-surface-card-strong);
   box-shadow: var(--ub-shadow-soft);
 }
-.room {
+
+.game {
+  background: #30201e;
+}
+
+.viewport {
+  --room-scale: 1;
+  --room-pan: -740px;
   position: relative;
-  width: min(100%, 480px);
-  aspect-ratio: 941 / 1672;
-  margin-inline: auto;
+  width: 100%;
+  height: clamp(296px, 52svh, 520px);
   overflow: hidden;
   isolation: isolate;
-  background: #c49068;
+  background: #573e42;
+  touch-action: pan-y;
 }
-.background {
-  z-index: 0;
-  object-fit: contain;
-  object-position: center;
-  image-rendering: pixelated;
+
+.viewport:focus-visible {
+  outline: 3px solid #f9b979;
+  outline-offset: -4px;
 }
-.walkArea {
+
+.world {
+  position: absolute;
+  inset: 0 auto auto 0;
+  transform-origin: top left;
+  transform: translate3d(0, var(--room-pan), 0) scale(var(--room-scale));
+  will-change: transform;
+}
+
+.landscape {
   position: absolute;
   inset: 0;
-  z-index: 1;
-  width: 100%;
-  cursor: crosshair;
-  background: transparent;
-}
-.walkArea:focus-visible { outline: 3px solid var(--ub-color-brand); outline-offset: -4px; }
-.avatar {
-  position: absolute;
-  z-index: 2;
-  display: grid;
-  justify-items: center;
-  pointer-events: none;
-  transform: translate(-50%, -64%);
-  transition: left .2s steps(3), top .2s steps(3);
-  filter: drop-shadow(0 5px 0 rgba(36, 24, 19, .36));
-}
-.sprite {
-  width: 72px;
-  height: 72px;
-  object-fit: contain;
+  background:
+    linear-gradient(180deg, transparent 23%, #34223227 56%, #2f202c46),
+    url('/prayer/golgotha-ascent-v1.webp') center / 100% 100% no-repeat,
+    linear-gradient(180deg, #ac7d94 4%, #ffa563 19%, #864e40 38%, #352734 100%);
   image-rendering: pixelated;
 }
+
+.ledge {
+  --stone-top: #f7c77c;
+  --stone-face: #a96540;
+  position: absolute;
+  z-index: 2;
+  height: 20px;
+  border-top: 3px solid var(--stone-top);
+  border-bottom: 3px solid #5c3a39;
+  background:
+    repeating-linear-gradient(90deg, transparent 0 14px, #603c333e 14px 16px, #ffd29538 16px 20px, transparent 20px 29px),
+    linear-gradient(180deg, #f9c68852, transparent 30%, #53323665 95%),
+    var(--stone-face);
+  clip-path: polygon(0 0, 100% 0, 100% 42%, calc(100% - 4px) 42%, calc(100% - 4px) 70%, calc(100% - 9px) 70%, calc(100% - 9px) 100%, 8px 100%, 8px 76%, 4px 76%, 4px 50%, 0 50%);
+}
+
+.ledge[data-ground] {
+  height: 38px;
+  clip-path: none;
+}
+
+.ledge[data-summit] {
+  --stone-top: #ffdf9a;
+  --stone-face: #c7804e;
+  height: 24px;
+}
+
+.ladder {
+  position: absolute;
+  z-index: 1;
+  width: 20px;
+  transform: translateX(-50%);
+  border-inline: 3px solid #b67b52;
+  background:
+    repeating-linear-gradient(180deg, transparent 0 7px, #deb080 7px 9px, #794a34 9px 10px, transparent 10px 12px);
+  box-shadow: 1px 0 #4e2c29, -1px 0 #4e2c29, inset 1px 0 #55332c, inset -1px 0 #55332c;
+}
+
+.summitChapel {
+  position: absolute;
+  z-index: 1;
+  width: 59px;
+  height: 60px;
+  background: linear-gradient(90deg, #f4d68e 74%, #daa574 74%);
+  box-shadow: inset 0 -7px #92503d;
+}
+
+.chapelRoof {
+  position: absolute;
+  inset: -9px -8px auto;
+  height: 30px;
+  background: linear-gradient(175deg, #a45131 50%, #5b2f34);
+  clip-path: polygon(0 85%, 6% 85%, 6% 70%, 14% 70%, 14% 55%, 22% 55%, 22% 40%, 30% 40%, 30% 25%, 39% 25%, 39% 12%, 47% 12%, 47% 0, 56% 0, 56% 15%, 64% 15%, 64% 30%, 72% 30%, 72% 45%, 80% 45%, 80% 60%, 88% 60%, 88% 75%, 100% 75%, 100% 100%, 0 100%);
+}
+
+.chapelCross {
+  position: absolute;
+  width: 17px;
+  height: 19px;
+  left: 20px;
+  top: -26px;
+  background: #744133;
+  clip-path: polygon(38% 0, 62% 0, 62% 28%, 100% 28%, 100% 50%, 62% 50%, 62% 100%, 38% 100%, 38% 50%, 0 50%, 0 28%, 38% 28%);
+}
+
+.chapelDoor {
+  position: absolute;
+  left: 18px;
+  bottom: 0;
+  width: 22px;
+  height: 31px;
+  background: linear-gradient(90deg, #8b5844 40%, #f6bc6a 40%, #f6bc6a 60%, #714640 60%);
+  clip-path: polygon(0 32%, 20% 32%, 20% 12%, 40% 12%, 40% 0, 60% 0, 60% 12%, 80% 12%, 80% 32%, 100% 32%, 100% 100%, 0 100%);
+}
+
+.player, .chapelAvatar {
+  position: absolute;
+  z-index: 4;
+  display: grid;
+  justify-items: center;
+  transform: translate(-50%, calc(-100% + 3px));
+  pointer-events: none;
+}
+
+.sprite {
+  object-fit: contain;
+  image-rendering: pixelated;
+  filter: drop-shadow(0 2px #2e1e2a70);
+}
+
+.player[data-facing='left'] .sprite { --facing: -1; }
+.player .sprite { width: 67px; height: 67px; transform: scaleX(var(--facing, 1)); }
+
+.player[data-moving='true'] .sprite {
+  animation: step .26s steps(2, jump-none) infinite;
+}
+
+@keyframes step {
+  0%, 100% { transform: translateY(0) scaleX(var(--facing, 1)); }
+  50% { transform: translateY(-2.5px) scaleX(var(--facing, 1)); }
+}
+
+.peer {
+  z-index: 3;
+  transition: left .21s linear, top .21s linear;
+}
+.peer .sprite { width: 60px; height: 60px; }
+
 .nameTag {
-  max-width: 112px;
+  max-width: 90px;
   overflow: hidden;
-  border: 1px solid rgba(37, 27, 21, .64);
-  border-radius: 4px;
   padding: 2px 4px;
-  background: rgba(255, 250, 238, .95);
-  color: #36251d;
-  font-size: 9px;
-  font-weight: 800;
+  border: 1px solid #764d3b;
+  border-radius: 5px;
+  background: #fff2d7;
+  color: #3c2723;
+  font-size: 10px;
+  font-weight: 850;
   line-height: 1.1;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.roomName {
-  position: absolute;
-  z-index: 3;
-  top: 12px;
-  left: 12px;
-  border: 1px solid rgba(60, 35, 20, .4);
-  border-radius: 6px;
-  padding: 5px 8px;
-  background: rgba(255, 248, 227, .9);
-  color: #3d2a1f;
-  font-size: 11px;
-  font-weight: 900;
+
+.peer .nameTag {
+  border-color: #776688;
+  background: #f6eafd;
+  color: #472c4c;
 }
-.controls { display: flex; min-height: 46px; align-items: center; justify-content: space-between; gap: 8px; padding: 4px 8px 4px 12px; }
-.hint { color: var(--ub-text-tertiary); font-size: 10px; font-weight: 700; }
-.arrows { display: flex; align-items: center; gap: 2px; }
-.arrows div { display: flex; flex-direction: column; gap: 2px; }
-.arrows button { width: 32px; height: 24px; border-radius: 6px; background: var(--ub-surface-muted); color: var(--ub-text-primary); font-size: 14px; font-weight: 900; line-height: 1; }
-.arrows button:active { background: var(--ub-surface-brand-soft); color: var(--ub-color-brand); }
-@media (max-width: 350px) { .hint { max-width: 130px; } }
+
+.hud {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.hudTitle, .steps, .backToHill, .summitButton {
+  position: absolute;
+  top: 9px;
+  padding: 6px 8px;
+  border: 1px solid #f9c68c88;
+  border-radius: 9px;
+  background: #342127ed;
+  color: #ffe7bb;
+  font-size: 11px;
+  font-weight: 850;
+  line-height: 1.2;
+}
+
+.hudTitle { left: 9px; }
+.steps { right: 9px; font-variant-numeric: tabular-nums; }
+.summitButton {
+  inset: 54px 12px auto auto;
+  min-height: 44px;
+  pointer-events: auto;
+  background: #fff0cf;
+  color: #42251e;
+}
+
+.controls {
+  display: flex;
+  min-height: 103px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 12px;
+  background: linear-gradient(180deg, #3b2624, #2c1e20);
+}
+
+.pad {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(3, 37px);
+  grid-template-rows: 31px 41px 31px;
+  gap: 0;
+}
+
+.pad button, .jump, .iconButton {
+  z-index: 1;
+  border: 1px solid #f2b8893b;
+  color: #ffe1b6;
+  box-shadow: inset 0 1px #fff2d633, 0 2px #19101265;
+  font-weight: 900;
+  touch-action: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+.pad button {
+  background: #614038;
+  font-size: 13px;
+}
+
+.pad button[data-move='up'] { grid-area: 1 / 2; border-radius: 9px 9px 2px 2px; }
+.pad button[data-move='left'] { grid-area: 2 / 1; border-radius: 9px 2px 2px 9px; }
+.pad button[data-move='down'] { grid-area: 3 / 2; border-radius: 2px 2px 9px 9px; }
+.pad button[data-move='right'] { grid-area: 2 / 3; border-radius: 2px 9px 9px 2px; }
+.padCenter { grid-area: 2 / 2; margin: -1px; z-index: 0; background: #49312c; }
+.pad button:active, .iconButton:active { background: #a76135; }
+
+.controlCenter { display: flex; gap: 5px; }
+.iconButton {
+  min-width: 36px;
+  min-height: 44px;
+  border-radius: 9px;
+  background: #48302d;
+  font-size: 16px;
+}
+
+.jump {
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 2px;
+  width: 68px;
+  height: 68px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: linear-gradient(#f6bc7e, #c8774b);
+  color: #412027;
+  font-size: 11px;
+}
+.jump span { font-size: 24px; line-height: 1; }
+.jump:active { background: #ffdaaa; transform: scale(.94); }
+.jump:focus-visible, .controls button:focus-visible, .chapelView button:focus-visible {
+  outline: 2px solid #fff2cb;
+  outline-offset: 2px;
+}
+
+.chapelView {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  background: #ba8566;
+}
+.chapelBackground { object-fit: cover; object-position: center 22%; image-rendering: pixelated; }
+.backToHill { right: 9px; min-height: 40px; }
+.chapelAvatar { top: 77%; left: 51%; transition: transform .25s ease; }
+.chapelAvatar .sprite { width: 96px; height: 96px; }
+.chapelAvatar[data-praying='true'] {
+  transform: translate(-50%, calc(-100% + 11px));
+  filter: drop-shadow(0 0 12px #ffe3a7b3);
+}
+.chapelAvatar[data-praying='true'] .sprite { transform: rotate(5deg) scaleY(.88); transform-origin: bottom; }
+.chapelAction {
+  position: absolute;
+  z-index: 5;
+  right: 12px;
+  bottom: 12px;
+  min-height: 42px;
+  padding: 0 12px;
+  border: 1px solid #fff5d58c;
+  border-radius: 11px;
+  background: #392627ed;
+  color: #fff0ce;
+  font-size: 12px;
+  font-weight: 850;
+}
+
+.hint { margin: 0; padding: 10px 12px 0; color: var(--ub-text-secondary); font-size: 12px; line-height: 1.5; }
+.chapelShortcut {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 3px 12px;
+  color: var(--ub-text-secondary);
+  font-size: 11px;
+}
+.chapelShortcut button { min-height: 44px; color: var(--ub-color-brand); text-align: end; font-size: 12px; font-weight: 800; }
+
+@media (max-width: 350px) {
+  .controlCenter { gap: 3px; }
+  .iconButton { min-width: 31px; }
+  .controls { gap: 5px; padding-inline: 8px; }
+  .jump { width: 61px; height: 61px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .player[data-moving='true'] .sprite { animation: none; }
+  .peer, .chapelAvatar { transition: none; }
+}

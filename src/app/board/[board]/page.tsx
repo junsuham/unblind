@@ -159,8 +159,8 @@ export default async function BoardPage({ params, searchParams }: BoardPageProps
         >
           <span className="relative h-[86px] w-[72px] shrink-0 overflow-hidden rounded-[12px] bg-[#c49068]">
             <Image
-              src="/prayer/prayer-room-reference-v2.png"
-              alt="창과 십자가가 있는 도트 기도실 미리보기"
+              src="/prayer/golgotha-ascent-v1.webp"
+              alt=""
               fill
               sizes="72px"
               className="object-cover object-top [image-rendering:pixelated]"
@@ -168,11 +168,11 @@ export default async function BoardPage({ params, searchParams }: BoardPageProps
             />
           </span>
           <span className="min-w-0 flex-1">
-            <strong className="block text-[14px] text-[var(--ub-text-primary)]">기도실</strong>
+            <strong className="block text-[14px] text-[var(--ub-text-primary)]"><span aria-hidden="true">🍁 </span>기도의 방</strong>
             <span className="mt-0.5 block text-[11px] leading-[16px] text-[var(--ub-text-secondary)]">
-              도트 기도실에서 함께 기도해요
+              골고다 언덕을 올라 예배당에서 기도해요
             </span>
-            <span className="mt-2 inline-flex items-center gap-1 text-[11px] font-bold text-[var(--ub-color-brand)]">기도실 들어가기 <span aria-hidden>→</span></span>
+            <span className="mt-2 inline-flex items-center gap-1 text-[11px] font-bold text-[var(--ub-color-brand)]">들어가기 <span aria-hidden>→</span></span>
           </span>
         </Link>
       )}

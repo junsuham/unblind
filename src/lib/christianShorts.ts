@@ -22,6 +22,34 @@ const CHRISTIAN_TAGS = [
 
 const SHORTS_TAGS = ['shorts', '쇼츠', 'youtubeshorts'] as const
 
+// "말씀", "기도", "신앙", "prayer" and "worship" also occur in other religions.
+// They only count as topical cues, never as independent Christian evidence.
+const CHRISTIAN_KOREAN_ANCHOR = /기독교|크리스[천챤]|개신교|그리스도|예수|하나님|하느님|성경|성서|성령|십자가|복음|주기도문|사도신경|천주교|가톨릭/
+const CHRISTIAN_ENGLISH_ANCHOR = /(?<![a-z0-9])(?:christ(?:ian(?:ity|s)?)?|jesus|bible|biblical|holy spirit|holy trinity|new testament|old testament|gospel)(?![a-z0-9])/i
+const CHRISTIAN_REFERENCE = /(?:창세기|출애굽기|신명기|시편|잠언|마태복음|마가복음|누가복음|요한복음|사도행전|로마서|갈라디아서|에베소서|빌립보서|고린도[전후]서|히브리서|요한계시록)\s*\d{1,3}\s*(?:장\s*\d{1,3}\s*절|[:.]\s*\d{1,3})/u
+const FAITH_TITLE_CUE = /말씀|기도|간증|찬양|찬송|묵상|예배|신앙|설교|부활절|성탄절|교회|목사|은혜|주님|(?<![a-z0-9])(?:worship|prayer|pray|church|sermon|devotional|testimony|hymn|easter)(?![a-z0-9])/i
+const CHRISTIAN_ANCHOR_TAGS = [
+  '기독교', '크리스천', '크리스챤', '개신교', '예수', '예수님', '예수그리스도',
+  '그리스도', '하나님', '하느님', '성경', '성경묵상', '성경말씀', '성경구절', '성서',
+  '성령', '복음', '십자가', '주기도문', '교회예배', '기독교쇼츠', '크리스천쇼츠', '가톨릭',
+  'ccm', 'jesus', 'jesuschrist', 'christian', 'christianity', 'christianshorts',
+  'christianmusic', 'bible', 'bibleverse', 'biblestudy', 'gospel', 'holyspirit',
+] as const
+
+// Exclude mixed/ambiguous results even when popular Christian hashtags were added.
+// Only distinctive markers are listed here: e.g. 명상, 사찰 and 기도 alone are ambiguous.
+const OTHER_RELIGION_KOREAN = [
+  '불교', '불경', '불자', '불상', '부처', '석가모니', '보살', '스님', '법문', '불법승',
+  '반야심경', '금강경', '법화경', '화엄경', '염불', '독경', '목탁', '아미타불', '관세음',
+  '극락왕생', '템플스테이', '조계종', '태고종', '대한불교', '봉축', '천도재', '법회',
+  '이슬람', '무슬림', '코란', '꾸란', '알라신', '라마단', '모스크',
+  '힌두교', '브라만', '크리슈나', '시크교', '조로아스터', '샤머니즘', '무속', '신점',
+  '몰몬교', '몰몬경', '통일교', '종교비교', '종교혼합',
+  '佛教', '仏教', '佛陀', '佛經', '般若心経', '念仏', '阿弥陀仏', '观世音', '伊斯兰',
+] as const
+const OTHER_RELIGION_ENGLISH = /(?<![a-z0-9])(?:buddh(?:a|as|ism|ist|ists)|buddhist temple|dharma talk|shakyamuni|amitabha|bodhisattva|heart sutra|lotus sutra|zen buddhism|temple stay|islam(?:ic)?|muslim(?:s)?|qur['’]?an|koran|ramadan|mosque|hindu(?:ism|s)?|krishna|sikh(?:ism|s)?|shamanism|scientology|book of mormon|mormonism|unification church|interfaith worship|religion comparison)(?![a-z0-9])/i
+const OTHER_RELIGION_TAG = /^(?:buddh(?:a|ism|ist)|shakyamuni|amitabha|dharma(?:talk|teaching)|heartsutra|lotussutra|zenbuddh|temple(?:stay|life)|islam(?:ic)?|muslim|quran|koran|ramadan|hindu|krishna|sikhism|mormon(?:ism|church)|scientology|interfaithworship|religioncomparison)/i
+
 const BLOCKED_TERMS = [
   '성인방송',
   '도박',
@@ -84,15 +112,13 @@ const AI_GENERATION_TERMS = [
 ] as const
 
 const SEARCH_QUERY = [
-  '기독교 쇼츠',
-  '성경 쇼츠',
-  '기도 쇼츠',
-  '간증 쇼츠',
-  '복음 쇼츠',
-  '찬양 쇼츠',
-  '예수 쇼츠',
-  '청년신앙 쇼츠',
-].join('|')
+  '기독교 shorts',
+  '성경 말씀 shorts',
+  '예수님 shorts',
+  '기독교 간증 shorts',
+  '교회 설교 shorts',
+  '복음 찬양 shorts',
+].join('|') + ' -불교 -스님 -법문 -buddhism -buddhist -이슬람'
 
 const FEED_REVALIDATE_SECONDS = 21_600
 const MAX_SHORTS_SECONDS = 180
@@ -114,6 +140,7 @@ export type YouTubeVideoResource = {
     tags?: string[]
     liveBroadcastContent?: string
     thumbnails?: Record<string, YouTubeThumbnail>
+    localized?: { title?: string; description?: string }
   }
   contentDetails?: {
     duration?: string
@@ -161,12 +188,17 @@ export type ChristianShortsFeed = {
 }
 
 function normalizeToken(value: string) {
-  return value
-    .normalize('NFKC')
+  return normalizeMetadata(value)
     .trim()
-    .toLocaleLowerCase('ko-KR')
     .replace(/^#+/, '')
     .replace(/[\s_.-]+/g, '')
+}
+
+function normalizeMetadata(value: string) {
+  return decodeYouTubeText(value)
+    .normalize('NFKC')
+    .replace(/\p{Cf}/gu, '')
+    .toLocaleLowerCase('ko-KR')
 }
 
 function extractHashtags(value: string) {
@@ -180,6 +212,11 @@ function decodeYouTubeText(value: string) {
     .replaceAll('&#39;', "'")
     .replaceAll('&lt;', '<')
     .replaceAll('&gt;', '>')
+    .replace(/&#(x[0-9a-f]+|\d+);/gi, (original, numeric: string) => {
+      const isHex = numeric[0].toLowerCase() === 'x'
+      const codePoint = Number.parseInt(isHex ? numeric.slice(1) : numeric, isHex ? 16 : 10)
+      return codePoint > 0 && codePoint <= 0x10ffff ? String.fromCodePoint(codePoint) : original
+    })
 }
 
 function isSafeYoutubeId(value: string) {
@@ -260,10 +297,29 @@ function getThumbnailUrl(video: YouTubeVideoResource, id: string) {
 }
 
 function findMatchedChristianTags(tokens: string[]) {
-  return CHRISTIAN_TAGS.filter((tag) => {
-    const normalizedTag = normalizeToken(tag)
-    return tokens.some((token) => token === normalizedTag || token.includes(normalizedTag))
-  }).map((tag) => `#${tag}`)
+  const candidates = new Set([...CHRISTIAN_TAGS, ...CHRISTIAN_ANCHOR_TAGS])
+  return [...candidates]
+    .filter((tag) => tokens.includes(normalizeToken(tag)))
+    .map((tag) => `#${tag}`)
+}
+
+function withoutHashtags(value: string) {
+  return value.replace(/#[\p{L}\p{N}_.-]+/gu, ' ')
+}
+
+function hasChristianAnchor(value: string) {
+  return CHRISTIAN_KOREAN_ANCHOR.test(value.replace(/\s+/g, ''))
+    || CHRISTIAN_ENGLISH_ANCHOR.test(value)
+    || CHRISTIAN_REFERENCE.test(value)
+}
+
+function hasConflictingReligion(fields: string[]) {
+  return fields.some((field) => {
+    const compact = field.replace(/[^\p{L}\p{N}]+/gu, '')
+    return OTHER_RELIGION_KOREAN.some((term) => compact.includes(term))
+      || OTHER_RELIGION_ENGLISH.test(field.replace(/[_-]+/g, ' '))
+      || [field, ...extractHashtags(field)].some((token) => OTHER_RELIGION_TAG.test(normalizeToken(token)))
+  })
 }
 
 export function filterChristianShortVideos(
@@ -285,21 +341,39 @@ export function filterChristianShortVideos(
     if (snippet.liveBroadcastContent && snippet.liveBroadcastContent !== 'none') return []
     if (isLikelyAiGeneratedVideo(video)) return []
 
-    const metadataTags = snippet.tags ?? []
-    const hashtags = extractHashtags(`${snippet.title} ${snippet.description ?? ''}`)
+    const titles = [snippet.title, snippet.localized?.title ?? ''].map(normalizeMetadata)
+    const descriptions = [snippet.description ?? '', snippet.localized?.description ?? ''].map(normalizeMetadata)
+    const channel = normalizeMetadata(snippet.channelTitle)
+    const metadataTags = (snippet.tags ?? []).map(normalizeMetadata)
+    const videoText = [...titles, ...descriptions]
+    const allMetadata = [...videoText, channel, ...metadataTags]
+    if (hasConflictingReligion(allMetadata)) return []
+    const hashtags = videoText.flatMap(extractHashtags)
     const tokens = [...metadataTags, ...hashtags].map(normalizeToken).filter(Boolean)
-    const matchedTags = findMatchedChristianTags(tokens)
     const hasShortsTag = tokens.some((token) =>
       SHORTS_TAGS.some((shortsTag) => token === normalizeToken(shortsTag))
     )
-    const moderationText = normalizeToken(
-      `${snippet.title} ${snippet.description ?? ''} ${metadataTags.join(' ')}`
+    const moderationTokens = allMetadata.map(normalizeToken)
+    const hasBlockedTerm = moderationTokens.some((text) =>
+      BLOCKED_TERMS.some((term) => text.includes(normalizeToken(term)))
     )
-    const hasBlockedTerm = BLOCKED_TERMS.some((term) =>
-      moderationText.includes(normalizeToken(term))
-    )
-
-    if (!hasShortsTag || matchedTags.length === 0 || hasBlockedTerm) return []
+    const visibleTitles = titles.map(withoutHashtags)
+    const hasStrongTitle = visibleTitles.some(hasChristianAnchor)
+    const hasFaithTitle = visibleTitles.some((title) => FAITH_TITLE_CUE.test(title))
+    const tagSources = [...titles, ...descriptions].map((field) => extractHashtags(field).map(normalizeToken))
+    // A single loosely related tag does not independently corroborate the title.
+    // Keep repeated translations from masquerading as multiple sources.
+    const sourceTagEvidence = [metadataTags.map(normalizeToken), tagSources[0], tagSources[2]]
+    const hasCorroboratingTags = sourceTagEvidence.filter((source) =>
+      CHRISTIAN_ANCHOR_TAGS.some((tag) => source.includes(tag))
+    ).length >= 2
+    const hasSupportingContext = hasCorroboratingTags || hasChristianAnchor(channel)
+      || descriptions.map(withoutHashtags).some(hasChristianAnchor)
+    // A title must express a Christian topic directly, or a faith topic
+    // corroborated by a Christian-specific description/channel/tag.
+    // Hashtag stuffing alone cannot override an unrelated title.
+    if (!hasShortsTag || hasBlockedTerm || !(hasStrongTitle || (hasFaithTitle && hasSupportingContext))) return []
+    const matchedTags = findMatchedChristianTags(tokens)
 
     return [{
       id,

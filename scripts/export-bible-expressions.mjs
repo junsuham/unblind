@@ -8,7 +8,7 @@ const HEIGHT = 224
 const FRAME_BYTES = WIDTH * HEIGHT * 4
 export const expressionFrames = [null, 'peaceful', 'grateful', 'tired', 'anxious', 'lonely']
 const source = fileURLToPath(new URL('../public/avatars/bible-v1/', import.meta.url))
-const destination = fileURLToPath(new URL('../public/avatars/bible-expressions-v1/', import.meta.url))
+const destination = fileURLToPath(new URL('../public/avatars/bible-expressions-v2/', import.meta.url))
 
 // [near-eye box, far-eye box, unobstructed cheek/nose point, mouth box].
 // Each box is independently aligned to the existing 192×224 pixel drawing.
@@ -101,6 +101,62 @@ function pointLine(output, points, color, thick = 2) {
   }
 }
 
+function stampPixels(output, x, y, rows, palette) {
+  for (const [dy, row] of rows.entries()) {
+    const left = x - (row.length >> 1)
+    for (const [dx, key] of [...row].entries()) {
+      if (palette[key]) set(output, left + dx, y + dy, palette[key])
+    }
+  }
+}
+
+function bareFacePixel(pixel, skin) {
+  return pixel[3] >= 224
+    && Math.abs(pixel[0] - skin[0]) < 40
+    && Math.abs(pixel[1] - skin[1]) < 42
+    && Math.abs((pixel[0] - pixel[2]) - (skin[0] - skin[2])) < 27
+    && pixel[1] > pixel[2] + 8
+}
+
+function paintCheek(original, output, box, skin, mood, far) {
+  if (mood === 'anxious' || mood === 'lonely') return
+  const [x1, , x2, y2] = box
+  const w = x2 - x1
+  const center = far ? x2 - Math.max(3, Math.round(.20 * w)) : x1 + Math.round(.24 * w)
+  const baseY = y2 + (mood === 'tired' ? -1 : 1)
+  const radius = far ? 3 : 5
+  const shade = mood === 'grateful' ? [0, -36, -26] : mood === 'tired' ? [-30, -29, -14] : [0, -16, -13]
+  for (let dy = 0; dy < 4; dy++) {
+    const lineRadius = radius - (dy === 0 || dy === 3 ? 2 : 0)
+    for (let dx = -lineRadius; dx <= lineRadius; dx++) {
+      const pixel = get(original, center + dx, baseY + dy)
+      if (!bareFacePixel(pixel, skin)) continue
+      const strength = Math.abs(dx) === lineRadius || dy === 0 || dy === 3 ? .55 : 1
+      set(output, center + dx, baseY + dy, tone(pixel, shade.map((value) => value * strength)))
+    }
+  }
+}
+
+function paintTear(original, output, box, skin) {
+  const [x1, , x2, y2] = box
+  const width = x2 - x1
+  // Find a 3-pixel vertical corridor of actual skin beside the near eye.
+  // A beard, hair, clothing or the transparent silhouette is never repainted.
+  const tearX = x1 + Math.round(width * .22)
+  for (const offset of [0, -2, 2, 4]) {
+    const x = tearX + offset
+    const y = y2 - 3
+    if (![0, 1, 2, 3, 4].every((dy) => bareFacePixel(get(original, x, y + dy), skin))) continue
+    const palette = {
+      o: [107, 148, 175],
+      b: [162, 205, 226],
+      h: [231, 245, 252],
+    }
+    stampPixels(output, x, y, ['.o.', '.h.', 'obo', 'obo', '.b.'], palette)
+    break
+  }
+}
+
 function drawEye(original, output, box, skin, mood, far) {
   const [x1, y1, x2, y2] = box
   const w = x2 - x1
@@ -124,26 +180,41 @@ function drawEye(original, output, box, skin, mood, far) {
   const right = x2 - Math.max(2, Math.round(.13 * w))
   const middle = Math.round((left + right) / 2)
   if (mood === 'peaceful' || mood === 'grateful') {
-    const midY = Math.round(y1 + .55 * h)
-    const arch = mood === 'grateful' ? (far ? 2 : 4) : -1
+    const excited = mood === 'grateful'
+    const midY = Math.round(y1 + (excited ? .55 : .58) * h)
+    const arch = excited ? (far ? 3 : 5) : -2
     pointLine(output, [[left, midY], [middle - 2, midY - arch], [middle + 2, midY - arch], [right, midY]], ink, far ? 2 : 3)
+    if (excited) pointLine(output, [[left, midY], [left - 1, midY + 2]], ink, 2)
     return
   }
 
-  const factor = mood === 'tired' ? .40 : mood === 'lonely' ? .62 : .74
+  const factor = mood === 'tired' ? .31 : mood === 'lonely' ? .74 : .91
   const squeezed = Math.max(3, Math.round(h * factor))
-  const startY = y2 - squeezed - (mood === 'anxious' ? 3 : 0)
+  const startY = y2 - squeezed - (mood === 'anxious' ? 1 : 0)
   for (let y = startY; y < startY + squeezed; y++) for (let x = x1; x < x2; x++) {
     const fromY = Math.min(y2 - 1, y1 + Math.round((y - startY) * (h - 1) / (squeezed - 1)))
     if (mask(x, fromY)) set(output, x, y, get(original, x, fromY))
   }
-  const endOffset = mood === 'tired' ? 0 : far ? -2 : 2
-  pointLine(output, [[left, startY + 2], [middle, startY + 1], [right, startY + 2 - endOffset]], ink, far ? 2 : 3)
+  if (mood === 'tired') {
+    const lidY = startY + (far ? 1 : 0)
+    pointLine(output, [[left, lidY], [middle, lidY + 1], [right, lidY + 1]], ink, far ? 2 : 3)
+  } else if (mood === 'lonely') {
+    // Tilt to an open gaze and add a small, cool glint at the lower eye.
+    const edge = far ? -3 : 3
+    pointLine(output, [[left, startY + 3], [middle, startY + 2], [right, startY + 3 - edge]], ink, far ? 2 : 3)
+    const glance = middle + (far ? 0 : 2)
+    const glintY = startY + Math.round(squeezed * .66)
+    stampPixels(output, glance, glintY, ['.hh', 'bb.'], {
+      b: [128, 170, 191], h: [230, 244, 252],
+    })
+  } else {
+    pointLine(output, [[left, startY + 3], [middle - 1, startY], [middle + 2, startY], [right, startY + 4]], ink, far ? 2 : 3)
+  }
   if (mood === 'anxious') {
-    // A small, lifted inner crease, not an added accessory or a cartoon sweat icon.
-    const crease = tone(skin, [-93, -103, -87])
-    const browY = Math.max(y1, startY - 4)
-    pointLine(output, [[left + 1, browY + (far ? 0 : 2)], [right - 1, browY + (far ? 2 : 0)]], crease, 2)
+    // Lift the brow toward the center of the face and keep the eyes wide open.
+    const crease = tone(skin, [-106, -104, -88])
+    const browY = Math.max(y1 - 2, startY - 4)
+    pointLine(output, [[left + 1, browY + (far ? 0 : 3)], [right - 1, browY + (far ? 3 : 0)]], crease, 2)
   }
 }
 
@@ -158,17 +229,36 @@ function drawMouth(original, output, box, skin, mood) {
     }
   }
   const ink = tone(skin, [-137, -139, -114])
+  const cavity = tone(skin, [-173, -149, -105])
+  const tongue = tone(skin, [-33, -110, -77])
   if (mood === 'grateful') {
-    pointLine(output, [[x - 5,y - 1],[x - 3,y + 2],[x + 3,y + 2],[x + 5,y - 1]], ink, 2)
-    pointLine(output, [[x - 3,y],[x + 3,y]], tone(skin, [-175, -151, -107]), 2)
+    stampPixels(output, x, y - 3, [
+      'oo.......oo',
+      '.ooodddooo.',
+      '..odddddo..',
+      '..odtttdo..',
+      '...ottto...',
+      '....ooo....',
+    ], { o: ink, d: cavity, t: tongue })
   } else if (mood === 'peaceful') {
     pointLine(output, [[x - 3,y],[x - 1,y + 1],[x + 2,y + 1],[x + 4,y]], ink)
   } else if (mood === 'anxious') {
-    pointLine(output, [[x - 2,y + 1],[x - 1,y - 1],[x + 2,y - 1],[x + 3,y + 1]], ink, 2)
+    stampPixels(output, x, y - 2, [
+      '..ooo..',
+      '.odddo.',
+      '.odddo.',
+      'o.....o',
+    ], { o: ink, d: cavity })
   } else if (mood === 'lonely') {
-    pointLine(output, [[x - 4,y + 2],[x - 2,y],[x + 1,y],[x + 3,y + 1]], ink)
+    pointLine(output, [[x - 5,y + 2],[x - 2,y - 1],[x + 1,y - 1],[x + 4,y + 2]], ink)
   } else {
-    pointLine(output, [[x - 3,y + 1],[x + 3,y]], ink)
+    stampPixels(output, x, y - 2, [
+      '..ooo..',
+      '.odddo.',
+      '.odddo.',
+      '.odtdo.',
+      '..ooo..',
+    ], { o: ink, d: cavity, t: tongue })
   }
 }
 
@@ -181,6 +271,9 @@ export function drawMoodPixels(original, id, mood) {
   const skin = pointSkin(original, sx, sy)
   drawEye(original, output, near, skin, mood, false)
   drawEye(original, output, far, skin, mood, true)
+  paintCheek(original, output, near, skin, mood, false)
+  paintCheek(original, output, far, skin, mood, true)
+  if (mood === 'lonely') paintTear(original, output, near, skin)
   if (mouth) drawMouth(original, output, mouth, skin, mood)
   return output
 }

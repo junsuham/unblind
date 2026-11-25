@@ -8,6 +8,7 @@ import { bibleAvatarPresets, saveBibleAvatarPreset, type BibleAvatarPreset } fro
 import { FaithAvatarSprite } from './FaithAvatarSprite'
 import { FaithAvatarWeather } from './FaithAvatarWeather'
 import { FaithWeatherIcon } from './FaithWeatherIcon'
+import { Emoji3D } from './ui/Emoji3D'
 import { useBibleAvatarScene } from './useBibleAvatarScene'
 import { useFaithAvatar } from './useFaithAvatar'
 import styles from './FaithAvatar.module.css'
@@ -103,10 +104,11 @@ export function FaithAvatar({
           <span>{sceneOpen && !sceneUnchanged ? '미리보기 · ' : ''}{visibleScene.name}</span>
           <small>{visibleScene.reference}</small>
         </div>
-        <span className={styles.weatherLabel}>
-          <FaithWeatherIcon weather={weather} />
-          {weather ? weatherNames[weather] : '날씨 기록 전'}
-        </span>
+        {weather && (
+          <span className={styles.weatherLabel} role="img" aria-label={weatherNames[weather]}>
+            <FaithWeatherIcon weather={weather} />
+          </span>
+        )}
       </div>
       <div className={styles.caption}>
         <div className={styles.identity}>
@@ -116,22 +118,24 @@ export function FaithAvatar({
         <div className={styles.pickerActions}>
           <button
             type="button"
+            aria-label={open ? '캐릭터 닫기' : '캐릭터 선택'}
             aria-expanded={open}
             aria-controls={open ? panelId : undefined}
             onClick={() => togglePicker('avatar')}
             disabled={!ready}
             className={styles.customizeButton}
           >
-            {open ? '캐릭터 닫기' : '캐릭터 선택'}
+            <Emoji3D name="person" size={24} decorative />
           </button>
           <button
             type="button"
+            aria-label={sceneOpen ? '배경 닫기' : '배경 선택'}
             aria-expanded={sceneOpen}
             aria-controls={sceneOpen ? scenePanelId : undefined}
             onClick={() => togglePicker('scene')}
             className={styles.customizeButton}
           >
-            {sceneOpen ? '배경 닫기' : '배경 선택'}
+            <span aria-hidden="true">🖼️</span>
           </button>
         </div>
       </div>

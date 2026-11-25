@@ -18,6 +18,8 @@ type ShortsPageResponse = {
   error?: string
 }
 
+const MAX_CONSECUTIVE_EMPTY_PAGES = 3
+
 function formatDuration(totalSeconds: number) {
   const minutes = Math.floor(totalSeconds / 60)
   const seconds = totalSeconds % 60
@@ -52,12 +54,16 @@ export default function ChristianShortsFeed({
   const loadingRef = useRef(false)
   const wheelLockedRef = useRef(false)
   const cardRefs = useRef(new Map<string, HTMLElement>())
+  const knownIds = useRef(new Set(videos.map(({ id }) => id)))
+  const loadedTokens = useRef(new Set<string>())
   const [items, setItems] = useState(videos)
   const [nextPageToken, setNextPageToken] = useState(initialNextPageToken)
   const [activeId, setActiveId] = useState<string | null>(videos[0]?.id ?? null)
   const [pageVisible, setPageVisible] = useState(true)
   const [isLoadingMore, setIsLoadingMore] = useState(false)
   const [loadError, setLoadError] = useState('')
+  const [emptyPageCount, setEmptyPageCount] = useState(0)
+  const needsManualContinue = emptyPageCount >= MAX_CONSECUTIVE_EMPTY_PAGES
 
   useEffect(() => {
     const root = feedRef.current
@@ -151,16 +157,20 @@ export default function ChristianShortsFeed({
         throw new Error(payload.error ?? '다음 영상을 불러오지 못했습니다.')
       }
 
-      setItems((current) => {
-        const knownIds = new Set(current.map((video) => video.id))
-        const additions = (payload.videos ?? []).filter((video) => {
-          if (knownIds.has(video.id)) return false
-          knownIds.add(video.id)
-          return true
-        })
-        return [...current, ...additions]
+      const additions = (payload.videos ?? []).filter((video) => {
+        if (knownIds.current.has(video.id)) return false
+        knownIds.current.add(video.id)
+        return true
       })
-      setNextPageToken(payload.nextPageToken ?? undefined)
+      if (additions.length) {
+        setItems((current) => [...current, ...additions])
+        setEmptyPageCount(0)
+      } else {
+        setEmptyPageCount((count) => count + 1)
+      }
+      loadedTokens.current.add(nextPageToken)
+      const followingToken = payload.nextPageToken
+      setNextPageToken(followingToken && !loadedTokens.current.has(followingToken) ? followingToken : undefined)
     } catch (error) {
       setLoadError(
         error instanceof Error
@@ -176,7 +186,7 @@ export default function ChristianShortsFeed({
   useEffect(() => {
     const root = feedRef.current
     const sentinel = loadMoreRef.current
-    if (!root || !sentinel || !nextPageToken || isLoadingMore || loadError) return
+    if (!root || !sentinel || !nextPageToken || isLoadingMore || loadError || needsManualContinue) return
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -193,7 +203,7 @@ export default function ChristianShortsFeed({
 
     observer.observe(sentinel)
     return () => observer.disconnect()
-  }, [isLoadingMore, loadError, loadMore, nextPageToken])
+  }, [isLoadingMore, loadError, loadMore, needsManualContinue, nextPageToken])
 
   if (items.length === 0 && !nextPageToken) {
     return (
@@ -237,7 +247,7 @@ export default function ChristianShortsFeed({
               {isPlaying ? (
                 <iframe
                   key={video.id}
-                  src={`https://www.youtube-nocookie.com/embed/${video.id}?autoplay=1&mute=1&playsinline=1&rel=0&controls=1`}
+                  src={`https://www.youtube-nocookie.com/embed/${video.id}?autoplay=1&mute=1&playsinline=1&rel=0&controls=1&loop=1&playlist=${video.id}`}
                   title={`${video.title} YouTube 재생`}
                   className={styles.player}
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
@@ -286,13 +296,24 @@ export default function ChristianShortsFeed({
         <div ref={loadMoreRef} className={styles.loadMoreSentinel} aria-hidden />
       </div>
 
-      {(isLoadingMore || loadError || (!nextPageToken && items.length > 0)) && (
+      {(isLoadingMore || loadError || needsManualContinue || items.length === 0 || !nextPageToken) && (
         <div className={styles.feedStatus} aria-live="polite">
           {isLoadingMore && <span>다음 영상을 불러오는 중…</span>}
           {!isLoadingMore && loadError && (
             <button type="button" onClick={() => void loadMore()}>
               다시 불러오기
             </button>
+          )}
+          {!isLoadingMore && !loadError && needsManualContinue && nextPageToken && (
+            <button type="button" onClick={() => {
+              setEmptyPageCount(0)
+              void loadMore()
+            }}>
+              조건에 맞는 영상 더 찾기
+            </button>
+          )}
+          {!isLoadingMore && !loadError && !needsManualContinue && items.length === 0 && nextPageToken && (
+            <span>조건에 맞는 영상을 찾는 중…</span>
           )}
           {!isLoadingMore && !loadError && !nextPageToken && items.length > 0 && (
             <span>새로운 쇼츠를 모두 확인했어요</span>

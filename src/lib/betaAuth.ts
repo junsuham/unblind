@@ -11,6 +11,7 @@ type AllowedUser = {
 type UserProfileGate = {
   completed_at: string
   reference_age: number
+  nickname: string
 }
 
 export async function requireAllowedUser() {
@@ -45,7 +46,7 @@ export async function requireAllowedUser() {
   const [{ data: profile }, { data: allowedUser }] = await Promise.all([
     supabase
       .from('user_profiles')
-      .select('completed_at, reference_age')
+      .select('completed_at, reference_age, nickname')
       .eq('user_id', user.id)
       .maybeSingle<UserProfileGate>(),
     supabase

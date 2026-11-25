@@ -1,8 +1,19 @@
 import Link from 'next/link'
-import { SystemIcon, type SystemIconName } from '@/app/components/ui/SystemIcon'
+import Image from 'next/image'
+import type { SystemIconName } from '@/app/components/ui/SystemIcon'
 import styles from './HomeAppDrawer.module.css'
 
 export type HomeAppTone = 'sage' | 'rose' | 'apricot' | 'blue' | 'violet' | 'coral' | 'amber'
+
+const iconArt: Record<HomeAppTone, string> = {
+  sage: 'journey',
+  rose: 'manitto',
+  apricot: 'gratitude',
+  blue: 'recreation',
+  violet: 'mbti',
+  coral: 'shorts',
+  amber: 'praise',
+}
 
 type HomeAppTileContentProps = {
   icon: SystemIconName
@@ -16,11 +27,11 @@ type HomeAppTileContentProps = {
 
 export const homeAppTileClassName = styles.tile
 
-export function HomeAppTileContent({ icon, label, tone, filled, badge, status, error }: HomeAppTileContentProps) {
+export function HomeAppTileContent({ label, tone, badge, status, error }: HomeAppTileContentProps) {
   return (
     <>
       <span className={styles.icon} data-tone={tone} aria-hidden="true">
-        <SystemIcon name={icon} size={25} filled={filled} />
+        <Image src={`/icons/app-drawer-v1/${iconArt[tone]}.webp`} alt="" width={192} height={192} className={styles.iconImage} unoptimized />
         {badge && <span className={styles.badge} data-state={badge} />}
       </span>
       <span className={styles.label}>{label}</span>

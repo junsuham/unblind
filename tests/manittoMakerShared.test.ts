@@ -1,9 +1,11 @@
 import { describe, expect, it } from 'vitest'
 import {
+  getManittoMakerMission,
   isManittoMakerCapacity,
   isManittoMakerCode,
   isManittoMakerName,
   isManittoMakerTitle,
+  isManittoMakerToken,
   normalizeManittoMakerName,
 } from '../src/lib/manittoMakerShared'
 
@@ -28,8 +30,23 @@ describe('Manitto Maker room input', () => {
     expect(isManittoMakerTitle('청년부\u202E')).toBe(false)
     expect(isManittoMakerCapacity(3)).toBe(true)
     expect(isManittoMakerCapacity(50)).toBe(true)
-    expect(isManittoMakerCapacity(2)).toBe(false)
+    expect(isManittoMakerCapacity(2)).toBe(true)
+    expect(isManittoMakerCapacity(1)).toBe(false)
     expect(isManittoMakerCapacity(51)).toBe(false)
     expect(isManittoMakerCapacity(3.5)).toBe(false)
+  })
+
+  it('requires a full base64url secret for invitations or private results', () => {
+    expect(isManittoMakerToken('a_-'.repeat(14) + '9')).toBe(true)
+    expect(isManittoMakerToken('a'.repeat(42))).toBe(false)
+    expect(isManittoMakerToken('a'.repeat(42) + '/')).toBe(false)
+    expect(isManittoMakerToken(null)).toBe(false)
+  })
+
+  it('gives a stable faith-themed mission without passing a personal name', () => {
+    const code = 'Ab3_fG4-xyz0'
+    const mission = getManittoMakerMission(code)
+    expect(getManittoMakerMission(code)).toEqual(mission)
+    expect(mission.description.length).toBeGreaterThan(20)
   })
 })

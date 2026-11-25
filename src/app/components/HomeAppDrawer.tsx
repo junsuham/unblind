@@ -1,15 +1,11 @@
 import { HomeAppLink } from './HomeAppTile'
-import { HomeManittoFinder } from './HomeManittoFinder'
 import { HomePraisePlayer } from './HomePraisePlayer'
-import type { HomeManittoState } from '@/lib/homeManitto'
 import type { PraisePlayerTrack } from './praisePlayerEvents'
 import styles from './HomeAppDrawer.module.css'
 
 export function HomeAppDrawer({
-  manitto,
   tracks,
 }: {
-  manitto: HomeManittoState
   tracks: PraisePlayerTrack[]
 }) {
   return (
@@ -20,7 +16,7 @@ export function HomeAppDrawer({
           <HomeAppLink id="home-app-journey-help" href="/journey" label="나의 신앙 여정" icon="leaf" tone="sage" description="체크인, 감사, 기도 리듬을 한눈에 보기" />
         </li>
         <li>
-          <HomeManittoFinder initialState={manitto} />
+          <HomeAppLink id="home-app-manitto-help" href="/manitto/maker" label="마니또 만들기" icon="gift" tone="rose" description="모임 참가자를 등록하고 각자의 마니또를 비공개로 추첨" />
         </li>
         <li>
           <HomeAppLink id="home-app-gratitude-help" href="/gratitude" label="감사일기 챌린지" icon="calendar" tone="apricot" description="하루 한 줄, 감사 달력, 익명 전달" />
