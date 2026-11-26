@@ -124,7 +124,7 @@ export function FaithAvatar({
             disabled={!ready}
             className={`${styles.customizeButton} ${styles.characterButton}`}
           >
-            <span aria-hidden="true">😀</span>
+            <span aria-hidden="true">🕹️</span>
           </button>
           <button
             type="button"

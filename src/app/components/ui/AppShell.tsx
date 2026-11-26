@@ -14,19 +14,16 @@ type AppShellProps = {
   topTitle?: string
   topBackHref?: string
   topTrailing?: ReactNode
-  homeChrome?: boolean
 }
 
 function TopLogoBar({
   title,
   backHref,
   trailing,
-  homeChrome,
 }: {
   title?: string
   backHref?: string
   trailing?: ReactNode
-  homeChrome?: boolean
 }) {
   const [searchOpen, setSearchOpen] = useState(false)
   const searchInputRef = useRef<HTMLInputElement>(null)
@@ -57,28 +54,27 @@ function TopLogoBar({
             <Link
               href="/"
               aria-label="언블라인드 홈으로 이동"
-              className={`flex h-11 shrink-0 items-center justify-start active:scale-[0.96] ${homeChrome ? 'w-11' : title ? 'w-9' : 'w-[108px]'}`}
+              className={`flex h-11 shrink-0 items-center justify-start active:scale-[0.96] ${title ? 'w-9' : 'w-[108px]'}`}
             >
-              {homeChrome ? (
-                <span className="ub-home-brand-mark" aria-hidden="true" />
-              ) : title ? (
-              <Image
-                src="/brand/unblind-monogram-relief-v5.png"
-                alt="UNBLIND"
-                width={36}
-                height={36}
-                preload
-                className="ub-brand-logo block h-9 w-9 object-contain"
-              />
+              {title ? (
+                <Image
+                  src="/brand/unblind-monogram-orange-v8.webp"
+                  alt="UNBLIND"
+                  width={36}
+                  height={36}
+                  preload
+                  unoptimized
+                  className="block h-9 w-9 object-contain"
+                />
               ) : (
-              <Image
-                src="/brand/unblind-wordmark-relief-v5.png"
-                alt="UNBLIND"
-                width={104}
-                height={23}
-                preload
-                className="ub-brand-logo block h-[23px] w-[104px] object-contain"
-              />
+                <Image
+                  src="/brand/unblind-wordmark-relief-v5.png"
+                  alt="UNBLIND"
+                  width={104}
+                  height={23}
+                  preload
+                  className="ub-brand-logo block h-[23px] w-[104px] object-contain"
+                />
               )}
             </Link>
           )}
@@ -158,10 +154,9 @@ export function AppShell({
   topTitle,
   topBackHref,
   topTrailing,
-  homeChrome = false,
 }: AppShellProps) {
   return (
-    <div className={`ub-app-frame${homeChrome ? ' ub-app-frame--home' : ''}`}>
+    <div className="ub-app-frame">
       <main
         className={`ub-app-scroll ub-app-surface overflow-x-hidden px-4 pt-[calc(18px+env(safe-area-inset-top))] text-[var(--ub-text-on-brand-primary)] ${
           contentMode === 'contained' ? 'ub-app-scroll--contained' : ''
@@ -172,7 +167,6 @@ export function AppShell({
             title={topTitle}
             backHref={topBackHref}
             trailing={topTrailing}
-            homeChrome={homeChrome}
           />
         )}
 

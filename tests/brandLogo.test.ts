@@ -125,7 +125,7 @@ describe('relief brand logo set', () => {
   })
 
   it('uses each composition in the context where it remains legible', () => {
-    expect(shellSource).toContain('/brand/unblind-monogram-relief-v5.png')
+    expect(shellSource).toContain('/brand/unblind-monogram-orange-v8.webp')
     expect(shellSource).not.toContain('/brand/unblind-monogram-flat-v7.png')
     expect(shellSource).toContain('/brand/unblind-wordmark-relief-v5.png')
     expect(webLoginSource).toContain('/brand/unblind-wordmark-relief-v5.png')
@@ -150,12 +150,14 @@ describe('relief brand logo set', () => {
     expect(mobileThemeSource.match(/#E45330/g)?.length).toBeGreaterThanOrEqual(6)
   })
 
-  it('opts only the home page into the light and dark square brand mark', async () => {
-    expect(webHomeSource).toContain('<AppShell homeChrome')
-    expect(shellSource).toContain('homeChrome = false')
-    expect(shellSource).toContain('className="ub-home-brand-mark"')
-    expect(webGlobalStyles).toMatch(/\.ub-home-brand-mark\s*\{[^}]*width: 42px;[^}]*height: 42px;/)
-    expect(webGlobalStyles).toMatch(/@media \(prefers-color-scheme: dark\) \{\s*\.ub-home-brand-mark \{[^}]*background: #39251f;/)
+  it('restores the home wordmark and picks the monogram for the header surface', async () => {
+    expect(webHomeSource).toContain('<AppShell bottomBar={<BottomTabBar active="home" />}>')
+    expect(shellSource).toMatch(/\{title \? \(\s*<Image\s+src="\/brand\/unblind-monogram-orange-v8.webp"[\s\S]*?\) : \(\s*<Image\s+src="\/brand\/unblind-wordmark-relief-v5.png"/)
+    expect(adminLayoutSource).toContain('className="ub-admin-brand-mark"')
+    expect(webGlobalStyles).toMatch(/@media \(prefers-color-scheme: dark\) \{\s*\.ub-admin-brand-mark \{[^}]*background: #ffd5b9;[^}]*mask: url\('\/brand\/unblind-monogram-flat-v7.png'\)/)
+    expect(webGlobalStyles).not.toContain('.ub-home-brand-mark')
+    const uploaded = sharp(fileURLToPath(new URL('../public/brand/unblind-monogram-orange-v8.webp', import.meta.url)))
+    await expect(uploaded.metadata()).resolves.toMatchObject({ format: 'webp', width: 96, height: 96, hasAlpha: true })
     await expect(pngAlphaRange('../public/brand/unblind-monogram-flat-v7.png')).resolves.toEqual({ min: 0, max: 255 })
   })
 

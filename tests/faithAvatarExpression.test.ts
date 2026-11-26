@@ -37,7 +37,7 @@ describe('private home avatar expression', () => {
     expect(checkin).not.toContain('>📝<')
     expect(checkin).toMatch(/grid-cols-5 gap-1">\s*<div className="col-span-4 grid/)
     expect(home).toContain("aria-label={open ? '캐릭터 닫기' : '캐릭터 선택'}")
-    expect(home).toContain('>😀<')
+    expect(home).toContain('>🕹️<')
     expect(home).toContain("aria-label={sceneOpen ? '배경 닫기' : '배경 선택'}")
     expect(home).toContain('aria-label={weatherNames[weather]}')
     expect(home).not.toMatch(/>\s*\{weatherNames\[weather\]\}\s*</)

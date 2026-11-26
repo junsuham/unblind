@@ -9,10 +9,6 @@
     {
       "path": "/api/cron/keepalive",
       "schedule": "15 0 * * *"
-    },
-    {
-      "path": "/api/cron/church-dashboard",
-      "schedule": "20 0 * * *"
     }
   ]
 }

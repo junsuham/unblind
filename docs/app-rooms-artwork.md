@@ -8,8 +8,7 @@
 - `public/icons/app-drawer-v3/` (이전 시안, 192px WebP): 홈의 ‘언블라인드 앱’ 박스에 썼던 단색 배경 및 흰색 기호 7종입니다.
 - 홈 앱 서랍은 첨부된 `Apple App Icon Template OS27.sketch`의 정사각형과 중앙 가이드를 참고합니다. `public/icons/app-drawer-mask-v1.svg`는 웹용 연속 곡면 마스크입니다. 박스 표면은 `Apple iOS 27 UI Kit.sketch`의 라이트·다크 `Liquid Glass/App Library` 스타일을 웹으로 구현했습니다.
 - 7개 바로가기 아이콘은 [Apple App Icons HIG](https://developer.apple.com/design/human-interface-guidelines/app-icons.md)의 단순성 원칙을 참고해 가운데에 단색 픽토그램을 배치했습니다. 라이트·다크 모드에서 모양은 같고 배경과 기호 색상만 달라집니다. Apple 이미지나 브랜드 로고는 배포하지 않습니다.
-- `public/icons/church-dashboard-v1.webp`: 기존 대시보드의 방패 이미지를 줄여 ‘내 정보’ 카드와 대시보드 상단에 다시 사용합니다.
-- 설치·브라우저 아이콘과 공통 헤더는 기존 v6 이미지와 음각 v5 로고를 사용합니다. 홈 전용 헤더에는 기존 v7 모노그램의 투명 실루엣을 라이트·다크 색상으로 표시합니다.
+- 설치·브라우저 아이콘은 기존 v6 이미지, 홈 헤더는 원래의 음각 v5 가로 로고를 사용합니다. 페이지 제목이 있는 주황색 헤더는 첨부받은 `public/brand/unblind-monogram-orange-v8.webp` 원본을 쓰고, 어두운 관리자 헤더는 밝은 v7 모노그램을 표시합니다.
 - `public/prayer/pew-pixel-v1.webp`: 내장 이미지 생성으로 “황갈색 널판과 두 팔걸이, 앞에서 바라본 목재 교회 장의자 한 개, 낮은 해상도의 선명한 사각 픽셀, 투명 배경, 사람·텍스트·배경 없음.”
 - `public/avatars/bible-prayer-v1/`: 기존 성경 인물 20종을 한 명씩 참고해 내장 이미지 생성으로 별도 기도 자세 20종을 제작합니다. 제작 프롬프트: “동일한 얼굴·머리·나이·의상·색감과 오른쪽 3/4 각도의 도트 스타일 유지. 두 무릎을 바닥에 꿇고 두 발을 뒤로 접으며, 눈을 감고 고개를 약간 숙여 가슴 앞에 두 손을 모음. 원래 복식은 유지하고 손에 들고 있던 물건만 제거. 전신 한 명, 투명 배경, 장식·글자·바닥·그림자 없음.” `scripts/export-bible-avatar-pack.mjs --prayer`로 기존 서 있는 이미지와 같은 192×224 캔버스와 바닥 기준선에 맞춥니다.
 

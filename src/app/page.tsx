@@ -100,7 +100,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   )
 
   return (
-    <AppShell homeChrome bottomBar={<BottomTabBar active="home" />}>
+    <AppShell bottomBar={<BottomTabBar active="home" />}>
       <h1 className="sr-only">언블라인드 홈</h1>
       <DailyFaithCheckIn storageScope={user.id} characterName={profile.nickname || generateBiblicalNickname(user.id)} />
       <HomeBibleVerse />

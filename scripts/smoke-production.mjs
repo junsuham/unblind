@@ -79,7 +79,13 @@ await expectResponse('/api/prayer-room/live', async (response) => {
   if (response.status !== 405) throw new Error('Prayer room live must not serve a public GET')
 })
 
-for (const path of ['prayer/golgotha-ascent-v1.webp', 'prayer/pew-pixel-v1.webp', 'icons/church-dashboard-v1.webp']) {
+for (const path of ['/church-dashboard', '/api/church-dashboard/overview', '/api/admin/church-dashboard-access', '/api/cron/church-dashboard', '/settings/church-consent', '/api/profile/church-consent']) {
+  await expectResponse(path, async (response) => {
+    if (response.status !== 404) throw new Error(`Retired dashboard route is still available: ${path}`)
+  })
+}
+
+for (const path of ['prayer/golgotha-ascent-v1.webp', 'prayer/pew-pixel-v1.webp']) {
   await expectResponse(`/${path}`, async (response) => {
     if (!response.ok || response.headers.get('content-type') !== 'image/webp') {
       throw new Error(`App artwork is unavailable: ${path}`)
@@ -176,7 +182,13 @@ await expectResponse('/brand/unblind-wordmark-relief-v5.png', async (response) =
 
 await expectResponse('/brand/unblind-monogram-flat-v7.png', async (response) => {
   if (!response.ok || response.headers.get('content-type') !== 'image/png') {
-    throw new Error('Home square logo mask is unavailable')
+    throw new Error('Dark header logo mask is unavailable')
+  }
+})
+
+await expectResponse('/brand/unblind-monogram-orange-v8.webp', async (response) => {
+  if (!response.ok || response.headers.get('content-type') !== 'image/webp') {
+    throw new Error('Orange header logo is unavailable')
   }
 })
 

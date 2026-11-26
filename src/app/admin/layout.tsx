@@ -23,13 +23,15 @@ export default function AdminLayout({
             aria-label="관리자 센터 홈으로 이동"
             className="flex min-h-11 items-center gap-2 active:opacity-70"
           >
-            <Image
-              src="/brand/unblind-monogram-relief-v5.png"
-              alt="UNBLIND"
-              width={26}
-              height={26}
-              className="ub-brand-logo block h-[26px] w-[26px] object-contain"
-            />
+            <span className="ub-admin-brand-mark" aria-hidden="true">
+              <Image
+                src="/brand/unblind-monogram-relief-v5.png"
+                alt=""
+                width={26}
+                height={26}
+                className="ub-brand-logo block h-[26px] w-[26px] object-contain"
+              />
+            </span>
 
             <span className="text-[17px] font-semibold tracking-[-0.2px] text-[var(--admin-text)]">
               관리자 센터

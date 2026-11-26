@@ -201,7 +201,14 @@
 
 .kneelingSprite { visibility: hidden; }
 [data-praying='true'] > .avatarArt[data-has-pose] .standingSprite { visibility: hidden; }
-[data-praying='true'] > .avatarArt[data-has-pose] .kneelingSprite { visibility: visible; animation: none; }
+[data-praying='true'] > .avatarArt[data-has-pose] .kneelingSprite {
+  visibility: visible;
+  animation: none;
+  /* Bring the 160px silhouette up to the standing pose's 204px, keeping the
+     visible ground line at row 216 of the shared 224px canvas. */
+  transform: scaleX(var(--facing, 1)) scale(1.28);
+  transform-origin: center 96.43%;
+}
 
 .speechBubble {
   position: absolute;
